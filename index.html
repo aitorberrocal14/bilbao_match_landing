@@ -3,82 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Match Bilbao Bizkaia 2026 — 8–10 June 2026 · Basque Country</title>
-  <meta name="description" content="Match Bilbao Bizkaia 2026 is the professional meeting point of the Bilbao Bizkaia destination: three days of B2B meetings, destination knowledge and discovery for the international travel trade.">
-  <meta name="theme-color" content="#be1e2d">
+  <title>Match Bilbao Bizkaia 2026</title>
+  <meta name="description" content="Match Bilbao Bizkaia 2026 — the professional meeting point of the Bilbao Bizkaia destination. Three days of B2B meetings, destination knowledge and discovery for the international travel trade.">
+  <meta name="theme-color" content="#ae0000">
 
-  <!-- Open Graph / social ------------------------------------------------ -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Match Bilbao Bizkaia 2026">
-  <meta property="og:description" content="The official professional meeting point of the Bilbao Bizkaia destination. 8–10 June 2026.">
+  <meta property="og:description" content="The professional meeting point of the Bilbao Bizkaia destination. 8–10 June 2026.">
   <meta property="og:image" content="assets/img/photos/hero.jpg"><!-- [Insert social share image 1200×630] -->
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" href="assets/img/brand/bilbao-bizkaia.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- ===================================================================
-       NAVBAR — rendered by components.js › MBB.Navbar()
-       =================================================================== -->
-  <header class="nav" id="nav" data-state="top" data-menu="closed"></header>
+  <!-- HEADER ============================================================ -->
+  <header class="header" id="header" data-menu="closed" data-mount="header"></header>
 
   <main id="main">
-    <!-- =================================================================
-         SECTION 1 — HERO / HOME
-         ================================================================= -->
-    <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026"></section>
+    <!-- SECTION 1 — HERO / HOME ========================================= -->
+    <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
-    <!-- =================================================================
-         SECTION 2 — MATCH BILBAO BIZKAIA 2026
-         2a · Introduction + Event Programme
-         2b · Presentation of Bilbao
-         2c · Latest editions (video)
-         ================================================================= -->
+    <!-- SECTION 2 — MATCH BILBAO BIZKAIA 2026 ==========================
+         2a · Introduction   2b · Event Programme
+         2c · Presentation of Bilbao   2d · Latest editions            -->
     <section class="section" id="event" aria-label="Match Bilbao Bizkaia 2026">
       <div class="shell" data-mount="event"></div>
     </section>
 
-    <section class="section section--alt" id="presentation" aria-label="Presentation of Bilbao">
+    <section class="section section--soft" id="programme" aria-label="Event Programme">
+      <div class="shell" data-mount="programme"></div>
+    </section>
+
+    <section class="section" id="presentation" aria-label="Presentation of Bilbao">
       <div class="shell" data-mount="presentation"></div>
     </section>
 
-    <section class="section section--ink" id="editions" aria-label="Match Bilbao Bizkaia latest editions">
+    <section class="section section--soft" id="editions" aria-label="Latest editions">
       <div class="shell" data-mount="editions"></div>
     </section>
 
-    <!-- =================================================================
-         SECTION 3 — MEET BB'S EXPERTS (+ exhibitor directory)
-         ================================================================= -->
+    <!-- SECTION 3 — MEET BB'S EXPERTS (+ exhibitor directory) =========== -->
     <section class="section" id="experts" aria-label="Meet BB's Experts">
-      <div class="shell" data-mount="experts"></div>
+      <div class="shell shell--wide" data-mount="experts"></div>
     </section>
 
-    <!-- =================================================================
-         SECTION 4 — DISCOVER (English brochures)
-         ================================================================= -->
-    <section class="section section--alt" id="discover" aria-label="Discover Bilbao Bizkaia">
+    <!-- SECTION 4 — DISCOVER (English brochures) ======================== -->
+    <section class="section section--soft" id="discover" aria-label="Discover Bilbao Bizkaia">
       <div class="shell" data-mount="discover"></div>
     </section>
 
-    <!-- =================================================================
-         SECTION 5 — CONTACT
-         ================================================================= -->
-    <section class="section section--ink" id="contact" aria-label="Contact">
+    <!-- SECTION 5 — CONTACT ============================================= -->
+    <section class="section" id="contact" aria-label="Contact">
       <div class="shell" data-mount="contact"></div>
     </section>
   </main>
 
-  <!-- ===================================================================
-       FOOTER
-       =================================================================== -->
-  <footer class="footer" id="footer"></footer>
+  <!-- FOOTER ============================================================ -->
+  <footer class="footer" id="footer" data-mount="footer"></footer>
 
-  <!-- ===================================================================
-       BROCHURE / DOCUMENT MODAL
-       =================================================================== -->
+  <!-- BROCHURE MODAL ==================================================== -->
   <div class="modal" id="modal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal__box">
       <div class="modal__head">
@@ -92,9 +81,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================
-       DATA LAYER — edit these files to update the site content
-       =================================================================== -->
+  <!-- DATA LAYER — edit these files to update the site content =========== -->
   <script src="assets/js/data/site.js"></script>
   <script src="assets/js/data/content.js"></script>
   <script src="assets/js/data/programme.js"></script>

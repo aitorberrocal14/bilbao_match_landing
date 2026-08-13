@@ -112,12 +112,13 @@ window.MBB.site = {
     statement:
       'Match Bilbao Bizkaia is organised by the tourism authorities of Bilbao ' +
       'and Bizkaia to connect the destination with the international travel trade.',
-    // Institutional logos shipped with the project.
+    // Institutional logos. `plain: true` shows the mark directly on the dark
+    // ground; the others sit in a white box, as on the current site.
     institutions: [
-      { name: 'Bilbao Bizkaia', file: 'assets/img/brand/bilbao-bizkaia.png', href: 'https://www.bilbaoturismo.net/' },
-      { name: 'Visit Biscay', file: 'assets/img/brand/dpto-turismo.png', href: 'https://www.visitbiscay.eus/' },
+      { name: 'Bilbao Bizkaia', file: 'assets/img/brand/bilbao-bizkaia-be-basque.png', href: 'https://www.bilbaoturismo.net/', plain: true },
+      { name: 'In cooperation with Spain', file: 'assets/img/brand/spain.png', href: 'https://www.spain.info/en/' },
       { name: 'Euskadi Basque Country', file: 'assets/img/brand/euskadi-basque-country.png', href: 'http://www.euskaditurismo.eus/' },
-      { name: 'Spain', file: 'assets/img/brand/spain.png', href: 'https://www.spain.info/en/' }
+      { name: 'Gobierno Vasco — Departamento de Turismo', file: 'assets/img/brand/dpto-turismo.png', href: 'https://www.visitbiscay.eus/' }
     ],
     social: [
       {
@@ -145,7 +146,8 @@ window.MBB.site = {
       { label: 'Legal notice', href: '#legal-notice' },         // [Insert legal link]
       { label: 'Accessibility', href: '#legal-accessibility' }  // [Insert legal link]
     ],
-    copyright: 'Bilbao Bizkaia. All rights reserved.'
+    copyright: 'Bilbao Bizkaia. All rights reserved.',
+    mail: 'info@matchbilbaobizkaia.eus'
   },
 
   /* --- Newsletter -------------------------------------------------------- */

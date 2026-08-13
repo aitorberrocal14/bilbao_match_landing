@@ -6,12 +6,12 @@
   'use strict';
 
   var $ = function (sel, ctx) { return (ctx || document).querySelector(sel); };
-  var $$ = function (sel, ctx) {
+  var $all = function (sel, ctx) {
     return Array.prototype.slice.call((ctx || document).querySelectorAll(sel));
   };
 
   /* --------------------------------------------------------------------- */
-  /* 1. Mount sections                                                      */
+  /* 1. Mount                                                               */
   /* --------------------------------------------------------------------- */
   function mount() {
     var into = function (name, html) {
@@ -19,10 +19,10 @@
       if (el) el.innerHTML = html;
     };
 
-    $('#nav').innerHTML = MBB.Navbar(MBB.site);
-    $('#home').innerHTML = MBB.Hero(MBB.site);
-
-    into('event', MBB.EventIntro(MBB.eventIntro, MBB.site) + MBB.Programme(MBB.programme));
+    into('header', MBB.Header(MBB.site));
+    into('hero', MBB.Hero(MBB.site));
+    into('event', MBB.EventIntro(MBB.eventIntro, MBB.site));
+    into('programme', MBB.Programme(MBB.programme));
     into('presentation', MBB.Presentation(MBB.presentation));
     into('editions', MBB.Editions(MBB.editions));
     into(
@@ -32,60 +32,55 @@
     );
     into('discover', MBB.Discover(MBB.discover));
     into('contact', MBB.Contact(MBB.site));
-
-    $('#footer').innerHTML = MBB.Footer(MBB.site);
+    into('footer', MBB.Footer(MBB.site));
 
     document.title =
-      MBB.site.event.name + ' ' + MBB.site.event.edition + ' — ' +
-      MBB.site.event.dates + ' · Basque Country';
+      MBB.site.event.name + ' ' + MBB.site.event.edition + ' — ' + MBB.site.event.dates;
   }
 
   /* --------------------------------------------------------------------- */
-  /* 2. Navbar: state, mobile menu, scroll spy                              */
+  /* 2. Header: mobile menu + scroll spy                                    */
   /* --------------------------------------------------------------------- */
-  function initNav() {
-    var nav = $('#nav');
-    var burger = $('.nav__burger', nav);
-    var links = $$('.nav__link', nav);
+  function initHeader() {
+    var header = $('#header');
+    if (!header) return;
 
-    function setState() {
-      var overHero = window.scrollY < window.innerHeight - 140;
-      nav.dataset.state = overHero && nav.dataset.menu !== 'open' ? 'top' : 'pinned';
-    }
+    var burger = $('.burger', header);
+    var links = $all('.header__link', header);
 
     function closeMenu() {
-      nav.dataset.menu = 'closed';
-      burger.setAttribute('aria-expanded', 'false');
-      burger.setAttribute('aria-label', 'Open menu');
-      document.body.classList.remove('no-scroll');
-      setState();
+      header.dataset.menu = 'closed';
+      if (burger) {
+        burger.setAttribute('aria-expanded', 'false');
+        burger.setAttribute('aria-label', 'Open menu');
+      }
     }
 
-    burger.addEventListener('click', function () {
-      var open = nav.dataset.menu === 'open';
-      if (open) { closeMenu(); return; }
-      nav.dataset.menu = 'open';
-      nav.dataset.state = 'pinned';
-      burger.setAttribute('aria-expanded', 'true');
-      burger.setAttribute('aria-label', 'Close menu');
-    });
+    if (burger) {
+      burger.addEventListener('click', function () {
+        if (header.dataset.menu === 'open') { closeMenu(); return; }
+        header.dataset.menu = 'open';
+        burger.setAttribute('aria-expanded', 'true');
+        burger.setAttribute('aria-label', 'Close menu');
+      });
+    }
 
     links.forEach(function (a) { a.addEventListener('click', closeMenu); });
-
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && nav.dataset.menu === 'open') closeMenu();
+      if (e.key === 'Escape') closeMenu();
     });
-
-    window.addEventListener('scroll', setState, { passive: true });
     window.addEventListener('resize', function () {
-      if (window.innerWidth > 960) closeMenu();
+      if (window.innerWidth > 900) closeMenu();
     });
-    setState();
 
-    /* Scroll spy ------------------------------------------------------- */
     var sections = links
-      .map(function (a) { return document.getElementById(a.hash.slice(1)); })
+      .map(function (a) {
+        var i = a.hash ? document.getElementById(a.hash.slice(1)) : null;
+        return i;
+      })
       .filter(Boolean);
+
+    if (!sections.length || !('IntersectionObserver' in window)) return;
 
     var spy = new IntersectionObserver(
       function (entries) {
@@ -105,7 +100,7 @@
   /* 3. Reveal on scroll                                                    */
   /* --------------------------------------------------------------------- */
   function initReveal() {
-    var els = $$('[data-reveal]');
+    var els = $all('[data-reveal]');
     if (!('IntersectionObserver' in window)) {
       els.forEach(function (el) { el.classList.add('is-in'); });
       return;
@@ -118,7 +113,7 @@
           obs.unobserve(en.target);
         });
       },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.08 }
+      { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
     );
     els.forEach(function (el) { io.observe(el); });
   }
@@ -127,7 +122,7 @@
   /* 4. Programme tabs                                                      */
   /* --------------------------------------------------------------------- */
   function initProgramme() {
-    var tabs = $$('.prog__tab');
+    var tabs = $all('.prog__tab');
     if (!tabs.length) return;
 
     function select(tab) {
@@ -154,75 +149,62 @@
   }
 
   /* --------------------------------------------------------------------- */
-  /* 5. Exhibitor directory: filter + search                                */
+  /* 5. Exhibitor grid — category filter                                    */
   /* --------------------------------------------------------------------- */
   function initDirectory() {
     var grid = $('#ex-grid');
     if (!grid) return;
 
     var empty = $('#ex-empty');
-    var count = $('#ex-count');
-    var input = $('#ex-search');
-    var filters = $$('.filter');
-    var active = 'all';
+    var filters = $all('.filter');
 
     grid.innerHTML = MBB.exhibitors
-      .map(function (x) { return MBB.ExhibitorCard(x, MBB.exhibitorCategories); })
+      .map(function (x) { return MBB.ExhibitorTile(x); })
       .join('');
 
-    var cards = $$('.ex-card', grid);
+    var tiles = $all('.logo-tile', grid);
 
-    function apply() {
-      var q = (input.value || '').trim().toLowerCase();
+    function apply(cat) {
       var shown = 0;
-
-      cards.forEach(function (card) {
-        var okCat = active === 'all' || card.dataset.category === active;
-        var okQ = !q || card.dataset.name.indexOf(q) > -1;
-        var show = okCat && okQ;
-        card.hidden = !show;
+      tiles.forEach(function (t) {
+        var show = cat === 'all' || t.dataset.category === cat;
+        t.hidden = !show;
         if (show) shown++;
       });
-
-      empty.hidden = shown !== 0;
-      count.textContent =
-        shown + (shown === 1 ? ' exhibitor' : ' exhibitors') +
-        ' of ' + cards.length + ' shown';
+      if (empty) empty.hidden = shown !== 0;
     }
 
     filters.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        active = btn.dataset.filter;
         filters.forEach(function (b) {
           b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
         });
-        apply();
+        apply(btn.dataset.filter);
       });
     });
 
-    input.addEventListener('input', apply);
-    apply();
+    apply('all');
   }
 
   /* --------------------------------------------------------------------- */
   /* 6. Video facades (click to load YouTube)                               */
   /* --------------------------------------------------------------------- */
   function initVideos() {
-    $$('[data-yt]').forEach(function (btn) {
+    $all('[data-yt]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var id = btn.dataset.yt;
-        var frame = btn.closest('.video-card__frame');
+        var frame = btn.closest('.video__frame');
         frame.innerHTML =
           '<iframe src="https://www.youtube-nocookie.com/embed/' +
-          encodeURIComponent(id) + '?autoplay=1&rel=0" title="Match Bilbao Bizkaia video" ' +
-          'allow="accelerometer; autoplay; clipboard-write; encrypted-media; ' +
-          'gyroscope; picture-in-picture" allowfullscreen></iframe>';
+          encodeURIComponent(btn.dataset.yt) + '?autoplay=1&rel=0" ' +
+          'title="Match Bilbao Bizkaia video" allow="accelerometer; autoplay; ' +
+          'clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+          'allowfullscreen></iframe>';
       });
     });
   }
 
   /* --------------------------------------------------------------------- */
-  /* 7. Brochure modal (Issuu embed or PDF)                                 */
+  /* 7. Brochure modal                                                      */
   /* --------------------------------------------------------------------- */
   function initBrochures() {
     var modal = $('#modal');
@@ -237,27 +219,22 @@
       title.textContent = b.title;
 
       if (b.issuu) {
-        // Issuu readers are made to be embedded — show the brochure inline.
+        // Issuu readers are designed to be embedded — show the brochure inline.
         body.innerHTML =
           '<iframe src="' + MBB.esc(b.issuu) + '" title="' + MBB.esc(b.title) +
           ' brochure" allowfullscreen></iframe>';
-      } else if (b.pdf) {
-        // The official PDFs are hosted on visitbiscay.eus, which does not allow
-        // framing. Present a clean preview panel instead of a blocked iframe.
-        body.innerHTML = MBB.BrochurePreview(b);
       } else {
-        body.innerHTML =
-          '<div class="ph">[Insert Issuu brochure link or PDF for “' +
-          MBB.esc(b.title) + '”]</div>';
+        // The official PDFs are hosted on visitbiscay.eus, which does not allow
+        // framing, so a preview panel is shown instead of a blocked iframe.
+        body.innerHTML = MBB.BrochurePreview(b);
       }
 
-      foot.innerHTML =
-        (b.pdf
-          ? '<a class="btn btn--outline btn--sm" href="' + MBB.esc(b.pdf) +
-            '" target="_blank" rel="noopener">Open in a new tab</a>' +
-            '<a class="btn btn--primary btn--sm" href="' + MBB.esc(b.pdf) +
-            '" download>Download PDF</a>'
-          : '<span style="font-size:.85rem;color:var(--ink-4)">Document not yet available</span>');
+      foot.innerHTML = b.pdf
+        ? '<a class="btn btn--outline btn--sm" href="' + MBB.esc(b.pdf) +
+          '" target="_blank" rel="noopener">Open in a new tab</a>' +
+          '<a class="btn btn--sm" href="' + MBB.esc(b.pdf) + '" download>Download PDF</a>'
+        : '<span style="font-size:.85rem;color:var(--grey-light)">' +
+          '[Insert PDF or Issuu link for this brochure]</span>';
 
       lastFocus = document.activeElement;
       modal.dataset.open = 'true';
@@ -272,7 +249,7 @@
       if (lastFocus) lastFocus.focus();
     }
 
-    $$('[data-brochure]').forEach(function (btn) {
+    $all('[data-brochure]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var b = MBB.discover.brochures.filter(function (x) {
           return x.id === btn.dataset.brochure;
@@ -292,7 +269,7 @@
   /* 8. Login placeholder + newsletter                                      */
   /* --------------------------------------------------------------------- */
   function initForms() {
-    $$('[data-login]').forEach(function (a) {
+    $all('[data-login]').forEach(function (a) {
       a.addEventListener('click', function (e) {
         if (a.getAttribute('href') !== '#login-placeholder') return;
         e.preventDefault();
@@ -329,8 +306,8 @@
   /* --------------------------------------------------------------------- */
   /* 9. Graceful image fallbacks                                            */
   /* --------------------------------------------------------------------- */
-  /* Any image tagged with data-fallback is replaced by a branded stand-in if
-     the file is not on the server yet — placeholders never break the layout. */
+  /* Images tagged with data-fallback degrade to a labelled placeholder when
+     the file has not been supplied yet, so the layout never breaks. */
   function initImageFallbacks() {
     document.addEventListener(
       'error',
@@ -340,13 +317,14 @@
 
         if (img.dataset.fallback === 'mark') {
           var mark = document.createElement('span');
-          mark.className = 'ex-card__mark';
+          mark.className = 'logo-tile__mark';
           mark.textContent = img.dataset.initials || '';
           img.replaceWith(mark);
-        } else if (img.dataset.fallback === 'cover') {
-          var wrap = document.createElement('div');
-          wrap.innerHTML = MBB.CoverPlaceholder(img.dataset.title || '');
-          img.replaceWith(wrap.firstChild);
+        } else if (img.dataset.fallback === 'ph') {
+          var ph = document.createElement('div');
+          ph.className = 'ph';
+          ph.textContent = img.dataset.label || '[Insert image]';
+          img.replaceWith(ph);
         } else {
           img.remove();
         }
@@ -360,15 +338,14 @@
   /* --------------------------------------------------------------------- */
   function boot() {
     initImageFallbacks();
-    mount();
-    initNav();
+    if ($('[data-mount="header"]')) mount();   // landing page only
+    initHeader();
     initProgramme();
     initDirectory();
     initVideos();
     initBrochures();
     initForms();
     initReveal();
-    document.documentElement.classList.add('is-ready');
   }
 
   if (document.readyState === 'loading') {
