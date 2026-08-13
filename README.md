@@ -13,8 +13,20 @@ open index.html          # works straight from the file system
 python3 -m http.server   # or serve the folder, if you prefer
 ```
 
-No build step and no dependencies to view the site. Two small Node scripts
+No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
+
+There is also a **single-file version** for review or handover:
+
+```
+node tools/build-standalone.js   # → dist/match-bilbao-bizkaia-2026.html
+```
+
+One HTML file with the stylesheet, the scripts, the Bariol fonts, the 39 logos
+and the brochure covers inlined; the exhibitor pages become views of the same
+document, addressed by `#/exhibitor/<id>` so the back button keeps working. It
+is for sharing only — deploy the folder, which serves a real HTML file per
+exhibitor.
 
 ---
 
@@ -222,6 +234,7 @@ assets/
 tools/
   build-exhibitors.js       Generates exhibitors/*.html
   build-brochure-covers.js  Renders the brochure cover images
+  build-standalone.js       Bundles everything into one shareable HTML file
 ```
 
 `index.html` holds no content: each section is an empty shell with a
@@ -253,10 +266,11 @@ the grid and the detail pages can never drift apart.
 ```
 node tools/build-exhibitors.js        # after editing data/exhibitors.js
 node tools/build-brochure-covers.js   # only to regenerate the cover images
+node tools/build-standalone.js        # one-file version for sharing
 ```
 
 `build-brochure-covers.js` needs Playwright (`npm i -D playwright`); the other
-script has no dependencies. Neither is needed to view the site.
+two have no dependencies. None of them is needed to view the site.
 
 ### Adding content later
 

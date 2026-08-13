@@ -352,7 +352,8 @@ window.MBB = window.MBB || {};
 
   /* --- Exhibitor page ----------------------------------------------------- */
   MBB.ExhibitorPage = function (x, categories, related, base) {
-    base = base || '../';
+    // '' is a valid base (single-file build); only fill in when omitted.
+    base = base === undefined || base === null ? '../' : base;
 
     var cat = categories.filter(function (c) { return c.id === x.category; })[0];
 
