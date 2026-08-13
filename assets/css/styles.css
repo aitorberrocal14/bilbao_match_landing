@@ -683,6 +683,8 @@ p:last-child { margin-bottom: 0; }
 .brochure__dl:hover { opacity: 0.7; }
 .brochure__dl svg { width: 13px; height: 13px; }
 
+.brochures__all { text-align: center; margin-top: clamp(2rem, 4vw, 3rem); }
+
 /* 15. CONTACT ============================================================== */
 .channels {
   display: grid;

@@ -218,10 +218,12 @@
     function open(b) {
       title.textContent = b.title;
 
-      if (b.issuu) {
+      var reader = MBB.issuuEmbed(b.issuu);
+
+      if (reader) {
         // Issuu readers are designed to be embedded — show the brochure inline.
         body.innerHTML =
-          '<iframe src="' + MBB.esc(b.issuu) + '" title="' + MBB.esc(b.title) +
+          '<iframe src="' + MBB.esc(reader) + '" title="' + MBB.esc(b.title) +
           ' brochure" allowfullscreen></iframe>';
       } else {
         // The official PDFs are hosted on visitbiscay.eus, which does not allow
@@ -229,10 +231,21 @@
         body.innerHTML = MBB.BrochurePreview(b);
       }
 
-      foot.innerHTML = b.pdf
-        ? '<a class="btn btn--outline btn--sm" href="' + MBB.esc(b.pdf) +
-          '" target="_blank" rel="noopener">Open in a new tab</a>' +
-          '<a class="btn btn--sm" href="' + MBB.esc(b.pdf) + '" download>Download PDF</a>'
+      var actions = [];
+      if (b.issuu) {
+        actions.push('<a class="btn btn--outline btn--sm" href="' + MBB.esc(b.issuu) +
+          '" target="_blank" rel="noopener">Read on Issuu</a>');
+      }
+      if (b.pdf) {
+        if (!b.issuu) {
+          actions.push('<a class="btn btn--outline btn--sm" href="' + MBB.esc(b.pdf) +
+            '" target="_blank" rel="noopener">Open in a new tab</a>');
+        }
+        actions.push('<a class="btn btn--sm" href="' + MBB.esc(b.pdf) +
+          '" download>Download PDF</a>');
+      }
+      foot.innerHTML = actions.length
+        ? actions.join('')
         : '<span style="font-size:.85rem;color:var(--grey-light)">' +
           '[Insert PDF or Issuu link for this brochure]</span>';
 
@@ -315,7 +328,13 @@
         var img = e.target;
         if (!img || img.tagName !== 'IMG' || !img.dataset.fallback) return;
 
-        if (img.dataset.fallback === 'mark') {
+        if (img.dataset.fallback === 'src') {
+          // One retry against an alternative source, then give up quietly.
+          var alt = img.dataset.srcAlt;
+          delete img.dataset.srcAlt;
+          if (alt) { img.src = alt; return; }
+          img.remove();
+        } else if (img.dataset.fallback === 'mark') {
           var mark = document.createElement('span');
           mark.className = 'logo-tile__mark';
           mark.textContent = img.dataset.initials || '';

@@ -311,10 +311,10 @@ IDs. The design does not need to be touched.
 |---|---|---|
 | `[Insert hero image]` | `site.js › hero.media` | A landscape destination photo at `assets/img/photos/hero.jpg` |
 | `[Insert Bilbao city image]`, `[Insert gastronomy image]` | `content.js › presentation.media` | Two destination photos |
-| `[Insert YouTube video 1 / 2]` | `discover.js › editions` | Two YouTube video IDs |
+| `[Insert YouTube video 2]` | `discover.js › editions[1]` | The second video ID (the first is set: `2tI7kgSjPi8`) |
 | Brochure covers | `assets/img/brochures/` | See *Brochures* below |
 | `[Insert English PDF link]` | `discover.js › naturally` | The *Naturally* English PDF — missing on the current site |
-| `[Insert Issuu brochure link]` | `discover.js › brochures` | Optional: enables the inline reader instead of the preview panel |
+| Issuu document links | `discover.js › brochures[].issuu` | One `issuu.com/turismobilbao/docs/…` link per brochure — see *Brochures* |
 | `[Insert login / meeting platform URL]` | `site.js › login.url` | The real platform URL |
 | `[Insert newsletter endpoint]` | `site.js › newsletter.action` | CRM or mailing-platform endpoint |
 | `[Insert legal link]` × 4 | `site.js › footer.legal` | Privacy, cookies, legal notice, accessibility |
@@ -327,6 +327,19 @@ All seven English brochures are included, each with a cover: *City &
 Experience*, *The Sea in its Soul*, *Crossroads of Culture*, *Naturally*,
 *Gastronomy & Wine Tourism*, *Identity in Itself* and *Drive & Enjoy*. Six link
 to the official Visit Biscay PDF; *Naturally* needs its English PDF link.
+
+**Issuu.** The section links to the publisher profile
+(`issuu.com/turismobilbao`) under the gallery. To read a brochure inside the
+page instead of opening the PDF panel, paste that title's own Issuu link into
+its `issuu` field — the ordinary browser link is enough:
+
+```js
+issuu: 'https://issuu.com/turismobilbao/docs/city_experience_en'
+```
+
+`MBB.issuuEmbed()` converts it to the embeddable reader URL at runtime, so
+nobody has to look up the embed format. A profile link (no `/docs/`) is
+ignored, since the reader needs a document.
 
 The cover images in `assets/img/brochures/` were designed for this site, in the
 destination's own colours and typeface. The files in the source export were grey

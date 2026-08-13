@@ -42,6 +42,24 @@ window.MBB = window.MBB || {};
   MBB.icons = ICONS;
   MBB.esc = esc;
 
+  /**
+   * Turns the ordinary Issuu link of a document into its embeddable reader URL,
+   * so the content team can paste the link straight from the browser bar:
+   *   https://issuu.com/turismobilbao/docs/city_experience_en
+   *   → https://e.issuu.com/embed.html?u=turismobilbao&d=city_experience_en
+   * Already-embeddable URLs are returned untouched. Anything else (a profile
+   * link, for instance) returns '' — a document is required, not a publisher.
+   */
+  MBB.issuuEmbed = function (url) {
+    if (!url) return '';
+    if (/(^|\.)issuu\.com\/embed/.test(url) || /e\.issuu\.com/.test(url)) return url;
+
+    var m = /issuu\.com\/([^\/?#]+)\/docs\/([^\/?#]+)/.exec(url);
+    if (!m) return '';
+    return 'https://e.issuu.com/embed.html?u=' +
+      encodeURIComponent(m[1]) + '&d=' + encodeURIComponent(m[2]);
+  };
+
   /* --- Header ------------------------------------------------------------ */
   MBB.Header = function (site, opts) {
     opts = opts || {};
@@ -229,10 +247,12 @@ window.MBB = window.MBB || {};
       .map(function (v, i) {
         var frame;
         if (v.youtubeId) {
-          var thumb = v.thumbnail ||
-            'https://i.ytimg.com/vi/' + encodeURIComponent(v.youtubeId) + '/maxresdefault.jpg';
+          var yt = encodeURIComponent(v.youtubeId);
+          // maxresdefault only exists for HD uploads; hqdefault always does.
+          var thumb = v.thumbnail || 'https://i.ytimg.com/vi/' + yt + '/maxresdefault.jpg';
           frame =
-            '<img src="' + esc(thumb) + '" alt="" loading="lazy" data-fallback="remove">' +
+            '<img src="' + esc(thumb) + '" alt="" loading="lazy" data-fallback="src" ' +
+              'data-src-alt="https://i.ytimg.com/vi/' + esc(yt) + '/hqdefault.jpg">' +
             '<button class="video__play" type="button" data-yt="' + esc(v.youtubeId) + '" ' +
               'aria-label="Play: ' + esc(v.title) + '">' + ICONS.play + '</button>';
         } else {
@@ -414,10 +434,18 @@ window.MBB = window.MBB || {};
             'loading="lazy" data-fallback="ph" data-label="[Insert brochure cover]">'
           : '<div class="ph">[Insert brochure cover]</div>';
 
-        var dl = b.pdf
-          ? '<a class="brochure__dl" href="' + esc(b.pdf) + '" target="_blank" rel="noopener" ' +
-            'download>' + ICONS.download + 'Download PDF</a>'
-          : '<span class="brochure__dl" style="opacity:.5">[Insert PDF link]</span>';
+        var links = [];
+        if (b.issuu) {
+          links.push('<a class="brochure__dl" href="' + esc(b.issuu) + '" ' +
+            'target="_blank" rel="noopener">' + ICONS.link + 'Read on Issuu</a>');
+        }
+        links.push(
+          b.pdf
+            ? '<a class="brochure__dl" href="' + esc(b.pdf) + '" target="_blank" ' +
+              'rel="noopener" download>' + ICONS.download + 'Download PDF</a>'
+            : '<span class="brochure__dl" style="opacity:.5">[Insert PDF link]</span>'
+        );
+        var dl = links.join('');
 
         return (
           '<article class="brochure" data-reveal style="--d:' + (i % 4) * 70 + 'ms">' +
@@ -433,12 +461,19 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    var profile = d.issuuProfile
+      ? '<p class="brochures__all"><a class="link-red" href="' + esc(d.issuuProfile) +
+        '" target="_blank" rel="noopener">See all our publications on Issuu ' +
+        '&gt; &gt;</a></p>'
+      : '';
+
     return (
       '<div class="section-head section-head--center" data-reveal>' +
         '<h2 class="h-1">Discover Bilbao Bizkaia</h2>' +
         '<p>' + esc(d.intro) + '</p>' +
       '</div>' +
-      '<div class="brochures">' + cards + '</div>'
+      '<div class="brochures">' + cards + '</div>' +
+      profile
     );
   };
 

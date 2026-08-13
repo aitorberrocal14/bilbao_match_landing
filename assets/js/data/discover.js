@@ -5,14 +5,19 @@
 
    Each item supports two display modes:
      • `pdf`   — opens / downloads the official PDF (used today)
-     • `issuu` — set an Issuu reader URL and the card opens an embedded preview
-   If both are present, the embedded Issuu preview takes priority in the modal
-   and the PDF stays available as a download link.
+     • `issuu` — paste the normal Issuu link of the document, e.g.
+                 https://issuu.com/turismobilbao/docs/city_experience_en
+                 It is turned into the embed URL automatically, so the brochure
+                 is read inside the page instead of opening a preview panel.
+   If both are present the Issuu reader is shown and the PDF stays available as
+   a download link.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
 
 window.MBB.discover = {
+  // Publisher profile — linked from the Discover section as "all publications".
+  issuuProfile: 'https://issuu.com/turismobilbao',
   intro:
     'Seven official guides to Bilbao Bizkaia, in English. Browse them online ' +
     'or download them to prepare your programmes, itineraries and client ' +
@@ -24,7 +29,7 @@ window.MBB.discover = {
       subtitle: 'The art of living: Bilbao urban experiences.',
       cover: 'assets/img/brochures/city-experience.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/City_Experience_EN.pdf/0c9274b5-cbbe-e80e-a82d-b1458e1fc3a3?t=1522938860060',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'coast',
@@ -32,7 +37,7 @@ window.MBB.discover = {
       subtitle: 'The Bizkaia coast, where the mountains meet the sea.',
       cover: 'assets/img/brochures/coast.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/Sea_Soul_EN.pdf/fcb573e2-56d0-593a-b46e-a148139a6dc4?t=1522938869570',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'culture',
@@ -40,7 +45,7 @@ window.MBB.discover = {
       subtitle: 'In Bilbao, the local takes on universal significance.',
       cover: 'assets/img/brochures/culture.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/Crossroads_of_Culture_EN.pdf/832cb94d-aa88-59ac-ef33-ab1c0b761e34',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'naturally',
@@ -48,7 +53,7 @@ window.MBB.discover = {
       subtitle: 'Breathe in the landscape: green Bizkaia getaways.',
       cover: 'assets/img/brochures/naturally.jpg',
       pdf: '', // [Insert English PDF link — missing on the current website]
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'gastronomy',
@@ -56,7 +61,7 @@ window.MBB.discover = {
       subtitle: 'The cuisine of Bizkaia in the gastronomic universe.',
       cover: 'assets/img/brochures/gastronomy.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/5582686/GASTRONOMY+2017_18+ENG.pdf/c6800e1f-31c7-e0e7-0e65-7d26e05946d9?t=1584454088883',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'identity',
@@ -64,7 +69,7 @@ window.MBB.discover = {
       subtitle: 'The reflection of a culture with its own character.',
       cover: 'assets/img/brochures/identity.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/5582656/IDENTITY+2019+ing.pdf',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     },
     {
       id: 'drive-enjoy',
@@ -72,7 +77,7 @@ window.MBB.discover = {
       subtitle: 'Choose your route: ten self-drive proposals across Bizkaia.',
       cover: 'assets/img/brochures/drive-enjoy.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/6564805/DRIVE%26ENJOY+2020+ENGL_WEB.pdf/c180b49d-e311-6f41-2d0d-3c548e961734?t=1596716163107',
-      issuu: '' // [Insert Issuu brochure link]
+      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
     }
   ]
 };
@@ -87,7 +92,7 @@ window.MBB.discover = {
 
 window.MBB.editions = [
   {
-    youtubeId: '', // [Insert YouTube video 1]
+    youtubeId: '2tI7kgSjPi8',
     title: 'Match Bilbao Bizkaia 2025',
     caption:
       'Highlights of the latest edition: three days of meetings, destination ' +
