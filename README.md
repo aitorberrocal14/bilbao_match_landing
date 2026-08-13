@@ -16,6 +16,15 @@ npx serve .        # or: python3 -m http.server 8000
 No build step, no dependencies. Open `index.html` through a local server (the
 data files are plain scripts, so `file://` also works).
 
+To send the concept to someone who should just double-click a file:
+
+```
+node tools/build-standalone.js     # → dist/match-bilbao-bizkaia-2026.html
+```
+
+That produces one self-contained HTML file with all CSS, JS and images inlined.
+It is a convenience for review only — deploy the repository as-is.
+
 ---
 
 ## 1. Site structure
