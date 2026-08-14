@@ -248,6 +248,8 @@ tools/
   build-wp-css.js           Scopes the stylesheet for the WordPress plugin
   build-wp-seed.js          Packages the content + images for the plugin
   build-elementor-template.js  Builds the importable Elementor page template
+  covers-from-pdf.js        Renders brochure covers from the real PDFs
+  issuu-links.js            Browser-console helper: collects the Issuu links
 wordpress/
   match-bilbao-bizkaia/     WordPress plugin — see wordpress/README.md
 ```
@@ -344,6 +346,24 @@ All seven English brochures are included, each with a cover: *City &
 Experience*, *The Sea in its Soul*, *Crossroads of Culture*, *Naturally*,
 *Gastronomy & Wine Tourism*, *Identity in Itself* and *Drive & Enjoy*. Six link
 to the official Visit Biscay PDF; *Naturally* needs its English PDF link.
+
+**Collecting the Issuu links.** The profile page loads its publications as you
+scroll, and each card links to `issuu.com/turismobilbao/docs/<slug>`. Rather
+than copying them one by one, open the profile, scroll to the bottom, and paste
+`tools/issuu-links.js` into the browser console (F12): it prints every link with
+its title and copies the list to the clipboard.
+
+**Real covers from the PDFs.** Put the PDFs in a folder, name each file after
+the brochure id (`city-experience.pdf`, `coast.pdf`, …) and run:
+
+```
+node tools/covers-from-pdf.js <folder>     # → assets/img/brochures/<id>.jpg
+node tools/build-wp-seed.js                # copies them into the plugin
+node tools/build-standalone.js             # refreshes the single-file version
+```
+
+It renders the first page at 800×1024 and replaces the stand-in cover. Needs
+poppler-utils.
 
 **Issuu.** The section links to the publisher profile
 (`issuu.com/turismobilbao`) under the gallery. To read a brochure inside the
