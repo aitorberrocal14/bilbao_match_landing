@@ -49,8 +49,8 @@ One landing page, plus one page per exhibitor.
 | Header + **Login** | — | Home · Match Bilbao Bizkaia 2026 · Meet BB's Experts · Discover · Contact |
 | **1. Hero / Home** | `#home` | Event title, subtitle, value proposition, CTAs, key figures |
 | **2. Match Bilbao Bizkaia 2026** | `#event` | Replaces *Match in Places* as the main event section |
-| · Event Programme | `#programme` | Three-day agenda, one tab per day |
-| · Presentation of Bilbao | `#presentation` | Destination copy + the four pillars |
+| · Event Programme | `#programme` | Four-day agenda in a raised card, one tab per day |
+| · Presentation of Bilbao | `#presentation` | Destination copy + photography |
 | · Latest Editions | `#editions` | Two YouTube slots with captions |
 | **3. Meet BB's Experts** | `#experts` | Renames *Virtual Match*; holds the second Login button |
 | · Exhibitors | `#exhibitors` | Logo grid + category filter |
@@ -327,7 +327,7 @@ IDs. The design does not need to be touched.
 | Placeholder | Where | What is needed |
 |---|---|---|
 | `[Insert hero image]` | `site.js › hero.media` | A landscape destination photo at `assets/img/photos/hero.jpg` |
-| `[Insert Bilbao city image]`, `[Insert gastronomy image]` | `content.js › presentation.media` | Two destination photos |
+| `[Insert Gaztelugatxe photo]` + two more | `content.js › presentation.media` | Three destination photos, from `W:\08 Bilbao Turismo\Promocion Desarrollo Productos\Promo Exterior y Mkt\3 SOPORTES PROMOCION\BANCO IMAGENES` |
 | `[Insert YouTube video 2]` | `discover.js › editions[1]` | The second video ID (the first is set: `2tI7kgSjPi8`) |
 | Brochure covers | `assets/img/brochures/` | See *Brochures* below |
 | `[Insert English PDF link]` | `discover.js › naturally` | The *Naturally* English PDF — missing on the current site |
@@ -373,7 +373,14 @@ photograph.
 
 ### Content decisions worth confirming
 
-- **Dates.** 8–10 June 2026 is a working assumption based on the June pattern of
-  previous editions. Set the real dates in `site.js › event` and `programme.js`.
+- **Dates.** 6–10 October 2026. Participants arrive on Tuesday 6 and leave on
+  Saturday 10; there is no programme on the last day, so the agenda covers four
+  days, Tuesday 6 to Friday 9.
+- **Exhibitors.** The hero says 49, and 39 are in the grid. The remaining ten
+  are pending: send their name, category, logo, contact person, email, phone,
+  website, address and profile text and they go into the grid, their own pages
+  and the WordPress importer.
+- **Brochures.** More English titles are on the way, and the covers shipped
+  here are stand-ins. See *Brochures* above.
 - **Categories.** The three categories of the current site are kept as they
   are: Accommodation, DMC and Unique Activities.

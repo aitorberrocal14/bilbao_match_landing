@@ -210,9 +210,14 @@ class MBB_Shortcodes {
 			$first = false;
 		}
 
-		$html = '<div class="section-head section-head--center">'
-			. '<h2 class="h-1">' . esc_html__( 'Event Programme', 'mbb' ) . '</h2>'
-			. '<p>' . esc_html( MBB_Settings::get( 'prog_intro' ) ) . '</p></div>'
+		// The programme is the heart of the page, so it gets a raised card of
+		// its own rather than reading as one more quiet block.
+		$intro = MBB_Settings::get( 'prog_intro' );
+
+		$html = '<h2 class="h-prog">' . esc_html__( 'Event Programme', 'mbb' ) . '</h2>'
+			. ( $intro
+				? '<div class="section-head section-head--center"><p>' . esc_html( $intro ) . '</p></div>'
+				: '' )
 			. '<div class="prog__tabs" role="tablist" aria-label="' . esc_attr__( 'Programme days', 'mbb' ) . '">'
 			. $tabs . '</div>' . $panels;
 
@@ -221,7 +226,10 @@ class MBB_Shortcodes {
 			$html .= '<p class="prog__note">' . esc_html( $note ) . '</p>';
 		}
 
-		return self::wrap( $html, 'programme', 'section section--soft' );
+		MBB_Plugin::need_assets();
+		return '<div class="mbb"><section class="section section--soft" id="programme">'
+			. '<div class="shell"><div class="prog-card">' . $html . '</div></div>'
+			. '</section></div>';
 	}
 
 	/* --- Presentation of Bilbao ---------------------------------------------- */

@@ -12,13 +12,13 @@ window.MBB.site = {
   event: {
     name: 'Match Bilbao Bizkaia',
     edition: '2026',
-    dates: '8 – 10 June 2026',
+    dates: '6 – 10 October 2026',
     location: 'Bilbao · Bizkaia · Basque Country',
     // Used for the "Add to calendar" link (ICS-free Google Calendar template).
     calendarUrl:
       'https://calendar.google.com/calendar/render?action=TEMPLATE' +
       '&text=Match+Bilbao+Bizkaia+2026' +
-      '&dates=20260608T070000Z/20260610T160000Z' +
+      '&dates=20261006T070000Z/20261010T160000Z' +
       '&details=International+tourism+networking+event+in+Bilbao+Bizkaia.' +
       '&location=Bilbao%2C+Bizkaia%2C+Basque+Country'
   },
@@ -41,13 +41,13 @@ window.MBB.site = {
 
   /* --- Hero -------------------------------------------------------------- */
   hero: {
-    kicker: '8 – 10 June 2026 · Bilbao, Basque Country',
+    kicker: '6 – 10 October 2026 · Bilbao, Basque Country',
     title: 'Match Bilbao Bizkaia',
     titleYear: '2026',
     subtitle:
       'The official professional meeting point of the Bilbao Bizkaia destination.',
     lead:
-      'Three days of curated B2B meetings, destination knowledge and shared ' +
+      'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
     ctas: [
@@ -56,9 +56,8 @@ window.MBB.site = {
     ],
     // Quick facts shown under the hero.
     facts: [
-      { value: '39+', label: 'Local exhibitors' },
-      { value: '3', label: 'Days of programme' },
-      { value: '4', label: 'Destination pillars' },
+      { value: '49', label: 'Local exhibitors' },
+      { value: '4', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],
     // [Insert hero image or video] — drop a file at the path below and it will

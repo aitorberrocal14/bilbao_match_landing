@@ -1,45 +1,45 @@
 /* =============================================================================
    EVENT PROGRAMME
    -----------------------------------------------------------------------------
+   6 – 10 October 2026. Participants arrive on Tuesday 6 and leave on Saturday
+   10; there is no programme on the last day, so the agenda covers four days:
+   Tuesday 6 to Friday 9.
+
    [Insert programme details] — times and titles below are a working proposal so
    the layout can be reviewed. Add, remove or reorder days and slots freely: the
-   timeline component renders whatever it finds here.
+   timeline renders whatever it finds here.
 
    Slot fields:
      time    — displayed on the timeline rail
      title   — slot heading
      text    — one short supporting sentence (optional)
      venue   — location line (optional)
-     tag     — 'plenary' | 'meetings' | 'destination' | 'social' (styles the dot)
      feature — true to give the slot a highlighted card
    ========================================================================== */
 
 window.MBB = window.MBB || {};
 
 window.MBB.programme = {
-  intro:
-    'Three days built around one idea: fewer, better conversations. Mornings ' +
-    'are dedicated to structured B2B meetings, afternoons to experiencing the ' +
-    'destination first hand.',
   note:
-    'All times are shown in CET (Central European Time). The final programme ' +
-    'will be confirmed to registered participants by email.',
+    'Participants arrive on Tuesday 6 October and depart on Saturday 10. All ' +
+    'times are shown in CET (Central European Time). The final programme will ' +
+    'be confirmed to registered participants by email.',
   days: [
     {
       id: 'day-1',
       label: 'Day 1',
-      date: 'Monday 8 June',
-      theme: 'Welcome & the city',
+      date: 'Tuesday 6 October',
+      theme: 'Arrival & welcome',
       slots: [
         {
-          time: '09:00',
-          title: 'Accreditation and welcome coffee',
+          time: '15:00',
+          title: 'Arrivals and accreditation',
           text: 'Collect your badge and meeting schedule at the main desk.',
           venue: '[Insert venue]',
           tag: 'social'
         },
         {
-          time: '10:00',
+          time: '18:00',
           title: 'Official opening — Bilbao Bizkaia 2026',
           text:
             'Institutional welcome and presentation of the destination strategy ' +
@@ -49,15 +49,30 @@ window.MBB.programme = {
           feature: true
         },
         {
-          time: '11:00',
-          title: 'Destination briefing: city, coast, culture, nature',
+          time: '20:30',
+          title: 'Welcome dinner',
+          text: 'Hosted by the Bilbao Bizkaia tourism authorities.',
+          venue: '[Insert venue]',
+          tag: 'social'
+        }
+      ]
+    },
+    {
+      id: 'day-2',
+      label: 'Day 2',
+      date: 'Wednesday 7 October',
+      theme: 'Business & the city',
+      slots: [
+        {
+          time: '09:00',
+          title: 'Destination briefing',
           text:
-            'A concise overview of the four pillars that shape the Bilbao ' +
-            'Bizkaia tourism offer.',
+            'A concise overview of the Bilbao Bizkaia tourism offer, market by ' +
+            'market.',
           tag: 'destination'
         },
         {
-          time: '12:00',
+          time: '10:00',
           title: 'B2B meetings — session I',
           text:
             'Pre-scheduled 15-minute appointments between international buyers ' +
@@ -78,20 +93,13 @@ window.MBB.programme = {
             'Walking route through the Old Town, the riverside and the ' +
             'Guggenheim Museum area.',
           tag: 'destination'
-        },
-        {
-          time: '20:00',
-          title: 'Welcome dinner',
-          text: 'Hosted by the Bilbao Bizkaia tourism authorities.',
-          venue: '[Insert venue]',
-          tag: 'social'
         }
       ]
     },
     {
-      id: 'day-2',
-      label: 'Day 2',
-      date: 'Tuesday 9 June',
+      id: 'day-3',
+      label: 'Day 3',
+      date: 'Thursday 8 October',
       theme: 'Business & the coast',
       slots: [
         {
@@ -118,7 +126,7 @@ window.MBB.programme = {
         },
         {
           time: '15:00',
-          title: 'Coast experience — Urdaibai and the fishing villages',
+          title: 'Coast experience — Urdaibai and Gaztelugatxe',
           text:
             'Guided visit to the Biosphere Reserve, Bermeo and the Bizkaia ' +
             'coastline.',
@@ -134,9 +142,9 @@ window.MBB.programme = {
       ]
     },
     {
-      id: 'day-3',
-      label: 'Day 3',
-      date: 'Wednesday 10 June',
+      id: 'day-4',
+      label: 'Day 4',
+      date: 'Friday 9 October',
       theme: 'Nature & next steps',
       slots: [
         {

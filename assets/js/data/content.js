@@ -14,7 +14,7 @@ window.MBB.eventIntro = {
   title: 'Match Bilbao Bizkaia 2026',
   lead:
     'Match Bilbao Bizkaia is the professional meeting point where the ' +
-    'destination presents itself to the international travel trade. Over three ' +
+    'destination presents itself to the international travel trade. Over four ' +
     'days, buyers, tour operators and media meet the companies that design, ' +
     'host and deliver the Bilbao Bizkaia experience — in person, on the ground ' +
     'and with time to talk properly.',
@@ -68,42 +68,14 @@ window.MBB.presentation = {
     'Bilbao Bizkaia exists to open that network to you directly, and to make ' +
     'the destination easy to programme, easy to sell and easy to recommend.'
   ],
-  pillars: [
-    {
-      id: 'city',
-      title: 'City',
-      text:
-        'Contemporary architecture, museums, shopping and a compact, walkable ' +
-        'centre.'
-    },
-    {
-      id: 'coast',
-      title: 'Coast',
-      text:
-        'Fishing villages, cliffs, surf beaches and the Urdaibai Biosphere ' +
-        'Reserve.'
-    },
-    {
-      id: 'culture',
-      title: 'Culture & gastronomy',
-      text:
-        'A distinctive language and identity, pintxo bars, markets and ' +
-        'starred kitchens.'
-    },
-    {
-      id: 'nature',
-      title: 'Nature',
-      text:
-        'Green valleys, hiking routes, farmhouses and wine country minutes ' +
-        'from the city.'
-    }
-  ],
-  // Optional photography for the editorial mosaic. Files that are missing fall
+  // Photography for the editorial mosaic. Files that are not there yet fall
   // back to a labelled placeholder tile, so the layout never breaks.
+  // Source: W:\08 Bilbao Turismo\Promocion Desarrollo Productos\
+  //         Promo Exterior y Mkt\3 SOPORTES PROMOCION\BANCO IMAGENES
   media: [
-    { file: 'assets/img/photos/coast-surf.jpg', caption: 'The Bizkaia coast' },
-    { file: 'assets/img/photos/city.jpg', caption: '[Insert Bilbao city image]' },
-    { file: 'assets/img/photos/gastronomy.jpg', caption: '[Insert gastronomy image]' }
+    { file: 'assets/img/photos/gaztelugatxe.jpg', caption: '[Insert Gaztelugatxe photo]' },
+    { file: 'assets/img/photos/bilbao-2.jpg', caption: '[Insert second photo]' },
+    { file: 'assets/img/photos/bilbao-3.jpg', caption: '[Insert third photo]' }
   ]
 };
 

@@ -195,14 +195,15 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // The programme sits in a raised card, joined to the section above it, so
+    // it reads as the centre of gravity of the page and not as one more block.
     return (
-      '<div class="section-head section-head--center" data-reveal>' +
-        '<h2 class="h-1">Event Programme</h2>' +
-        '<p>' + esc(programme.intro) + '</p>' +
-      '</div>' +
-      '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
-      panels +
-      '<p class="prog__note">' + esc(programme.note) + '</p>'
+      '<div class="prog-card" data-reveal>' +
+        '<h2 class="h-prog">Event Programme</h2>' +
+        '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
+        panels +
+        '<p class="prog__note">' + esc(programme.note) + '</p>' +
+      '</div>'
     );
   };
 
@@ -223,12 +224,6 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    var pillars = p.pillars
-      .map(function (pl) {
-        return '<div class="pillar"><h3>' + esc(pl.title) + '</h3><p>' + esc(pl.text) + '</p></div>';
-      })
-      .join('');
-
     return (
       '<div class="present">' +
         '<div data-reveal>' +
@@ -236,8 +231,7 @@ window.MBB = window.MBB || {};
           '<div class="text-justify">' + paras + '</div>' +
         '</div>' +
         '<div class="present__media" data-reveal style="--d:100ms">' + media + '</div>' +
-      '</div>' +
-      '<div class="pillars" data-reveal>' + pillars + '</div>'
+      '</div>'
     );
   };
 

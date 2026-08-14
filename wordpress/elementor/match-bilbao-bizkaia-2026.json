@@ -35,7 +35,7 @@
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p style=\"letter-spacing:.14em;text-transform:uppercase;font-size:.92rem\">8 – 10 June 2026 · Bilbao, Basque Country</p>",
+        "editor": "<p style=\"letter-spacing:.14em;text-transform:uppercase;font-size:.92rem\">6 – 10 October 2026 · Bilbao, Basque Country</p>",
         "_css_classes": "mbb-text",
         "text_color": "#9AA0A6",
         "typography_typography": "custom",
@@ -80,7 +80,7 @@
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Three days of curated B2B meetings, destination knowledge and shared discovery, bringing international buyers together with the tourism professionals who know Bilbao Bizkaia best.</p>",
+        "editor": "<p>Four days of curated B2B meetings, destination knowledge and shared discovery, bringing international buyers together with the tourism professionals who know Bilbao Bizkaia best.</p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",
@@ -154,7 +154,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa17",
+   "id": "aaaaa14",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -172,7 +172,7 @@
      "id": "aaaaaad",
      "elType": "column",
      "settings": {
-      "_column_size": 25,
+      "_column_size": 34,
       "_inline_size": null
      },
      "elements": [
@@ -181,7 +181,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "39+",
+        "title": "49",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
@@ -215,7 +215,7 @@
      "id": "aaaaa10",
      "elType": "column",
      "settings": {
-      "_column_size": 25,
+      "_column_size": 33,
       "_inline_size": null
      },
      "elements": [
@@ -224,7 +224,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "3",
+        "title": "4",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
@@ -258,55 +258,12 @@
      "id": "aaaaa13",
      "elType": "column",
      "settings": {
-      "_column_size": 25,
+      "_column_size": 33,
       "_inline_size": null
      },
      "elements": [
       {
        "id": "aaaaa11",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "4",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 34
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa12",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p style=\"letter-spacing:.06em;text-transform:uppercase;font-size:.8rem\">Destination pillars</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#9AA0A6",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa16",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa14",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -325,7 +282,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa15",
+       "id": "aaaaa12",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -344,7 +301,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa1c",
+   "id": "aaaaa19",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -359,7 +316,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa1b",
+     "id": "aaaaa18",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -367,7 +324,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa18",
+       "id": "aaaaa15",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -382,11 +339,11 @@
        "elements": []
       },
       {
-       "id": "aaaaa19",
+       "id": "aaaaa16",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Match Bilbao Bizkaia is the professional meeting point where the destination presents itself to the international travel trade. Over three days, buyers, tour operators and media meet the companies that design, host and deliver the Bilbao Bizkaia experience — in person, on the ground and with time to talk properly.</p>",
+        "editor": "<p>Match Bilbao Bizkaia is the professional meeting point where the destination presents itself to the international travel trade. Over four days, buyers, tour operators and media meet the companies that design, host and deliver the Bilbao Bizkaia experience — in person, on the ground and with time to talk properly.</p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",
@@ -395,13 +352,13 @@
        "elements": []
       },
       {
-       "id": "aaaaa1a",
+       "id": "aaaaa17",
        "elType": "widget",
        "widgetType": "button",
        "settings": {
         "text": "Add to calendar",
         "link": {
-         "url": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Match+Bilbao+Bizkaia+2026&dates=20260608T070000Z/20260610T160000Z&details=International+tourism+networking+event+in+Bilbao+Bizkaia.&location=Bilbao%2C+Bizkaia%2C+Basque+Country",
+         "url": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Match+Bilbao+Bizkaia+2026&dates=20261006T070000Z/20261010T160000Z&details=International+tourism+networking+event+in+Bilbao+Bizkaia.&location=Bilbao%2C+Bizkaia%2C+Basque+Country",
          "is_external": "",
          "nofollow": ""
         },
@@ -418,7 +375,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa26",
+   "id": "aaaaa23",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -433,7 +390,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa1f",
+     "id": "aaaaa1c",
      "elType": "column",
      "settings": {
       "_column_size": 34,
@@ -441,7 +398,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa1d",
+       "id": "aaaaa1a",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -460,11 +417,54 @@
        "elements": []
       },
       {
-       "id": "aaaaa1e",
+       "id": "aaaaa1b",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
         "editor": "<p>A pre-scheduled agenda of one-to-one appointments, matched to your markets and interests before you arrive.</p>",
+        "_css_classes": "mbb-text",
+        "text_color": "#7A7A7A",
+        "typography_typography": "custom",
+        "typography_font_family": "Roboto"
+       },
+       "elements": []
+      }
+     ],
+     "isInner": false
+    },
+    {
+     "id": "aaaaa1f",
+     "elType": "column",
+     "settings": {
+      "_column_size": 33,
+      "_inline_size": null
+     },
+     "elements": [
+      {
+       "id": "aaaaa1d",
+       "elType": "widget",
+       "widgetType": "heading",
+       "settings": {
+        "title": "The destination first hand",
+        "header_size": "h3",
+        "_css_classes": "mbb-heading",
+        "title_color": "#AE0000",
+        "typography_typography": "custom",
+        "typography_font_family": "Bariol",
+        "typography_font_weight": "700",
+        "typography_font_size": {
+         "unit": "px",
+         "size": 20
+        }
+       },
+       "elements": []
+      },
+      {
+       "id": "aaaaa1e",
+       "elType": "widget",
+       "widgetType": "text-editor",
+       "settings": {
+        "editor": "<p>Guided experiences through the city, the coast and the natural landscapes that define Bizkaia.</p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",
@@ -488,7 +488,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "The destination first hand",
+        "title": "A trusted local network",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
@@ -507,49 +507,6 @@
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Guided experiences through the city, the coast and the natural landscapes that define Bizkaia.</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa25",
-     "elType": "column",
-     "settings": {
-      "_column_size": 33,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa23",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "A trusted local network",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 20
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa24",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
         "editor": "<p>Hotels, DMCs, agencies, experience providers and institutions, all under one accreditation.</p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
@@ -565,7 +522,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa29",
+   "id": "aaaaa26",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -581,7 +538,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa28",
+     "id": "aaaaa25",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -589,7 +546,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa27",
+       "id": "aaaaa24",
        "elType": "widget",
        "widgetType": "shortcode",
        "settings": {
@@ -604,7 +561,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa31",
+   "id": "aaaaa30",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -619,7 +576,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa2c",
+     "id": "aaaaa29",
      "elType": "column",
      "settings": {
       "_column_size": 55,
@@ -627,7 +584,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa2a",
+       "id": "aaaaa27",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -642,7 +599,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa2b",
+       "id": "aaaaa28",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -658,7 +615,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa30",
+     "id": "aaaaa2f",
      "elType": "column",
      "settings": {
       "_column_size": 45,
@@ -666,7 +623,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa2d",
+       "id": "aaaaa2a",
        "elType": "widget",
        "widgetType": "image",
        "settings": {
@@ -680,7 +637,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa2e",
+       "id": "aaaaa2b",
        "elType": "widget",
        "widgetType": "spacer",
        "settings": {
@@ -692,7 +649,33 @@
        "elements": []
       },
       {
-       "id": "aaaaa2f",
+       "id": "aaaaa2c",
+       "elType": "widget",
+       "widgetType": "image",
+       "settings": {
+        "image": {
+         "url": "",
+         "id": ""
+        },
+        "image_size": "large",
+        "caption_source": "none"
+       },
+       "elements": []
+      },
+      {
+       "id": "aaaaa2d",
+       "elType": "widget",
+       "widgetType": "spacer",
+       "settings": {
+        "space": {
+         "unit": "px",
+         "size": 16
+        }
+       },
+       "elements": []
+      },
+      {
+       "id": "aaaaa2e",
        "elType": "widget",
        "widgetType": "image",
        "settings": {
@@ -712,197 +695,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa3e",
-   "elType": "section",
-   "settings": {
-    "layout": "boxed",
-    "padding": {
-     "unit": "px",
-     "top": "0",
-     "right": "0",
-     "bottom": "70",
-     "left": "0",
-     "isLinked": false
-    }
-   },
-   "elements": [
-    {
-     "id": "aaaaa34",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa32",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "City",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 20
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa33",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p>Contemporary architecture, museums, shopping and a compact, walkable centre.</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa37",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa35",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "Coast",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 20
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa36",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p>Fishing villages, cliffs, surf beaches and the Urdaibai Biosphere Reserve.</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa3a",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa38",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "Culture & gastronomy",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 20
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa39",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p>A distinctive language and identity, pintxo bars, markets and starred kitchens.</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa3d",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa3b",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "Nature",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 20
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa3c",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p>Green valleys, hiking routes, farmhouses and wine country minutes from the city.</p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    }
-   ],
-   "isInner": false
-  },
-  {
-   "id": "aaaaa41",
+   "id": "aaaaa33",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -918,7 +711,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa40",
+     "id": "aaaaa32",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -926,7 +719,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa3f",
+       "id": "aaaaa31",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -948,7 +741,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa4a",
+   "id": "aaaaa3c",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -964,7 +757,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa45",
+     "id": "aaaaa37",
      "elType": "column",
      "settings": {
       "_column_size": 50,
@@ -972,7 +765,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa42",
+       "id": "aaaaa34",
        "elType": "widget",
        "widgetType": "video",
        "settings": {
@@ -988,7 +781,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa43",
+       "id": "aaaaa35",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1007,11 +800,11 @@
        "elements": []
       },
       {
-       "id": "aaaaa44",
+       "id": "aaaaa36",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Highlights of the latest edition: three days of meetings, destination visits and new business connections.</p>",
+        "editor": "<p>Highlights of the latest edition: meetings, destination visits and new business connections.</p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",
@@ -1023,7 +816,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa49",
+     "id": "aaaaa3b",
      "elType": "column",
      "settings": {
       "_column_size": 50,
@@ -1031,7 +824,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa46",
+       "id": "aaaaa38",
        "elType": "widget",
        "widgetType": "video",
        "settings": {
@@ -1043,7 +836,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa47",
+       "id": "aaaaa39",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1062,7 +855,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa48",
+       "id": "aaaaa3a",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1081,7 +874,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa4e",
+   "id": "aaaaa40",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1096,7 +889,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa4d",
+     "id": "aaaaa3f",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -1104,7 +897,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa4b",
+       "id": "aaaaa3d",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1120,7 +913,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa4c",
+       "id": "aaaaa3e",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1139,7 +932,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa5f",
+   "id": "aaaaa51",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1154,7 +947,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa52",
+     "id": "aaaaa44",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1162,7 +955,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa4f",
+       "id": "aaaaa41",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1182,7 +975,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa50",
+       "id": "aaaaa42",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1202,7 +995,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa51",
+       "id": "aaaaa43",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1218,7 +1011,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa56",
+     "id": "aaaaa48",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1226,7 +1019,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa53",
+       "id": "aaaaa45",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1246,7 +1039,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa54",
+       "id": "aaaaa46",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1266,7 +1059,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa55",
+       "id": "aaaaa47",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1282,7 +1075,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa5a",
+     "id": "aaaaa4c",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1290,7 +1083,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa57",
+       "id": "aaaaa49",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1310,7 +1103,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa58",
+       "id": "aaaaa4a",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1330,7 +1123,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa59",
+       "id": "aaaaa4b",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1346,7 +1139,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa5e",
+     "id": "aaaaa50",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1354,7 +1147,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa5b",
+       "id": "aaaaa4d",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1374,7 +1167,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa5c",
+       "id": "aaaaa4e",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1394,7 +1187,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa5d",
+       "id": "aaaaa4f",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1413,7 +1206,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa65",
+   "id": "aaaaa57",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1431,7 +1224,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa62",
+     "id": "aaaaa54",
      "elType": "column",
      "settings": {
       "_column_size": 70,
@@ -1439,7 +1232,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa60",
+       "id": "aaaaa52",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1454,7 +1247,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa61",
+       "id": "aaaaa53",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1470,7 +1263,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa64",
+     "id": "aaaaa56",
      "elType": "column",
      "settings": {
       "_column_size": 30,
@@ -1478,7 +1271,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa63",
+       "id": "aaaaa55",
        "elType": "widget",
        "widgetType": "button",
        "settings": {
@@ -1509,7 +1302,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa68",
+   "id": "aaaaa5a",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1524,7 +1317,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa67",
+     "id": "aaaaa59",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -1532,7 +1325,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa66",
+       "id": "aaaaa58",
        "elType": "widget",
        "widgetType": "shortcode",
        "settings": {
@@ -1547,7 +1340,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa6b",
+   "id": "aaaaa5d",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1562,7 +1355,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa6a",
+     "id": "aaaaa5c",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -1570,7 +1363,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa69",
+       "id": "aaaaa5b",
        "elType": "widget",
        "widgetType": "shortcode",
        "settings": {
@@ -1585,7 +1378,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa6f",
+   "id": "aaaaa61",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1600,7 +1393,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa6e",
+     "id": "aaaaa60",
      "elType": "column",
      "settings": {
       "_column_size": 100,
@@ -1608,7 +1401,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa6c",
+       "id": "aaaaa5e",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1624,7 +1417,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa6d",
+       "id": "aaaaa5f",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1643,7 +1436,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa7c",
+   "id": "aaaaa6e",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1658,7 +1451,7 @@
    },
    "elements": [
     {
-     "id": "aaaaa72",
+     "id": "aaaaa64",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1666,7 +1459,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa70",
+       "id": "aaaaa62",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1685,7 +1478,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa71",
+       "id": "aaaaa63",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1701,7 +1494,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa75",
+     "id": "aaaaa67",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1709,7 +1502,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa73",
+       "id": "aaaaa65",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1728,7 +1521,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa74",
+       "id": "aaaaa66",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1744,7 +1537,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa78",
+     "id": "aaaaa6a",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1752,7 +1545,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa76",
+       "id": "aaaaa68",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1771,7 +1564,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa77",
+       "id": "aaaaa69",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
@@ -1787,7 +1580,7 @@
      "isInner": false
     },
     {
-     "id": "aaaaa7b",
+     "id": "aaaaa6d",
      "elType": "column",
      "settings": {
       "_column_size": 25,
@@ -1795,7 +1588,7 @@
      },
      "elements": [
       {
-       "id": "aaaaa79",
+       "id": "aaaaa6b",
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
@@ -1814,7 +1607,7 @@
        "elements": []
       },
       {
-       "id": "aaaaa7a",
+       "id": "aaaaa6c",
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {

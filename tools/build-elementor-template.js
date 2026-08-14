@@ -106,7 +106,7 @@ const button = (label, url, outline = false) =>
 
 const shortcode = (code) => widget('shortcode', { shortcode: code });
 
-/** Column widths that add up to exactly 100 — Elementor rejects 99 or 101. */
+/** Column widths that add up to exactly 100 — Elementor lays out 99 wrong. */
 const split = (n) => {
   const base = Math.floor(100 / n);
   const sizes = new Array(n).fill(base);
@@ -153,8 +153,8 @@ content.push(
 
 /* Key figures (native) */
 content.push(
-  section(PAD(10, 60), site.hero.facts.map((f) =>
-    column(25, [
+  section(PAD(10, 60), site.hero.facts.map((f, i) =>
+    column(split(site.hero.facts.length)[i], [
       heading(f.value, 'h3', { typography_font_size: { unit: 'px', size: 34 } }),
       text(`<p style="letter-spacing:.06em;text-transform:uppercase;font-size:.8rem">${f.label}</p>`, {
         text_color: '#9AA0A6'
@@ -200,22 +200,15 @@ content.push(
         { _css_classes: 'mbb-text mbb-justify' }
       )
     ]),
+    // Three photographs: Gaztelugatxe and two more, chosen in the editor.
     column(45, [
+      widget('image', { image: { url: '', id: '' }, image_size: 'large', caption_source: 'none' }),
+      spacer(16),
       widget('image', { image: { url: '', id: '' }, image_size: 'large', caption_source: 'none' }),
       spacer(16),
       widget('image', { image: { url: '', id: '' }, image_size: 'large', caption_source: 'none' })
     ])
   ])
-);
-
-/* The four destination pillars (native) */
-content.push(
-  section(PAD(0, 70), presentation.pillars.map((p) =>
-    column(25, [
-      heading(p.title, 'h3', { typography_font_size: { unit: 'px', size: 20 } }),
-      text(`<p>${p.text}</p>`)
-    ])
-  ))
 );
 
 /* 5 — Latest editions (native: Elementor's own video widget, lazy loaded) */
@@ -236,7 +229,7 @@ content.push(
         aspect_ratio: '169'
       }),
       heading('Match Bilbao Bizkaia 2025', 'h3', { typography_font_size: { unit: 'px', size: 20 } }),
-      text('<p>Highlights of the latest edition: three days of meetings, destination visits and new business connections.</p>')
+      text('<p>Highlights of the latest edition: meetings, destination visits and new business connections.</p>')
     ]),
     column(50, [
       widget('video', {

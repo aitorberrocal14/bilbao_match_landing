@@ -18,8 +18,10 @@ window.MBB = window.MBB || {};
 window.MBB.discover = {
   // Publisher profile — linked from the Discover section as "all publications".
   issuuProfile: 'https://issuu.com/turismobilbao',
+  // Deliberately no number: more titles are on the way, and a hardcoded count
+  // would go out of date the moment one is added.
   intro:
-    'Seven official guides to Bilbao Bizkaia, in English. Browse them online ' +
+    'Our official guides to Bilbao Bizkaia, in English. Browse them online ' +
     'or download them to prepare your programmes, itineraries and client ' +
     'proposals.',
   brochures: [
@@ -95,8 +97,8 @@ window.MBB.editions = [
     youtubeId: '2tI7kgSjPi8',
     title: 'Match Bilbao Bizkaia 2025',
     caption:
-      'Highlights of the latest edition: three days of meetings, destination ' +
-      'visits and new business connections.',
+      'Highlights of the latest edition: meetings, destination visits and new ' +
+      'business connections.',
     thumbnail: '' // optional local fallback image
   },
   {

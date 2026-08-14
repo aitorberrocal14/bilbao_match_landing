@@ -308,7 +308,8 @@ p:last-child { margin-bottom: 0; }
 
 .hero__facts {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Adapts to however many figures are configured — three today, four before */
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1rem;
   margin-top: clamp(2.5rem, 5vw, 4rem);
   padding-top: clamp(1.75rem, 3vw, 2.5rem);
@@ -348,6 +349,24 @@ p:last-child { margin-bottom: 0; }
 }
 
 /* 8. PROGRAMME ============================================================= */
+/* The programme is the heart of the page, so it gets a raised card of its own
+   inside the event section instead of being one more quiet block. */
+.prog-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 4px solid var(--red);
+  padding: clamp(1.75rem, 4vw, 3.25rem) clamp(1.25rem, 4vw, 3.25rem);
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.07);
+}
+
+.h-prog {
+  text-align: center;
+  font-size: clamp(2rem, 4.4vw, 3.1rem);
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
 .prog__tabs {
   display: flex;
   flex-wrap: wrap;
