@@ -16,7 +16,12 @@ python3 -m http.server   # or serve the folder, if you prefer
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 
-There is also a **single-file version** for review or handover:
+There is also a **WordPress plugin** in `wordpress/`, which turns all of this
+into content editable from wp-admin — exhibitors, brochures and programme as
+native post types, and every section as a shortcode. See
+[`wordpress/README.md`](wordpress/README.md).
+
+And a **single-file version** for review or handover:
 
 ```
 node tools/build-standalone.js   # → dist/match-bilbao-bizkaia-2026.html
@@ -235,6 +240,10 @@ tools/
   build-exhibitors.js       Generates exhibitors/*.html
   build-brochure-covers.js  Renders the brochure cover images
   build-standalone.js       Bundles everything into one shareable HTML file
+  build-wp-css.js           Scopes the stylesheet for the WordPress plugin
+  build-wp-seed.js          Packages the content + images for the plugin
+wordpress/
+  match-bilbao-bizkaia/     WordPress plugin — see wordpress/README.md
 ```
 
 `index.html` holds no content: each section is an empty shell with a
@@ -267,6 +276,8 @@ the grid and the detail pages can never drift apart.
 node tools/build-exhibitors.js        # after editing data/exhibitors.js
 node tools/build-brochure-covers.js   # only to regenerate the cover images
 node tools/build-standalone.js        # one-file version for sharing
+node tools/build-wp-css.js            # WordPress stylesheet
+node tools/build-wp-seed.js           # WordPress content + images
 ```
 
 `build-brochure-covers.js` needs Playwright (`npm i -D playwright`); the other
