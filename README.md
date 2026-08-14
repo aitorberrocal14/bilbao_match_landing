@@ -249,6 +249,7 @@ tools/
   build-wp-seed.js          Packages the content + images for the plugin
   build-elementor-template.js  Builds the importable Elementor page template
   covers-from-pdf.js        Renders brochure covers from the real PDFs
+  covers-from-images.js     Same, when the covers arrive as pictures
   issuu-links.js            Browser-console helper: collects the Issuu links
 wordpress/
   match-bilbao-bizkaia/     WordPress plugin — see wordpress/README.md
@@ -364,6 +365,17 @@ node tools/build-standalone.js             # refreshes the single-file version
 
 It renders the first page at 800×1024 and replaces the stand-in cover. Needs
 poppler-utils.
+
+If you have the covers as pictures rather than as PDFs — saved straight from
+Issuu, for instance — use the other one instead:
+
+```
+node tools/covers-from-images.js <folder>
+```
+
+Same naming rule, same output. It centre-crops to 800×1024 rather than
+squashing, so a landscape source loses its sides instead of being distorted.
+PDFs give a sharper result, so prefer them when you have both.
 
 **Issuu.** The section links to the publisher profile
 (`issuu.com/turismobilbao`) under the gallery. To read a brochure inside the
