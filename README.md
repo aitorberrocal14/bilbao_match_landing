@@ -247,6 +247,7 @@ tools/
   build-standalone.js       Bundles everything into one shareable HTML file
   build-wp-css.js           Scopes the stylesheet for the WordPress plugin
   build-wp-seed.js          Packages the content + images for the plugin
+  build-elementor-template.js  Builds the importable Elementor page template
 wordpress/
   match-bilbao-bizkaia/     WordPress plugin — see wordpress/README.md
 ```

@@ -59,7 +59,11 @@ class MBB_Plugin {
 	}
 
 	public static function register_assets() {
-		wp_register_style( 'mbb', MBB_URL . 'assets/css/mbb.css', array(), MBB_VERSION );
+		// Bariol and the helper classes load everywhere, so sections built in
+		// Elementor can use them without a shortcode being present.
+		wp_enqueue_style( 'mbb-fonts', MBB_URL . 'assets/css/mbb-fonts.css', array(), MBB_VERSION );
+
+		wp_register_style( 'mbb', MBB_URL . 'assets/css/mbb.css', array( 'mbb-fonts' ), MBB_VERSION );
 		wp_register_script( 'mbb', MBB_URL . 'assets/js/mbb.js', array(), MBB_VERSION, true );
 
 		// Roboto, as on the current site. Bariol is bundled with the plugin.

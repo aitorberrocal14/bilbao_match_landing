@@ -1,0 +1,90 @@
+/* =============================================================================
+   Bariol — the heading typeface of Match Bilbao Bizkaia.
+   -----------------------------------------------------------------------------
+   Loaded on every page of the site, not only where a shortcode runs, so that
+   sections built natively in Elementor can use it too. Set the font family to
+   "Bariol" in any Elementor typography control and it applies.
+   ========================================================================== */
+
+@font-face {
+  font-family: "Bariol";
+  src: url("../fonts/bariol-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Bariol";
+  src: url("../fonts/bariol-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* -----------------------------------------------------------------------------
+   Helper classes for Elementor-built sections, so they match the coded ones
+   without having to set every control by hand. Add them under
+   Advanced → CSS Classes on any Elementor section, column or widget.
+   -------------------------------------------------------------------------- */
+
+/* The red institutional heading */
+.mbb-heading {
+  font-family: "Bariol", "Trebuchet MS", "Segoe UI", Arial, sans-serif !important;
+  font-weight: 700 !important;
+  color: #ae0000 !important;
+  line-height: 1.2 !important;
+}
+
+/* Body copy, as on the rest of the site */
+.mbb-text {
+  font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif !important;
+  color: #7a7a7a !important;
+  line-height: 1.7 !important;
+}
+
+/* The red pill button */
+.mbb-button .elementor-button,
+a.mbb-button {
+  background-color: #c9202c !important;
+  border: 2px solid #c9202c !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  font-family: "Roboto", Arial, sans-serif !important;
+  font-size: 0.86rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  padding: 0.75rem 1.9rem !important;
+}
+.mbb-button .elementor-button:hover,
+a.mbb-button:hover {
+  background-color: #a5161f !important;
+  border-color: #a5161f !important;
+}
+
+/* The outlined variant */
+.mbb-button--outline .elementor-button {
+  background-color: transparent !important;
+  color: #c9202c !important;
+}
+.mbb-button--outline .elementor-button:hover {
+  background-color: #c9202c !important;
+  color: #fff !important;
+}
+
+/* The red band used behind the login call to action */
+.mbb-band {
+  background-color: #ae0000 !important;
+}
+.mbb-band .mbb-heading,
+.mbb-band .mbb-text,
+.mbb-band h1, .mbb-band h2, .mbb-band h3, .mbb-band p {
+  color: #fff !important;
+}
+
+/* Soft grey ground, for alternating sections */
+.mbb-soft { background-color: #f7f7f7 !important; }
+
+/* Justified editorial column, as in Presentation of Bilbao */
+.mbb-justify { text-align: justify !important; }

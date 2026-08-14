@@ -60,6 +60,58 @@ profile link is ignored — the reader needs a document.
 
 ---
 
+## Editing with Elementor
+
+`elementor/match-bilbao-bizkaia-2026.json` is an importable page template built
+as a **hybrid**, on purpose:
+
+| Section | How it is built | Who edits it |
+|---|---|---|
+| Hero, key figures | Elementor widgets | Anyone, visually |
+| Event introduction, the three highlights | Elementor widgets | Anyone, visually |
+| Presentation of Bilbao + the four pillars | Elementor widgets | Anyone, visually |
+| Latest editions | Elementor's own video widget | Anyone, visually |
+| Meet BB's Experts, the steps, the login band | Elementor widgets | Anyone, visually |
+| Contact | Elementor widgets | Anyone, visually |
+| **Programme** | `[mbb_programme]` | Sessions in **Programme** |
+| **Exhibitors** | `[mbb_exhibitors]` | Companies in **Exhibitors** |
+| **Brochures** | `[mbb_discover]` | Documents in **Brochures** |
+
+The three that stay as shortcodes are the ones with behaviour — the category
+filter, the day tabs, the Issuu reader, and the per-company pages. Rebuilding
+them with widgets would make them both uglier and easier to break, and their
+content is already editable from the admin, which is what actually changes.
+
+### Importing it
+
+1. **Templates → Saved Templates → Import Templates** → the JSON file.
+2. Edit your page with Elementor → the folder icon (*Add Template*) → **My
+   Templates** → insert *Match Bilbao Bizkaia 2026*.
+3. Pick the images: the hero and the two in Presentation of Bilbao come in
+   empty, so choose them from the media library.
+4. Point the **Login** button at the platform, and add the second video URL if
+   you have it.
+
+### Keeping the look
+
+The plugin loads Bariol on every page, so Elementor can use it: in any
+typography control, type `Bariol` as the font family. There are also helper
+classes to add under **Advanced → CSS Classes**:
+
+| Class | What it does |
+|---|---|
+| `mbb-heading` | Bariol bold in the institutional red |
+| `mbb-text` | Roboto grey body copy |
+| `mbb-button` | The red pill button (`mbb-button--outline` for the outlined one) |
+| `mbb-band` | The red band, with white text inside |
+| `mbb-soft` | The soft grey ground of alternating sections |
+| `mbb-justify` | Justified text, as in Presentation of Bilbao |
+
+The imported template already carries them, so anything duplicated from it
+inherits the styling.
+
+---
+
 ## Shortcodes
 
 `[mbb_landing]` outputs the whole page. To arrange the sections yourself, or to
