@@ -80,6 +80,60 @@ window.MBB.discover = {
       cover: 'assets/img/brochures/drive-enjoy.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/6564805/DRIVE%26ENJOY+2020+ENGL_WEB.pdf/c180b49d-e311-6f41-2d0d-3c548e961734?t=1596716163107',
       issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
+    },
+
+    /* -------------------------------------------------------------------
+       English titles from the issuu.com/turismobilbao library.
+       The subtitles are drafted from the titles the team supplied — worth a
+       read before publishing. No PDF is listed: these are read on Issuu.
+       ------------------------------------------------------------------- */
+    {
+      id: 'place-to-be',
+      title: 'The Place to Be',
+      subtitle: 'The essential guide to the destination.',
+      cover: 'assets/img/brochures/place-to-be.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/place_to_be_2024web_en'
+    },
+    {
+      id: 'land-city',
+      title: 'Land & City',
+      subtitle: 'The city and the land that surrounds it.',
+      cover: 'assets/img/brochures/land-city.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/city__land_ing'
+    },
+    {
+      id: 'coastline',
+      title: 'Coastline',
+      subtitle: 'The Bizkaia coast, beach by beach.',
+      cover: 'assets/img/brochures/coastline.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/coastline_ingl_2023'
+    },
+    {
+      id: 'iron-river',
+      title: 'Iron River',
+      subtitle: 'The estuary and its industrial heritage.',
+      cover: 'assets/img/brochures/iron-river.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/iron_river_en'
+    },
+    {
+      id: 'rural-tourism',
+      title: 'Rural Tourism',
+      subtitle: 'Farmhouses, valleys and village life in Bizkaia.',
+      cover: 'assets/img/brochures/rural-tourism.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/turismo_rural_engl_'
+    },
+    {
+      id: 'bike-spirit',
+      title: 'Bike Spirit',
+      subtitle: 'Cycle tourism across Bilbao Bizkaia.',
+      cover: 'assets/img/brochures/bike-spirit.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/bike_spirit_en'
     }
   ]
 };

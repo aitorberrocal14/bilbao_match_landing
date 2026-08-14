@@ -39,7 +39,14 @@ const TONE = {
   naturally: ['#2f5a2a', '#142a12'],
   gastronomy: ['#8a1c38', '#3d0c19'],
   identity: ['#3c3f52', '#1a1c26'],
-  'drive-enjoy': ['#a05a12', '#4a2807']
+  'drive-enjoy': ['#a05a12', '#4a2807'],
+  // English titles from the Issuu library
+  'place-to-be': ['#8e1420', '#3d0910'],
+  'land-city': ['#3f5d33', '#17240f'],
+  coastline: ['#155a72', '#082733'],
+  'iron-river': ['#5a4636', '#241a12'],
+  'rural-tourism': ['#4a5f2a', '#1d2a0f'],
+  'bike-spirit': ['#8a4a12', '#3a1d06']
 };
 
 const bariol = fs
