@@ -13,6 +13,11 @@ open index.html          # works straight from the file system
 python3 -m http.server   # or serve the folder, if you prefer
 ```
 
+Or open the repository in **GitHub Codespaces** (green *Code* button → *Codespaces*
+→ *Create codespace*). The site starts on its own and the preview opens: no
+download, no install, and it works on a private repository. See
+[`.devcontainer/devcontainer.json`](.devcontainer/devcontainer.json).
+
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 

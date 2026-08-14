@@ -112,12 +112,34 @@ Optional attributes: `title` on `[mbb_presentation]`, `[mbb_experts]`,
 
 ---
 
+## Trying it on a real WordPress
+
+A throwaway install is included, for a Codespace or your own machine:
+
+```
+cd wordpress
+docker compose up -d
+```
+
+Give it about a minute, then open <http://localhost:8000> — in a Codespace,
+port 8000 appears under **Ports**. WordPress installs itself and activates the
+plugin; log in with **admin / admin** and run *Match Bilbao Bizkaia → Import
+content*.
+
+The plugin folder is mounted live, so any edit shows up on reload.
+`docker compose down -v` deletes the lot, database included.
+
+---
+
 ## What still needs a real WordPress
 
 This plugin was written and rendered against a stubbed WordPress, because the
-build environment has no network access to download WordPress itself. The
-front-end output is verified — it renders the same HTML as the static site, and
-the tabs, the category filter and the brochure modal were exercised in a
-browser. The parts that only a real install can confirm are the admin screens,
-the import routine writing to the media library, and the permalinks. Test those
-on a staging site before going live.
+build environment has neither network access to download WordPress nor a
+running Docker daemon. What **is** verified: all seven PHP files pass the PHP
+8.4 linter, and the shortcodes and the exhibitor template were rendered and
+driven in a browser — same HTML as the static site, with the programme tabs,
+the category filter and the brochure modal all working.
+
+What only a real install can confirm: the admin screens, the importer writing
+to the media library, and the permalinks. Run `docker compose up` as described
+above, or test on a staging site, before going live.
