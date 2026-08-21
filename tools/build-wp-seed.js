@@ -89,6 +89,10 @@ copyDir(path.join(ROOT, 'assets/fonts'), path.join(PLUGIN, 'assets/fonts'));
 copyDir(path.join(ROOT, 'assets/img/exhibitors'), path.join(PLUGIN, 'assets/img/exhibitors'));
 copyDir(path.join(ROOT, 'assets/img/brochures'), path.join(PLUGIN, 'assets/img/brochures'));
 copyDir(path.join(ROOT, 'assets/img/brand'), path.join(PLUGIN, 'assets/img/brand'));
+// The hero and the destination mosaic take their images from the Media Library
+// by attachment ID, so these are not read from disk by the plugin — they ship
+// with it only so the editor has them to hand when uploading.
+copyDir(path.join(ROOT, 'assets/img/photos'), path.join(PLUGIN, 'assets/img/photos'));
 
 console.log(
   'seed.json: %d exhibitors, %d brochures, %d sessions',
