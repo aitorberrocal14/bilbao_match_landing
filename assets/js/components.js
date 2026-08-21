@@ -428,17 +428,19 @@ window.MBB = window.MBB || {};
             'loading="lazy" data-fallback="ph" data-label="[Insert brochure cover]">'
           : '<div class="ph">[Insert brochure cover]</div>';
 
+        // Only flag a missing link when there is genuinely nothing to open.
         var links = [];
         if (b.issuu) {
           links.push('<a class="brochure__dl" href="' + esc(b.issuu) + '" ' +
             'target="_blank" rel="noopener">' + ICONS.link + 'Read on Issuu</a>');
         }
-        links.push(
-          b.pdf
-            ? '<a class="brochure__dl" href="' + esc(b.pdf) + '" target="_blank" ' +
-              'rel="noopener" download>' + ICONS.download + 'Download PDF</a>'
-            : '<span class="brochure__dl" style="opacity:.5">[Insert PDF link]</span>'
-        );
+        if (b.pdf) {
+          links.push('<a class="brochure__dl" href="' + esc(b.pdf) + '" target="_blank" ' +
+            'rel="noopener" download>' + ICONS.download + 'Download PDF</a>');
+        }
+        if (!links.length) {
+          links.push('<span class="brochure__dl" style="opacity:.5">[Insert link]</span>');
+        }
         var dl = links.join('');
 
         return (

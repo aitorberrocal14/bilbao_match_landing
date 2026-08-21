@@ -1,16 +1,23 @@
 /* =============================================================================
    DISCOVER — ENGLISH BROCHURES
    -----------------------------------------------------------------------------
-   Only the English editions are listed, as agreed for the 2026 site.
+   The sixteen English titles of the destination, taken from the marketing
+   folder G:\Promo Exterior y Mkt\2 PROMOCION INVERSA\BROCHURES\EN, which is the
+   authoritative list. Every cover is the first page of its own PDF, and every
+   title and subtitle is transcribed from the cover itself.
 
    Each item supports two display modes:
-     • `pdf`   — opens / downloads the official PDF (used today)
      • `issuu` — paste the normal Issuu link of the document, e.g.
-                 https://issuu.com/turismobilbao/docs/city_experience_en
+                 https://issuu.com/turismobilbao/docs/coastline_ingl_2023
                  It is turned into the embed URL automatically, so the brochure
-                 is read inside the page instead of opening a preview panel.
-   If both are present the Issuu reader is shown and the PDF stays available as
-   a download link.
+                 is read inside the page.
+     • `pdf`   — a direct link to the file, offered as a download.
+   With neither, the card still shows the cover but has nothing to open.
+
+   [Insert Issuu links] — twelve are still missing. They are all on the
+   publisher profile; see tools/issuu-links.js for how to collect them in one
+   go, and remember to load the whole profile (?ps=100) rather than the first
+   page.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -18,8 +25,6 @@ window.MBB = window.MBB || {};
 window.MBB.discover = {
   // Publisher profile — linked from the Discover section as "all publications".
   issuuProfile: 'https://issuu.com/turismobilbao',
-  // Deliberately no number: more titles are on the way, and a hardcoded count
-  // would go out of date the moment one is added.
   intro:
     'Our official guides to Bilbao Bizkaia, in English. Browse them online ' +
     'or download them to prepare your programmes, itineraries and client ' +
@@ -30,118 +35,72 @@ window.MBB.discover = {
       title: 'City & Experience',
       subtitle: 'The art of living: Bilbao, urban experiences.',
       cover: 'assets/img/brochures/city-experience.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/City_Experience_EN.pdf/0c9274b5-cbbe-e80e-a82d-b1458e1fc3a3?t=1522938860060',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
     },
     {
-      id: 'coast',
-      title: 'The Sea in its Soul',
-      subtitle: 'The Bizkaia coast, where the mountains meet the sea.',
-      cover: 'assets/img/brochures/coast.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/Sea_Soul_EN.pdf/fcb573e2-56d0-593a-b46e-a148139a6dc4?t=1522938869570',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
+      id: 'coastline',
+      title: 'A Stunning Coastline',
+      subtitle: 'Coast of Bizkaia: seafaring and unique features.',
+      cover: 'assets/img/brochures/coastline.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/coastline_ingl_2023'
+    },
+    {
+      id: 'land-city',
+      title: 'Land & City',
+      subtitle: 'At the heart of the destination: green, blue and titanium experiences.',
+      cover: 'assets/img/brochures/land-city.jpg',
+      pdf: '',
+      issuu: 'https://issuu.com/turismobilbao/docs/city__land_ing'
     },
     {
       id: 'culture',
       title: 'Crossroads of Culture',
       subtitle: 'In Bilbao, the local takes on universal significance.',
       cover: 'assets/img/brochures/culture.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/Crossroads_of_Culture_EN.pdf/832cb94d-aa88-59ac-ef33-ab1c0b761e34',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
-    },
-    {
-      id: 'naturally',
-      title: 'Naturally',
-      subtitle: 'Breathe in the landscape: green Bizkaia getaways.',
-      cover: 'assets/img/brochures/naturally.jpg',
-      pdf: '', // [Insert English PDF link — missing on the current website]
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
     },
     {
       id: 'gastronomy',
       title: 'Gastronomy & Wine Tourism',
-      subtitle: 'The cuisine of Bizkaia in the gastronomic universe.',
+      subtitle: 'Well known and recognised: the cuisine of Bizkaia in the gastronomic universe.',
       cover: 'assets/img/brochures/gastronomy.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/5582686/GASTRONOMY+2017_18+ENG.pdf/c6800e1f-31c7-e0e7-0e65-7d26e05946d9?t=1584454088883',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'txakoli',
+      title: 'Txakoli',
+      subtitle: 'A wine with Basque essence: an experience available to few.',
+      cover: 'assets/img/brochures/txakoli.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
     },
     {
       id: 'identity',
       title: 'Identity in Itself',
-      subtitle: 'The reflection of a culture with its own character.',
+      subtitle: 'The reflection of an identity: the heart and soul of the Basque people.',
       cover: 'assets/img/brochures/identity.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/5582656/IDENTITY+2019+ing.pdf',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
-    },
-    {
-      id: 'drive-enjoy',
-      title: 'Drive & Enjoy',
-      subtitle: 'Choose your route: ten self-drive proposals across Bizkaia.',
-      cover: 'assets/img/brochures/drive-enjoy.jpg',
-      pdf: 'https://www.visitbiscay.eus/documents/1369190/6564805/DRIVE%26ENJOY+2020+ENGL_WEB.pdf/c180b49d-e311-6f41-2d0d-3c548e961734?t=1596716163107',
-      issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
-    },
-
-    /* -------------------------------------------------------------------
-       English titles from the issuu.com/turismobilbao library.
-       The subtitles are drafted from the titles the team supplied — worth a
-       read before publishing. No PDF is listed: these are read on Issuu.
-       ------------------------------------------------------------------- */
-    {
-      id: 'place-to-be',
-      title: 'The Place to Be',
-      subtitle: 'The essential guide to the destination.',
-      cover: 'assets/img/brochures/place-to-be.jpg',
       pdf: '',
-      issuu: 'https://issuu.com/turismobilbao/docs/place_to_be_2024web_en'
-    },
-    {
-      id: 'land-city',
-      title: 'Land & City',
-      subtitle: 'The city and the land that surrounds it.',
-      cover: 'assets/img/brochures/land-city.jpg',
-      pdf: '',
-      issuu: 'https://issuu.com/turismobilbao/docs/city__land_ing'
-    },
-    {
-      id: 'coastline',
-      title: 'Coastline',
-      subtitle: 'The Bizkaia coast, beach by beach.',
-      cover: 'assets/img/brochures/coastline.jpg',
-      pdf: '',
-      issuu: 'https://issuu.com/turismobilbao/docs/coastline_ingl_2023'
-    },
-    {
-      id: 'iron-river',
-      title: 'Iron River',
-      subtitle: 'The estuary and its industrial heritage.',
-      cover: 'assets/img/brochures/iron-river.jpg',
-      pdf: '',
-      issuu: 'https://issuu.com/turismobilbao/docs/iron_river_en'
+      issuu: '' // [Insert Issuu link]
     },
     {
       id: 'rural-tourism',
       title: 'Rural Tourism',
-      subtitle: 'Farmhouses, valleys and village life in Bizkaia.',
+      subtitle: 'The landscape as a destination: away from the noise, close to people.',
       cover: 'assets/img/brochures/rural-tourism.jpg',
       pdf: '',
       issuu: 'https://issuu.com/turismobilbao/docs/turismo_rural_engl_'
     },
     {
-      id: 'athletic-experience',
-      title: 'Athletic Club Experience',
-      subtitle: 'Be part of something unique: San Mamés and the Athletic Club Museum.',
-      cover: 'assets/img/brochures/athletic-experience.jpg',
+      id: 'family-tourism',
+      title: 'Family Plans',
+      subtitle: 'Ideas for living experiences with the family.',
+      cover: 'assets/img/brochures/family-tourism.jpg',
       pdf: '',
-      issuu: '' // [Insert the Issuu link — not on the first page of the profile]
-    },
-    {
-      id: 'bus-train',
-      title: 'Train & Bus',
-      subtitle: 'The most sustainable way to get to know the region: 16 routes.',
-      cover: 'assets/img/brochures/bus-train.jpg',
-      pdf: '',
-      issuu: '' // [Insert the Issuu link — not on the first page of the profile]
+      issuu: '' // [Insert Issuu link]
     },
     {
       id: 'bike-spirit',
@@ -150,6 +109,54 @@ window.MBB.discover = {
       cover: 'assets/img/brochures/bike-spirit.jpg',
       pdf: '',
       issuu: 'https://issuu.com/turismobilbao/docs/bike_spirit_en'
+    },
+    {
+      id: 'drive-enjoy',
+      title: 'Drive & Enjoy',
+      subtitle: 'Experiences on wheels: choose your route from ten proposals.',
+      cover: 'assets/img/brochures/drive-enjoy.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'bus-train',
+      title: 'Train & Bus',
+      subtitle: 'The most sustainable way to get to know the region: 16 routes.',
+      cover: 'assets/img/brochures/bus-train.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'shopping',
+      title: 'Truly Unique Shopping',
+      subtitle: 'Truly unique purchases, with Basque flavour.',
+      cover: 'assets/img/brochures/shopping.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'film-locations',
+      title: 'Film Locations',
+      subtitle: 'A film city, a film territory: routes through the seventh art.',
+      cover: 'assets/img/brochures/film-locations.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'athletic-experience',
+      title: 'Athletic Club Experience',
+      subtitle: 'Be part of something unique: San Mamés and the Athletic Club Museum.',
+      cover: 'assets/img/brochures/athletic-experience.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
+    },
+    {
+      id: 'lgbti',
+      title: 'Pride Everywhere',
+      subtitle: 'Be, explore, enjoy: sharing our pride with you.',
+      cover: 'assets/img/brochures/lgbti.jpg',
+      pdf: '',
+      issuu: '' // [Insert Issuu link]
     }
   ]
 };

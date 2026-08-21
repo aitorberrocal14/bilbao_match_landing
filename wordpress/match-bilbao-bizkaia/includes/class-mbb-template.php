@@ -193,6 +193,11 @@ class MBB_Template {
 			$links .= '<a class="brochure__dl" href="' . esc_url( $pdf ) . '" target="_blank" rel="noopener" download>'
 				. MBB_Icons::get( 'download' ) . esc_html__( 'Download PDF', 'mbb' ) . '</a>';
 		}
+		// Only flag a missing link when there is genuinely nothing to open.
+		if ( ! $links ) {
+			$links = '<span class="brochure__dl" style="opacity:.5">'
+				. esc_html__( '[Add an Issuu link or a PDF]', 'mbb' ) . '</span>';
+		}
 
 		return sprintf(
 			'<article class="brochure">

@@ -705,102 +705,86 @@
    "title": "City & Experience",
    "subtitle": "The art of living: Bilbao, urban experiences.",
    "cover": "city-experience.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/1453535/City_Experience_EN.pdf/0c9274b5-cbbe-e80e-a82d-b1458e1fc3a3?t=1522938860060",
+   "pdf": "",
    "issuu": ""
   },
   {
-   "slug": "coast",
-   "title": "The Sea in its Soul",
-   "subtitle": "The Bizkaia coast, where the mountains meet the sea.",
-   "cover": "coast.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/1453535/Sea_Soul_EN.pdf/fcb573e2-56d0-593a-b46e-a148139a6dc4?t=1522938869570",
-   "issuu": ""
+   "slug": "coastline",
+   "title": "A Stunning Coastline",
+   "subtitle": "Coast of Bizkaia: seafaring and unique features.",
+   "cover": "coastline.jpg",
+   "pdf": "",
+   "issuu": "https://issuu.com/turismobilbao/docs/coastline_ingl_2023"
+  },
+  {
+   "slug": "land-city",
+   "title": "Land & City",
+   "subtitle": "At the heart of the destination: green, blue and titanium experiences.",
+   "cover": "land-city.jpg",
+   "pdf": "",
+   "issuu": "https://issuu.com/turismobilbao/docs/city__land_ing"
   },
   {
    "slug": "culture",
    "title": "Crossroads of Culture",
    "subtitle": "In Bilbao, the local takes on universal significance.",
    "cover": "culture.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/1453535/Crossroads_of_Culture_EN.pdf/832cb94d-aa88-59ac-ef33-ab1c0b761e34",
-   "issuu": ""
-  },
-  {
-   "slug": "naturally",
-   "title": "Naturally",
-   "subtitle": "Breathe in the landscape: green Bizkaia getaways.",
-   "cover": "naturally.jpg",
    "pdf": "",
    "issuu": ""
   },
   {
    "slug": "gastronomy",
    "title": "Gastronomy & Wine Tourism",
-   "subtitle": "The cuisine of Bizkaia in the gastronomic universe.",
+   "subtitle": "Well known and recognised: the cuisine of Bizkaia in the gastronomic universe.",
    "cover": "gastronomy.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/5582686/GASTRONOMY+2017_18+ENG.pdf/c6800e1f-31c7-e0e7-0e65-7d26e05946d9?t=1584454088883",
+   "pdf": "",
+   "issuu": ""
+  },
+  {
+   "slug": "txakoli",
+   "title": "Txakoli",
+   "subtitle": "A wine with Basque essence: an experience available to few.",
+   "cover": "txakoli.jpg",
+   "pdf": "",
    "issuu": ""
   },
   {
    "slug": "identity",
    "title": "Identity in Itself",
-   "subtitle": "The reflection of a culture with its own character.",
+   "subtitle": "The reflection of an identity: the heart and soul of the Basque people.",
    "cover": "identity.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/5582656/IDENTITY+2019+ing.pdf",
+   "pdf": "",
    "issuu": ""
-  },
-  {
-   "slug": "drive-enjoy",
-   "title": "Drive & Enjoy",
-   "subtitle": "Choose your route: ten self-drive proposals across Bizkaia.",
-   "cover": "drive-enjoy.jpg",
-   "pdf": "https://www.visitbiscay.eus/documents/1369190/6564805/DRIVE%26ENJOY+2020+ENGL_WEB.pdf/c180b49d-e311-6f41-2d0d-3c548e961734?t=1596716163107",
-   "issuu": ""
-  },
-  {
-   "slug": "place-to-be",
-   "title": "The Place to Be",
-   "subtitle": "The essential guide to the destination.",
-   "cover": "place-to-be.jpg",
-   "pdf": "",
-   "issuu": "https://issuu.com/turismobilbao/docs/place_to_be_2024web_en"
-  },
-  {
-   "slug": "land-city",
-   "title": "Land & City",
-   "subtitle": "The city and the land that surrounds it.",
-   "cover": "land-city.jpg",
-   "pdf": "",
-   "issuu": "https://issuu.com/turismobilbao/docs/city__land_ing"
-  },
-  {
-   "slug": "coastline",
-   "title": "Coastline",
-   "subtitle": "The Bizkaia coast, beach by beach.",
-   "cover": "coastline.jpg",
-   "pdf": "",
-   "issuu": "https://issuu.com/turismobilbao/docs/coastline_ingl_2023"
-  },
-  {
-   "slug": "iron-river",
-   "title": "Iron River",
-   "subtitle": "The estuary and its industrial heritage.",
-   "cover": "iron-river.jpg",
-   "pdf": "",
-   "issuu": "https://issuu.com/turismobilbao/docs/iron_river_en"
   },
   {
    "slug": "rural-tourism",
    "title": "Rural Tourism",
-   "subtitle": "Farmhouses, valleys and village life in Bizkaia.",
+   "subtitle": "The landscape as a destination: away from the noise, close to people.",
    "cover": "rural-tourism.jpg",
    "pdf": "",
    "issuu": "https://issuu.com/turismobilbao/docs/turismo_rural_engl_"
   },
   {
-   "slug": "athletic-experience",
-   "title": "Athletic Club Experience",
-   "subtitle": "Be part of something unique: San Mamés and the Athletic Club Museum.",
-   "cover": "athletic-experience.jpg",
+   "slug": "family-tourism",
+   "title": "Family Plans",
+   "subtitle": "Ideas for living experiences with the family.",
+   "cover": "family-tourism.jpg",
+   "pdf": "",
+   "issuu": ""
+  },
+  {
+   "slug": "bike-spirit",
+   "title": "Bike Spirit",
+   "subtitle": "Thrills on two wheels: 16 cycling proposals.",
+   "cover": "bike-spirit.jpg",
+   "pdf": "",
+   "issuu": "https://issuu.com/turismobilbao/docs/bike_spirit_en"
+  },
+  {
+   "slug": "drive-enjoy",
+   "title": "Drive & Enjoy",
+   "subtitle": "Experiences on wheels: choose your route from ten proposals.",
+   "cover": "drive-enjoy.jpg",
    "pdf": "",
    "issuu": ""
   },
@@ -813,12 +797,36 @@
    "issuu": ""
   },
   {
-   "slug": "bike-spirit",
-   "title": "Bike Spirit",
-   "subtitle": "Thrills on two wheels: 16 cycling proposals.",
-   "cover": "bike-spirit.jpg",
+   "slug": "shopping",
+   "title": "Truly Unique Shopping",
+   "subtitle": "Truly unique purchases, with Basque flavour.",
+   "cover": "shopping.jpg",
    "pdf": "",
-   "issuu": "https://issuu.com/turismobilbao/docs/bike_spirit_en"
+   "issuu": ""
+  },
+  {
+   "slug": "film-locations",
+   "title": "Film Locations",
+   "subtitle": "A film city, a film territory: routes through the seventh art.",
+   "cover": "film-locations.jpg",
+   "pdf": "",
+   "issuu": ""
+  },
+  {
+   "slug": "athletic-experience",
+   "title": "Athletic Club Experience",
+   "subtitle": "Be part of something unique: San Mamés and the Athletic Club Museum.",
+   "cover": "athletic-experience.jpg",
+   "pdf": "",
+   "issuu": ""
+  },
+  {
+   "slug": "lgbti",
+   "title": "Pride Everywhere",
+   "subtitle": "Be, explore, enjoy: sharing our pride with you.",
+   "cover": "lgbti.jpg",
+   "pdf": "",
+   "issuu": ""
   }
  ],
  "sessions": [
