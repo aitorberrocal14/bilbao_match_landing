@@ -147,7 +147,9 @@ class MBB_Settings {
 			'ch1_title' => 'General enquiries', 'ch1_note' => 'Programme, registration and participation', 'ch1_value' => 'info@matchbilbaobizkaia.eus',
 			'ch2_title' => 'Technical support', 'ch2_note' => 'Meeting platform and login assistance', 'ch2_value' => 'help@matchbilbaobizkaia.eus',
 			'ch3_title' => 'WhatsApp support', 'ch3_note' => 'Monday to Friday, 9:00 – 17:00 CET', 'ch3_value' => '+34 689 505 376',
-			'ch4_title' => 'Event organisation', 'ch4_note' => 'Bilbao Bizkaia tourism promotion office', 'ch4_value' => 'bilbaobizkaia@promotourist.net',
+			// Left empty on purpose: a channel with no title and no value is
+			// skipped, so the fourth slot stays available without showing.
+			'ch4_title' => '', 'ch4_note' => '', 'ch4_value' => '',
 		);
 	}
 

@@ -93,14 +93,9 @@ window.MBB.site = {
         value: '+34 689 505 376',
         href: 'https://wa.me/34689505376',
         icon: 'chat'
-      },
-      {
-        title: 'Event organisation',
-        note: 'Bilbao Bizkaia tourism promotion office',
-        value: 'bilbaobizkaia@promotourist.net',
-        href: 'mailto:bilbaobizkaia@promotourist.net',
-        icon: 'office'
       }
+      // A fourth channel can be added here — the row is built from this list,
+      // so it adapts to however many there are.
     ]
   },
 

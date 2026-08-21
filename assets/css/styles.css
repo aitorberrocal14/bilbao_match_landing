@@ -709,7 +709,8 @@ p:last-child { margin-bottom: 0; }
 /* 15. CONTACT ============================================================== */
 .channels {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Adapts to however many channels are configured — three today, four before */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 .channel__icon {

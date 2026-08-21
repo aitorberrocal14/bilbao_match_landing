@@ -729,7 +729,8 @@ p:last-child { margin-bottom: 0; }
 /* 15. CONTACT ============================================================== */
 .channels {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  /* Adapts to however many channels are configured — three today, four before */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: clamp(1.5rem, 3vw, 2.5rem);
 }
 .channel__icon {
@@ -1181,14 +1182,9 @@ window.MBB.site = {
         value: '+34 689 505 376',
         href: 'https://wa.me/34689505376',
         icon: 'chat'
-      },
-      {
-        title: 'Event organisation',
-        note: 'Bilbao Bizkaia tourism promotion office',
-        value: 'bilbaobizkaia@promotourist.net',
-        href: 'mailto:bilbaobizkaia@promotourist.net',
-        icon: 'office'
       }
+      // A fourth channel can be added here — the row is built from this list,
+      // so it adapts to however many there are.
     ]
   },
 
