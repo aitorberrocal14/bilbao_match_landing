@@ -68,17 +68,12 @@ window.MBB.presentation = {
     'Bilbao Bizkaia exists to open that network to you directly, and to make ' +
     'the destination easy to programme, easy to sell and easy to recommend.'
   ],
-  // Photography for the editorial mosaic. Files that are not there yet fall
-  // back to a labelled placeholder tile, so the layout never breaks.
-  // Source: W:\08 Bilbao Turismo\Promocion Desarrollo Productos\
-  //         Promo Exterior y Mkt\3 SOPORTES PROMOCION\BANCO IMAGENES
+  // Two photographs only, as agreed in review. Drop the files in
+  // assets/img/photos/ with these names and they appear; if one is missing a
+  // labelled placeholder takes its place so the layout never breaks.
   media: [
-    // Interim: lifted from the brochures themselves (Coastline and City &
-    // Experience), so they are the destination's own images. Replace with the
-    // higher-resolution originals from the image bank when they are to hand.
     { file: 'assets/img/photos/gaztelugatxe.jpg', caption: 'Gaztelugatxe' },
-    { file: 'assets/img/photos/bilbao-2.jpg', caption: 'Iberdrola Tower and Zubizuri bridge, Bilbao' },
-    { file: 'assets/img/photos/bilbao-3.jpg', caption: '[Insert third photo]' }
+    { file: 'assets/img/photos/bilbao-viewpoint.jpg', caption: 'Bilbao from the Artxanda viewpoint' }
   ]
 };
 

@@ -137,6 +137,9 @@
 
 .mbb .section--soft { background: var(--bg-soft); }
 
+/* Less air at the foot of a section whose column already ends short */
+.mbb .section--tight { padding-bottom: clamp(1.5rem, 3.5vw, 3rem); }
+
 
 .mbb h1,
 .mbb h2,

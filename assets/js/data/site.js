@@ -60,11 +60,9 @@ window.MBB.site = {
       { value: '4', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],
-    // [Insert hero image or video] — drop a file at the path below and it will
-    // be used automatically as the hero backdrop. Recommended: 2400×1350 JPG,
-    // or an MP4 loop of max. 6 MB.
+    // Drop the file at the path below and it is used automatically.
     media: {
-      image: 'assets/img/photos/hero.jpg',
+      image: 'assets/img/photos/abando.jpg',
       video: '' // e.g. 'assets/video/hero-loop.mp4'
     }
   },
