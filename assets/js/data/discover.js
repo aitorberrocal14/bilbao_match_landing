@@ -28,7 +28,7 @@ window.MBB.discover = {
     {
       id: 'city-experience',
       title: 'City & Experience',
-      subtitle: 'The art of living: Bilbao urban experiences.',
+      subtitle: 'The art of living: Bilbao, urban experiences.',
       cover: 'assets/img/brochures/city-experience.jpg',
       pdf: 'https://www.visitbiscay.eus/documents/1369190/1453535/City_Experience_EN.pdf/0c9274b5-cbbe-e80e-a82d-b1458e1fc3a3?t=1522938860060',
       issuu: '' // paste the issuu.com/turismobilbao/docs/… link of this title
@@ -128,9 +128,25 @@ window.MBB.discover = {
       issuu: 'https://issuu.com/turismobilbao/docs/turismo_rural_engl_'
     },
     {
+      id: 'athletic-experience',
+      title: 'Athletic Club Experience',
+      subtitle: 'Be part of something unique: San Mamés and the Athletic Club Museum.',
+      cover: 'assets/img/brochures/athletic-experience.jpg',
+      pdf: '',
+      issuu: '' // [Insert the Issuu link — not on the first page of the profile]
+    },
+    {
+      id: 'bus-train',
+      title: 'Train & Bus',
+      subtitle: 'The most sustainable way to get to know the region: 16 routes.',
+      cover: 'assets/img/brochures/bus-train.jpg',
+      pdf: '',
+      issuu: '' // [Insert the Issuu link — not on the first page of the profile]
+    },
+    {
       id: 'bike-spirit',
       title: 'Bike Spirit',
-      subtitle: 'Cycle tourism across Bilbao Bizkaia.',
+      subtitle: 'Thrills on two wheels: 16 cycling proposals.',
       cover: 'assets/img/brochures/bike-spirit.jpg',
       pdf: '',
       issuu: 'https://issuu.com/turismobilbao/docs/bike_spirit_en'
