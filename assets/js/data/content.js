@@ -73,8 +73,11 @@ window.MBB.presentation = {
   // Source: W:\08 Bilbao Turismo\Promocion Desarrollo Productos\
   //         Promo Exterior y Mkt\3 SOPORTES PROMOCION\BANCO IMAGENES
   media: [
-    { file: 'assets/img/photos/gaztelugatxe.jpg', caption: '[Insert Gaztelugatxe photo]' },
-    { file: 'assets/img/photos/bilbao-2.jpg', caption: '[Insert second photo]' },
+    // Interim: lifted from the brochures themselves (Coastline and City &
+    // Experience), so they are the destination's own images. Replace with the
+    // higher-resolution originals from the image bank when they are to hand.
+    { file: 'assets/img/photos/gaztelugatxe.jpg', caption: 'Gaztelugatxe' },
+    { file: 'assets/img/photos/bilbao-2.jpg', caption: 'Iberdrola Tower and Zubizuri bridge, Bilbao' },
     { file: 'assets/img/photos/bilbao-3.jpg', caption: '[Insert third photo]' }
   ]
 };
