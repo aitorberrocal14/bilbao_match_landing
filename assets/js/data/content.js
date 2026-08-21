@@ -73,7 +73,7 @@ window.MBB.presentation = {
   // labelled placeholder takes its place so the layout never breaks.
   media: [
     { file: 'assets/img/photos/gaztelugatxe.jpg', caption: 'Gaztelugatxe' },
-    { file: 'assets/img/photos/bilbao-viewpoint.jpg', caption: 'Bilbao from the Artxanda viewpoint' }
+    { file: 'assets/img/photos/bilbao-casco-viejo.jpg', caption: "Panoramic view of Bilbao's Old Town" }
   ]
 };
 
