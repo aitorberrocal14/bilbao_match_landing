@@ -75,8 +75,15 @@ fs.writeFileSync(
 );
 
 /* --- assets -------------------------------------------------------------- */
+// The destination is a mirror of the source, not an accumulation of everything
+// that has ever been there: anything the source no longer has is dropped, so a
+// renamed or retired image cannot linger inside the plugin.
 function copyDir(from, to) {
   fs.mkdirSync(to, { recursive: true });
+  const keep = new Set(fs.readdirSync(from));
+  for (const name of fs.readdirSync(to)) {
+    if (!keep.has(name)) fs.rmSync(path.join(to, name), { recursive: true, force: true });
+  }
   for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
     const src = path.join(from, entry.name);
     const dst = path.join(to, entry.name);

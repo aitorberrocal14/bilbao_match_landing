@@ -62,7 +62,7 @@ window.MBB.site = {
     ],
     // Drop the file at the path below and it is used automatically.
     media: {
-      image: 'assets/img/photos/abando.jpg',
+      image: 'assets/img/photos/puppy.jpg',
       video: '' // e.g. 'assets/video/hero-loop.mp4'
     }
   },
