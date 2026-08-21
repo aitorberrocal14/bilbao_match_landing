@@ -72,7 +72,7 @@ window.MBB.presentation = {
   // assets/img/photos/ with these names and they appear; if one is missing a
   // labelled placeholder takes its place so the layout never breaks.
   media: [
-    { file: 'assets/img/photos/gaztelugatxe.jpg', caption: 'Gaztelugatxe' },
+    { file: 'assets/img/photos/gaztelugatxe.jpg', caption: 'San Juan de Gaztelugatxe' },
     { file: 'assets/img/photos/bilbao-casco-viejo.jpg', caption: "Panoramic view of Bilbao's Old Town" }
   ]
 };
