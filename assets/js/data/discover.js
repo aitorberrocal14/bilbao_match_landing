@@ -14,10 +14,11 @@
      • `pdf`   — a direct link to the file, offered as a download.
    With neither, the card still shows the cover but has nothing to open.
 
-   [Insert Issuu links] — twelve are still missing. They are all on the
-   publisher profile; see tools/issuu-links.js for how to collect them in one
-   go, and remember to load the whole profile (?ps=100) rather than the first
-   page.
+   Fifteen of the sixteen are linked. Only Film Locations is outstanding: it
+   was not found on the publisher profile, so it may be unpublished or filed
+   under a title that does not mention film. See tools/issuu-links.js for how
+   to list the whole profile in one go, and remember to scroll to the bottom
+   first — the profile loads its publications as you go.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -36,7 +37,7 @@ window.MBB.discover = {
       subtitle: 'The art of living: Bilbao, urban experiences.',
       cover: 'assets/img/brochures/city-experience.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/bajabilbao_city_ing'
     },
     {
       id: 'coastline',
@@ -60,7 +61,7 @@ window.MBB.discover = {
       subtitle: 'In Bilbao, the local takes on universal significance.',
       cover: 'assets/img/brochures/culture.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/cultura_2016_'
     },
     {
       id: 'gastronomy',
@@ -68,7 +69,7 @@ window.MBB.discover = {
       subtitle: 'Well known and recognised: the cuisine of Bizkaia in the gastronomic universe.',
       cover: 'assets/img/brochures/gastronomy.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/baja_bi_gastro_ingles'
     },
     {
       id: 'txakoli',
@@ -76,7 +77,7 @@ window.MBB.discover = {
       subtitle: 'A wine with Basque essence: an experience available to few.',
       cover: 'assets/img/brochures/txakoli.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/txakoli_2020_en'
     },
     {
       id: 'identity',
@@ -84,7 +85,7 @@ window.MBB.discover = {
       subtitle: 'The reflection of an identity: the heart and soul of the Basque people.',
       cover: 'assets/img/brochures/identity.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/baja_bi_identidad_2016_ing'
     },
     {
       id: 'rural-tourism',
@@ -100,7 +101,7 @@ window.MBB.discover = {
       subtitle: 'Ideas for living experiences with the family.',
       cover: 'assets/img/brochures/family-tourism.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/turismo_familiar_ingles_2021'
     },
     {
       id: 'bike-spirit',
@@ -116,7 +117,7 @@ window.MBB.discover = {
       subtitle: 'Experiences on wheels: choose your route from ten proposals.',
       cover: 'assets/img/brochures/drive-enjoy.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/alt_touring_2017_ingles'
     },
     {
       id: 'bus-train',
@@ -124,7 +125,7 @@ window.MBB.discover = {
       subtitle: 'The most sustainable way to get to know the region: 16 routes.',
       cover: 'assets/img/brochures/bus-train.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/tren_bus_2019_en'
     },
     {
       id: 'shopping',
@@ -132,7 +133,7 @@ window.MBB.discover = {
       subtitle: 'Truly unique purchases, with Basque flavour.',
       cover: 'assets/img/brochures/shopping.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/shopping_2020_en'
     },
     {
       id: 'film-locations',
@@ -148,7 +149,7 @@ window.MBB.discover = {
       subtitle: 'Be part of something unique: San Mamés and the Athletic Club Museum.',
       cover: 'assets/img/brochures/athletic-experience.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/athletic_experience_ingles_2021'
     },
     {
       id: 'lgbti',
@@ -156,7 +157,7 @@ window.MBB.discover = {
       subtitle: 'Be, explore, enjoy: sharing our pride with you.',
       cover: 'assets/img/brochures/lgbti.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/lgbt_eng'
     }
   ]
 };
