@@ -138,7 +138,12 @@ ob_start(); MBB_Dashboard::render(); $dash = ob_get_clean();
 check( 'panel: se renderiza', strlen( $dash ) > 500 );
 check( 'panel: cuenta 39 expositores', false !== strpos( $dash, '>39<' ) );
 check( 'panel: cuenta 16 folletos', false !== strpos( $dash, '>16<' ) );
-check( 'panel: avisa de folletos sin enlace', false !== strpos( $dash, 'brochures have no link' ) );
+// Singular or plural, depending on how many are still unlinked — the count
+// comes from the seed, so the wording follows it.
+check(
+	'panel: avisa de folletos sin enlace',
+	false !== strpos( $dash, 'brochure has no link' ) || false !== strpos( $dash, 'brochures have no link' )
+);
 check( 'panel: avisa de que falta el login', false !== strpos( $dash, 'Login button has no address' ) );
 check( 'panel: enlaza a añadir expositor',
 	false !== strpos( $dash, 'post-new.php?post_type=mbb_exhibitor' ) );
