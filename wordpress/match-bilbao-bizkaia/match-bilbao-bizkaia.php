@@ -24,6 +24,8 @@ require_once MBB_PATH . 'includes/class-mbb-settings.php';
 require_once MBB_PATH . 'includes/class-mbb-template.php';
 require_once MBB_PATH . 'includes/class-mbb-shortcodes.php';
 require_once MBB_PATH . 'includes/class-mbb-importer.php';
+require_once MBB_PATH . 'includes/class-mbb-schema.php';
+require_once MBB_PATH . 'includes/class-mbb-dashboard.php';
 
 class MBB_Plugin {
 
@@ -35,6 +37,8 @@ class MBB_Plugin {
 		MBB_Settings::init();
 		MBB_Shortcodes::init();
 		MBB_Importer::init();
+		MBB_Schema::init();
+		MBB_Dashboard::init();
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'register_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'print_assets' ) );

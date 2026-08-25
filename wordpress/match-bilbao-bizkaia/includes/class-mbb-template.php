@@ -23,6 +23,7 @@ class MBB_Icons {
 			'support'   => '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 5.5v3M8 10.6v.1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
 			'chat'      => '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M13.5 8.5c0 2.5-2.5 4.5-5.5 4.5-.7 0-1.4-.1-2-.3L3 13.5l.8-2.4A4.3 4.3 0 0 1 2.5 8.5C2.5 6 5 4 8 4s5.5 2 5.5 4.5Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
 			'office'    => '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2.5 13.5V4.2L8 2l5.5 2.2v9.3M6 13.5V9h4v4.5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+			'searchGlass' => '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
 		);
 
 		return isset( $icons[ $name ] ) ? $icons[ $name ] : '';
@@ -48,13 +49,28 @@ class MBB_Template {
 			$logo     = '<span class="logo-tile__mark">' . esc_html( $initials ) . '</span>';
 		}
 
+		// Searched on the name and the web address, because the logo on the tile
+		// is often the group's brand rather than the title of the entry.
+		$key = self::search_key( $name . ' ' . (string) get_post_meta( $post->ID, '_mbb_website_label', true ) );
+
 		return sprintf(
-			'<a class="logo-tile" href="%1$s" data-category="%2$s" title="%3$s">%4$s<span class="logo-tile__name">%3$s</span></a>',
+			'<a class="logo-tile" href="%1$s" data-category="%2$s" data-name="%5$s" title="%3$s">%4$s<span class="logo-tile__name">%3$s</span></a>',
 			esc_url( get_permalink( $post ) ),
 			esc_attr( $cat ),
 			esc_attr( $name ),
-			$logo
+			$logo,
+			esc_attr( $key )
 		);
+	}
+
+	/**
+	 * Folds a name to what the search matches: lower case, accents removed, so
+	 * "melia" finds "Meliá". Mirrors MBB.searchKey() in assets/js/components.js;
+	 * the two have to agree or the search would miss.
+	 */
+	public static function search_key( $text ) {
+		$text = remove_accents( (string) $text );
+		return function_exists( 'mb_strtolower' ) ? mb_strtolower( $text, 'UTF-8' ) : strtolower( $text );
 	}
 
 	private static function initials( $name ) {

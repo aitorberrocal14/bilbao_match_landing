@@ -73,6 +73,10 @@ class MBB_Shortcodes {
 	/* --- Hero --------------------------------------------------------------- */
 
 	public static function hero() {
+		// The page carrying the hero is the event page, so it is the one that
+		// gets the structured data.
+		MBB_Schema::want();
+
 		$image_id = (int) MBB_Settings::get( 'hero_image', 0 );
 		$media    = $image_id
 			? wp_get_attachment_image( $image_id, 'large', false, array( 'alt' => '' ) )
@@ -391,10 +395,18 @@ class MBB_Shortcodes {
 		$html = '<div class="section-head section-head--center">'
 			. '<h2 class="h-1">' . esc_html( $atts['title'] ) . '</h2>'
 			. '<p>' . esc_html( $atts['text'] ) . '</p></div>'
+			. '<div class="dir-tools">'
 			. '<div class="filters" role="group" aria-label="' . esc_attr__( 'Filter exhibitors by category', 'mbb' ) . '">'
 			. $filters . '</div>'
+			. '<div class="dir-search">'
+			. '<label class="sr-only" for="ex-search">' . esc_html__( 'Search exhibitors by name', 'mbb' ) . '</label>'
+			. '<span class="dir-search__ico" aria-hidden="true">' . MBB_Icons::get( 'searchGlass' ) . '</span>'
+			. '<input type="search" id="ex-search" autocomplete="off" spellcheck="false" placeholder="'
+			. esc_attr__( 'Search by name', 'mbb' ) . '">'
+			. '</div></div>'
+			. '<p class="dir-count" id="ex-count" role="status" aria-live="polite"></p>'
 			. '<div class="logo-grid" id="ex-grid">' . $tiles . '</div>'
-			. '<p class="directory__empty" id="ex-empty" hidden>' . esc_html__( 'No exhibitors in this category.', 'mbb' ) . '</p>';
+			. '<p class="directory__empty" id="ex-empty" hidden>' . esc_html__( 'No exhibitors match your search.', 'mbb' ) . '</p>';
 
 		MBB_Plugin::need_assets();
 		return '<div class="mbb"><section class="section" id="exhibitors"><div class="shell shell--wide">'

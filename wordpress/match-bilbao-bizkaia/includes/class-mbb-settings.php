@@ -20,6 +20,8 @@ class MBB_Settings {
 				'fields' => array(
 					'edition'     => array( __( 'Edition', 'mbb' ), 'text' ),
 					'dates'       => array( __( 'Dates', 'mbb' ), 'text' ),
+					'event_start' => array( __( 'First day', 'mbb' ), 'date', __( 'Not shown on the page. Search engines read these two dates to list the event with its dates; keep them in step with the line above.', 'mbb' ) ),
+					'event_end'   => array( __( 'Last day', 'mbb' ), 'date' ),
 					'day1_label'  => array( __( 'Day 1 — label', 'mbb' ), 'text' ),
 					'day1_date'   => array( __( 'Day 1 — date', 'mbb' ), 'text' ),
 					'day1_theme'  => array( __( 'Day 1 — theme', 'mbb' ), 'text' ),
@@ -106,6 +108,8 @@ class MBB_Settings {
 		return array(
 			'edition'      => '2026',
 			'dates'        => '6 – 10 October 2026',
+			'event_start'  => '2026-10-06',
+			'event_end'    => '2026-10-10',
 			'day1_label'   => 'Day 1',
 			'day1_date'    => 'Tuesday 6 October',
 			'day1_theme'   => 'Arrival & welcome',
@@ -325,7 +329,7 @@ class MBB_Settings {
 									<button class="button mbb-pick" data-target="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Select image', 'mbb' ); ?></button>
 									<button class="button-link mbb-clear" data-target="<?php echo esc_attr( $id ); ?>"><?php esc_html_e( 'Remove', 'mbb' ); ?></button>
 								<?php else : ?>
-									<input type="<?php echo esc_attr( 'url' === $type ? 'url' : 'text' ); ?>"
+									<input type="<?php echo esc_attr( in_array( $type, array( 'url', 'date' ), true ) ? $type : 'text' ); ?>"
 										id="<?php echo esc_attr( $id ); ?>"
 										name="<?php echo esc_attr( $name ); ?>"
 										value="<?php echo esc_attr( $value ); ?>"

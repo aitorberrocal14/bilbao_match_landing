@@ -123,6 +123,6 @@ window.MBB.experts = {
     title: 'Exhibitors',
     text:
       'The professionals of the Bilbao Bizkaia destination taking part in the ' +
-      'event. Filter by category or search by name.'
+      'event. Filter by category, or search by name or web address.'
   }
 };

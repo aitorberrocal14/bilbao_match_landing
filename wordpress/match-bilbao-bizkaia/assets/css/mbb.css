@@ -684,12 +684,67 @@
 
 
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
+/* Category buttons and the name search sit on one line, and stack on narrow
+   screens. The search keeps the plain, ruled look of the rest of the page. */
+.mbb .dir-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 2rem;
+  margin-bottom: 1rem;
+}
+
 .mbb .filters {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.4rem 2rem;
-  margin-bottom: 2.25rem;
+}
+
+.mbb .dir-search { position: relative; display: flex; align-items: center; }
+
+.mbb .dir-search__ico {
+  position: absolute;
+  left: 0.1rem;
+  display: flex;
+  color: var(--grey-light);
+  pointer-events: none;
+}
+
+.mbb .dir-search__ico svg { width: 15px; height: 15px; }
+
+.mbb .dir-search input {
+  width: 15rem;
+  max-width: 100%;
+  padding: 0.5rem 0.4rem 0.5rem 1.6rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  color: var(--grey-dark);
+  transition: border-color 0.25s var(--ease);
+}
+
+.mbb .dir-search input::placeholder { color: var(--grey-light); }
+
+.mbb .dir-search input:focus { outline: none; border-bottom-color: var(--red); }
+
+.mbb .dir-search input:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+/* The browser's own clear button, kept but toned down to the page's palette */
+.mbb .dir-search input::-webkit-search-cancel-button { cursor: pointer; }
+
+
+.mbb .dir-count {
+  text-align: center;
+  margin: 0 0 1.75rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
 }
 
 .mbb .filter {
@@ -1204,7 +1259,12 @@
     gap: 0;
     padding: 0.5rem var(--gutter) 1rem;
   }
-  .mbb .header__link { padding: 0.85rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+  .mbb /* The rule sits on the block,
+.mbb not on the inline link,
+.mbb or it would only span
+     the width of the text. Blocking the link also widens the tap target. */
+  .header__link { display: block; padding: 0.85rem 0; font-size: 0.95rem; }
+  .mbb .header__links > li { border-bottom: 1px solid var(--line); }
   .mbb .hero__inner,
 .mbb .present,
 .mbb .videos,

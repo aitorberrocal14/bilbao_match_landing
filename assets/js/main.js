@@ -156,6 +156,8 @@
     if (!grid) return;
 
     var empty = $('#ex-empty');
+    var count = $('#ex-count');
+    var search = $('#ex-search');
     var filters = $all('.filter');
 
     grid.innerHTML = MBB.exhibitors
@@ -163,15 +165,29 @@
       .join('');
 
     var tiles = $all('.logo-tile', grid);
+    var category = 'all';
 
-    function apply(cat) {
+    function apply() {
+      // Both conditions are applied together, so a search runs inside the
+      // category on screen rather than silently reaching outside it.
+      var query = search ? MBB.searchKey(search.value.trim()) : '';
       var shown = 0;
+
       tiles.forEach(function (t) {
-        var show = cat === 'all' || t.dataset.category === cat;
+        var show =
+          (category === 'all' || t.dataset.category === category) &&
+          (!query || (t.dataset.name || '').indexOf(query) !== -1);
         t.hidden = !show;
         if (show) shown++;
       });
+
       if (empty) empty.hidden = shown !== 0;
+      if (count) {
+        count.textContent =
+          shown === tiles.length
+            ? tiles.length + ' exhibitors'
+            : shown + ' of ' + tiles.length + ' exhibitors';
+      }
     }
 
     filters.forEach(function (btn) {
@@ -179,11 +195,24 @@
         filters.forEach(function (b) {
           b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
         });
-        apply(btn.dataset.filter);
+        category = btn.dataset.filter;
+        apply();
       });
     });
 
-    apply('all');
+    if (search) {
+      search.addEventListener('input', apply);
+      // Escape clears the field rather than only clearing the browser's own
+      // search affordance, which would leave the grid filtered.
+      search.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && search.value) {
+          search.value = '';
+          apply();
+        }
+      });
+    }
+
+    apply();
   }
 
   /* --------------------------------------------------------------------- */

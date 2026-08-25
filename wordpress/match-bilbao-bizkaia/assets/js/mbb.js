@@ -46,17 +46,40 @@
     if (!grid) return;
 
     var empty = document.getElementById('ex-empty');
+    var count = document.getElementById('ex-count');
+    var search = document.getElementById('ex-search');
     var tiles = $all('.logo-tile', grid);
     var filters = $all('.mbb .filter');
+    var category = 'all';
 
-    function apply(cat) {
+    // Mirrors MBB_Template::search_key() in PHP, which built the data-name
+    // attribute: lower case, accents removed.
+    function fold(s) {
+      var t = String(s == null ? '' : s).toLowerCase();
+      return t.normalize ? t.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : t;
+    }
+
+    function apply() {
+      // Category and search apply together, so a search runs inside the
+      // category on screen rather than silently reaching outside it.
+      var query = search ? fold(search.value.trim()) : '';
       var shown = 0;
+
       tiles.forEach(function (t) {
-        var show = cat === 'all' || t.dataset.category === cat;
+        var show =
+          (category === 'all' || t.dataset.category === category) &&
+          (!query || (t.dataset.name || '').indexOf(query) !== -1);
         t.hidden = !show;
         if (show) shown++;
       });
+
       if (empty) empty.hidden = shown !== 0;
+      if (count) {
+        count.textContent =
+          shown === tiles.length
+            ? tiles.length + ' exhibitors'
+            : shown + ' of ' + tiles.length + ' exhibitors';
+      }
     }
 
     filters.forEach(function (btn) {
@@ -64,11 +87,22 @@
         filters.forEach(function (b) {
           b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
         });
-        apply(btn.dataset.filter);
+        category = btn.dataset.filter;
+        apply();
       });
     });
 
-    apply('all');
+    if (search) {
+      search.addEventListener('input', apply);
+      search.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && search.value) {
+          search.value = '';
+          apply();
+        }
+      });
+    }
+
+    apply();
   }
 
   /* --- Videos: load the player only when the visitor asks for it ---------- */

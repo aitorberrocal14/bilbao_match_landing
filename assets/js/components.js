@@ -19,6 +19,19 @@ window.MBB = window.MBB || {};
       .replace(/"/g, '&quot;');
   };
 
+  /**
+   * Folds a name down to what a search should match: lower case, no accents,
+   * so that typing "melia" or "aranzazu" finds "Meliá" and "Aránzazu". Exposed
+   * because the tiles are built here and searched in main.js, and both sides
+   * have to fold the same way.
+   */
+  MBB.searchKey = function (s) {
+    return String(s == null ? '' : s)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+  };
+
   var ICONS = {
     arrow: '<svg class="ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M2 8h11M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     download: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13h11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -37,7 +50,8 @@ window.MBB = window.MBB || {};
     facebook: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M9.5 15V8.7h2.1l.3-2.4H9.5V4.8c0-.7.2-1.2 1.2-1.2h1.3V1.4A17 17 0 0 0 10.1 1C8.3 1 7 2.1 7 4.5v1.8H5v2.4h2V15h2.5Z"/></svg>',
     instagram: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="3.4" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="11.3" cy="4.7" r=".9" fill="currentColor"/></svg>',
     x: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.9 1.9h2.2L9.3 7.4l5.7 7.5h-4.5L7 10.2l-4 4.7H.8l5.2-6L.5 1.9h4.6l3.1 4.2 3.7-4.2Zm-.8 11.6h1.2L4.9 3.2H3.6l7.5 10.3Z"/></svg>',
-    globe: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.4 8h11.2M8 2.3c1.5 1.6 2.3 3.6 2.3 5.7S9.5 12.1 8 13.7C6.5 12.1 5.7 10.1 5.7 8S6.5 3.9 8 2.3Z" stroke="currentColor" stroke-width="1.3"/></svg>'
+    globe: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.4 8h11.2M8 2.3c1.5 1.6 2.3 3.6 2.3 5.7S9.5 12.1 8 13.7C6.5 12.1 5.7 10.1 5.7 8S6.5 3.9 8 2.3Z" stroke="currentColor" stroke-width="1.3"/></svg>',
+    searchGlass: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
   };
   MBB.icons = ICONS;
   MBB.esc = esc;
@@ -329,11 +343,20 @@ window.MBB = window.MBB || {};
           '<h2 class="h-1">' + esc(copy.title) + '</h2>' +
           '<p>' + esc(copy.text) + '</p>' +
         '</div>' +
-        '<div class="filters" role="group" aria-label="Filter exhibitors by category">' +
-          filters +
+        '<div class="dir-tools">' +
+          '<div class="filters" role="group" aria-label="Filter exhibitors by category">' +
+            filters +
+          '</div>' +
+          '<div class="dir-search">' +
+            '<label class="sr-only" for="ex-search">Search exhibitors by name</label>' +
+            '<span class="dir-search__ico" aria-hidden="true">' + ICONS.searchGlass + '</span>' +
+            '<input type="search" id="ex-search" placeholder="Search by name" ' +
+              'autocomplete="off" spellcheck="false">' +
+          '</div>' +
         '</div>' +
+        '<p class="dir-count" id="ex-count" role="status" aria-live="polite"></p>' +
         '<div class="logo-grid" id="ex-grid"></div>' +
-        '<p class="directory__empty" id="ex-empty" hidden>No exhibitors in this category.</p>' +
+        '<p class="directory__empty" id="ex-empty" hidden>No exhibitors match your search.</p>' +
       '</div>'
     );
   };
@@ -357,7 +380,13 @@ window.MBB = window.MBB || {};
 
     return (
       '<a class="logo-tile" href="' + esc(base) + 'exhibitors/' + esc(x.id) + '.html" ' +
-        'data-category="' + esc(x.category) + '" title="' + esc(x.name) + '">' +
+        'data-category="' + esc(x.category) + '" ' +
+        // Indexed on the name and on the web address, because the logo on the
+        // tile is often the group's brand rather than the name of the entry —
+        // "Aránzazu Hoteles" on the tile, "Hotel Carlton & Hotel Abando" in
+        // the record, aranzazu-hoteles.com in both.
+        'data-name="' + esc(MBB.searchKey(x.name + ' ' + (x.websiteLabel || x.website || ''))) + '" ' +
+        'title="' + esc(x.name) + '">' +
         logo +
         '<span class="logo-tile__name">' + esc(x.name) + '</span>' +
       '</a>'
