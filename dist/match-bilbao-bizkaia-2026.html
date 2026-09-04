@@ -632,6 +632,10 @@ p:last-child { margin-bottom: 0; }
 .login-band small { display: block; margin-top: 0.7rem; color: rgba(255, 255, 255, 0.7); }
 
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
+/* The directory opens a subject of its own inside "Meet BB's Experts", right
+   under the red login band. Without this it starts flush against the band. */
+.directory { margin-top: clamp(3.5rem, 7vw, 6rem); }
+
 /* Category buttons and the name search sit on one line, and stack on narrow
    screens. The search keeps the plain, ruled look of the rest of the page. */
 .dir-tools {
