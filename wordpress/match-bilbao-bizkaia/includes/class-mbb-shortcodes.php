@@ -455,7 +455,6 @@ class MBB_Shortcodes {
 	/* --- Contact ---------------------------------------------------------------- */
 
 	public static function contact() {
-		$icons = array( 'mail', 'support', 'chat', 'office' );
 		$items = '';
 
 		for ( $n = 1; $n <= 4; $n++ ) {
@@ -465,19 +464,23 @@ class MBB_Shortcodes {
 				continue;
 			}
 
-			// An address becomes a mailto:, a phone number a WhatsApp link.
+			// An address becomes a mailto:, a phone number a dialling link.
 			if ( is_email( $value ) ) {
 				$href = 'mailto:' . $value;
 			} elseif ( preg_match( '~^\+?[\d\s]{6,}$~', $value ) ) {
-				$href = 'https://wa.me/' . preg_replace( '~\D~', '', $value );
+				$href = 'tel:' . preg_replace( '~[^\d+]~', '', $value );
 			} else {
 				$href = '';
 			}
 
+			// The icon follows what the channel actually is, so reordering or
+			// emptying a channel cannot leave a telephone wearing an envelope.
+			$icon = is_email( $value ) ? 'mail' : ( $href ? 'phone' : 'office' );
+
 			$items .= sprintf(
 				'<div class="channel"><span class="channel__icon">%1$s</span>
 					<h3>%2$s</h3><p class="note">%3$s</p>%4$s</div>',
-				MBB_Icons::get( $icons[ $n - 1 ] ),
+				MBB_Icons::get( $icon ),
 				esc_html( $title ),
 				esc_html( MBB_Settings::get( "ch{$n}_note" ) ),
 				$href

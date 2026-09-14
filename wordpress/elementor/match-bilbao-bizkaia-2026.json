@@ -1436,7 +1436,7 @@
    "isInner": false
   },
   {
-   "id": "aaaaa6b",
+   "id": "aaaaa68",
    "elType": "section",
    "settings": {
     "layout": "boxed",
@@ -1463,7 +1463,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "General enquiries",
+        "title": "Email",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
@@ -1482,7 +1482,7 @@
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Programme, registration and participation</p><p><a href=\"mailto:info@matchbilbaobizkaia.eus\">info@matchbilbaobizkaia.eus</a></p>",
+        "editor": "<p>Programme, registration, participation and platform support</p><p><a href=\"mailto:welcome@matchbilbaobizkaia.eus\">welcome@matchbilbaobizkaia.eus</a></p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",
@@ -1506,7 +1506,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "Technical support",
+        "title": "Telephone",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
@@ -1525,50 +1525,7 @@
        "elType": "widget",
        "widgetType": "text-editor",
        "settings": {
-        "editor": "<p>Meeting platform and login assistance</p><p><a href=\"mailto:help@matchbilbaobizkaia.eus\">help@matchbilbaobizkaia.eus</a></p>",
-        "_css_classes": "mbb-text",
-        "text_color": "#7A7A7A",
-        "typography_typography": "custom",
-        "typography_font_family": "Roboto"
-       },
-       "elements": []
-      }
-     ],
-     "isInner": false
-    },
-    {
-     "id": "aaaaa6a",
-     "elType": "column",
-     "settings": {
-      "_column_size": 25,
-      "_inline_size": null
-     },
-     "elements": [
-      {
-       "id": "aaaaa68",
-       "elType": "widget",
-       "widgetType": "heading",
-       "settings": {
-        "title": "WhatsApp support",
-        "header_size": "h3",
-        "_css_classes": "mbb-heading",
-        "title_color": "#AE0000",
-        "typography_typography": "custom",
-        "typography_font_family": "Bariol",
-        "typography_font_weight": "700",
-        "typography_font_size": {
-         "unit": "px",
-         "size": 18
-        }
-       },
-       "elements": []
-      },
-      {
-       "id": "aaaaa69",
-       "elType": "widget",
-       "widgetType": "text-editor",
-       "settings": {
-        "editor": "<p>Monday to Friday, 9:00 – 17:00 CET</p><p><a href=\"https://wa.me/34689505376\">+34 689 505 376</a></p>",
+        "editor": "<p>Monday to Friday, 9:00 – 17:00 CET</p><p><a href=\"tel:+34944205377\">+34 944 205 377</a></p>",
         "_css_classes": "mbb-text",
         "text_color": "#7A7A7A",
         "typography_typography": "custom",

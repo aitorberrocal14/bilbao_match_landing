@@ -148,9 +148,11 @@ class MBB_Settings {
 			'video2_title'   => 'The destination in motion',
 			'video2_caption' => 'A short portrait of Bilbao Bizkaia as seen by the professionals who welcome visitors every day.',
 			'contact_intro' => 'Our team is here to help you prepare your participation, from registration and meeting scheduling to travel and accreditation.',
-			'ch1_title' => 'General enquiries', 'ch1_note' => 'Programme, registration and participation', 'ch1_value' => 'info@matchbilbaobizkaia.eus',
-			'ch2_title' => 'Technical support', 'ch2_note' => 'Meeting platform and login assistance', 'ch2_value' => 'help@matchbilbaobizkaia.eus',
-			'ch3_title' => 'WhatsApp support', 'ch3_note' => 'Monday to Friday, 9:00 – 17:00 CET', 'ch3_value' => '+34 689 505 376',
+			// One address answers everything, so enquiries and platform support
+			// are one channel rather than the same address printed twice.
+			'ch1_title' => 'Email', 'ch1_note' => 'Programme, registration, participation and platform support', 'ch1_value' => 'welcome@matchbilbaobizkaia.eus',
+			'ch2_title' => 'Telephone', 'ch2_note' => 'Monday to Friday, 9:00 – 17:00 CET', 'ch2_value' => '+34 944 205 377',
+			'ch3_title' => '', 'ch3_note' => '', 'ch3_value' => '',
 			// Left empty on purpose: a channel with no title and no value is
 			// skipped, so the fourth slot stays available without showing.
 			'ch4_title' => '', 'ch4_note' => '', 'ch4_value' => '',

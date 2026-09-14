@@ -117,7 +117,7 @@ window.MBB.experts = {
     text:
       'Access your profile, your availability and your confirmed meeting ' +
       'agenda on the Match Bilbao Bizkaia platform.',
-    help: 'Need help signing in? Write to help@matchbilbaobizkaia.eus'
+    help: 'Need help signing in? Write to welcome@matchbilbaobizkaia.eus'
   },
   directory: {
     title: 'Exhibitors',

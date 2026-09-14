@@ -72,29 +72,24 @@ window.MBB.site = {
     intro:
       'Our team is here to help you prepare your participation, from ' +
       'registration and meeting scheduling to travel and accreditation.',
+    // One address answers everything now, so "General enquiries" and
+    // "Technical support" have been merged rather than printed twice.
     channels: [
       {
-        title: 'General enquiries',
-        note: 'Programme, registration and participation',
-        value: 'info@matchbilbaobizkaia.eus',
-        href: 'mailto:info@matchbilbaobizkaia.eus',
+        title: 'Email',
+        note: 'Programme, registration, participation and platform support',
+        value: 'welcome@matchbilbaobizkaia.eus',
+        href: 'mailto:welcome@matchbilbaobizkaia.eus',
         icon: 'mail'
       },
       {
-        title: 'Technical support',
-        note: 'Meeting platform and login assistance',
-        value: 'help@matchbilbaobizkaia.eus',
-        href: 'mailto:help@matchbilbaobizkaia.eus',
-        icon: 'support'
-      },
-      {
-        title: 'WhatsApp support',
+        title: 'Telephone',
         note: 'Monday to Friday, 9:00 – 17:00 CET',
-        value: '+34 689 505 376',
-        href: 'https://wa.me/34689505376',
-        icon: 'chat'
+        value: '+34 944 205 377',
+        href: 'tel:+34944205377',
+        icon: 'phone'
       }
-      // A fourth channel can be added here — the row is built from this list,
+      // More channels can be added here — the row is built from this list,
       // so it adapts to however many there are.
     ]
   },
@@ -139,7 +134,7 @@ window.MBB.site = {
       { label: 'Accessibility', href: '#legal-accessibility' }  // [Insert legal link]
     ],
     copyright: 'Bilbao Bizkaia. All rights reserved.',
-    mail: 'info@matchbilbaobizkaia.eus'
+    mail: 'welcome@matchbilbaobizkaia.eus'
   },
 
   /* --- Newsletter -------------------------------------------------------- */
@@ -149,6 +144,15 @@ window.MBB.site = {
       'Receive the Match Bilbao Bizkaia 2026 programme updates, exhibitor ' +
       'announcements and registration reminders.',
     // [Insert newsletter endpoint] — point this at your CRM or mailing platform.
+    //
+    // Agreed in review, still to be built: this becomes a proper form rather
+    // than a single email field, collecting
+    //   · company name
+    //   · contact email
+    //   · where the company is based
+    // Held back until it is decided where the entries should land — a CRM, a
+    // mailing platform or an inbox — because that choice decides whether the
+    // form posts to an endpoint, and what the consent wording has to say.
     action: '',
     consent:
       'By subscribing you accept the processing of your data for the purpose ' +
