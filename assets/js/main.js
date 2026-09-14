@@ -174,8 +174,10 @@
       $all('.prog__group', card).forEach(function (b) {
         b.setAttribute('aria-pressed', b.dataset.group === group ? 'true' : 'false');
       });
-      $all('.tl-item[data-group]', card).forEach(function (item) {
-        item.hidden = item.dataset.group !== group;
+      // A whole timeline per itinerary, not rows inside one: the parts of the
+      // day are worked out per group, so they cannot be mixed.
+      $all('.tl[data-group]', card).forEach(function (tl) {
+        tl.hidden = tl.dataset.group !== group;
       });
     }
 

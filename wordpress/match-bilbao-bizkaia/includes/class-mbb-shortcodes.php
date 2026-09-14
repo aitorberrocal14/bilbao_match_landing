@@ -201,7 +201,7 @@ class MBB_Shortcodes {
 				}
 			}
 
-			$items    = '';
+			$slots    = array();   // rendered below, once the parts of the day are known
 			$exDay    = array();
 			$features = array();
 			$timed    = array();
@@ -216,22 +216,15 @@ class MBB_Shortcodes {
 				$feature = (string) get_post_meta( $post->ID, '_mbb_feature', true );
 				$title   = get_the_title( $post );
 
-				// A line with nothing but a time and a title is a transfer or a
-				// meeting point; it does not need the room a described one needs.
-				$brief = ( '' === $text && '' === $venue ) ? ' tl-item--brief' : '';
-
-				$items .= sprintf(
-					'<li class="tl-item%1$s"%2$s>
-						<span class="tl-item__time%3$s">%4$s</span>
-						<div class="tl-item__body"><h4>%5$s</h4>%6$s%7$s</div>
-					</li>',
-					( $feature ? ' tl-item--feature' : '' ) . $brief,
-					$group ? ' data-group="' . esc_attr( $group ) . '"' : '',
-					$open ? ' tl-item__time--open' : '',
-					$open ? esc_html__( 'Flight times', 'mbb' ) : esc_html( $time ),
-					esc_html( $title ),
-					$text ? '<p>' . esc_html( $text ) . '</p>' : '',
-					$venue ? '<span class="tl-item__venue">' . esc_html( $venue ) . '</span>' : ''
+				$slots[] = array(
+					'time'    => $time,
+					'end'     => $end,
+					'text'    => $text,
+					'venue'   => $venue,
+					'group'   => $group,
+					'open'    => (bool) $open,
+					'feature' => (bool) $feature,
+					'title'   => $title,
 				);
 
 				$exDay[] = array(
@@ -259,6 +252,14 @@ class MBB_Shortcodes {
 				'slots'   => $exDay,
 			);
 
+			// One timeline per itinerary on a day that splits: the parts of the
+			// day have to be worked out over the slots actually on screen.
+			if ( $split ) {
+				$timelines = self::timeline( $slots, 'g1' ) . self::timeline( $slots, 'g2' );
+			} else {
+				$timelines = self::timeline( $slots );
+			}
+
 			$groupBar = '';
 			if ( $split ) {
 				$buttons = '';
@@ -280,7 +281,7 @@ class MBB_Shortcodes {
 
 			$panels .= sprintf(
 				'<div class="prog__panel" role="tabpanel" id="panel-%1$s" aria-labelledby="tab-%1$s"%2$s%3$s>
-					<p class="prog__theme">%4$s</p>%5$s<ol class="timeline">%6$s</ol>
+					<p class="prog__theme">%4$s</p>%5$s%6$s
 					<p class="prog__day-cal"><button class="btn btn--outline btn--sm" type="button" data-ics="%1$s">%7$s%8$s</button></p>
 				</div>',
 				esc_attr( $id ),
@@ -288,7 +289,7 @@ class MBB_Shortcodes {
 				$split ? ' data-split="true"' : '',
 				esc_html( $day['theme'] ),
 				$groupBar,
-				$items,
+				$timelines,
 				MBB_Icons::get( 'calendar' ),
 				esc_html( sprintf( /* translators: %s: day label. */ __( 'Add %s to my calendar', 'mbb' ), strtolower( $day['label'] ) ) )
 			);
@@ -377,6 +378,78 @@ class MBB_Shortcodes {
 		return '<div class="mbb"><section class="section section--soft" id="programme">'
 			. '<div class="shell"><div class="prog-card">' . $html . '</div></div>'
 			. '</section></div>';
+	}
+
+	/**
+	 * One day's slots, cut into the parts of the day. Mirrors timeline() in
+	 * assets/js/components.js: the two have to produce the same markup, because
+	 * they share a stylesheet.
+	 *
+	 * @param array  $slots The day's sessions.
+	 * @param string $group Render only this itinerary, when the day splits.
+	 */
+	private static function timeline( $slots, $group = '' ) {
+		$labels = array(
+			'open'      => __( 'Times follow your flight', 'mbb' ),
+			'morning'   => __( 'Morning', 'mbb' ),
+			'afternoon' => __( 'Afternoon', 'mbb' ),
+			'evening'   => __( 'Evening', 'mbb' ),
+		);
+
+		$bands = array();
+		foreach ( $slots as $slot ) {
+			if ( $group && $slot['group'] !== $group ) {
+				continue;
+			}
+
+			if ( $slot['open'] || '' === $slot['time'] ) {
+				$band = 'open';
+			} else {
+				$hour = (int) substr( $slot['time'], 0, 2 );
+				$band = $hour < 12 ? 'morning' : ( $hour < 18 ? 'afternoon' : 'evening' );
+			}
+			$bands[ $band ][] = $slot;
+		}
+
+		$html = '';
+		foreach ( array_keys( $labels ) as $band ) {
+			if ( empty( $bands[ $band ] ) ) {
+				continue;
+			}
+
+			$items = '';
+			foreach ( $bands[ $band ] as $slot ) {
+				// A line with nothing but a time and a title is a transfer or a
+				// meeting point; it does not need the room a described one needs.
+				$brief = ( '' === $slot['text'] && '' === $slot['venue'] );
+
+				// The end time is what separates a four-hour workshop from a
+				// fifteen minute transfer, so it is shown wherever it is known.
+				$time = $slot['open']
+					? ''
+					: esc_html( $slot['time'] ) .
+						( $slot['end'] ? '<span class="tl-item__to">' . esc_html( $slot['end'] ) . '</span>' : '' );
+
+				$items .= sprintf(
+					'<li class="tl-item%1$s">
+						<span class="tl-item__time">%2$s</span>
+						<div class="tl-item__body"><h4>%3$s</h4>%4$s%5$s</div>
+					</li>',
+					( $slot['feature'] ? ' tl-item--feature' : '' ) . ( $brief ? ' tl-item--brief' : '' ),
+					$time,
+					esc_html( $slot['title'] ),
+					$slot['text'] ? '<p>' . esc_html( $slot['text'] ) . '</p>' : '',
+					$slot['venue'] ? '<span class="tl-item__venue">' . esc_html( $slot['venue'] ) . '</span>' : ''
+				);
+			}
+
+			$html .= '<section class="tl-band"><p class="tl-band__label">'
+				. esc_html( $labels[ $band ] ) . '</p>'
+				. '<ol class="timeline">' . $items . '</ol></section>';
+		}
+
+		return '<div class="tl"' . ( $group ? ' data-group="' . esc_attr( $group ) . '"' : '' ) . '>'
+			. $html . '</div>';
 	}
 
 	/**

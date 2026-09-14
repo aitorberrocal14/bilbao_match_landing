@@ -212,5 +212,27 @@ foreach ( (array) ( $pdata['days'] ?? array() ) as $d ) {
 }
 check( 'programa: el miércoles lleva sus dos itinerarios', $split > 0, $split . ' sesiones con grupo' );
 
+// The day is cut into its parts, and the two itineraries are separate
+// timelines rather than rows hidden inside one.
+check( 'programa: franjas del día presentes',
+	substr_count( $prog, 'class="tl-band__label"' ) >= 10,
+	substr_count( $prog, 'class="tl-band__label"' ) . ' franjas en total' );
+check( 'programa: una línea de tiempo por itinerario el día partido',
+	2 === substr_count( $prog, '<div class="tl" data-group=' ),
+	substr_count( $prog, '<div class="tl" data-group=' ) );
+check( 'programa: el día partido no mezcla grupos en una lista',
+	false === strpos( $prog, '<li class="tl-item" data-group' ) );
+check( 'programa: se muestra la duración', substr_count( $prog, 'tl-item__to' ) > 0,
+	substr_count( $prog, 'tl-item__to' ) . ' sesiones con hora de fin' );
+check( 'programa: ningún destacado en color', false === strpos( $prog, 'tl-item__time--open' ) );
+
+// PHP and JavaScript build the same markup, or the shared stylesheet breaks.
+preg_match_all( '/class="tl-band__label">([^<]+)</', $prog, $bm );
+$bands = array_values( array_unique( $bm[1] ) );
+sort( $bands );
+check( 'programa: nombres de franja esperados',
+	$bands === array( 'Afternoon', 'Evening', 'Morning', 'Times follow your flight' ),
+	implode( ' · ', $bands ) );
+
 echo "\n" . ( $fail ? "$fail comprobaciones fallan\n" : "Todas las comprobaciones pasan\n" );
 exit( $fail ? 1 : 0 );

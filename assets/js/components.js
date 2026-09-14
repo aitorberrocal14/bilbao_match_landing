@@ -314,23 +314,73 @@ window.MBB = window.MBB || {};
 
     /* --- shared pieces -------------------------------------------------- */
 
+    // The part of the day a slot belongs to. Grouping by it gives a fifteen-slot
+    // day three anchors, which is what makes it readable without colour.
+    function bandOf(s) {
+      if (s.open || !s.time) return 'open';
+      var hour = parseInt(s.time.slice(0, 2), 10);
+      return hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
+    }
+
+    var BAND_LABEL = {
+      open: 'Times follow your flight',
+      morning: 'Morning',
+      afternoon: 'Afternoon',
+      evening: 'Evening'
+    };
+
     function slotItem(s) {
       // A line with nothing but a time and a title is a transfer or a meeting
       // point; it does not need the room a described session needs.
       var brief = !s.text && !s.venue;
+
+      // The end time is what separates a four-hour workshop from a fifteen
+      // minute transfer, so it is shown wherever it is known.
+      var time = s.open
+        ? ''
+        : esc(s.time) + (s.end ? '<span class="tl-item__to">' + esc(s.end) + '</span>' : '');
+
       return (
         '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') +
-          (brief ? ' tl-item--brief' : '') + '"' +
-          (s.group ? ' data-group="' + esc(s.group) + '"' : '') + '>' +
-          '<span class="tl-item__time' + (s.open ? ' tl-item__time--open' : '') + '">' +
-            (s.open ? 'Flight times' : esc(s.time)) +
-          '</span>' +
+          (brief ? ' tl-item--brief' : '') + '">' +
+          '<span class="tl-item__time">' + time + '</span>' +
           '<div class="tl-item__body">' +
             '<h4>' + esc(s.title) + '</h4>' +
             (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
             (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
           '</div>' +
         '</li>'
+      );
+    }
+
+    /**
+     * One day's slots, cut into parts of the day. Each part is a list of its
+     * own, so the rail that runs down the times breaks where the day does.
+     */
+    function timeline(slots, group) {
+      var order = ['open', 'morning', 'afternoon', 'evening'];
+      var bands = {};
+      slots.forEach(function (s) {
+        var b = bandOf(s);
+        (bands[b] = bands[b] || []).push(s);
+      });
+
+      var html = order
+        .filter(function (b) { return bands[b]; })
+        .map(function (b) {
+          return (
+            '<section class="tl-band">' +
+              '<p class="tl-band__label">' + esc(BAND_LABEL[b]) + '</p>' +
+              '<ol class="timeline">' + bands[b].map(slotItem).join('') + '</ol>' +
+            '</section>'
+          );
+        })
+        .join('');
+
+      return (
+        '<div class="tl"' + (group ? ' data-group="' + esc(group) + '"' : '') + '>' +
+          html +
+        '</div>'
       );
     }
 
@@ -372,7 +422,19 @@ window.MBB = window.MBB || {};
             (d.split ? ' data-split="true"' : '') + '>' +
             '<p class="prog__theme">' + esc(d.theme) + '</p>' +
             groupBar +
-            '<ol class="timeline">' + d.slots.map(slotItem).join('') + '</ol>' +
+            // A split day gets one timeline per itinerary rather than one list
+            // with rows hidden inside it: the parts of the day have to be
+            // worked out over the slots actually on screen.
+            (d.split
+              ? programme.groups
+                  .map(function (g) {
+                    return timeline(
+                      d.slots.filter(function (s) { return s.group === g.id; }),
+                      g.id
+                    );
+                  })
+                  .join('')
+              : timeline(d.slots)) +
             '<p class="prog__day-cal">' +
               '<button class="btn btn--outline btn--sm" type="button" data-ics="' + esc(d.id) + '">' +
                 ICONS.calendar + 'Add ' + esc(d.label.toLowerCase()) + ' to my calendar' +
