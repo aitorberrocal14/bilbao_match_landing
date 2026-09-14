@@ -38,6 +38,34 @@ document, addressed by `#/exhibitor/<id>` so the back button keeps working. It
 is for sharing only — deploy the folder, which serves a real HTML file per
 exhibitor.
 
+## Publishing it
+
+The site is plain files, so any static host serves it. Everything on the page
+is linked relatively, which means it works just as well at the root of a
+domain as in a subdirectory.
+
+**GitHub Pages** is wired up in [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+Enable it once — *Settings → Pages → Source: GitHub Actions* — and every push
+publishes. The workflow assembles only the site (the WordPress plugin and the
+build scripts stay out), stamps the address it is being published at into the
+canonical link, the sharing card and the sitemap, and refuses to deploy if the
+stylesheet, the sharing image or any of the 39 exhibitor pages are missing.
+
+GitHub Pages needs a paid plan on a **private** repository; on the free plan
+the repository has to be public. Hosts like Cloudflare Pages and Netlify
+publish from a private repository on their free tiers: point them at this
+repository with no build command and the site root as the output directory,
+then run the address tool below.
+
+```
+node tools/set-site-url.js https://www.matchbilbaobizkaia.eus
+```
+
+Sets the address in the canonical link, the Open Graph and Twitter tags, the
+structured data, `sitemap.xml` and `robots.txt` — the handful of places that
+have to be absolute. Run it when the final domain is in place and commit the
+result.
+
 ---
 
 ## 1. Site structure

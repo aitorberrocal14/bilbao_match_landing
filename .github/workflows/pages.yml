@@ -33,15 +33,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Run first, because the address it reports is stamped into the pages.
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Point the site at where it is being published
+        # The repository carries the address of the final domain. A Pages
+        # preview lives somewhere else, so the canonical link, the sharing
+        # card and the sitemap are rewritten to the address of this
+        # deployment — otherwise they would advertise a site that does not
+        # exist yet, and the sharing image would 404.
+        run: node tools/set-site-url.js "${{ steps.pages.outputs.base_url }}"
+
       - name: Assemble the site
         run: |
           mkdir -p _site
-          cp index.html _site/
+          cp index.html robots.txt sitemap.xml _site/
           cp -r assets exhibitors _site/
           # Pages runs Jekyll unless told otherwise; nothing here needs it.
           touch _site/.nojekyll
 
-      - uses: actions/configure-pages@v5
+      - name: Check the site is whole
+        # A deployment that quietly lost the exhibitor pages or the stylesheet
+        # is worse than one that failed, so count what is about to go out.
+        run: |
+          set -e
+          test -f _site/index.html
+          test -f _site/assets/css/styles.css
+          test -f _site/assets/img/social-card.jpg
+          pages=$(ls _site/exhibitors/*.html | wc -l)
+          echo "Exhibitor pages: $pages"
+          test "$pages" -ge 39
+          grep -q "${{ steps.pages.outputs.base_url }}" _site/index.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
