@@ -57,7 +57,7 @@ window.MBB.site = {
     // Quick facts shown under the hero.
     facts: [
       { value: '49', label: 'Local exhibitors' },
-      { value: '4', label: 'Days of programme' },
+      { value: '5', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],
     // Drop the file at the path below and it is used automatically.

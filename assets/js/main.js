@@ -122,8 +122,11 @@
   /* 4. Programme tabs                                                      */
   /* --------------------------------------------------------------------- */
   function initProgramme() {
-    var tabs = $all('.prog__tab');
-    if (!tabs.length) return;
+    var card = $('.prog-card');
+    if (!card) return;
+
+    /* --- day tabs -------------------------------------------------------- */
+    var tabs = $all('.prog__tab', card);
 
     function select(tab) {
       tabs.forEach(function (t) {
@@ -144,6 +147,65 @@
         var next = tabs[(i + dir + tabs.length) % tabs.length];
         select(next);
         next.focus();
+      });
+    });
+
+    /* --- detailed / overview --------------------------------------------- */
+    var views = $all('.prog__view', card);
+    var panes = $all('.prog__pane', card);
+
+    views.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        views.forEach(function (b) {
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        panes.forEach(function (p) {
+          p.hidden = p.dataset.pane !== btn.dataset.view;
+        });
+      });
+    });
+
+    /* --- the two itineraries of Wednesday -------------------------------- */
+    // The choice is remembered across the whole card, because the calendar
+    // export has to follow whichever itinerary the visitor is reading.
+    var group = (MBB.programme.groups && MBB.programme.groups[0] || {}).id || 'g1';
+
+    function applyGroup() {
+      $all('.prog__group', card).forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.group === group ? 'true' : 'false');
+      });
+      $all('.tl-item[data-group]', card).forEach(function (item) {
+        item.hidden = item.dataset.group !== group;
+      });
+    }
+
+    $all('.prog__group', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        group = btn.dataset.group;
+        applyGroup();
+      });
+    });
+    applyGroup();
+
+    /* --- calendar --------------------------------------------------------- */
+    $all('[data-ics]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var day = btn.dataset.ics;
+        var text = MBB.ics(MBB.programme, { day: day, group: group });
+        var name =
+          'match-bilbao-bizkaia-2026' + (day === 'all' ? '' : '-' + day) + '.ics';
+
+        // A Blob rather than a data: URI, so the file arrives with its own
+        // name and the whole programme is not pushed through a URL.
+        var blob = new Blob([text], { type: 'text/calendar;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
       });
     });
   }

@@ -490,7 +490,15 @@
 }
 
 
-.mbb .timeline { list-style: none; margin: 0 auto; padding: 0; max-width: 820px; }
+/* The closing rule belongs to the list, not to the last item: on a day whose
+   itinerary is filtered the last item is not the last child. */
+.mbb .timeline {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 820px;
+  border-bottom: 1px solid var(--line);
+}
 
 .mbb .tl-item {
   display: grid;
@@ -499,8 +507,6 @@
   padding: 1.35rem 0;
   border-top: 1px solid var(--line);
 }
-
-.mbb .tl-item:last-child { border-bottom: 1px solid var(--line); }
 
 .mbb .tl-item__time {
   font-family: var(--font-head);
@@ -534,6 +540,184 @@
   margin: 2.25rem auto 0;
   font-size: 0.86rem;
   color: var(--grey-light);
+}
+
+
+/* --- Programme: view switch, itineraries, overview ------------------------ */
+/* The bar sits between the heading and the programme itself: how to read it
+   on the left, what to take away on the right. */
+.mbb .prog__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+
+/* A bordered pair reads unmistakably as two states of one thing, which a row
+   of plain text buttons does not. */
+.mbb .prog__views {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mbb .prog__view {
+  background: none;
+  border: 0;
+  padding: 0.55rem 1.35rem;
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--grey);
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.mbb .prog__view:hover { color: var(--red); }
+
+.mbb .prog__view[aria-pressed="true"] { background: var(--red); color: #fff; }
+
+
+.mbb .prog__pane[hidden] { display: none; }
+
+
+/* The two itineraries of the day that splits. */
+.mbb .prog__groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  max-width: 820px;
+  margin: 0 auto 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mbb .prog__group {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--grey);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+
+.mbb .prog__group:hover { color: var(--red); border-color: var(--red); }
+
+.mbb .prog__group[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+
+.mbb .prog__groups__note {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+
+
+/* .tl-item sets display:grid, which would defeat the hidden attribute. */
+.mbb .tl-item[hidden] { display: none; }
+
+
+/* A slot whose time follows somebody's flight, not the programme. */
+.mbb .tl-item__time--open {
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  align-self: center;
+}
+
+
+.mbb .prog__day-cal { max-width: 820px; margin: 1.75rem auto 0; text-align: center; }
+
+
+/* --- Overview: the five days side by side -------------------------------- */
+.mbb .prog__overview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* Narrow enough that the five days fit on one row on a desktop. */
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+
+/* The rules are drawn inside each day rather than as grid gaps: a gap would
+   still be painted where the grid has no day to put in it, leaving a stray
+   grey block whenever the five do not divide evenly into the row. */
+.mbb .ov-day {
+  background: #fff;
+  box-shadow: inset -1px 0 0 var(--line), inset 0 -1px 0 var(--line);
+  padding: 1.5rem 1.35rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.mbb .ov-day__date {
+  margin: 0 0 0.15rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+
+.mbb .ov-day__theme {
+  margin: 0 0 0.6rem;
+  font-size: 1.22rem;
+  color: var(--red);
+}
+
+.mbb .ov-day__text { margin: 0 0 1rem; font-size: 0.9rem; }
+
+.mbb .ov-day__list {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+
+.mbb .ov-day__list li { margin-bottom: 0.5rem; color: var(--grey-dark); }
+
+.mbb .ov-day__list li:last-child { margin-bottom: 0; }
+
+.mbb .ov__t {
+  display: inline-block;
+  min-width: 3.1rem;
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.mbb .ov-day__split {
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+
+
+@media (max-width: 620px) {
+  .mbb .prog__bar { justify-content: center; }
+  .mbb .prog__views { width: 100%; }
+  .mbb .prog__view { flex: 1; }
+
+
 }
 
 

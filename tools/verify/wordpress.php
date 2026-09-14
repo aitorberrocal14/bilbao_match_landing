@@ -44,7 +44,17 @@ foreach ( $seed['brochures'] as $b ) {
 foreach ( $seed['sessions'] as $s ) {
 	$GLOBALS['mbb_posts'][ $id ] = (object) array(
 		'ID' => $id, 'post_type' => 'mbb_session', 'post_title' => $s['title'],
-		'slug' => '', 'category' => '', 'meta' => array(),
+		'slug' => '', 'category' => '',
+		'meta' => array(
+			'day'     => $s['day'],
+			'time'    => $s['time'],
+			'end'     => $s['end'],
+			'text'    => $s['text'],
+			'venue'   => $s['venue'],
+			'group'   => $s['group'],
+			'open'    => $s['open'] ? '1' : '',
+			'feature' => $s['feature'] ? '1' : '',
+		),
 	);
 	$id++;
 }
@@ -158,6 +168,49 @@ check( 'panel: avisa de que falta el login', false !== strpos( $dash, 'Login but
 check( 'panel: enlaza a añadir expositor',
 	false !== strpos( $dash, 'post-new.php?post_type=mbb_exhibitor' ) );
 check( 'panel: sin PHP sin escapar', false === strpos( $dash, '<?php' ) );
+
+/* --- 5. The programme ---------------------------------------------------- */
+$prog = MBB_Shortcodes::programme();
+
+check( 'programa: cinco pestañas de día', 5 === substr_count( $prog, 'class="prog__tab"' ),
+	substr_count( $prog, 'class="prog__tab"' ) );
+check( 'programa: dos vistas', false !== strpos( $prog, 'data-view="detail"' )
+	&& false !== strpos( $prog, 'data-view="overview"' ) );
+check( 'programa: resumen con cinco días', 5 === substr_count( $prog, 'class="ov-day"' ),
+	substr_count( $prog, 'class="ov-day"' ) );
+check( 'programa: selector de itinerario sólo un día',
+	1 === substr_count( $prog, 'class="prog__groups"' ),
+	substr_count( $prog, 'class="prog__groups"' ) . ' días con selector' );
+check( 'programa: botón de calendario por día y total',
+	5 === substr_count( $prog, 'data-ics="day-' ) && false !== strpos( $prog, 'data-ics="all"' ) );
+
+// The JSON the browser turns into the calendar file.
+preg_match( '~<script type="application/json" id="mbb-programme">(.*?)</script>~s', $prog, $pj );
+$pdata = $pj ? json_decode( $pj[1], true ) : null;
+check( 'programa: JSON de calendario válido', is_array( $pdata ) && isset( $pdata['days'] ) );
+check( 'programa: cinco días exportables', $pdata && 5 === count( $pdata['days'] ),
+	$pdata ? count( $pdata['days'] ) : 0 );
+
+$allSlots = 0;
+$dated    = true;
+foreach ( (array) ( $pdata['days'] ?? array() ) as $d ) {
+	$allSlots += count( $d['slots'] );
+	if ( ! preg_match( '~^\d{4}-\d{2}-\d{2}$~', (string) $d['dateISO'] ) ) {
+		$dated = false;
+	}
+}
+check( 'programa: cada día con fecha real', $dated,
+	$pdata ? implode( ' ', array_column( $pdata['days'], 'dateISO' ) ) : '' );
+check( 'programa: todas las sesiones exportadas', $allSlots === count( $seed['sessions'] ),
+	$allSlots . ' de ' . count( $seed['sessions'] ) );
+
+$split = 0;
+foreach ( (array) ( $pdata['days'] ?? array() ) as $d ) {
+	foreach ( $d['slots'] as $sl ) {
+		if ( $sl['group'] ) { $split++; }
+	}
+}
+check( 'programa: el miércoles lleva sus dos itinerarios', $split > 0, $split . ' sesiones con grupo' );
 
 echo "\n" . ( $fail ? "$fail comprobaciones fallan\n" : "Todas las comprobaciones pasan\n" );
 exit( $fail ? 1 : 0 );

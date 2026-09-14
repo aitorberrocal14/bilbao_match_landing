@@ -249,7 +249,12 @@ class MBB_Importer {
 
 		foreach ( $items as $item ) {
 			$order++;
-			$slug = sanitize_title( $item['day'] . '-' . $item['time'] . '-' . $item['title'] );
+			// The group belongs in the slug: on the day that splits, the two
+			// itineraries share hours and titles, and would collide without it.
+			$slug = sanitize_title(
+				$item['day'] . '-' . ( isset( $item['group'] ) ? $item['group'] . '-' : '' ) .
+				$item['time'] . '-' . $item['title']
+			);
 
 			if ( self::find( MBB_Post_Types::SESSION, $slug ) ) {
 				continue;
@@ -273,6 +278,9 @@ class MBB_Importer {
 			update_post_meta( $post_id, '_mbb_time', $item['time'] );
 			update_post_meta( $post_id, '_mbb_text', isset( $item['text'] ) ? $item['text'] : '' );
 			update_post_meta( $post_id, '_mbb_venue', isset( $item['venue'] ) ? $item['venue'] : '' );
+			update_post_meta( $post_id, '_mbb_end', isset( $item['end'] ) ? $item['end'] : '' );
+			update_post_meta( $post_id, '_mbb_group', isset( $item['group'] ) ? $item['group'] : '' );
+			update_post_meta( $post_id, '_mbb_open', ! empty( $item['open'] ) ? '1' : '' );
 			update_post_meta( $post_id, '_mbb_feature', ! empty( $item['feature'] ) ? '1' : '' );
 
 			$done++;

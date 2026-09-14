@@ -474,7 +474,15 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: 2.5rem;
 }
 
-.timeline { list-style: none; margin: 0 auto; padding: 0; max-width: 820px; }
+/* The closing rule belongs to the list, not to the last item: on a day whose
+   itinerary is filtered the last item is not the last child. */
+.timeline {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 820px;
+  border-bottom: 1px solid var(--line);
+}
 .tl-item {
   display: grid;
   grid-template-columns: 84px 1fr;
@@ -482,7 +490,6 @@ p:last-child { margin-bottom: 0; }
   padding: 1.35rem 0;
   border-top: 1px solid var(--line);
 }
-.tl-item:last-child { border-bottom: 1px solid var(--line); }
 .tl-item__time {
   font-family: var(--font-head);
   font-weight: 700;
@@ -510,6 +517,157 @@ p:last-child { margin-bottom: 0; }
   margin: 2.25rem auto 0;
   font-size: 0.86rem;
   color: var(--grey-light);
+}
+
+/* --- Programme: view switch, itineraries, overview ------------------------ */
+/* The bar sits between the heading and the programme itself: how to read it
+   on the left, what to take away on the right. */
+.prog__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
+}
+
+/* A bordered pair reads unmistakably as two states of one thing, which a row
+   of plain text buttons does not. */
+.prog__views {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.prog__view {
+  background: none;
+  border: 0;
+  padding: 0.55rem 1.35rem;
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--grey);
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.prog__view:hover { color: var(--red); }
+.prog__view[aria-pressed="true"] { background: var(--red); color: #fff; }
+
+.prog__pane[hidden] { display: none; }
+
+/* The two itineraries of the day that splits. */
+.prog__groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  max-width: 820px;
+  margin: 0 auto 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.prog__group {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.4rem 1.1rem;
+  cursor: pointer;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--grey);
+  transition: border-color 0.25s var(--ease), color 0.25s var(--ease);
+}
+.prog__group:hover { color: var(--red); border-color: var(--red); }
+.prog__group[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; }
+.prog__groups__note {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+
+/* .tl-item sets display:grid, which would defeat the hidden attribute. */
+.tl-item[hidden] { display: none; }
+
+/* A slot whose time follows somebody's flight, not the programme. */
+.tl-item__time--open {
+  font-size: 0.74rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  align-self: center;
+}
+
+.prog__day-cal { max-width: 820px; margin: 1.75rem auto 0; text-align: center; }
+
+/* --- Overview: the five days side by side -------------------------------- */
+.prog__overview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  /* Narrow enough that the five days fit on one row on a desktop. */
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+/* The rules are drawn inside each day rather than as grid gaps: a gap would
+   still be painted where the grid has no day to put in it, leaving a stray
+   grey block whenever the five do not divide evenly into the row. */
+.ov-day {
+  background: #fff;
+  box-shadow: inset -1px 0 0 var(--line), inset 0 -1px 0 var(--line);
+  padding: 1.5rem 1.35rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+.ov-day__date {
+  margin: 0 0 0.15rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+.ov-day__theme {
+  margin: 0 0 0.6rem;
+  font-size: 1.22rem;
+  color: var(--red);
+}
+.ov-day__text { margin: 0 0 1rem; font-size: 0.9rem; }
+.ov-day__list {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+.ov-day__list li { margin-bottom: 0.5rem; color: var(--grey-dark); }
+.ov-day__list li:last-child { margin-bottom: 0; }
+.ov__t {
+  display: inline-block;
+  min-width: 3.1rem;
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+.ov-day__split {
+  margin: 0.9rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+
+@media (max-width: 620px) {
+  .prog__bar { justify-content: center; }
+  .prog__views { width: 100%; }
+  .prog__view { flex: 1; }
 }
 
 /* 9. PRESENTATION OF BILBAO ================================================ */
@@ -1254,7 +1412,7 @@ window.MBB.site = {
     // Quick facts shown under the hero.
     facts: [
       { value: '49', label: 'Local exhibitors' },
-      { value: '4', label: 'Days of programme' },
+      { value: '5', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],
     // Drop the file at the path below and it is used automatically.
@@ -1491,178 +1649,324 @@ window.MBB.experts = {
 /* =============================================================================
    EVENT PROGRAMME
    -----------------------------------------------------------------------------
-   6 – 10 October 2026. Participants arrive on Tuesday 6 and leave on Saturday
-   10; there is no programme on the last day, so the agenda covers four days:
-   Tuesday 6 to Friday 9.
+   The real programme of Match Bilbao Bizkaia 2026, 6 – 10 October, translated
+   from the official document. Five days: participants arrive on Tuesday 6 and
+   leave on Saturday 10, and both of those days carry programme of their own.
 
-   [Insert programme details] — times and titles below are a working proposal so
-   the layout can be reviewed. Add, remove or reorder days and slots freely: the
-   timeline renders whatever it finds here.
+   On Wednesday 7 the event splits into two groups with different itineraries,
+   so every slot that day is marked with the group it belongs to. Days without
+   such marks are the same for everyone.
 
    Slot fields:
-     time    — displayed on the timeline rail
+     time    — start, 24h "HH:MM". Also what the timeline rail shows.
+     end     — optional end time; when absent the slot runs to the next one,
+               which is what the calendar export assumes.
      title   — slot heading
      text    — one short supporting sentence (optional)
      venue   — location line (optional)
+     group   — 'g1' / 'g2' on a day that splits; omitted when it is shared
      feature — true to give the slot a highlighted card
+     open    — true when the time is not fixed yet (arrivals, departures); the
+               slot is shown without a time and left out of the calendar file.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
 
 window.MBB.programme = {
+  // Used by the calendar export. Bilbao is on Central European Time.
+  timezone: 'Europe/Madrid',
+
   note:
-    'Participants arrive on Tuesday 6 October and depart on Saturday 10. All ' +
-    'times are shown in CET (Central European Time). The final programme will ' +
-    'be confirmed to registered participants by email.',
+    'All times are shown in Central European Time. Arrival and departure ' +
+    'times follow each participant’s flights and are confirmed ' +
+    'individually. The final programme is confirmed to registered ' +
+    'participants by email.',
+
+  // The two itineraries of Wednesday 7. Both groups stay in the same hotel.
+  groups: [
+    { id: 'g1', label: 'Group 1' },
+    { id: 'g2', label: 'Group 2' }
+  ],
+
   days: [
+    /* --- Tuesday 6 ------------------------------------------------------- */
     {
       id: 'day-1',
       label: 'Day 1',
       date: 'Tuesday 6 October',
-      theme: 'Arrival & welcome',
+      dateISO: '2026-10-06',
+      theme: 'Welcome',
+      summary:
+        'Arrival, transfer to the hotel and the welcome dinner at San Mamés ' +
+        'stadium.',
       slots: [
         {
-          time: '15:00',
-          title: 'Arrivals and accreditation',
-          text: 'Collect your badge and meeting schedule at the main desk.',
-          venue: '[Insert venue]',
+          open: true,
+          title: 'Arrival at Bilbao International Airport',
+          text:
+            'The official vehicle waits for every participant on arrival and ' +
+            'takes them to the hotel.',
+          tag: 'destination'
+        },
+        {
+          open: true,
+          title: 'Check-in and welcome drink',
+          text: 'Both groups stay in the same hotel.',
+          venue: 'Hotel Radisson Bilbao',
           tag: 'social'
         },
         {
-          time: '18:00',
-          title: 'Official opening — Bilbao Bizkaia 2026',
+          time: '18:15',
+          title: 'Meeting point in the lobby',
           text:
-            'Institutional welcome and presentation of the destination strategy ' +
-            'for the coming season.',
-          venue: '[Insert venue]',
-          tag: 'plenary',
+            'If the forecast is poor, 18:30 for the tram transfer or 18:40 ' +
+            'for the bus.',
+          venue: 'Hotel Radisson Bilbao',
+          tag: 'destination'
+        },
+        {
+          time: '19:00',
+          end: '19:30',
+          title: 'Guided tour of the stadium',
+          venue: 'San Mamés',
+          tag: 'destination'
+        },
+        {
+          time: '19:30',
+          title: 'Welcome cocktail',
+          venue: 'San Mamés Jatetxea',
+          tag: 'social'
+        },
+        {
+          time: '20:00',
+          title: 'Welcome dinner',
+          venue: 'San Mamés Jatetxea',
+          tag: 'social',
           feature: true
         },
         {
-          time: '20:30',
-          title: 'Welcome dinner',
-          text: 'Hosted by the Bilbao Bizkaia tourism authorities.',
-          venue: '[Insert venue]',
-          tag: 'social'
+          time: '21:40',
+          end: '22:10',
+          title: 'Transfer back to the hotel by bus',
+          tag: 'destination'
         }
       ]
     },
+
+    /* --- Wednesday 7 — two itineraries ----------------------------------- */
     {
       id: 'day-2',
       label: 'Day 2',
       date: 'Wednesday 7 October',
-      theme: 'Business & the city',
+      dateISO: '2026-10-07',
+      theme: 'Bizkaia',
+      summary:
+        'A full day through Bizkaia, in two groups with different routes, ' +
+        'ending in lunch together at Bodega Berroja and dinner on a rooftop.',
+      split: true,
       slots: [
+        /* Group 1 — Oma Forest, Gernika */
+        { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
+        { group: 'g1', time: '09:15', title: 'Departure from the hotel', tag: 'destination' },
         {
-          time: '09:00',
-          title: 'Destination briefing',
-          text:
-            'A concise overview of the Bilbao Bizkaia tourism offer, market by ' +
-            'market.',
+          group: 'g1',
+          time: '10:15',
+          end: '11:30',
+          title: 'Guided visit to the Oma Forest by 4x4',
+          text: 'The painted forest of Agustín Ibarrola, inside the Urdaibai Biosphere Reserve.',
+          tag: 'destination',
+          feature: true
+        },
+        { group: 'g1', time: '11:45', title: 'Coffee break', venue: 'Lezika', tag: 'social' },
+        { group: 'g1', time: '12:15', title: 'Transfer to Gernika', tag: 'destination' },
+        { group: 'g1', time: '12:30', title: 'Arrival in Gernika and visit to the town', tag: 'destination' },
+        { group: 'g1', time: '13:15', title: 'Peace Museum', venue: 'Gernika', tag: 'destination' },
+        { group: 'g1', time: '13:45', title: 'Departure for Bodega Berroja', tag: 'destination' },
+        {
+          group: 'g1',
+          time: '14:00',
+          end: '15:45',
+          title: 'Lunch, wine tasting and herri kirolak exhibition',
+          text: 'Basque rural sports, shown by the athletes who compete in them.',
+          venue: 'Bodega Berroja',
+          tag: 'social',
+          feature: true
+        },
+        { group: 'g1', time: '16:45', title: 'Stop at the San Juan de Gaztelugatxe viewpoint', tag: 'destination' },
+        { group: 'g1', time: '17:30', title: 'Return to Bilbao', tag: 'destination' },
+        { group: 'g1', time: '18:15', title: 'Arrival at the hotel and free time', tag: 'social' },
+        { group: 'g1', time: '19:30', title: 'Meet the guide for the transfer to the rooftop', tag: 'destination' },
+        { group: 'g1', time: '20:00', title: 'Dinner', venue: 'Ercilla rooftop', tag: 'social', feature: true },
+
+        /* Group 2 — Gaztelugatxe, Bermeo, Urkiola */
+        { group: 'g2', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
+        { group: 'g2', time: '09:15', title: 'Departure from the hotel', tag: 'destination' },
+        {
+          group: 'g2',
+          time: '10:15',
+          end: '11:30',
+          title: 'San Juan de Gaztelugatxe: the climb to the hermitage',
+          text: 'The 241 steps out along the causeway and up to the chapel.',
+          tag: 'destination',
+          feature: true
+        },
+        { group: 'g2', time: '11:45', title: 'Departure for Bermeo', tag: 'destination' },
+        {
+          group: 'g2',
+          time: '12:00',
+          end: '13:00',
+          title: 'Bermeo and Conservas Arroyabe',
+          text: 'A walk through the fishing town and a visit to the cannery.',
           tag: 'destination'
         },
+        { group: 'g2', time: '13:30', title: 'Arrival at Bodega Berroja', tag: 'destination' },
         {
-          time: '10:00',
-          title: 'B2B meetings — session I',
-          text:
-            'Pre-scheduled 15-minute appointments between international buyers ' +
-            'and local exhibitors.',
-          tag: 'meetings',
+          group: 'g2',
+          time: '14:00',
+          end: '15:45',
+          title: 'Lunch, wine tasting and herri kirolak exhibition',
+          text: 'Basque rural sports, shown by the athletes who compete in them.',
+          venue: 'Bodega Berroja',
+          tag: 'social',
           feature: true
         },
         {
-          time: '14:00',
-          title: 'Networking lunch',
-          text: 'Basque gastronomy served in an informal networking format.',
-          tag: 'social'
-        },
-        {
-          time: '16:00',
-          title: 'Guided city experience',
-          text:
-            'Walking route through the Old Town, the riverside and the ' +
-            'Guggenheim Museum area.',
+          group: 'g2',
+          time: '16:45',
+          title: 'Urkiola: the sanctuary and the Tres Cruces viewpoint',
           tag: 'destination'
-        }
+        },
+        { group: 'g2', time: '17:15', title: 'Return to Bilbao', tag: 'destination' },
+        { group: 'g2', time: '18:15', title: 'Arrival at the hotel and free time', tag: 'social' },
+        { group: 'g2', time: '19:30', title: 'Meet the guide for the transfer to the rooftop', tag: 'destination' },
+        { group: 'g2', time: '20:00', title: 'Dinner', venue: 'The Artist rooftop', tag: 'social', feature: true }
       ]
     },
+
+    /* --- Thursday 8 ------------------------------------------------------ */
     {
       id: 'day-3',
       label: 'Day 3',
       date: 'Thursday 8 October',
-      theme: 'Business & the coast',
+      dateISO: '2026-10-08',
+      theme: 'Donostia',
+      summary:
+        'Both groups travel together to San Sebastián, and return for dinner ' +
+        'reached by boat across the estuary.',
       slots: [
         {
-          time: '09:30',
-          title: 'B2B meetings — session II',
+          time: '09:00',
+          title: 'Meeting point in the lobbies',
           text:
-            'The main working session of the event, with the full exhibitor ' +
-            'directory available.',
-          tag: 'meetings',
-          feature: true
+            'Both groups spend the day together; the walking tours are run in ' +
+            'groups of no more than 25.',
+          tag: 'destination'
         },
+        { time: '10:30', title: 'Arrival in Donostia and meeting with the guide', tag: 'destination' },
+        { time: '11:00', title: 'Miramar Palace: the groups divide', tag: 'destination' },
         {
-          time: '12:00',
-          title: 'Panel: travelling responsibly in Bizkaia',
-          text:
-            'Local operators and institutions discuss seasonality, capacity ' +
-            'and sustainable growth.',
-          tag: 'plenary'
-        },
-        {
-          time: '13:30',
-          title: 'Networking lunch',
-          tag: 'social'
-        },
-        {
-          time: '15:00',
-          title: 'Coast experience — Urdaibai and Gaztelugatxe',
-          text:
-            'Guided visit to the Biosphere Reserve, Bermeo and the Bizkaia ' +
-            'coastline.',
+          time: '11:00',
+          end: '12:50',
+          title: 'La Concha, the Town Hall, Alderdi Eder and the Old Town',
+          text: 'The main landmarks of San Sebastián on foot.',
           tag: 'destination',
           feature: true
         },
+        { time: '13:00', title: 'Welcome at Muka: gilda and txakoli', venue: 'Muka', tag: 'social' },
+        { time: '13:20', title: 'Lunch', venue: 'Muka', tag: 'social' },
+        { time: '15:00', title: 'Walk to Avenida Navarra for departure', tag: 'destination' },
+        { time: '15:15', title: 'Departure for Bilbao', tag: 'destination' },
+        { time: '16:30', title: 'Arrival at the hotel', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
+        { time: '17:45', title: 'Meeting point in the lobby', tag: 'destination' },
+        { time: '18:00', title: 'Departure by boat', venue: 'Vincci Consulado', tag: 'destination' },
+        {
+          time: '19:45',
+          title: 'Crusoe Treasure underwater winery',
+          text: 'Wine aged on the seabed of the Bay of Plentzia.',
+          tag: 'destination',
+          feature: true
+        },
+        { time: '20:15', title: 'Boarding for Portugalete', tag: 'destination' },
         {
           time: '20:30',
-          title: 'Gastronomy evening',
-          text: 'Pintxos route through the city with local producers.',
-          tag: 'social'
-        }
+          title: 'Dinner',
+          venue: 'Gran Hotel Puente Colgante',
+          tag: 'social',
+          feature: true
+        },
+        { time: '22:00', end: '22:30', title: 'Return to the hotel', tag: 'destination' }
       ]
     },
+
+    /* --- Friday 9 -------------------------------------------------------- */
     {
       id: 'day-4',
       label: 'Day 4',
       date: 'Friday 9 October',
-      theme: 'Nature & next steps',
+      dateISO: '2026-10-09',
+      theme: 'B2B workshop & Bilbao',
+      summary:
+        'The working morning at the Iberdrola Tower, pintxos in the Old Town, ' +
+        'and a private visit to the Guggenheim before the farewell dinner.',
       slots: [
+        { time: '08:15', title: 'Meeting point in the lobby', tag: 'destination' },
+        { time: '08:30', title: 'Departure for the Iberdrola Tower', tag: 'destination' },
+        { time: '08:45', title: 'Accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
         {
-          time: '09:30',
-          title: 'B2B meetings — session III',
-          text: 'Final round of appointments and follow-up conversations.',
-          tag: 'meetings'
-        },
-        {
-          time: '11:30',
-          title: 'Workshop: building your Bilbao Bizkaia product',
+          time: '09:00',
+          end: '13:00',
+          title: 'B2B workshop',
           text:
-            'Practical session on packaging the destination for international ' +
-            'markets.',
-          tag: 'plenary',
+            'The working session of the event: pre-scheduled appointments ' +
+            'between international buyers and the exhibitors of the destination.',
+          venue: 'Iberdrola Tower',
+          tag: 'meetings',
           feature: true
         },
+        { time: '13:00', title: 'Transfer to the Old Town by tram, through Abandoibarra', tag: 'destination' },
         {
-          time: '13:00',
-          title: 'Closing lunch and conclusions',
-          tag: 'social'
+          time: '13:15',
+          end: '15:30',
+          title: 'Pintxos route through the Old Town',
+          tag: 'social',
+          feature: true
         },
+        { time: '15:30', end: '18:45', title: 'Free afternoon', text: 'To explore the city, or to rest.', tag: 'social' },
+        { time: '18:45', title: 'Meeting point in the lobby', tag: 'destination' },
         {
-          time: '15:00',
-          title: 'Optional post-event tours',
-          text:
-            'Choose between the wine country, the green interior or the ' +
-            'industrial heritage route.',
+          time: '19:15',
+          end: '20:15',
+          title: 'Private guided visit to the Guggenheim Museum Bilbao',
+          tag: 'destination',
+          feature: true
+        },
+        { time: '20:30', title: 'Seating', venue: 'Guggenheim Museum Bilbao', tag: 'social' },
+        {
+          time: '20:45',
+          end: '22:30',
+          title: 'Farewell dinner',
+          venue: 'Guggenheim Museum Bilbao',
+          tag: 'social',
+          feature: true
+        },
+        { time: '22:45', end: '23:15', title: 'Return to the hotel', tag: 'destination' }
+      ]
+    },
+
+    /* --- Saturday 10 ----------------------------------------------------- */
+    {
+      id: 'day-5',
+      label: 'Day 5',
+      date: 'Saturday 10 October',
+      dateISO: '2026-10-10',
+      theme: 'Departure',
+      summary: 'Check-out and transfers to the airport.',
+      slots: [
+        { open: true, title: 'Check-out', venue: 'Hotel Radisson Bilbao', tag: 'social' },
+        {
+          open: true,
+          title: 'Transfers to the airport',
+          text: 'Times follow each participant’s flight.',
           tag: 'destination'
         }
       ]
@@ -2642,7 +2946,8 @@ window.MBB = window.MBB || {};
     instagram: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="3.4" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="11.3" cy="4.7" r=".9" fill="currentColor"/></svg>',
     x: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.9 1.9h2.2L9.3 7.4l5.7 7.5h-4.5L7 10.2l-4 4.7H.8l5.2-6L.5 1.9h4.6l3.1 4.2 3.7-4.2Zm-.8 11.6h1.2L4.9 3.2H3.6l7.5 10.3Z"/></svg>',
     globe: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.4 8h11.2M8 2.3c1.5 1.6 2.3 3.6 2.3 5.7S9.5 12.1 8 13.7C6.5 12.1 5.7 10.1 5.7 8S6.5 3.9 8 2.3Z" stroke="currentColor" stroke-width="1.3"/></svg>',
-    searchGlass: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
+    searchGlass: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    calendar: '<svg class="ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.6h12M5.4 2.2v2.4M10.6 2.2v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
   };
   MBB.icons = ICONS;
   MBB.esc = esc;
@@ -2760,8 +3065,169 @@ window.MBB = window.MBB || {};
     );
   };
 
+
+  /* --- Calendar export ---------------------------------------------------- */
+  /**
+   * Builds an iCalendar file from the programme, so a participant can put the
+   * whole week — or one day of it — into whatever calendar they use. A file
+   * rather than a link to one particular calendar service: this works with
+   * Google, Outlook, Apple and everything else that reads .ics.
+   *
+   * Times are written in local Bilbao time with a TZID, and the VTIMEZONE
+   * below tells the reader what that means, so the events land at the right
+   * hour whatever timezone the reader is in. A slot with no fixed time
+   * (arrivals, departures) becomes an all-day entry, because that is what is
+   * actually known about it.
+   *
+   * @param {object} programme  window.MBB.programme
+   * @param {object} opts       { day: id|'all', group: 'g1'|'g2' }
+   */
+  MBB.ics = function (programme, opts) {
+    opts = opts || {};
+    var wantDay = opts.day && opts.day !== 'all' ? opts.day : null;
+    var group = opts.group || (programme.groups && programme.groups[0] && programme.groups[0].id);
+
+    function esc2(s) {
+      return String(s == null ? '' : s)
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    }
+
+    // iCalendar lines are limited to 75 octets; longer ones continue on the
+    // next line, marked by a leading space.
+    function fold(line) {
+      if (line.length <= 73) return line;
+      var out = line.slice(0, 73);
+      var rest = line.slice(73);
+      while (rest.length) {
+        out += '\r\n ' + rest.slice(0, 72);
+        rest = rest.slice(72);
+      }
+      return out;
+    }
+
+    function stamp() {
+      return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    function plusMinutes(hhmm, mins) {
+      var p = hhmm.split(':');
+      var t = parseInt(p[0], 10) * 60 + parseInt(p[1], 10) + mins;
+      t = Math.min(t, 23 * 60 + 59);
+      return ('0' + Math.floor(t / 60)).slice(-2) + ('0' + (t % 60)).slice(-2);
+    }
+
+    var lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Match Bilbao Bizkaia//Programme 2026//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'X-WR-CALNAME:Match Bilbao Bizkaia 2026',
+      'X-WR-TIMEZONE:' + programme.timezone,
+      // Central European Time, with the rule that moves it to summer time, so
+      // the file stays correct if the event ever moves across the change.
+      'BEGIN:VTIMEZONE',
+      'TZID:Europe/Madrid',
+      'BEGIN:DAYLIGHT',
+      'TZOFFSETFROM:+0100',
+      'TZOFFSETTO:+0200',
+      'TZNAME:CEST',
+      'DTSTART:19700329T020000',
+      'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+      'END:DAYLIGHT',
+      'BEGIN:STANDARD',
+      'TZOFFSETFROM:+0200',
+      'TZOFFSETTO:+0100',
+      'TZNAME:CET',
+      'DTSTART:19701025T030000',
+      'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+      'END:STANDARD',
+      'END:VTIMEZONE'
+    ];
+
+    var now = stamp();
+
+    programme.days.forEach(function (d) {
+      if (wantDay && d.id !== wantDay) return;
+
+      var date = d.dateISO.replace(/-/g, '');
+      // On a day that splits, only the chosen itinerary is exported: two
+      // parallel routes in one calendar would be unreadable.
+      var slots = d.slots.filter(function (s) { return !s.group || s.group === group; });
+
+      slots.forEach(function (s, i) {
+        var uid = 'mbb2026-' + d.id + '-' + i + '@matchbilbaobizkaia.eus';
+        var desc = [s.text || '', s.venue ? 'Venue: ' + s.venue : ''].filter(Boolean).join('\n');
+
+        lines.push('BEGIN:VEVENT');
+        lines.push('UID:' + uid);
+        lines.push('DTSTAMP:' + now);
+
+        if (s.open) {
+          // No fixed time yet: an all-day entry says that honestly.
+          var next = new Date(d.dateISO + 'T00:00:00Z');
+          next.setUTCDate(next.getUTCDate() + 1);
+          lines.push('DTSTART;VALUE=DATE:' + date);
+          lines.push('DTEND;VALUE=DATE:' + next.toISOString().slice(0, 10).replace(/-/g, ''));
+        } else {
+          var endTime = s.end;
+          if (!endTime) {
+            var following = slots[i + 1];
+            endTime = following && following.time ? following.time : plusMinutes(s.time, 60);
+          }
+          lines.push('DTSTART;TZID=Europe/Madrid:' + date + 'T' + s.time.replace(':', '') + '00');
+          lines.push('DTEND;TZID=Europe/Madrid:' + date + 'T' + endTime.replace(':', '') + '00');
+        }
+
+        lines.push(fold('SUMMARY:' + esc2(s.title)));
+        if (desc) lines.push(fold('DESCRIPTION:' + esc2(desc)));
+        if (s.venue) lines.push(fold('LOCATION:' + esc2(s.venue)));
+        lines.push('END:VEVENT');
+      });
+    });
+
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  };
+
+  /**
+   * The programme, in two views over the same data.
+   *
+   * "Detailed" keeps the day-by-day timeline; "Overview" puts the five days
+   * side by side so the shape of the week can be taken in at a glance — which
+   * is what a buyer deciding whether to come actually wants first.
+   *
+   * Wednesday splits into two itineraries. Rather than give the groups a view
+   * of their own, the split lives inside that day, because it is a property of
+   * the day and not a way of reading the programme.
+   */
   MBB.Programme = function (programme) {
-    var tabs = programme.days
+    var days = programme.days;
+
+    /* --- shared pieces -------------------------------------------------- */
+
+    function slotItem(s) {
+      return (
+        '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') + '"' +
+          (s.group ? ' data-group="' + esc(s.group) + '"' : '') + '>' +
+          '<span class="tl-item__time' + (s.open ? ' tl-item__time--open' : '') + '">' +
+            (s.open ? 'Flight times' : esc(s.time)) +
+          '</span>' +
+          '<div class="tl-item__body">' +
+            '<h4>' + esc(s.title) + '</h4>' +
+            (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
+            (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
+          '</div>' +
+        '</li>'
+      );
+    }
+
+    /* --- detailed view --------------------------------------------------- */
+
+    var tabs = days
       .map(function (d, i) {
         return (
           '<button class="prog__tab" type="button" role="tab" id="tab-' + esc(d.id) + '" ' +
@@ -2773,40 +3239,114 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    var panels = programme.days
+    var panels = days
       .map(function (d, i) {
-        var slots = d.slots
+        var groupBar = '';
+        if (d.split) {
+          groupBar =
+            '<div class="prog__groups" role="group" aria-label="Itinerary">' +
+              programme.groups
+                .map(function (g, gi) {
+                  return (
+                    '<button class="prog__group" type="button" data-group="' + esc(g.id) + '" ' +
+                      'aria-pressed="' + (gi === 0 ? 'true' : 'false') + '">' + esc(g.label) + '</button>'
+                  );
+                })
+                .join('') +
+              '<span class="prog__groups__note">Two itineraries run in parallel on this day.</span>' +
+            '</div>';
+        }
+
+        return (
+          '<div class="prog__panel" role="tabpanel" id="panel-' + esc(d.id) + '" ' +
+            'aria-labelledby="tab-' + esc(d.id) + '"' + (i === 0 ? '' : ' hidden') +
+            (d.split ? ' data-split="true"' : '') + '>' +
+            '<p class="prog__theme">' + esc(d.theme) + '</p>' +
+            groupBar +
+            '<ol class="timeline">' + d.slots.map(slotItem).join('') + '</ol>' +
+            '<p class="prog__day-cal">' +
+              '<button class="btn btn--outline btn--sm" type="button" data-ics="' + esc(d.id) + '">' +
+                ICONS.calendar + 'Add ' + esc(d.label.toLowerCase()) + ' to my calendar' +
+              '</button>' +
+            '</p>' +
+          '</div>'
+        );
+      })
+      .join('');
+
+    /* --- overview view --------------------------------------------------- */
+    // Three moments per day: the ones marked as the highlights of that day,
+    // falling back to the first slots when a day has none.
+    var overview = days
+      .map(function (d) {
+        // Start from the moments marked as the highlights of the day, then top
+        // up with the earliest slots that have a time — a day whose highlight
+        // is the evening should not be summarised by its transfers.
+        var chosen = [];
+        d.slots.forEach(function (s, i) { if (s.feature) chosen.push(i); });
+        d.slots.forEach(function (s, i) {
+          if (chosen.length < 3 && !s.feature && !s.open) chosen.push(i);
+        });
+        if (!chosen.length) d.slots.forEach(function (s, i) { chosen.push(i); });
+
+        var seen = {};
+        var lines = chosen
+          .sort(function (a, b) { return a - b; })
+          .slice(0, 3)
+          .map(function (i) { return d.slots[i]; })
+          .filter(function (s) {
+            if (seen[s.title]) return false;
+            seen[s.title] = true;
+            return true;
+          })
           .map(function (s) {
             return (
-              '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') + '">' +
-                '<span class="tl-item__time">' + esc(s.time) + '</span>' +
-                '<div class="tl-item__body">' +
-                  '<h4>' + esc(s.title) + '</h4>' +
-                  (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
-                  (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
-                '</div>' +
+              '<li>' +
+                (s.open ? '' : '<span class="ov__t">' + esc(s.time) + '</span>') +
+                esc(s.title) +
               '</li>'
             );
           })
           .join('');
 
         return (
-          '<div class="prog__panel" role="tabpanel" id="panel-' + esc(d.id) + '" ' +
-            'aria-labelledby="tab-' + esc(d.id) + '"' + (i === 0 ? '' : ' hidden') + '>' +
-            '<p class="prog__theme">' + esc(d.theme) + '</p>' +
-            '<ol class="timeline">' + slots + '</ol>' +
-          '</div>'
+          '<li class="ov-day">' +
+            '<p class="ov-day__date">' + esc(d.date) + '</p>' +
+            '<h3 class="ov-day__theme">' + esc(d.theme) + '</h3>' +
+            '<p class="ov-day__text">' + esc(d.summary) + '</p>' +
+            '<ul class="ov-day__list">' + lines + '</ul>' +
+            (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
+          '</li>'
         );
       })
       .join('');
 
+    /* --- the card -------------------------------------------------------- */
     // The programme sits in a raised card, joined to the section above it, so
     // it reads as the centre of gravity of the page and not as one more block.
     return (
       '<div class="prog-card" data-reveal>' +
         '<h2 class="h-prog">Event Programme</h2>' +
-        '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
-        panels +
+
+        '<div class="prog__bar">' +
+          '<div class="prog__views" role="group" aria-label="Programme view">' +
+            '<button class="prog__view" type="button" data-view="detail" aria-pressed="true">Detailed</button>' +
+            '<button class="prog__view" type="button" data-view="overview" aria-pressed="false">Overview</button>' +
+          '</div>' +
+          '<button class="btn btn--sm" type="button" data-ics="all">' +
+            ICONS.calendar + 'Add the full programme' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="prog__pane" data-pane="detail">' +
+          '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
+          panels +
+        '</div>' +
+
+        '<div class="prog__pane" data-pane="overview" hidden>' +
+          '<ol class="prog__overview">' + overview + '</ol>' +
+        '</div>' +
+
         '<p class="prog__note">' + esc(programme.note) + '</p>' +
       '</div>'
     );
@@ -3360,8 +3900,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
   /* 4. Programme tabs                                                      */
   /* --------------------------------------------------------------------- */
   function initProgramme() {
-    var tabs = $all('.prog__tab');
-    if (!tabs.length) return;
+    var card = $('.prog-card');
+    if (!card) return;
+
+    /* --- day tabs -------------------------------------------------------- */
+    var tabs = $all('.prog__tab', card);
 
     function select(tab) {
       tabs.forEach(function (t) {
@@ -3382,6 +3925,65 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
         var next = tabs[(i + dir + tabs.length) % tabs.length];
         select(next);
         next.focus();
+      });
+    });
+
+    /* --- detailed / overview --------------------------------------------- */
+    var views = $all('.prog__view', card);
+    var panes = $all('.prog__pane', card);
+
+    views.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        views.forEach(function (b) {
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        panes.forEach(function (p) {
+          p.hidden = p.dataset.pane !== btn.dataset.view;
+        });
+      });
+    });
+
+    /* --- the two itineraries of Wednesday -------------------------------- */
+    // The choice is remembered across the whole card, because the calendar
+    // export has to follow whichever itinerary the visitor is reading.
+    var group = (MBB.programme.groups && MBB.programme.groups[0] || {}).id || 'g1';
+
+    function applyGroup() {
+      $all('.prog__group', card).forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.group === group ? 'true' : 'false');
+      });
+      $all('.tl-item[data-group]', card).forEach(function (item) {
+        item.hidden = item.dataset.group !== group;
+      });
+    }
+
+    $all('.prog__group', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        group = btn.dataset.group;
+        applyGroup();
+      });
+    });
+    applyGroup();
+
+    /* --- calendar --------------------------------------------------------- */
+    $all('[data-ics]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var day = btn.dataset.ics;
+        var text = MBB.ics(MBB.programme, { day: day, group: group });
+        var name =
+          'match-bilbao-bizkaia-2026' + (day === 'all' ? '' : '-' + day) + '.ics';
+
+        // A Blob rather than a data: URI, so the file arrives with its own
+        // name and the whole programme is not pushed through a URL.
+        var blob = new Blob([text], { type: 'text/calendar;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
       });
     });
   }

@@ -40,9 +40,11 @@ class MBB_Post_Types {
 			),
 			self::SESSION   => array(
 				'day'     => array( __( 'Day', 'mbb' ), 'day' ),
-				'time'    => array( __( 'Time (CET)', 'mbb' ), 'text' ),
+				'time'    => array( __( 'Start (CET)', 'mbb' ), 'text', __( '24-hour, e.g. 19:30. Leave empty for something that follows a flight rather than the programme.', 'mbb' ) ),
+				'end'     => array( __( 'End (CET)', 'mbb' ), 'text', __( 'Optional. Without it the session runs until the next one, which is what the calendar file assumes.', 'mbb' ) ),
 				'text'    => array( __( 'Description', 'mbb' ), 'textarea' ),
 				'venue'   => array( __( 'Venue', 'mbb' ), 'text' ),
+				'group'   => array( __( 'Itinerary', 'mbb' ), 'group', __( 'Only for a day that splits into two groups. Leave as "Everyone" otherwise.', 'mbb' ) ),
 				'feature' => array( __( 'Highlight this session', 'mbb' ), 'checkbox' ),
 			),
 		);
@@ -188,6 +190,23 @@ class MBB_Post_Types {
 						esc_attr( $n ),
 						selected( (string) $value, (string) $n, false ),
 						esc_html( sprintf( '%s — %s', $day['label'], $day['date'] ) )
+					);
+				}
+				echo '</select>';
+			} elseif ( 'group' === $type ) {
+				// Only the day that splits uses this; everything else is shared.
+				$choices = array(
+					''   => __( 'Everyone', 'mbb' ),
+					'g1' => __( 'Group 1', 'mbb' ),
+					'g2' => __( 'Group 2', 'mbb' ),
+				);
+				printf( '<select id="%1$s" name="%1$s">', esc_attr( $id ) );
+				foreach ( $choices as $slug => $name ) {
+					printf(
+						'<option value="%1$s" %2$s>%3$s</option>',
+						esc_attr( $slug ),
+						selected( (string) $value, (string) $slug, false ),
+						esc_html( $name )
 					);
 				}
 				echo '</select>';

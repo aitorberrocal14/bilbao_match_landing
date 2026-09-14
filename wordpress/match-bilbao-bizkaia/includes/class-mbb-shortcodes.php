@@ -163,77 +163,234 @@ class MBB_Shortcodes {
 			return '';
 		}
 
-		$tabs   = '';
-		$panels = '';
-		$first  = true;
+		$groups = array(
+			'g1' => __( 'Group 1', 'mbb' ),
+			'g2' => __( 'Group 2', 'mbb' ),
+		);
+
+		$tabs     = '';
+		$panels   = '';
+		$overview = '';
+		$export   = array();   // handed to the browser to build the calendar file
+		$first    = true;
 
 		foreach ( $days as $n => $day ) {
 			if ( empty( $sessions[ $n ] ) ) {
 				continue;
 			}
 
+			$id = 'day-' . $n;
+
 			$tabs .= sprintf(
-				'<button class="prog__tab" type="button" role="tab" id="tab-day-%1$d"
-					aria-controls="panel-day-%1$d" aria-selected="%2$s" tabindex="%3$s">%4$s<span class="d">%5$s</span></button>',
-				$n,
+				'<button class="prog__tab" type="button" role="tab" id="tab-%1$s"
+					aria-controls="panel-%1$s" aria-selected="%2$s" tabindex="%3$s">%4$s<span class="d">%5$s</span></button>',
+				esc_attr( $id ),
 				$first ? 'true' : 'false',
 				$first ? '0' : '-1',
 				esc_html( $day['date'] ),
 				esc_html( $day['label'] )
 			);
 
-			$items = '';
+			// A day splits when its sessions carry a group; nothing else has to
+			// be configured for the selector to appear.
+			$split = false;
 			foreach ( $sessions[ $n ] as $post ) {
-				$text    = get_post_meta( $post->ID, '_mbb_text', true );
-				$venue   = get_post_meta( $post->ID, '_mbb_venue', true );
-				$feature = get_post_meta( $post->ID, '_mbb_feature', true );
+				if ( get_post_meta( $post->ID, '_mbb_group', true ) ) {
+					$split = true;
+					break;
+				}
+			}
+
+			$items    = '';
+			$exDay    = array();
+			$features = array();
+			$timed    = array();
+
+			foreach ( $sessions[ $n ] as $post ) {
+				$time    = (string) get_post_meta( $post->ID, '_mbb_time', true );
+				$end     = (string) get_post_meta( $post->ID, '_mbb_end', true );
+				$text    = (string) get_post_meta( $post->ID, '_mbb_text', true );
+				$venue   = (string) get_post_meta( $post->ID, '_mbb_venue', true );
+				$group   = (string) get_post_meta( $post->ID, '_mbb_group', true );
+				$open    = (string) get_post_meta( $post->ID, '_mbb_open', true );
+				$feature = (string) get_post_meta( $post->ID, '_mbb_feature', true );
+				$title   = get_the_title( $post );
 
 				$items .= sprintf(
-					'<li class="tl-item%1$s">
-						<span class="tl-item__time">%2$s</span>
-						<div class="tl-item__body"><h4>%3$s</h4>%4$s%5$s</div>
+					'<li class="tl-item%1$s"%2$s>
+						<span class="tl-item__time%3$s">%4$s</span>
+						<div class="tl-item__body"><h4>%5$s</h4>%6$s%7$s</div>
 					</li>',
 					$feature ? ' tl-item--feature' : '',
-					esc_html( get_post_meta( $post->ID, '_mbb_time', true ) ),
-					esc_html( get_the_title( $post ) ),
+					$group ? ' data-group="' . esc_attr( $group ) . '"' : '',
+					$open ? ' tl-item__time--open' : '',
+					$open ? esc_html__( 'Flight times', 'mbb' ) : esc_html( $time ),
+					esc_html( $title ),
 					$text ? '<p>' . esc_html( $text ) . '</p>' : '',
 					$venue ? '<span class="tl-item__venue">' . esc_html( $venue ) . '</span>' : ''
 				);
+
+				$exDay[] = array(
+					'time'  => $open ? '' : $time,
+					'end'   => $end,
+					'open'  => (bool) $open,
+					'group' => $group,
+					'title' => $title,
+					'text'  => $text,
+					'venue' => $venue,
+				);
+
+				$entry = array( 'time' => $open ? '' : $time, 'title' => $title, 'open' => (bool) $open );
+				if ( $feature ) {
+					$features[] = $entry;
+				} elseif ( ! $open ) {
+					$timed[] = $entry;
+				}
+			}
+
+			$export[] = array(
+				'id'      => $id,
+				'label'   => $day['label'],
+				'dateISO' => self::day_iso( $n ),
+				'slots'   => $exDay,
+			);
+
+			$groupBar = '';
+			if ( $split ) {
+				$buttons = '';
+				$i       = 0;
+				foreach ( $groups as $slug => $name ) {
+					$buttons .= sprintf(
+						'<button class="prog__group" type="button" data-group="%1$s" aria-pressed="%2$s">%3$s</button>',
+						esc_attr( $slug ),
+						0 === $i++ ? 'true' : 'false',
+						esc_html( $name )
+					);
+				}
+				$groupBar = '<div class="prog__groups" role="group" aria-label="' . esc_attr__( 'Itinerary', 'mbb' ) . '">'
+					. $buttons
+					. '<span class="prog__groups__note">'
+					. esc_html__( 'Two itineraries run in parallel on this day.', 'mbb' )
+					. '</span></div>';
 			}
 
 			$panels .= sprintf(
-				'<div class="prog__panel" role="tabpanel" id="panel-day-%1$d" aria-labelledby="tab-day-%1$d"%2$s>
-					<p class="prog__theme">%3$s</p><ol class="timeline">%4$s</ol>
+				'<div class="prog__panel" role="tabpanel" id="panel-%1$s" aria-labelledby="tab-%1$s"%2$s%3$s>
+					<p class="prog__theme">%4$s</p>%5$s<ol class="timeline">%6$s</ol>
+					<p class="prog__day-cal"><button class="btn btn--outline btn--sm" type="button" data-ics="%1$s">%7$s%8$s</button></p>
 				</div>',
-				$n,
+				esc_attr( $id ),
 				$first ? '' : ' hidden',
+				$split ? ' data-split="true"' : '',
 				esc_html( $day['theme'] ),
-				$items
+				$groupBar,
+				$items,
+				MBB_Icons::get( 'calendar' ),
+				esc_html( sprintf( /* translators: %s: day label. */ __( 'Add %s to my calendar', 'mbb' ), strtolower( $day['label'] ) ) )
+			);
+
+			/* --- overview ---------------------------------------------------- */
+			// The highlights first, topped up with the earliest timed sessions.
+			$picks = array_slice( array_merge( $features, $timed ), 0, 3 );
+			if ( ! $picks ) {
+				$picks = array_slice( $exDay, 0, 3 );
+			}
+			usort(
+				$picks,
+				function ( $a, $b ) {
+					return strcmp( (string) $a['time'], (string) $b['time'] );
+				}
+			);
+
+			$lines = '';
+			foreach ( $picks as $pick ) {
+				$lines .= '<li>'
+					. ( empty( $pick['time'] ) ? '' : '<span class="ov__t">' . esc_html( $pick['time'] ) . '</span>' )
+					. esc_html( $pick['title'] ) . '</li>';
+			}
+
+			$overview .= sprintf(
+				'<li class="ov-day">
+					<p class="ov-day__date">%1$s</p>
+					<h3 class="ov-day__theme">%2$s</h3>
+					%3$s
+					<ul class="ov-day__list">%4$s</ul>
+					%5$s
+				</li>',
+				esc_html( $day['date'] ),
+				esc_html( $day['theme'] ),
+				MBB_Settings::get( "day{$n}_summary" )
+					? '<p class="ov-day__text">' . esc_html( MBB_Settings::get( "day{$n}_summary" ) ) . '</p>'
+					: '',
+				$lines,
+				$split ? '<p class="ov-day__split">' . esc_html__( 'Two itineraries', 'mbb' ) . '</p>' : ''
 			);
 
 			$first = false;
 		}
 
-		// The programme is the heart of the page, so it gets a raised card of
-		// its own rather than reading as one more quiet block.
 		$intro = MBB_Settings::get( 'prog_intro' );
 
 		$html = '<h2 class="h-prog">' . esc_html__( 'Event Programme', 'mbb' ) . '</h2>'
 			. ( $intro
 				? '<div class="section-head section-head--center"><p>' . esc_html( $intro ) . '</p></div>'
 				: '' )
+			. '<div class="prog__bar">'
+			. '<div class="prog__views" role="group" aria-label="' . esc_attr__( 'Programme view', 'mbb' ) . '">'
+			. '<button class="prog__view" type="button" data-view="detail" aria-pressed="true">' . esc_html__( 'Detailed', 'mbb' ) . '</button>'
+			. '<button class="prog__view" type="button" data-view="overview" aria-pressed="false">' . esc_html__( 'Overview', 'mbb' ) . '</button>'
+			. '</div>'
+			. '<button class="btn btn--sm" type="button" data-ics="all">' . MBB_Icons::get( 'calendar' )
+			. esc_html__( 'Add the full programme', 'mbb' ) . '</button>'
+			. '</div>'
+			. '<div class="prog__pane" data-pane="detail">'
 			. '<div class="prog__tabs" role="tablist" aria-label="' . esc_attr__( 'Programme days', 'mbb' ) . '">'
-			. $tabs . '</div>' . $panels;
+			. $tabs . '</div>' . $panels . '</div>'
+			. '<div class="prog__pane" data-pane="overview" hidden>'
+			. '<ol class="prog__overview">' . $overview . '</ol></div>';
 
 		$note = MBB_Settings::get( 'prog_note' );
 		if ( $note ) {
 			$html .= '<p class="prog__note">' . esc_html( $note ) . '</p>';
 		}
 
+		// The calendar file is written in the browser from this, by the same
+		// code the static site uses, so the two produce identical files.
+		$html .= '<script type="application/json" id="mbb-programme">'
+			. wp_json_encode(
+				array(
+					'timezone' => 'Europe/Madrid',
+					'groups'   => array(
+						array( 'id' => 'g1', 'label' => $groups['g1'] ),
+						array( 'id' => 'g2', 'label' => $groups['g2'] ),
+					),
+					'days'     => $export,
+				)
+			)
+			. '</script>';
+
 		MBB_Plugin::need_assets();
 		return '<div class="mbb"><section class="section section--soft" id="programme">'
 			. '<div class="shell"><div class="prog-card">' . $html . '</div></div>'
 			. '</section></div>';
+	}
+
+	/**
+	 * The calendar date of a programme day. The dates the editor types are
+	 * prose ("Tuesday 6 October"), so they are read against the event's first
+	 * day, which is a real date.
+	 */
+	private static function day_iso( $n ) {
+		$start = strtotime( (string) MBB_Settings::get( 'event_start' ) );
+		if ( ! $start ) {
+			return '';
+		}
+		$guess = strtotime( (string) MBB_Settings::get( "day{$n}_date" ) . ' ' . gmdate( 'Y', $start ) );
+		if ( $guess ) {
+			return gmdate( 'Y-m-d', $guess );
+		}
+		// Nothing parseable: fall back to counting from the first day.
+		return gmdate( 'Y-m-d', strtotime( '+' . ( $n - 1 ) . ' days', $start ) );
 	}
 
 	/* --- Presentation of Bilbao ---------------------------------------------- */

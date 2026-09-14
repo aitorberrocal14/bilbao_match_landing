@@ -59,10 +59,15 @@ MBB.programme.days.forEach((day, i) => {
   day.slots.forEach((slot) => {
     sessions.push({
       day: i + 1,
-      time: slot.time,
+      time: slot.time || '',
+      end: slot.end || '',
       title: slot.title,
       text: slot.text || '',
       venue: slot.venue || '',
+      // '' on a day everyone shares; 'g1'/'g2' on the day that splits.
+      group: slot.group || '',
+      // A slot whose hour follows a flight rather than the programme.
+      open: !!slot.open,
       feature: !!slot.feature
     });
   });

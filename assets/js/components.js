@@ -51,7 +51,8 @@ window.MBB = window.MBB || {};
     instagram: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2.4" y="2.4" width="11.2" height="11.2" rx="3.4" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="8" r="2.6" stroke="currentColor" stroke-width="1.4"/><circle cx="11.3" cy="4.7" r=".9" fill="currentColor"/></svg>',
     x: '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M11.9 1.9h2.2L9.3 7.4l5.7 7.5h-4.5L7 10.2l-4 4.7H.8l5.2-6L.5 1.9h4.6l3.1 4.2 3.7-4.2Zm-.8 11.6h1.2L4.9 3.2H3.6l7.5 10.3Z"/></svg>',
     globe: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.7" stroke="currentColor" stroke-width="1.3"/><path d="M2.4 8h11.2M8 2.3c1.5 1.6 2.3 3.6 2.3 5.7S9.5 12.1 8 13.7C6.5 12.1 5.7 10.1 5.7 8S6.5 3.9 8 2.3Z" stroke="currentColor" stroke-width="1.3"/></svg>',
-    searchGlass: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>'
+    searchGlass: '<svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2" stroke="currentColor" stroke-width="1.4"/><path d="m10.4 10.4 3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>',
+    calendar: '<svg class="ico" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="2" y="3.5" width="12" height="10" rx="1.4" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.6h12M5.4 2.2v2.4M10.6 2.2v2.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
   };
   MBB.icons = ICONS;
   MBB.esc = esc;
@@ -169,8 +170,169 @@ window.MBB = window.MBB || {};
     );
   };
 
+
+  /* --- Calendar export ---------------------------------------------------- */
+  /**
+   * Builds an iCalendar file from the programme, so a participant can put the
+   * whole week — or one day of it — into whatever calendar they use. A file
+   * rather than a link to one particular calendar service: this works with
+   * Google, Outlook, Apple and everything else that reads .ics.
+   *
+   * Times are written in local Bilbao time with a TZID, and the VTIMEZONE
+   * below tells the reader what that means, so the events land at the right
+   * hour whatever timezone the reader is in. A slot with no fixed time
+   * (arrivals, departures) becomes an all-day entry, because that is what is
+   * actually known about it.
+   *
+   * @param {object} programme  window.MBB.programme
+   * @param {object} opts       { day: id|'all', group: 'g1'|'g2' }
+   */
+  MBB.ics = function (programme, opts) {
+    opts = opts || {};
+    var wantDay = opts.day && opts.day !== 'all' ? opts.day : null;
+    var group = opts.group || (programme.groups && programme.groups[0] && programme.groups[0].id);
+
+    function esc2(s) {
+      return String(s == null ? '' : s)
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    }
+
+    // iCalendar lines are limited to 75 octets; longer ones continue on the
+    // next line, marked by a leading space.
+    function fold(line) {
+      if (line.length <= 73) return line;
+      var out = line.slice(0, 73);
+      var rest = line.slice(73);
+      while (rest.length) {
+        out += '\r\n ' + rest.slice(0, 72);
+        rest = rest.slice(72);
+      }
+      return out;
+    }
+
+    function stamp() {
+      return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    function plusMinutes(hhmm, mins) {
+      var p = hhmm.split(':');
+      var t = parseInt(p[0], 10) * 60 + parseInt(p[1], 10) + mins;
+      t = Math.min(t, 23 * 60 + 59);
+      return ('0' + Math.floor(t / 60)).slice(-2) + ('0' + (t % 60)).slice(-2);
+    }
+
+    var lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Match Bilbao Bizkaia//Programme 2026//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'X-WR-CALNAME:Match Bilbao Bizkaia 2026',
+      'X-WR-TIMEZONE:' + programme.timezone,
+      // Central European Time, with the rule that moves it to summer time, so
+      // the file stays correct if the event ever moves across the change.
+      'BEGIN:VTIMEZONE',
+      'TZID:Europe/Madrid',
+      'BEGIN:DAYLIGHT',
+      'TZOFFSETFROM:+0100',
+      'TZOFFSETTO:+0200',
+      'TZNAME:CEST',
+      'DTSTART:19700329T020000',
+      'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+      'END:DAYLIGHT',
+      'BEGIN:STANDARD',
+      'TZOFFSETFROM:+0200',
+      'TZOFFSETTO:+0100',
+      'TZNAME:CET',
+      'DTSTART:19701025T030000',
+      'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+      'END:STANDARD',
+      'END:VTIMEZONE'
+    ];
+
+    var now = stamp();
+
+    programme.days.forEach(function (d) {
+      if (wantDay && d.id !== wantDay) return;
+
+      var date = d.dateISO.replace(/-/g, '');
+      // On a day that splits, only the chosen itinerary is exported: two
+      // parallel routes in one calendar would be unreadable.
+      var slots = d.slots.filter(function (s) { return !s.group || s.group === group; });
+
+      slots.forEach(function (s, i) {
+        var uid = 'mbb2026-' + d.id + '-' + i + '@matchbilbaobizkaia.eus';
+        var desc = [s.text || '', s.venue ? 'Venue: ' + s.venue : ''].filter(Boolean).join('\n');
+
+        lines.push('BEGIN:VEVENT');
+        lines.push('UID:' + uid);
+        lines.push('DTSTAMP:' + now);
+
+        if (s.open) {
+          // No fixed time yet: an all-day entry says that honestly.
+          var next = new Date(d.dateISO + 'T00:00:00Z');
+          next.setUTCDate(next.getUTCDate() + 1);
+          lines.push('DTSTART;VALUE=DATE:' + date);
+          lines.push('DTEND;VALUE=DATE:' + next.toISOString().slice(0, 10).replace(/-/g, ''));
+        } else {
+          var endTime = s.end;
+          if (!endTime) {
+            var following = slots[i + 1];
+            endTime = following && following.time ? following.time : plusMinutes(s.time, 60);
+          }
+          lines.push('DTSTART;TZID=Europe/Madrid:' + date + 'T' + s.time.replace(':', '') + '00');
+          lines.push('DTEND;TZID=Europe/Madrid:' + date + 'T' + endTime.replace(':', '') + '00');
+        }
+
+        lines.push(fold('SUMMARY:' + esc2(s.title)));
+        if (desc) lines.push(fold('DESCRIPTION:' + esc2(desc)));
+        if (s.venue) lines.push(fold('LOCATION:' + esc2(s.venue)));
+        lines.push('END:VEVENT');
+      });
+    });
+
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
+  };
+
+  /**
+   * The programme, in two views over the same data.
+   *
+   * "Detailed" keeps the day-by-day timeline; "Overview" puts the five days
+   * side by side so the shape of the week can be taken in at a glance — which
+   * is what a buyer deciding whether to come actually wants first.
+   *
+   * Wednesday splits into two itineraries. Rather than give the groups a view
+   * of their own, the split lives inside that day, because it is a property of
+   * the day and not a way of reading the programme.
+   */
   MBB.Programme = function (programme) {
-    var tabs = programme.days
+    var days = programme.days;
+
+    /* --- shared pieces -------------------------------------------------- */
+
+    function slotItem(s) {
+      return (
+        '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') + '"' +
+          (s.group ? ' data-group="' + esc(s.group) + '"' : '') + '>' +
+          '<span class="tl-item__time' + (s.open ? ' tl-item__time--open' : '') + '">' +
+            (s.open ? 'Flight times' : esc(s.time)) +
+          '</span>' +
+          '<div class="tl-item__body">' +
+            '<h4>' + esc(s.title) + '</h4>' +
+            (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
+            (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
+          '</div>' +
+        '</li>'
+      );
+    }
+
+    /* --- detailed view --------------------------------------------------- */
+
+    var tabs = days
       .map(function (d, i) {
         return (
           '<button class="prog__tab" type="button" role="tab" id="tab-' + esc(d.id) + '" ' +
@@ -182,40 +344,114 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    var panels = programme.days
+    var panels = days
       .map(function (d, i) {
-        var slots = d.slots
+        var groupBar = '';
+        if (d.split) {
+          groupBar =
+            '<div class="prog__groups" role="group" aria-label="Itinerary">' +
+              programme.groups
+                .map(function (g, gi) {
+                  return (
+                    '<button class="prog__group" type="button" data-group="' + esc(g.id) + '" ' +
+                      'aria-pressed="' + (gi === 0 ? 'true' : 'false') + '">' + esc(g.label) + '</button>'
+                  );
+                })
+                .join('') +
+              '<span class="prog__groups__note">Two itineraries run in parallel on this day.</span>' +
+            '</div>';
+        }
+
+        return (
+          '<div class="prog__panel" role="tabpanel" id="panel-' + esc(d.id) + '" ' +
+            'aria-labelledby="tab-' + esc(d.id) + '"' + (i === 0 ? '' : ' hidden') +
+            (d.split ? ' data-split="true"' : '') + '>' +
+            '<p class="prog__theme">' + esc(d.theme) + '</p>' +
+            groupBar +
+            '<ol class="timeline">' + d.slots.map(slotItem).join('') + '</ol>' +
+            '<p class="prog__day-cal">' +
+              '<button class="btn btn--outline btn--sm" type="button" data-ics="' + esc(d.id) + '">' +
+                ICONS.calendar + 'Add ' + esc(d.label.toLowerCase()) + ' to my calendar' +
+              '</button>' +
+            '</p>' +
+          '</div>'
+        );
+      })
+      .join('');
+
+    /* --- overview view --------------------------------------------------- */
+    // Three moments per day: the ones marked as the highlights of that day,
+    // falling back to the first slots when a day has none.
+    var overview = days
+      .map(function (d) {
+        // Start from the moments marked as the highlights of the day, then top
+        // up with the earliest slots that have a time — a day whose highlight
+        // is the evening should not be summarised by its transfers.
+        var chosen = [];
+        d.slots.forEach(function (s, i) { if (s.feature) chosen.push(i); });
+        d.slots.forEach(function (s, i) {
+          if (chosen.length < 3 && !s.feature && !s.open) chosen.push(i);
+        });
+        if (!chosen.length) d.slots.forEach(function (s, i) { chosen.push(i); });
+
+        var seen = {};
+        var lines = chosen
+          .sort(function (a, b) { return a - b; })
+          .slice(0, 3)
+          .map(function (i) { return d.slots[i]; })
+          .filter(function (s) {
+            if (seen[s.title]) return false;
+            seen[s.title] = true;
+            return true;
+          })
           .map(function (s) {
             return (
-              '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') + '">' +
-                '<span class="tl-item__time">' + esc(s.time) + '</span>' +
-                '<div class="tl-item__body">' +
-                  '<h4>' + esc(s.title) + '</h4>' +
-                  (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
-                  (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
-                '</div>' +
+              '<li>' +
+                (s.open ? '' : '<span class="ov__t">' + esc(s.time) + '</span>') +
+                esc(s.title) +
               '</li>'
             );
           })
           .join('');
 
         return (
-          '<div class="prog__panel" role="tabpanel" id="panel-' + esc(d.id) + '" ' +
-            'aria-labelledby="tab-' + esc(d.id) + '"' + (i === 0 ? '' : ' hidden') + '>' +
-            '<p class="prog__theme">' + esc(d.theme) + '</p>' +
-            '<ol class="timeline">' + slots + '</ol>' +
-          '</div>'
+          '<li class="ov-day">' +
+            '<p class="ov-day__date">' + esc(d.date) + '</p>' +
+            '<h3 class="ov-day__theme">' + esc(d.theme) + '</h3>' +
+            '<p class="ov-day__text">' + esc(d.summary) + '</p>' +
+            '<ul class="ov-day__list">' + lines + '</ul>' +
+            (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
+          '</li>'
         );
       })
       .join('');
 
+    /* --- the card -------------------------------------------------------- */
     // The programme sits in a raised card, joined to the section above it, so
     // it reads as the centre of gravity of the page and not as one more block.
     return (
       '<div class="prog-card" data-reveal>' +
         '<h2 class="h-prog">Event Programme</h2>' +
-        '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
-        panels +
+
+        '<div class="prog__bar">' +
+          '<div class="prog__views" role="group" aria-label="Programme view">' +
+            '<button class="prog__view" type="button" data-view="detail" aria-pressed="true">Detailed</button>' +
+            '<button class="prog__view" type="button" data-view="overview" aria-pressed="false">Overview</button>' +
+          '</div>' +
+          '<button class="btn btn--sm" type="button" data-ics="all">' +
+            ICONS.calendar + 'Add the full programme' +
+          '</button>' +
+        '</div>' +
+
+        '<div class="prog__pane" data-pane="detail">' +
+          '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
+          panels +
+        '</div>' +
+
+        '<div class="prog__pane" data-pane="overview" hidden>' +
+          '<ol class="prog__overview">' + overview + '</ol>' +
+        '</div>' +
+
         '<p class="prog__note">' + esc(programme.note) + '</p>' +
       '</div>'
     );

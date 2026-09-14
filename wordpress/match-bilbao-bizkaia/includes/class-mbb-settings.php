@@ -12,6 +12,9 @@ class MBB_Settings {
 
 	const OPTION = 'mbb_settings';
 
+	/** Days the programme covers: arrival and departure both carry programme. */
+	const DAYS = 5;
+
 	/** Field definition: key => [label, type, help]. */
 	public static function schema() {
 		return array(
@@ -25,15 +28,23 @@ class MBB_Settings {
 					'day1_label'  => array( __( 'Day 1 — label', 'mbb' ), 'text' ),
 					'day1_date'   => array( __( 'Day 1 — date', 'mbb' ), 'text' ),
 					'day1_theme'  => array( __( 'Day 1 — theme', 'mbb' ), 'text' ),
+					'day1_summary' => array( __( 'Day 1 — one-line summary', 'mbb' ), 'textarea', __( 'Shown in the Overview view of the programme.', 'mbb' ) ),
 					'day2_label'  => array( __( 'Day 2 — label', 'mbb' ), 'text' ),
 					'day2_date'   => array( __( 'Day 2 — date', 'mbb' ), 'text' ),
 					'day2_theme'  => array( __( 'Day 2 — theme', 'mbb' ), 'text' ),
+					'day2_summary' => array( __( 'Day 2 — one-line summary', 'mbb' ), 'textarea', '' ),
 					'day3_label'  => array( __( 'Day 3 — label', 'mbb' ), 'text' ),
 					'day3_date'   => array( __( 'Day 3 — date', 'mbb' ), 'text' ),
 					'day3_theme'  => array( __( 'Day 3 — theme', 'mbb' ), 'text' ),
+					'day3_summary' => array( __( 'Day 3 — one-line summary', 'mbb' ), 'textarea', '' ),
 					'day4_label'  => array( __( 'Day 4 — label', 'mbb' ), 'text' ),
 					'day4_date'   => array( __( 'Day 4 — date', 'mbb' ), 'text' ),
 					'day4_theme'  => array( __( 'Day 4 — theme', 'mbb' ), 'text' ),
+					'day4_summary' => array( __( 'Day 4 — one-line summary', 'mbb' ), 'textarea', '' ),
+					'day5_label'  => array( __( 'Day 5 — label', 'mbb' ), 'text' ),
+					'day5_date'   => array( __( 'Day 5 — date', 'mbb' ), 'text' ),
+					'day5_theme'  => array( __( 'Day 5 — theme', 'mbb' ), 'text' ),
+					'day5_summary' => array( __( 'Day 5 — one-line summary', 'mbb' ), 'textarea', '' ),
 					'prog_intro'  => array(
 						__( 'Programme introduction', 'mbb' ),
 						'textarea',
@@ -112,19 +123,27 @@ class MBB_Settings {
 			'event_end'    => '2026-10-10',
 			'day1_label'   => 'Day 1',
 			'day1_date'    => 'Tuesday 6 October',
-			'day1_theme'   => 'Arrival & welcome',
+			'day1_theme'   => 'Welcome',
+			'day1_summary' => 'Arrival, transfer to the hotel and the welcome dinner at San Mamés stadium.',
 			'day2_label'   => 'Day 2',
 			'day2_date'    => 'Wednesday 7 October',
-			'day2_theme'   => 'Business & the city',
+			'day2_theme'   => 'Bizkaia',
+			'day2_summary' => 'A full day through Bizkaia, in two groups with different routes, ending in lunch together at Bodega Berroja and dinner on a rooftop.',
 			'day3_label'   => 'Day 3',
 			'day3_date'    => 'Thursday 8 October',
-			'day3_theme'   => 'Business & the coast',
+			'day3_theme'   => 'Donostia',
+			'day3_summary' => 'Both groups travel together to San Sebastián, and return for dinner reached by boat across the estuary.',
 			'day4_label'   => 'Day 4',
 			'day4_date'    => 'Friday 9 October',
-			'day4_theme'   => 'Nature & next steps',
+			'day4_theme'   => 'B2B workshop & Bilbao',
+			'day4_summary' => 'The working morning at the Iberdrola Tower, pintxos in the Old Town, and a private visit to the Guggenheim before the farewell dinner.',
+			'day5_label'   => 'Day 5',
+			'day5_date'    => 'Saturday 10 October',
+			'day5_theme'   => 'Departure',
+			'day5_summary' => 'Check-out and transfers to the airport.',
 			// Empty on purpose: the heading carries the section on its own.
 			'prog_intro'   => '',
-			'prog_note'    => 'Participants arrive on Tuesday 6 October and depart on Saturday 10. All times are shown in CET (Central European Time). The final programme will be confirmed to registered participants by email.',
+			'prog_note'    => 'All times are shown in Central European Time. Arrival and departure times follow each participant’s flights and are confirmed individually. The final programme is confirmed to registered participants by email.',
 			'calendar_url' => '',
 			'hero_kicker'   => '6 – 10 October 2026 · Bilbao, Basque Country',
 			'hero_title'    => 'Match Bilbao Bizkaia',
@@ -133,7 +152,7 @@ class MBB_Settings {
 			'hero_lead'     => 'Four days of curated B2B meetings, destination knowledge and shared discovery, bringing international buyers together with the tourism professionals who know Bilbao Bizkaia best.',
 			'hero_image'    => 0,
 			'fact1_value' => '49',  'fact1_label' => 'Local exhibitors',
-			'fact2_value' => '4',   'fact2_label' => 'Days of programme',
+			'fact2_value' => '5',   'fact2_label' => 'Days of programme',
 			'fact3_value' => '1:1', 'fact3_label' => 'Pre-scheduled meetings',
 			// A fourth figure is optional: leave it empty and it is not shown.
 			'fact4_value' => '',    'fact4_label' => '',
@@ -171,7 +190,7 @@ class MBB_Settings {
 	/** The three programme days, as used by the session editor and the front end. */
 	public static function days() {
 		$days = array();
-		for ( $n = 1; $n <= 4; $n++ ) {
+		for ( $n = 1; $n <= self::DAYS; $n++ ) {
 			$days[ $n ] = array(
 				'label' => self::get( "day{$n}_label", "Day {$n}" ),
 				'date'  => self::get( "day{$n}_date", '' ),

@@ -12,10 +12,13 @@
     return Array.prototype.slice.call((ctx || document).querySelectorAll(sel));
   };
 
-  /* --- Programme tabs ---------------------------------------------------- */
+  /* --- Programme: views, itineraries and the calendar file ---------------- */
   function initProgramme() {
-    var tabs = $all('.mbb .prog__tab');
-    if (!tabs.length) return;
+    var card = document.querySelector('.mbb .prog-card');
+    if (!card) return;
+
+    /* --- day tabs -------------------------------------------------------- */
+    var tabs = $all('.prog__tab', card);
 
     function select(tab) {
       tabs.forEach(function (t) {
@@ -38,6 +41,179 @@
         next.focus();
       });
     });
+
+    /* --- detailed / overview --------------------------------------------- */
+    var views = $all('.prog__view', card);
+    var panes = $all('.prog__pane', card);
+
+    views.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        views.forEach(function (b) {
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        panes.forEach(function (p) { p.hidden = p.dataset.pane !== btn.dataset.view; });
+      });
+    });
+
+    /* --- the two itineraries --------------------------------------------- */
+    var group = 'g1';
+
+    function applyGroup() {
+      $all('.prog__group', card).forEach(function (b) {
+        b.setAttribute('aria-pressed', b.dataset.group === group ? 'true' : 'false');
+      });
+      $all('.tl-item[data-group]', card).forEach(function (item) {
+        item.hidden = item.dataset.group !== group;
+      });
+    }
+
+    $all('.prog__group', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        group = btn.dataset.group;
+        applyGroup();
+      });
+    });
+    applyGroup();
+
+    /* --- calendar --------------------------------------------------------- */
+    // The programme travels in the page as JSON, so the file is built by the
+    // same code the static site uses and the two produce identical results.
+    var raw = document.getElementById('mbb-programme');
+    if (!raw) return;
+
+    var programme;
+    try {
+      programme = JSON.parse(raw.textContent);
+    } catch (e) {
+      return;
+    }
+
+    $all('[data-ics]', card).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var day = btn.dataset.ics;
+        var text = buildIcs(programme, { day: day, group: group });
+        var blob = new Blob([text], { type: 'text/calendar;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'match-bilbao-bizkaia-2026' + (day === 'all' ? '' : '-' + day) + '.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      });
+    });
+  }
+
+  function buildIcs(programme, opts) {
+    opts = opts || {};
+    var wantDay = opts.day && opts.day !== 'all' ? opts.day : null;
+    var group = opts.group || (programme.groups && programme.groups[0] && programme.groups[0].id);
+
+    function esc2(s) {
+      return String(s == null ? '' : s)
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    }
+
+    // iCalendar lines are limited to 75 octets; longer ones continue on the
+    // next line, marked by a leading space.
+    function fold(line) {
+      if (line.length <= 73) return line;
+      var out = line.slice(0, 73);
+      var rest = line.slice(73);
+      while (rest.length) {
+        out += '\r\n ' + rest.slice(0, 72);
+        rest = rest.slice(72);
+      }
+      return out;
+    }
+
+    function stamp() {
+      return new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    function plusMinutes(hhmm, mins) {
+      var p = hhmm.split(':');
+      var t = parseInt(p[0], 10) * 60 + parseInt(p[1], 10) + mins;
+      t = Math.min(t, 23 * 60 + 59);
+      return ('0' + Math.floor(t / 60)).slice(-2) + ('0' + (t % 60)).slice(-2);
+    }
+
+    var lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Match Bilbao Bizkaia//Programme 2026//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'X-WR-CALNAME:Match Bilbao Bizkaia 2026',
+      'X-WR-TIMEZONE:' + programme.timezone,
+      // Central European Time, with the rule that moves it to summer time, so
+      // the file stays correct if the event ever moves across the change.
+      'BEGIN:VTIMEZONE',
+      'TZID:Europe/Madrid',
+      'BEGIN:DAYLIGHT',
+      'TZOFFSETFROM:+0100',
+      'TZOFFSETTO:+0200',
+      'TZNAME:CEST',
+      'DTSTART:19700329T020000',
+      'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+      'END:DAYLIGHT',
+      'BEGIN:STANDARD',
+      'TZOFFSETFROM:+0200',
+      'TZOFFSETTO:+0100',
+      'TZNAME:CET',
+      'DTSTART:19701025T030000',
+      'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+      'END:STANDARD',
+      'END:VTIMEZONE'
+    ];
+
+    var now = stamp();
+
+    programme.days.forEach(function (d) {
+      if (wantDay && d.id !== wantDay) return;
+
+      var date = d.dateISO.replace(/-/g, '');
+      // On a day that splits, only the chosen itinerary is exported: two
+      // parallel routes in one calendar would be unreadable.
+      var slots = d.slots.filter(function (s) { return !s.group || s.group === group; });
+
+      slots.forEach(function (s, i) {
+        var uid = 'mbb2026-' + d.id + '-' + i + '@matchbilbaobizkaia.eus';
+        var desc = [s.text || '', s.venue ? 'Venue: ' + s.venue : ''].filter(Boolean).join('\n');
+
+        lines.push('BEGIN:VEVENT');
+        lines.push('UID:' + uid);
+        lines.push('DTSTAMP:' + now);
+
+        if (s.open) {
+          // No fixed time yet: an all-day entry says that honestly.
+          var next = new Date(d.dateISO + 'T00:00:00Z');
+          next.setUTCDate(next.getUTCDate() + 1);
+          lines.push('DTSTART;VALUE=DATE:' + date);
+          lines.push('DTEND;VALUE=DATE:' + next.toISOString().slice(0, 10).replace(/-/g, ''));
+        } else {
+          var endTime = s.end;
+          if (!endTime) {
+            var following = slots[i + 1];
+            endTime = following && following.time ? following.time : plusMinutes(s.time, 60);
+          }
+          lines.push('DTSTART;TZID=Europe/Madrid:' + date + 'T' + s.time.replace(':', '') + '00');
+          lines.push('DTEND;TZID=Europe/Madrid:' + date + 'T' + endTime.replace(':', '') + '00');
+        }
+
+        lines.push(fold('SUMMARY:' + esc2(s.title)));
+        if (desc) lines.push(fold('DESCRIPTION:' + esc2(desc)));
+        if (s.venue) lines.push(fold('LOCATION:' + esc2(s.venue)));
+        lines.push('END:VEVENT');
+      });
+    });
+
+    lines.push('END:VCALENDAR');
+    return lines.join('\r\n') + '\r\n';
   }
 
   /* --- Exhibitor filter --------------------------------------------------- */
