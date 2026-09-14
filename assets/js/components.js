@@ -315,8 +315,12 @@ window.MBB = window.MBB || {};
     /* --- shared pieces -------------------------------------------------- */
 
     function slotItem(s) {
+      // A line with nothing but a time and a title is a transfer or a meeting
+      // point; it does not need the room a described session needs.
+      var brief = !s.text && !s.venue;
       return (
-        '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') + '"' +
+        '<li class="tl-item' + (s.feature ? ' tl-item--feature' : '') +
+          (brief ? ' tl-item--brief' : '') + '"' +
           (s.group ? ' data-group="' + esc(s.group) + '"' : '') + '>' +
           '<span class="tl-item__time' + (s.open ? ' tl-item__time--open' : '') + '">' +
             (s.open ? 'Flight times' : esc(s.time)) +
@@ -435,20 +439,20 @@ window.MBB = window.MBB || {};
 
         '<div class="prog__bar">' +
           '<div class="prog__views" role="group" aria-label="Programme view">' +
-            '<button class="prog__view" type="button" data-view="detail" aria-pressed="true">Detailed</button>' +
-            '<button class="prog__view" type="button" data-view="overview" aria-pressed="false">Overview</button>' +
+            '<button class="prog__view" type="button" data-view="overview" aria-pressed="true">Overview</button>' +
+            '<button class="prog__view" type="button" data-view="detail" aria-pressed="false">Day by day</button>' +
           '</div>' +
           '<button class="btn btn--sm" type="button" data-ics="all">' +
             ICONS.calendar + 'Add the full programme' +
           '</button>' +
         '</div>' +
 
-        '<div class="prog__pane" data-pane="detail">' +
+        '<div class="prog__pane" data-pane="detail" hidden>' +
           '<div class="prog__tabs" role="tablist" aria-label="Programme days">' + tabs + '</div>' +
           panels +
         '</div>' +
 
-        '<div class="prog__pane" data-pane="overview" hidden>' +
+        '<div class="prog__pane" data-pane="overview">' +
           '<ol class="prog__overview">' + overview + '</ol>' +
         '</div>' +
 

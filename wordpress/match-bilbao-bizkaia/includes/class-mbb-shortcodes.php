@@ -216,12 +216,16 @@ class MBB_Shortcodes {
 				$feature = (string) get_post_meta( $post->ID, '_mbb_feature', true );
 				$title   = get_the_title( $post );
 
+				// A line with nothing but a time and a title is a transfer or a
+				// meeting point; it does not need the room a described one needs.
+				$brief = ( '' === $text && '' === $venue ) ? ' tl-item--brief' : '';
+
 				$items .= sprintf(
 					'<li class="tl-item%1$s"%2$s>
 						<span class="tl-item__time%3$s">%4$s</span>
 						<div class="tl-item__body"><h4>%5$s</h4>%6$s%7$s</div>
 					</li>',
-					$feature ? ' tl-item--feature' : '',
+					( $feature ? ' tl-item--feature' : '' ) . $brief,
 					$group ? ' data-group="' . esc_attr( $group ) . '"' : '',
 					$open ? ' tl-item__time--open' : '',
 					$open ? esc_html__( 'Flight times', 'mbb' ) : esc_html( $time ),
@@ -337,16 +341,16 @@ class MBB_Shortcodes {
 				: '' )
 			. '<div class="prog__bar">'
 			. '<div class="prog__views" role="group" aria-label="' . esc_attr__( 'Programme view', 'mbb' ) . '">'
-			. '<button class="prog__view" type="button" data-view="detail" aria-pressed="true">' . esc_html__( 'Detailed', 'mbb' ) . '</button>'
-			. '<button class="prog__view" type="button" data-view="overview" aria-pressed="false">' . esc_html__( 'Overview', 'mbb' ) . '</button>'
+			. '<button class="prog__view" type="button" data-view="overview" aria-pressed="true">' . esc_html__( 'Overview', 'mbb' ) . '</button>'
+			. '<button class="prog__view" type="button" data-view="detail" aria-pressed="false">' . esc_html__( 'Day by day', 'mbb' ) . '</button>'
 			. '</div>'
 			. '<button class="btn btn--sm" type="button" data-ics="all">' . MBB_Icons::get( 'calendar' )
 			. esc_html__( 'Add the full programme', 'mbb' ) . '</button>'
 			. '</div>'
-			. '<div class="prog__pane" data-pane="detail">'
+			. '<div class="prog__pane" data-pane="detail" hidden>'
 			. '<div class="prog__tabs" role="tablist" aria-label="' . esc_attr__( 'Programme days', 'mbb' ) . '">'
 			. $tabs . '</div>' . $panels . '</div>'
-			. '<div class="prog__pane" data-pane="overview" hidden>'
+			. '<div class="prog__pane" data-pane="overview">'
 			. '<ol class="prog__overview">' . $overview . '</ol></div>';
 
 		$note = MBB_Settings::get( 'prog_note' );

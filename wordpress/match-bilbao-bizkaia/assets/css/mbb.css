@@ -500,35 +500,45 @@
   border-bottom: 1px solid var(--line);
 }
 
+/* A programme of sixty sessions is read by scanning, not by reading: the rows
+   are tight, and a row with nothing but a time and a title is tighter still,
+   so the described sessions are what the eye stops on. */
 .mbb .tl-item {
   display: grid;
-  grid-template-columns: 84px 1fr;
-  gap: 1.75rem;
-  padding: 1.35rem 0;
+  grid-template-columns: 72px 1fr;
+  gap: 1.25rem;
+  padding: 0.85rem 0;
   border-top: 1px solid var(--line);
+  line-height: 1.5;
 }
+
+.mbb .tl-item--brief { padding: 0.55rem 0; }
 
 .mbb .tl-item__time {
   font-family: var(--font-head);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 0.98rem;
+  line-height: 1.35;
   color: var(--red);
   font-variant-numeric: tabular-nums;
 }
 
 .mbb .tl-item__body h4 {
-  margin: 0 0 0.25rem;
-  font-size: 1.08rem;
+  margin: 0 0 0.15rem;
+  font-size: 1rem;
+  line-height: 1.35;
   color: var(--grey-dark);
 }
 
+.mbb .tl-item--brief .tl-item__body h4 { margin: 0; }
+
 .mbb .tl-item--feature .tl-item__body h4 { color: var(--red); }
 
-.mbb .tl-item__body p { margin: 0; font-size: 0.95rem; }
+.mbb .tl-item__body p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 
 .mbb .tl-item__venue {
   display: inline-block;
-  margin-top: 0.4rem;
+  margin-top: 0.2rem;
   font-size: 0.78rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -680,7 +690,7 @@
   color: var(--red);
 }
 
-.mbb .ov-day__text { margin: 0 0 1rem; font-size: 0.9rem; }
+.mbb .ov-day__text { margin: 0 0 1rem; font-size: 0.9rem; line-height: 1.55; }
 
 .mbb .ov-day__list {
   list-style: none;
@@ -716,6 +726,14 @@
   .mbb .prog__bar { justify-content: center; }
   .mbb .prog__views { width: 100%; }
   .mbb .prog__view { flex: 1; }
+  .mbb /* Stacked one above another,
+.mbb five days of summary become a long scroll of
+     their own; the type tightens so the week still reads as a week. */
+  .ov-day { padding: 1.15rem 1.1rem 1.3rem; }
+  .mbb .ov-day__theme { font-size: 1.1rem; margin-bottom: 0.4rem; }
+  .mbb .ov-day__text { font-size: 0.88rem; line-height: 1.5; margin-bottom: 0.8rem; }
+  .mbb .ov-day__list { padding-top: 0.8rem; font-size: 0.84rem; line-height: 1.45; }
+  .mbb .ov-day__list li { margin-bottom: 0.35rem; }
 
 
 }
@@ -1489,7 +1507,8 @@
   .mbb .header__actions { gap: 0.25rem; }
   .mbb .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
   .mbb .burger { width: 36px; padding: 8px; }
-  .mbb .tl-item { grid-template-columns: 1fr; gap: 0.3rem; }
+  .mbb .tl-item { grid-template-columns: 54px 1fr; gap: 0.8rem; }
+  .mbb .tl-item__time { font-size: 0.9rem; }
   .mbb .preview { grid-template-columns: 1fr; }
   .mbb .preview__cover { max-width: 180px; }
 
