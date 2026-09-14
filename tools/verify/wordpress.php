@@ -138,11 +138,21 @@ ob_start(); MBB_Dashboard::render(); $dash = ob_get_clean();
 check( 'panel: se renderiza', strlen( $dash ) > 500 );
 check( 'panel: cuenta 39 expositores', false !== strpos( $dash, '>39<' ) );
 check( 'panel: cuenta 16 folletos', false !== strpos( $dash, '>16<' ) );
-// Singular or plural, depending on how many are still unlinked — the count
-// comes from the seed, so the wording follows it.
+// The warning has to match the seed: present when brochures really are
+// unlinked, absent when they are all linked. Asserting it is always there
+// would fail the day the content is finished, which is the wrong signal.
+$unlinked = 0;
+foreach ( $seed['brochures'] as $b ) {
+	if ( empty( $b['issuu'] ) && empty( $b['pdf'] ) ) {
+		$unlinked++;
+	}
+}
+$warns = false !== strpos( $dash, 'brochure has no link' )
+	|| false !== strpos( $dash, 'brochures have no link' );
 check(
-	'panel: avisa de folletos sin enlace',
-	false !== strpos( $dash, 'brochure has no link' ) || false !== strpos( $dash, 'brochures have no link' )
+	'panel: el aviso de folletos coincide con el contenido',
+	$warns === ( $unlinked > 0 ),
+	$unlinked ? $unlinked . ' sin enlace, avisa: ' . ( $warns ? 'sí' : 'no' ) : 'todos enlazados, no avisa'
 );
 check( 'panel: avisa de que falta el login', false !== strpos( $dash, 'Login button has no address' ) );
 check( 'panel: enlaza a añadir expositor',

@@ -14,11 +14,10 @@
      • `pdf`   — a direct link to the file, offered as a download.
    With neither, the card still shows the cover but has nothing to open.
 
-   Fifteen of the sixteen are linked. Only Film Locations is outstanding: it
-   was not found on the publisher profile, so it may be unpublished or filed
-   under a title that does not mention film. See tools/issuu-links.js for how
-   to list the whole profile in one go, and remember to scroll to the bottom
-   first — the profile loads its publications as you go.
+   All sixteen are linked. Film Locations is the one exception to the
+   English-only rule: no English edition was found on the profile, so it
+   points at the Spanish one. Swap the link if an English edition appears.
+   See tools/issuu-links.js for how to list the whole profile in one go.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -141,7 +140,8 @@ window.MBB.discover = {
       subtitle: 'A film city, a film territory: routes through the seventh art.',
       cover: 'assets/img/brochures/film-locations.jpg',
       pdf: '',
-      issuu: '' // [Insert Issuu link]
+      issuu: 'https://issuu.com/turismobilbao/docs/escenarios_de_cine_cast'
+      // Spanish edition: no English one was found on the profile.
     },
     {
       id: 'athletic-experience',

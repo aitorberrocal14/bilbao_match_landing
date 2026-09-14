@@ -933,9 +933,12 @@
 /* 15. CONTACT ============================================================== */
 .mbb .channels {
   display: grid;
-  /* Adapts to however many channels are configured — three today, four before */
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: clamp(1.5rem, 3vw, 2.5rem);
+  /* Adapts to however many channels are configured — two today, four before.
+     Capping the column rather than letting it take a full fraction keeps a
+     short row gathered in the middle instead of stranded at both edges. */
+  grid-template-columns: repeat(auto-fit, minmax(220px, 300px));
+  justify-content: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem) clamp(2rem, 6vw, 5rem);
 }
 
 .mbb .channel__icon {
