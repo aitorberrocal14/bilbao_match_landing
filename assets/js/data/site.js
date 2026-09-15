@@ -56,7 +56,9 @@ window.MBB.site = {
     ],
     // Quick facts shown under the hero.
     facts: [
-      { value: '49', label: 'Local exhibitors' },
+      // Counted from the directory, so it follows the platform rather than
+      // being a number to keep in step by hand.
+      { value: 'count:exhibitors', label: 'Local exhibitors' },
       { value: '5', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],

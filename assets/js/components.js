@@ -128,7 +128,14 @@ window.MBB = window.MBB || {};
 
     var facts = h.facts
       .map(function (f) {
-        return '<div class="hero__fact"><span class="v">' + esc(f.value) + '</span>' +
+        // A figure written as 'count:exhibitors' is the size of the directory,
+        // so it follows the companies that register instead of being a number
+        // somebody has to remember to change.
+        var value = f.value === 'count:exhibitors'
+          ? String((MBB.exhibitors || []).length)
+          : f.value;
+
+        return '<div class="hero__fact"><span class="v">' + esc(value) + '</span>' +
           '<span class="l">' + esc(f.label) + '</span></div>';
       })
       .join('');

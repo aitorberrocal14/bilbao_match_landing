@@ -181,7 +181,7 @@
        "elType": "widget",
        "widgetType": "heading",
        "settings": {
-        "title": "49",
+        "title": "count:exhibitors",
         "header_size": "h3",
         "_css_classes": "mbb-heading",
         "title_color": "#AE0000",
