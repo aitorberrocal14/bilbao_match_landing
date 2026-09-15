@@ -9,6 +9,11 @@ markup — so both stay identical.
 
 ---
 
+> Installing this on the real hosting for the first time? Follow
+> **[`INSTALACION.md`](INSTALACION.md)** instead — the same thing in Spanish,
+> end to end, including WordPress itself, the theme, the menu, the checks and
+> what to do when a step misbehaves. What follows here is the short version.
+
 ## Install
 
 1. Zip the `match-bilbao-bizkaia` folder (or upload it to
@@ -16,8 +21,8 @@ markup — so both stay identical.
 2. **Plugins → Add New → Upload Plugin**, choose the zip, install and activate.
 3. A notice appears: **“Import the starting content”**. Click it and then
    **Import now**. That creates the 39 exhibitors with their logos and profile
-   texts, the 7 English brochures with their covers, and a sample three-day
-   programme.
+   texts, the 16 English brochures with their covers, and the full five-day
+   programme — 62 sessions.
 4. Go to **Match Bilbao Bizkaia → Settings** and set at least the **Login /
    meeting platform** URL. Without it the Login buttons stay hidden.
 5. Create a page — *Match Bilbao Bizkaia 2026* — and paste:
@@ -121,7 +126,7 @@ mix them with Elementor rows, use them one by one:
 |---|---|
 | `[mbb_hero]` | Hero |
 | `[mbb_event]…text…[/mbb_event]` | Introduction + “Add to calendar” |
-| `[mbb_programme]` | The three-day agenda |
+| `[mbb_programme]` | The agenda, day by day |
 | `[mbb_presentation images="12,34,56"]…text…[/mbb_presentation]` | Presentation of Bilbao. `images` takes media IDs |
 | `[mbb_editions]` | Latest editions (video) |
 | `[mbb_experts]…text…[/mbb_experts]` | Meet BB's Experts + the Login band |
