@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datos de expositor que Meetmaps no guarda</title>
+
+<!--
+  Meetmaps carries six of the ten things an exhibitor page shows. The other
+  four — the named contact, their role, the postal address and the category
+  that drives the directory filter — are not in its exhibitor record at all,
+  so somebody fills them in. This is where.
+
+  Open it by double-clicking. It writes nothing on its own: it hands back
+  exhibitors-local.json for you to put in assets/js/data/.
+-->
+
+<style>
+  :root {
+    --red: #ae0000;
+    --grey-dark: #54595f;
+    --grey: #7a7a7a;
+    --grey-light: #9aa0a6;
+    --line: #e6e6e6;
+    --bg-soft: #f7f7f7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 15px/1.6 "Roboto", -apple-system, "Segoe UI", Arial, sans-serif;
+    color: var(--grey);
+    background: #fff;
+  }
+  header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    align-items: center;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    color: var(--red);
+    font-weight: 700;
+  }
+  .progress { margin-left: auto; color: var(--grey-light); font-size: .85rem; }
+  .btn {
+    border: 2px solid #c9202c;
+    background: #c9202c;
+    color: #fff;
+    border-radius: 999px;
+    padding: .5rem 1.3rem;
+    font: inherit;
+    font-size: .82rem;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn--ghost { background: none; color: #c9202c; }
+
+  main { display: grid; grid-template-columns: 320px 1fr; min-height: calc(100vh - 82px); }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+
+  .list { border-right: 1px solid var(--line); overflow-y: auto; max-height: calc(100vh - 82px); }
+  .list button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    background: none;
+    padding: .7rem 1.2rem;
+    font: inherit;
+    cursor: pointer;
+    color: var(--grey-dark);
+  }
+  .list button:hover { background: var(--bg-soft); }
+  .list button[aria-current="true"] { background: var(--bg-soft); box-shadow: inset 3px 0 0 var(--red); }
+  .list .missing { color: var(--red); font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; display: block; }
+  .list .done { color: #1a7f37; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; display: block; }
+
+  .form { padding: 2rem; max-width: 640px; }
+  .form h2 { margin: 0 0 .25rem; color: var(--red); font-size: 1.4rem; }
+  .form .api { color: var(--grey-light); font-size: .85rem; margin: 0 0 1.75rem; }
+  label { display: block; margin-bottom: 1.1rem; }
+  label span { display: block; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--grey-light); margin-bottom: .3rem; }
+  input, select, textarea {
+    width: 100%;
+    padding: .55rem .7rem;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    font: inherit;
+    color: var(--grey-dark);
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--red); }
+  .hint { font-size: .8rem; color: var(--grey-light); margin-top: .3rem; }
+
+  .note { background: var(--bg-soft); border-left: 3px solid var(--red); padding: 1rem 1.2rem; margin: 0 0 1.5rem; font-size: .88rem; }
+  .note code { background: #fff; padding: .1rem .3rem; border: 1px solid var(--line); }
+  .empty { padding: 3rem 2rem; color: var(--grey-light); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Datos que Meetmaps no guarda</h1>
+  <span class="progress" id="progress"></span>
+  <button class="btn" id="save" disabled>Guardar archivo</button>
+</header>
+
+<main>
+  <nav class="list" id="list" aria-label="Expositores"></nav>
+  <div class="form" id="form">
+    <div class="empty">Cargando…</div>
+  </div>
+</main>
+
+<!-- The exhibitor list, as the site itself reads it. A script tag rather than
+     fetch, because that is what works when this file is opened directly. -->
+<script src="../assets/js/data/exhibitors.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  var FIELDS = [
+    { key: 'category', label: 'Categoría', type: 'select' },
+    { key: 'contactName', label: 'Persona de contacto', type: 'text', hint: 'Como aparece en la ficha: “Alberto Cueto Lojo”.' },
+    { key: 'contactRole', label: 'Cargo', type: 'text', hint: '“Hotel Manager”, “Director of Sales & Marketing”…' },
+    { key: 'address', label: 'Dirección', type: 'textarea', hint: 'Opcional. Si se deja vacía, esa línea no aparece.' }
+  ];
+
+  var exhibitors = (window.MBB && window.MBB.exhibitors) || [];
+  var categories = (window.MBB && window.MBB.exhibitorCategories) || [];
+  var local = null;
+  var current = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* --- loading the overrides ---------------------------------------------
+     Served, it fetches. Opened from the file system, the browser refuses to
+     read a neighbouring file, so it asks for it. */
+  function load() {
+    fetch('../assets/js/data/exhibitors-local.json')
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(start)
+      .catch(askForFile);
+  }
+
+  function askForFile() {
+    $('form').innerHTML =
+      '<div class="note">Abierto directamente desde el disco, el navegador no deja leer ' +
+      'archivos vecinos. Elige <code>assets/js/data/exhibitors-local.json</code> a mano.</div>' +
+      '<input type="file" id="pick" accept="application/json">';
+    $('pick').addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        try { start(JSON.parse(reader.result)); }
+        catch (err) { $('form').innerHTML = '<div class="empty">Ese archivo no es JSON válido.</div>'; }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  function start(data) {
+    local = data || {};
+    if (local._categories) categories = local._categories;
+    $('save').disabled = false;
+    renderList();
+    select(order()[0]);
+  }
+
+  /* --- what is missing ----------------------------------------------------- */
+
+  function recordFor(id) {
+    if (!local[id]) local[id] = { slug: id, apiId: null, name: '' };
+    return local[id];
+  }
+
+  // The address is genuinely optional; the other three are what the page needs.
+  function missingOf(id) {
+    var r = local[id] || {};
+    return ['category', 'contactName', 'contactRole'].filter(function (k) {
+      return !String(r[k] || '').trim();
+    });
+  }
+
+  /** Incomplete first, so the work to do is the first thing on screen. */
+  function order() {
+    return exhibitors
+      .map(function (x) { return x.id; })
+      .sort(function (a, b) {
+        var d = missingOf(b).length - missingOf(a).length;
+        return d !== 0 ? d : 0;
+      });
+  }
+
+  /* --- the list ------------------------------------------------------------ */
+
+  function renderList() {
+    var ids = order();
+    $('list').innerHTML = ids
+      .map(function (id) {
+        var x = exhibitors.find(function (e) { return e.id === id; });
+        var miss = missingOf(id);
+        return (
+          '<button type="button" data-id="' + id + '" aria-current="' + (id === current) + '">' +
+            esc(x.name) +
+            (miss.length
+              ? '<span class="missing">falta ' + miss.length + '</span>'
+              : '<span class="done">completo</span>') +
+          '</button>'
+        );
+      })
+      .join('');
+
+    Array.prototype.forEach.call($('list').querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () { select(b.dataset.id); });
+    });
+
+    var done = exhibitors.filter(function (x) { return !missingOf(x.id).length; }).length;
+    $('progress').textContent = done + ' de ' + exhibitors.length + ' completos';
+  }
+
+  /* --- the form ------------------------------------------------------------ */
+
+  function select(id) {
+    if (!id) return;
+    current = id;
+    var x = exhibitors.find(function (e) { return e.id === id; });
+    var rec = recordFor(id);
+    if (!rec.name) rec.name = x.name;
+
+    $('form').innerHTML =
+      '<h2>' + esc(x.name) + '</h2>' +
+      '<p class="api">Lo demás — email, teléfono, web, logo y descripción — llega de Meetmaps y no se toca aquí.</p>' +
+      FIELDS.map(function (f) {
+        var value = rec[f.key] || '';
+        var input;
+        if (f.type === 'select') {
+          input =
+            '<select data-key="' + f.key + '">' +
+              '<option value="">— sin categoría —</option>' +
+              categories
+                .filter(function (c) { return c.id !== 'all'; })
+                .map(function (c) {
+                  return '<option value="' + esc(c.id) + '"' +
+                    (c.id === value ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+                })
+                .join('') +
+            '</select>';
+        } else if (f.type === 'textarea') {
+          input = '<textarea rows="2" data-key="' + f.key + '">' + esc(value) + '</textarea>';
+        } else {
+          input = '<input type="text" data-key="' + f.key + '" value="' + esc(value) + '">';
+        }
+        return (
+          '<label><span>' + f.label + '</span>' + input +
+            (f.hint ? '<p class="hint">' + f.hint + '</p>' : '') +
+          '</label>'
+        );
+      }).join('');
+
+    Array.prototype.forEach.call($('form').querySelectorAll('[data-key]'), function (el) {
+      el.addEventListener('input', function () {
+        rec[el.dataset.key] = el.value;
+        renderList();
+      });
+      el.addEventListener('change', function () {
+        rec[el.dataset.key] = el.value;
+        renderList();
+      });
+    });
+
+    renderList();
+  }
+
+  /* --- saving --------------------------------------------------------------- */
+
+  $('save').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(local, null, 2) + '\n'], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'exhibitors-local.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  });
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  if (!exhibitors.length) {
+    $('form').innerHTML = '<div class="empty">No se ha podido leer la lista de expositores.</div>';
+    return;
+  }
+  load();
+})();
+</script>
+</body>
+</html>
