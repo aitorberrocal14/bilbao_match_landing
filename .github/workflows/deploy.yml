@@ -1,0 +1,106 @@
+name: Publish the site to the hosting
+
+# Uploads the site to the hosting by FTP on every push, so the panel never has
+# to be opened to publish a change. Only the files that differ travel: the
+# action keeps a record of what it last uploaded, so a change to one exhibitor
+# moves a few kilobytes, not the whole 6 MB.
+#
+# What goes out is the folder — index.html, assets/, the 39 exhibitor pages,
+# the sitemap and robots.txt — and not dist/, wordpress/ or tools/, which are
+# for handover, for WordPress and for building, and have no business on a
+# public server.
+#
+# ---------------------------------------------------------------------------
+# Before the first run, create these in
+#   Settings → Secrets and variables → Actions
+#
+#   Secrets (never visible again once saved, never in the repository):
+#     FTP_HOST      the server from the panel's "Configuración del FTP"
+#     FTP_USER      the FTP user
+#     FTP_PASSWORD  its password
+#
+#   Variables (plain text, safe to read):
+#     FTP_REMOTE_DIR  the public folder, with a trailing slash — e.g. "/www/"
+#                     Defaults to "/" if unset.
+#     FTP_PROTOCOL    "ftps" (default), or "ftp" if the hosting has no TLS.
+#
+# Until FTP_HOST exists the workflow runs, reports that it is not configured
+# and stops — it does not fail, and it does not upload anything by guessing.
+# ---------------------------------------------------------------------------
+
+on:
+  push:
+    branches:
+      - main
+      - claude/match-bilbao-2026-redesign-77pjwf
+  workflow_dispatch:
+
+# One upload at a time. A half-finished upload overtaken by the next one would
+# leave the server holding a mixture of two versions.
+concurrency:
+  group: hosting
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble what gets published
+        # Copied into a clean folder rather than uploading the repository, so
+        # that .git, the build scripts and the WordPress plugin cannot reach
+        # the server even by accident.
+        run: |
+          set -e
+          mkdir -p _site
+          cp index.html robots.txt sitemap.xml _site/
+          cp -r assets exhibitors _site/
+
+      - name: Check the site is whole
+        # An upload that quietly lost the exhibitor pages or the stylesheet is
+        # worse than one that never happened, because it replaces a working
+        # site with a broken one. Count what is about to go out.
+        run: |
+          set -e
+          test -f _site/index.html
+          test -f _site/assets/css/styles.css
+          test -f _site/assets/img/social-card.jpg
+          pages=$(ls _site/exhibitors/*.html | wc -l)
+          echo "Exhibitor pages: $pages"
+          test "$pages" -ge 39
+
+      - name: Is the hosting configured?
+        id: creds
+        env:
+          HOST: ${{ secrets.FTP_HOST }}
+        run: |
+          if [ -z "$HOST" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::FTP_HOST is not set, so nothing was uploaded. See the comments at the top of this workflow."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload the changed files
+        if: steps.creds.outputs.ready == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          local-dir: ./_site/
+          server-dir: ${{ vars.FTP_REMOTE_DIR || '/' }}
+          # The site is the whole contents of this folder, so anything on the
+          # server that is no longer in the repository is removed. Files the
+          # hosting puts there itself are kept.
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.htaccess
+            **/cgi-bin/**

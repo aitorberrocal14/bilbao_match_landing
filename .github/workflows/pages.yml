@@ -1,20 +1,17 @@
-name: Deploy the site to GitHub Pages
+name: Preview the site on GitHub Pages
 
-# Publishes the static site (landing page + exhibitor pages) so it can be
-# reviewed at a real URL. The WordPress plugin and the build scripts are left
-# out of the published site.
+# A preview at a real URL, for review. The site itself is published to the
+# hosting by FTP — see `deploy.yml`, which is the one that matters.
 #
-# Before the first run, enable it once in the repository:
+# Run by hand only (Actions → this workflow → "Run workflow"). It used to run
+# on every push, and failed on every push, because Pages was never enabled:
+# a red mark on each commit that meant nothing. Enable it before running:
 #   Settings → Pages → Build and deployment → Source: "GitHub Actions"
 #
 # Note: on a private repository, GitHub Pages needs a paid plan. On the free
 # plan the repository has to be public for Pages to publish.
 
 on:
-  push:
-    branches:
-      - main
-      - claude/match-bilbao-2026-redesign-77pjwf
   workflow_dispatch:
 
 permissions:
