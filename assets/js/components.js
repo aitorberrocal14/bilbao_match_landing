@@ -58,6 +58,31 @@ window.MBB = window.MBB || {};
   MBB.esc = esc;
 
   /**
+   * The Login buttons only exist once there is somewhere for them to go.
+   *
+   * Until the platform address is known the field holds a placeholder, and a
+   * button that leads nowhere is worse on a published site than no button at
+   * all: it looks broken, and the visitor who needs the platform concludes the
+   * event has none. So an empty value, or anything still pointing inside the
+   * page, hides them; a real address shows them and opens in a new tab, since
+   * the platform is a different site and nobody should lose the page to reach
+   * it.
+   */
+  function loginHref(site) {
+    var url = ((site.login && site.login.url) || '').trim();
+    return !url || url.charAt(0) === '#' ? null : url;
+  }
+
+  function loginLink(site, classes) {
+    var url = loginHref(site);
+    if (!url) return '';
+    return '<a class="' + classes + '" href="' + esc(url) + '" data-login' +
+      ' target="_blank" rel="noopener">' + esc(site.login.label) + '</a>';
+  }
+
+  MBB.loginHref = loginHref;
+
+  /**
    * Turns the ordinary Issuu link of a document into its embeddable reader URL,
    * so the content team can paste the link straight from the browser bar:
    *   https://issuu.com/turismobilbao/docs/city_experience_en
@@ -97,8 +122,7 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          '<a class="btn btn--sm" href="' + esc(site.login.url) + '" data-login>' +
-            esc(site.login.label) + '</a>' +
+          loginLink(site, 'btn btn--sm') +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -123,8 +147,7 @@ window.MBB = window.MBB || {};
           '" href="' + esc(c.href) + '">' + esc(c.label) + '</a>';
       })
       .join('') +
-      '<a class="btn btn--lg btn--outline" href="' + esc(site.login.url) + '" data-login>' +
-      esc(site.login.label) + '</a>';
+      loginLink(site, 'btn btn--lg btn--outline');
 
     var facts = h.facts
       .map(function (f) {
@@ -619,15 +642,18 @@ window.MBB = window.MBB || {};
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
       '<div class="steps" data-reveal>' + steps + '</div>' +
-      '<div class="login-band" data-reveal>' +
-        '<div>' +
-          '<h3>' + esc(e.loginPanel.title) + '</h3>' +
-          '<p>' + esc(e.loginPanel.text) + '</p>' +
-          '<small>' + esc(e.loginPanel.help) + '</small>' +
-        '</div>' +
-        '<a class="btn btn--lg btn--light" href="' + esc(site.login.url) + '" data-login>' +
-          esc(site.login.label) + '</a>' +
-      '</div>'
+      // The whole band goes, not just its button: a panel headed "Already
+      // registered?" with nowhere to sign in reads as a broken page.
+      (loginHref(site)
+        ? '<div class="login-band" data-reveal>' +
+            '<div>' +
+              '<h3>' + esc(e.loginPanel.title) + '</h3>' +
+              '<p>' + esc(e.loginPanel.text) + '</p>' +
+              '<small>' + esc(e.loginPanel.help) + '</small>' +
+            '</div>' +
+            loginLink(site, 'btn btn--lg btn--light') +
+          '</div>'
+        : '')
     );
   };
 
@@ -930,8 +956,8 @@ window.MBB = window.MBB || {};
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
           '<div><h4>Navigate</h4><ul>' + navLinks +
-            '<li><a href="' + esc(site.login.url) + '" data-login>' + esc(site.login.label) +
-            '</a></li></ul></div>' +
+            (loginHref(site) ? '<li>' + loginLink(site, '') + '</li>' : '') +
+          '</ul></div>' +
           '<div><h4>Event</h4><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +
             '<li><a href="' + esc(home) + '#presentation">Presentation of Bilbao</a></li>' +

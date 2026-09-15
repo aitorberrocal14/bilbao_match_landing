@@ -372,20 +372,13 @@
   }
 
   /* --------------------------------------------------------------------- */
-  /* 8. Login placeholder + newsletter                                      */
+  /* 8. Newsletter                                                          */
   /* --------------------------------------------------------------------- */
+  // The Login buttons used to warn, on click, that they were not connected
+  // yet. They now simply do not exist until `login.url` holds a real address,
+  // which is the right behaviour on a published site — so there is nothing
+  // left here to intercept.
   function initForms() {
-    $all('[data-login]').forEach(function (a) {
-      a.addEventListener('click', function (e) {
-        if (a.getAttribute('href') !== '#login-placeholder') return;
-        e.preventDefault();
-        window.alert(
-          'Login placeholder.\n\nConnect this button to the Match Bilbao Bizkaia ' +
-          'meeting platform by setting `login.url` in assets/js/data/site.js.'
-        );
-      });
-    });
-
     var form = $('#nl-form');
     if (!form) return;
     var status = $('#nl-status');
