@@ -4,3 +4,6 @@ node_modules/
 # Built by `cd wordpress && zip -r match-bilbao-bizkaia.zip match-bilbao-bizkaia`
 # for uploading to WordPress; regenerate it rather than committing it.
 wordpress/match-bilbao-bizkaia.zip
+
+# The platform key lives here when syncing by hand; never committed.
+.env
