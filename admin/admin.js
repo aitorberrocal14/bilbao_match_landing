@@ -53,6 +53,14 @@
     target[last] = value;
   }
 
+  /* In the one-file version of the panel there is no assets/ folder next door,
+     so the images it can preview travel inlined in a lookup table. */
+  function assetUrl(rel) {
+    var map = window.MBB_ASSETS;
+    if (map && map[rel]) return map[rel];
+    return window.MBB_STANDALONE ? '' : '../' + rel;
+  }
+
   /** A stable id from a name: "Hotel Gran Bilbao" → "hotel-gran-bilbao". */
   function slugify(s) {
     return String(s || '')
@@ -217,9 +225,17 @@
     }
 
     return '<div class="field' + width + '"><label for="' + id + '">' + esc(f.label) + '</label>' +
-      control + hint +
-      (f.t === 'image' && value ? '<img class="thumb" src="../' + esc(value) + '" alt="">' : '') +
+      control + hint + preview(f, value) +
       '</div>';
+  }
+
+  /* A path that points at nothing shows no preview rather than a broken image:
+     the field is still right, the file just is not there yet. */
+  function preview(f, value) {
+    if (f.t !== 'image' || !value) return '';
+    var url = assetUrl(value);
+    if (!url) return '';
+    return '<img class="thumb" src="' + esc(url) + '" alt="" onerror="this.remove()">';
   }
 
   function fieldsHtml(fields, base) {
@@ -958,11 +974,23 @@
           : '') + '</td></tr>';
     }).join('');
 
-    var head = changed.length
+    // The one-file panel carries a copy of the data taken when it was built.
+    // Publishing from a stale copy would quietly undo whatever was changed in
+    // the meantime, so it says so before, not after.
+    var copyWarning = window.MBB_STANDALONE
+      ? '<div class="notice notice--warn"><p><b>Esta es la versión de un solo archivo.</b> ' +
+        'Lleva dentro una copia de los datos de la web tomada el día que se generó. ' +
+        'Sirve para probar el panel y para preparar cambios.</p>' +
+        '<p>Si la web se ha modificado desde entonces por otra vía, publicar desde aquí ' +
+        'desharía esos cambios. Para trabajar del todo tranquilo, usa el panel de ' +
+        '<code>/admin/</code> en la web.</p></div>'
+      : '';
+
+    var head = copyWarning + (changed.length
       ? '<div class="notice"><p><b>' + changed.length +
           (changed.length === 1 ? ' archivo ha cambiado.' : ' archivos han cambiado.') +
           '</b> Nada de esto está en la web todavía.</p></div>'
-      : '<div class="notice notice--ok"><p>No hay cambios pendientes: la web ya está igual que este panel.</p></div>';
+      : '<div class="notice notice--ok"><p>No hay cambios pendientes: la web ya está igual que este panel.</p></div>');
 
     var how;
     if (saver === true) {

@@ -29,8 +29,17 @@ posicionamiento. El panel edita los cinco archivos de datos y no toca nada más.
 
 ## Para quien lo usa
 
-**Abrir el panel.** Si está publicado, en `https://…/admin/`. Si no, abriendo
-`admin/index.html` con doble clic.
+**Abrir el panel.** Tres formas, de mejor a peor:
+
+1. **En la web**, en `https://…/admin/`, una vez subida la carpeta. Es la buena:
+   siempre ve el contenido actual y puede publicar directamente.
+2. **Desde la carpeta del proyecto**, doble clic en `admin/index.html`. Necesita
+   tener al lado la carpeta `assets/`.
+3. **Como archivo suelto**, si alguien lo ha generado con
+   `node tools/build-admin-standalone.js`. Es un único HTML que se abre con
+   doble clic desde cualquier sitio, con los datos y las imágenes dentro. Lleva
+   una **copia** de los datos del día que se generó, así que sirve para probar
+   el panel y preparar cambios; el propio panel lo avisa al publicar.
 
 **Editar.** Cada apartado del menú de la izquierda es una parte de la web. Se
 puede cambiar lo que haga falta, de una pantalla o de varias.

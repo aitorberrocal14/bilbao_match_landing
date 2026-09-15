@@ -15,3 +15,23 @@ engines and for linking).
 ```
 node tools/build-standalone.js
 ```
+
+---
+
+# Panel de administración, en un archivo
+
+`panel-match-bilbao-bizkaia.html` es el panel de `admin/` en un solo archivo,
+con los cinco archivos de datos y las 62 imágenes que previsualiza incrustados.
+Se abre con doble clic desde cualquier sitio: sin servidor, sin carpeta al lado.
+
+Sirve para probar el panel y para preparar cambios. Al publicar descarga los
+archivos modificados, que se suben por FTP a `assets/js/data/`.
+
+**Lleva una copia de los datos del día que se generó**, así que publicar desde
+un archivo viejo desharía lo que se haya cambiado por otra vía entretanto. El
+propio panel lo advierte en su pantalla de publicación. El que siempre ve el
+contenido actual es el de `/admin/` en la web.
+
+```
+node tools/build-admin-standalone.js
+```

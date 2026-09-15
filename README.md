@@ -281,6 +281,7 @@ tools/
   build-exhibitors.js       Generates exhibitors/*.html
   build-brochure-covers.js  Renders the brochure cover images
   build-standalone.js       Bundles everything into one shareable HTML file
+  build-admin-standalone.js Same for the admin panel, to open with a double click
   build-wp-css.js           Scopes the stylesheet for the WordPress plugin
   build-wp-seed.js          Packages the content + images for the plugin
   build-elementor-template.js  Builds the importable Elementor page template
@@ -321,6 +322,7 @@ the grid and the detail pages can never drift apart.
 node tools/build-exhibitors.js        # after editing data/exhibitors.js
 node tools/build-brochure-covers.js   # only to regenerate the cover images
 node tools/build-standalone.js        # one-file version for sharing
+node tools/build-admin-standalone.js  # one-file version of the admin panel
 node tools/build-wp-css.js            # WordPress stylesheet
 node tools/build-wp-seed.js           # WordPress content + images
 ```
