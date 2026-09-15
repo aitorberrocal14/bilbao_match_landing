@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
+# The administration panel is not part of the site.
+Disallow: /admin/
+
 Sitemap: https://www.matchbilbaobizkaia.eus/sitemap.xml

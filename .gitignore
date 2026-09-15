@@ -7,3 +7,6 @@ wordpress/match-bilbao-bizkaia.zip
 
 # The platform key lives here when syncing by hand; never committed.
 .env
+
+# The administration panel's password. Lives on the server only.
+admin/admin-config.php

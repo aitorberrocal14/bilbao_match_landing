@@ -58,7 +58,10 @@ jobs:
           set -e
           mkdir -p _site
           cp index.html robots.txt sitemap.xml _site/
-          cp -r assets exhibitors _site/
+          cp -r assets exhibitors admin _site/
+          # The password of the panel lives on the server and only there, so it
+          # is never among the files sent up.
+          rm -f _site/admin/admin-config.php
 
       - name: Check the site is whole
         # An upload that quietly lost the exhibitor pages or the stylesheet is
@@ -69,6 +72,9 @@ jobs:
           test -f _site/index.html
           test -f _site/assets/css/styles.css
           test -f _site/assets/img/social-card.jpg
+          test -f _site/admin/index.html
+          # The password must never travel with the site.
+          test ! -f _site/admin/admin-config.php
           pages=$(ls _site/exhibitors/*.html | wc -l)
           echo "Exhibitor pages: $pages"
           test "$pages" -ge 39
@@ -99,8 +105,12 @@ jobs:
           # server that is no longer in the repository is removed. Files the
           # hosting puts there itself are kept.
           dangerous-clean-slate: false
+          # Every line is a glob, so no comments in here. The last two are
+          # written on the server and only there: uploading them would wipe the
+          # panel's password and the directory lock on every deploy.
           exclude: |
             **/.git*
             **/.git*/**
-            **/.htaccess
             **/cgi-bin/**
+            admin/admin-config.php
+            **/.htpasswd

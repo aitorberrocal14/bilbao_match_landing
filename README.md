@@ -21,10 +21,18 @@ download, no install, and it works on a private repository. See
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 
-There is also a **WordPress plugin** in `wordpress/`, which turns all of this
-into content editable from wp-admin — exhibitors, brochures and programme as
-native post types, and every section as a shortcode. See
-[`wordpress/README.md`](wordpress/README.md).
+## Editing the site
+
+There is an **administration panel** in `admin/`: the whole site in forms, for
+people who do not use GitHub and should not have to. It edits the five data
+files and nothing else — never `index.html`, which holds no content — and
+publishes either straight to the server (PHP, password-protected) or by
+downloading the changed files to upload by FTP. See
+[`admin/README.md`](admin/README.md).
+
+There is also a **WordPress plugin** in `wordpress/`, for the same job on a
+WordPress install: exhibitors, brochures and programme as native post types, and
+every section as a shortcode. See [`wordpress/README.md`](wordpress/README.md).
 
 And a **single-file version** for review or handover:
 

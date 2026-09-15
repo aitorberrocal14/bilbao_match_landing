@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match Bilbao Bizkaia — Administración</title>
+<meta name="robots" content="noindex, nofollow">
+
+<!--
+  PANEL DE ADMINISTRACIÓN
+  ---------------------------------------------------------------------------
+  Toda la web se edita desde aquí: portada, menú, secciones, programa,
+  expositores, folletos, contacto y pie. Nadie necesita tocar index.html ni
+  saber de GitHub.
+
+  Cómo funciona: la página lee los mismos archivos de datos que lee la web,
+  los presenta en formularios, y al publicar vuelve a escribirlos. Si el
+  hosting tiene PHP y está configurado (ver admin/README.md), el botón
+  "Publicar" guarda directamente en el servidor. Si no, descarga los
+  archivos que han cambiado para subirlos por FTP a assets/js/data/.
+
+  No hay build, no hay dependencias: se puede abrir con doble clic.
+-->
+
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<header class="bar">
+  <span class="bar__brand">Match Bilbao Bizkaia <b>2026</b></span>
+  <span class="bar__sep"></span>
+  <span class="bar__state" id="state">Sin cambios</span>
+  <a class="bar__link" href="../index.html" target="_blank" rel="noopener">Ver la web ↗</a>
+  <a class="btn btn--primary" href="#/publicar" id="publish-shortcut">Publicar</a>
+</header>
+
+<div class="wrap">
+  <nav class="menu" id="menu" aria-label="Secciones del panel"></nav>
+  <main class="body" id="screen" tabindex="-1">
+    <div class="card"><p class="muted">Cargando…</p></div>
+  </main>
+</div>
+
+<!-- The site's own data files, loaded exactly as the site loads them. Script
+     tags rather than fetch, because that is what works from the file system. -->
+<script src="../assets/js/data/site.js"></script>
+<script src="../assets/js/data/content.js"></script>
+<script src="../assets/js/data/programme.js"></script>
+<script src="../assets/js/data/exhibitors.js"></script>
+<script src="../assets/js/data/discover.js"></script>
+
+<script src="admin.js"></script>
+</body>
+</html>

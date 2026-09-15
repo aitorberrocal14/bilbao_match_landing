@@ -1,0 +1,26 @@
+# The panel edits the site, so it should not be open to the world.
+#
+# 1. The password file is never served, whatever happens above.
+<FilesMatch "^admin-config(-sample)?\.php$">
+  Require all denied
+</FilesMatch>
+
+# 2. Lock the folder itself.
+#
+#    The easiest way is from the hosting panel: look for "Protección de
+#    directorios" / "Directory privacy", choose the `admin` folder and add a
+#    user. That writes the two lines below for you.
+#
+#    To do it by hand instead, create the password file over SSH with
+#      htpasswd -c /home/matchbilbaobizkaia/.htpasswd nombre-de-usuario
+#    and uncomment these, with the real path:
+#
+# AuthType Basic
+# AuthName "Match Bilbao Bizkaia"
+# AuthUserFile /home/matchbilbaobizkaia/.htpasswd
+# Require valid-user
+
+# 3. No search engine should index the panel, locked or not.
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
