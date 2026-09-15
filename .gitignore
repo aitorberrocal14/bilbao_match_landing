@@ -10,3 +10,8 @@ wordpress/match-bilbao-bizkaia.zip
 
 # The administration panel's password. Lives on the server only.
 admin/admin-config.php
+
+# The upload package. Regenerate with `node tools/build-upload.js` rather than
+# committing 5 MB that changes with every edit to the site.
+dist/web-para-subir.zip
+dist/_subir/

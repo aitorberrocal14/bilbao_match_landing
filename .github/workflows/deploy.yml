@@ -51,17 +51,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Assemble what gets published
-        # Copied into a clean folder rather than uploading the repository, so
-        # that .git, the build scripts and the WordPress plugin cannot reach
-        # the server even by accident.
-        run: |
-          set -e
-          mkdir -p _site
-          cp index.html robots.txt sitemap.xml _site/
-          cp -r assets exhibitors admin _site/
-          # The password of the panel lives on the server and only there, so it
-          # is never among the files sent up.
-          rm -f _site/admin/admin-config.php
+        # Staged into a clean folder rather than uploading the repository, so
+        # that .git, the build scripts and the WordPress plugin cannot reach the
+        # server even by accident. The same script builds the manual upload
+        # package, so a push and a hand upload publish the same set of files.
+        run: node tools/build-upload.js --dir _site
 
       - name: Check the site is whole
         # An upload that quietly lost the exhibitor pages or the stylesheet is
