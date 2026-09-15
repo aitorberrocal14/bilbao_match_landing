@@ -21,6 +21,14 @@ download, no install, and it works on a private repository. See
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 
+## Handover
+
+The site was built from a personal GitHub account during a fixed-term contract,
+and has to outlive it. [`TRASPASO.md`](TRASPASO.md) is the inventory of what
+must change hands — domain, hosting, platform account, source, passwords — in
+the order it should be done, written for the people at Bilbao Ekintza who will
+carry it rather than for developers.
+
 ## Editing the site
 
 There is an **administration panel** in `admin/`: the whole site in forms, for
