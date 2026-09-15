@@ -54,6 +54,7 @@ Te pedirá estos datos:
 |---|---|
 | **Dominio** | `matchbilbaobizkaia.eus` |
 | **Directorio / carpeta** | **Déjalo vacío** para instalar en la raíz |
+| **Base de datos** | No hay nada que hacer: el instalador la crea solo |
 | **Nombre del sitio** | `Match Bilbao Bizkaia` |
 | **Descripción** | `The professional meeting point of the Bilbao Bizkaia destination` |
 | **Usuario administrador** | Cualquier cosa **menos `admin`** |
@@ -321,10 +322,36 @@ mientras todavía hay alguien a quien preguntar.
 
 ## Mantenimiento
 
-**Copias de seguridad.** Mira si el panel del hosting hace copias automáticas y
-cada cuánto. Si no las hace, instala **UpdraftPlus** (gratuito) y prográmalo
-semanal. Una web con contenido y sin copia es una web que se puede perder
-entera.
+### Copias de seguridad
+
+Una web con contenido y sin copia es una web que se puede perder entera. Y hay
+que entender que **WordPress guarda sus cosas en dos sitios a la vez**, así que
+una copia completa son dos copias:
+
+| Dónde | Qué hay ahí | Cómo se copia |
+|---|---|---|
+| **La base de datos** | Los textos, los expositores, el programa, los ajustes, los usuarios | Panel del hosting → *Bases de datos* → **Programar Backups** |
+| **Los archivos** | Las imágenes de la biblioteca de medios, el plugin, el tema | Copia del hosting, o descargar `wp-content/` por FTP |
+
+Una copia de la base de datos **sin los archivos** te devuelve la web con todos
+los textos y sin ninguna foto. Hacen falta las dos.
+
+**Prográmalo nada más terminar la instalación**, no "cuando haya tiempo". El
+apartado *Bases de datos* del panel programa las copias periódicas solo, en
+ficheros SQL dentro del propio hosting, y es lo más cómodo porque no depende de
+ningún plugin.
+
+Si el hosting no copia los archivos, instala **UpdraftPlus** (gratuito), que
+hace las dos cosas a la vez y las puede dejar en Google Drive o Dropbox.
+
+### Seguridad de la base de datos
+
+En ese mismo apartado, **limita el acceso a `localhost`**. Significa que a la
+base de datos solo se puede llegar desde la propia web, no desde internet. Lo
+recomienda el propio hosting y es un minuto.
+
+Si la aplicación te pregunta alguna vez por el servidor de base de datos, la
+respuesta es `localhost`.
 
 **Actualizaciones.** WordPress avisa cuando hay. Las de seguridad se aplican
 solas; las demás, cada pocas semanas, y con una copia reciente hecha antes.
