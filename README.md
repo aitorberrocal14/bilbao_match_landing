@@ -21,6 +21,12 @@ download, no install, and it works on a private repository. See
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 
+## Publishing it
+
+[`PUBLICAR.md`](PUBLICAR.md) is the one to open at the hosting panel: the two
+ways to get the site live — WordPress, or the files — which to choose, and the
+steps for each, in Spanish.
+
 ## Handover
 
 The site was built from a personal GitHub account during a fixed-term contract,
