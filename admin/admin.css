@@ -124,6 +124,17 @@ h2 { font-size: 1rem; color: var(--ink); margin: 0 0 1rem; }
 .notice--warn { border-left-color: #dba617; }
 .notice p { margin: 0 0 .4rem; }
 .notice p:last-child { margin: 0; }
+.notice pre {
+  background: var(--ground);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  padding: .6rem .8rem;
+  margin: .6rem 0;
+  overflow-x: auto;
+  font-family: Consolas, Monaco, monospace;
+  font-size: .85em;
+  line-height: 1.5;
+}
 .notice code, code {
   background: var(--ground);
   border: 1px solid var(--line-soft);

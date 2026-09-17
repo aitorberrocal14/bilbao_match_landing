@@ -66,7 +66,17 @@ function fail(string $message, int $status = 400): void
 $token = admin_token();
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET') {
-    echo json_encode(['ready' => $token !== null && is_writable(DATA_DIR)]);
+    // Two separate conditions, reported separately. Whoever sets this up is
+    // doing it on a server they cannot see into, and "not configured" without
+    // saying which half is missing turns a two-minute job into an afternoon.
+    $configured = $token !== null;
+    $writable   = is_dir(DATA_DIR) && is_writable(DATA_DIR);
+
+    echo json_encode([
+        'ready'      => $configured && $writable,
+        'configured' => $configured,
+        'writable'   => $writable,
+    ]);
     exit;
 }
 

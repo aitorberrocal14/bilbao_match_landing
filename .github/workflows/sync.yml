@@ -12,13 +12,15 @@ name: Traer los expositores de la plataforma
 # Antes de la primera ejecución, en
 #   Settings → Secrets and variables → Actions → Secrets
 #
-#   MBB_API_URL    el endpoint de Meetmaps
-#   MBB_API_KEY    la user_key (pedidla de SOLO LECTURA)
-#   MBB_EVENT_ID   el identificador del evento
+#   MBB_API_KEY    la user_key de Meetmaps (pedidla de SOLO LECTURA)
 #
-# Más los tres del FTP que usa deploy.yml: FTP_HOST, FTP_USER, FTP_PASSWORD.
+# Y nada más: el endpoint y el identificador del evento están escritos abajo,
+# porque no son credenciales y sin la clave no sirven de nada.
 #
-# Sin MBB_API_URL el flujo avisa y para. No falla ni inventa nada.
+# Para que además publique, los tres del FTP que usa deploy.yml:
+#   FTP_HOST, FTP_USER, FTP_PASSWORD
+#
+# Sin MBB_API_KEY el flujo avisa y para. No falla ni inventa nada.
 # ---------------------------------------------------------------------------
 
 on:
@@ -57,14 +59,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: ¿Está configurada la plataforma?
+      # La dirección y el identificador del evento están en el archivo; lo único
+      # que falta por configurar es la clave, que es lo único que de verdad es
+      # un secreto. Así que es la clave la que decide si esto puede ejecutarse.
+      - name: ¿Está la clave de la plataforma?
         id: creds
         env:
-          API: ${{ secrets.MBB_API_URL }}
+          KEY: ${{ secrets.MBB_API_KEY }}
         run: |
-          if [ -z "$API" ]; then
+          if [ -z "$KEY" ]; then
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::MBB_API_URL no está configurado. No se ha consultado nada."
+            echo "::notice::MBB_API_KEY no está configurado en los secretos del repositorio. No se ha consultado nada."
           else
             echo "ready=true" >> "$GITHUB_OUTPUT"
           fi
@@ -72,7 +77,10 @@ jobs:
       - name: Consultar la plataforma
         if: steps.creds.outputs.ready == 'true'
         env:
-          MBB_API_URL: ${{ secrets.MBB_API_URL }}
+          # El endpoint de Meetmaps. Tampoco es un secreto: sin la clave no
+          # devuelve nada. Un secreto o una variable con este nombre manda por
+          # encima, por si algún día lo cambian.
+          MBB_API_URL: ${{ secrets.MBB_API_URL || vars.MBB_API_URL || 'https://apiv1.meetmaps.com/api/v1/' }}
           MBB_API_KEY: ${{ secrets.MBB_API_KEY }}
           # El identificador de MATCHBILBAOBIZKAIA2026 en Meetmaps. No es un
           # secreto —es un número de evento, no una credencial— así que vive

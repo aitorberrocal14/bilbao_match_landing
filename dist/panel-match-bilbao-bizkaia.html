@@ -146,6 +146,17 @@ h2 { font-size: 1rem; color: var(--ink); margin: 0 0 1rem; }
 .notice--warn { border-left-color: #dba617; }
 .notice p { margin: 0 0 .4rem; }
 .notice p:last-child { margin: 0; }
+.notice pre {
+  background: var(--ground);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  padding: .6rem .8rem;
+  margin: .6rem 0;
+  overflow-x: auto;
+  font-family: Consolas, Monaco, monospace;
+  font-size: .85em;
+  line-height: 1.5;
+}
 .notice code, code {
   background: var(--ground);
   border: 1px solid var(--line-soft);
@@ -2890,7 +2901,8 @@ window.MBB.editions = [
 
   /* --- Publishing --------------------------------------------------------- */
 
-  var saver = null; // null = not probed yet, false = unavailable, true = ready
+  var saver = null;       // null = not probed yet, false = unavailable, true = ready
+  var saverWhy = null;    // what the server said was missing, when it can say
 
   function renderPublish() {
     var changed = changedFiles().map(function (f) { return f.name; });
@@ -2935,10 +2947,15 @@ window.MBB.editions = [
         '</div>' +
         '<p class="hint" id="save-msg"></p></div>';
     } else {
+      var ayuda = saverHelp();
       how = '<div class="card"><h2>Publicar en la web</h2>' +
-        '<p>Este panel no puede escribir en el servidor' +
-          (saver === false ? ' (no está configurado el guardado directo)' : '') +
-          ', así que se descargan los archivos que han cambiado y se suben por FTP.</p>' +
+        (ayuda
+          ? '<div class="notice notice--warn">' + ayuda +
+            '<p class="muted">Con eso resuelto, este panel guardará directamente en el ' +
+            'servidor y no habrá que descargar ni subir nada.</p></div>'
+          : '') +
+        '<p>De momento este panel no puede escribir en el servidor, así que se ' +
+          'descargan los archivos que han cambiado y se suben por FTP.</p>' +
         '<ol>' +
           '<li>Pulsa <b>Descargar los cambios</b>. El navegador guardará uno o varios archivos ' +
             '<code>.js</code> en tu carpeta de descargas.</li>' +
@@ -2987,17 +3004,55 @@ window.MBB.editions = [
 
   function probeSaver() {
     if (saver !== null) return;
-    if (location.protocol === 'file:') { saver = false; return; }
+    if (location.protocol === 'file:') {
+      saver = false;
+      saverWhy = 'file';
+      return;
+    }
     fetch('save.php?probe=1', { cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
       .then(function (j) {
         saver = !!(j && j.ready);
+        // The server distinguishes the two halves it needs, so say which one
+        // is missing rather than leaving someone to guess on a machine they
+        // cannot inspect.
+        if (!saver) {
+          if (j && j.configured === false) saverWhy = 'password';
+          else if (j && j.writable === false) saverWhy = 'permissions';
+        }
         if (route() === 'publicar') render();
       })
       .catch(function () {
+        // Either save.php is not there, or PHP is not running and the server
+        // handed back the source instead of executing it.
         saver = false;
+        saverWhy = 'nophp';
         if (route() === 'publicar') render();
       });
+  }
+
+  /** What to tell someone about to set this up, given what the probe found. */
+  function saverHelp() {
+    if (saverWhy === 'password') {
+      return '<p><b>Falta la contraseña.</b> En el servidor, dentro de la carpeta ' +
+        '<code>admin/</code>, crea un archivo llamado <code>admin-config.php</code> ' +
+        'con este contenido, cambiando la contraseña por una larga:</p>' +
+        '<pre>&lt;?php\nreturn \'pon-aqui-una-contrasena-larga\';</pre>';
+    }
+    if (saverWhy === 'permissions') {
+      return '<p><b>La contraseña está puesta, pero el servidor no puede escribir.</b> ' +
+        'Dale permiso de escritura a la carpeta <code>assets/js/data/</code> desde ' +
+        'el panel del hosting y recarga esta página.</p>';
+    }
+    if (saverWhy === 'nophp') {
+      return '<p><b>El servidor no ha respondido a <code>admin/save.php</code>.</b> ' +
+        'O el archivo no está subido, o el hosting no ejecuta PHP.</p>';
+    }
+    if (saverWhy === 'file') {
+      return '<p>Este panel está abierto desde el disco, no desde la web. ' +
+        'El guardado directo solo funciona en <code>tu-web/admin/</code>.</p>';
+    }
+    return '';
   }
 
   function save() {
