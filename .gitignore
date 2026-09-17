@@ -14,3 +14,6 @@ admin/admin-config.php
 # straight from the repository is worth more than a tidy history.
 dist/_subir/
 dist/web-de-prueba.zip
+
+# El registro del sync, que lo escribe el servidor en cada ejecución.
+server/sync.log
