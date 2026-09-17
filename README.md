@@ -21,6 +21,39 @@ download, no install, and it works on a private repository. See
 No build step and no dependencies to view the site. Three small Node scripts
 regenerate content (see *Build scripts* below).
 
+---
+
+## Si acabas de heredar esto, empieza aquí
+
+La web está publicada y **se mantiene sola en el servidor de Bilbao Ekintza**.
+No necesita GitHub para funcionar día a día: este repositorio es el código
+fuente y el archivo histórico, no una pieza en marcha.
+
+En el servidor hay dos tareas programadas y nada más:
+
+| Hora | Qué hace |
+|---|---|
+| 04:00 | `server/deploy.php` — trae los cambios de este repositorio y publica la web |
+| 05:00 | `server/sync.php` — trae los expositores de Meetmaps y genera sus páginas |
+
+**Para cambiar textos, el programa, los folletos o el contacto** no hace falta
+tocar nada de esto: se entra en `tu-web/admin/`, se edita en formularios y se
+publica. Ver [`admin/README.md`](admin/README.md).
+
+Los tres documentos que importan, por orden:
+
+1. **[`SERVIDOR-PASO-A-PASO.md`](SERVIDOR-PASO-A-PASO.md)** — cómo está montado
+   el servidor, paso a paso. Si algo hay que rehacer, se rehace con esto.
+2. **[`TRASPASO.md`](TRASPASO.md)** — a nombre de quién tiene que estar cada
+   cuenta: dominio, hosting, Meetmaps, este repositorio.
+3. **[`PUBLICAR.md`](PUBLICAR.md)** — las otras formas de publicar la web, por
+   si alguna vez hace falta cambiar de alojamiento.
+
+Nada de este repositorio contiene contraseñas. La clave de Meetmaps y la del
+panel de edición viven solo en el servidor, fuera de la carpeta pública.
+
+---
+
 ## Publishing it
 
 [`PUBLICAR.md`](PUBLICAR.md) is the one to open at the hosting panel: the two
