@@ -15,3 +15,4 @@ admin/admin-config.php
 # committing 5 MB that changes with every edit to the site.
 dist/web-para-subir.zip
 dist/_subir/
+dist/web-de-prueba.zip
