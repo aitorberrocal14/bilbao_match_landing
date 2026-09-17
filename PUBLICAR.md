@@ -98,10 +98,13 @@ Ya no pinta nada ahí, y es 3 MB que cualquiera podría descargarse.
 
 ### Si el gestor del panel no sabe descomprimir
 
-Usa **FileZilla** con los datos de *Configuración del FTP*. Descomprime el ZIP
-en tu ordenador y arrastra el contenido a la carpeta pública. FileZilla aguanta
-las subidas largas y reanuda si se corta, que es lo que el gestor del navegador
-no hace.
+Entonces la vía es **FileZilla**, que sube carpetas enteras con todo lo que
+llevan dentro y reanuda si la conexión se corta — las dos cosas que el gestor
+del navegador no hace.
+
+Los pasos, sin dar nada por sabido, en **[`FILEZILLA.md`](FILEZILLA.md)**:
+instalar, guardar la conexión, encontrar `www`, arrastrar y comprobar que ha
+subido todo.
 
 ### 5 · Cierra el panel de edición
 
