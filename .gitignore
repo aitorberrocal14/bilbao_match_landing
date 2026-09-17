@@ -1,9 +1,6 @@
 node_modules/
 .DS_Store
 
-# Built by `cd wordpress && zip -r match-bilbao-bizkaia.zip match-bilbao-bizkaia`
-# for uploading to WordPress; regenerate it rather than committing it.
-wordpress/match-bilbao-bizkaia.zip
 
 # The platform key lives here when syncing by hand; never committed.
 .env
@@ -11,8 +8,9 @@ wordpress/match-bilbao-bizkaia.zip
 # The administration panel's password. Lives on the server only.
 admin/admin-config.php
 
-# The upload package. Regenerate with `node tools/build-upload.js` rather than
-# committing 5 MB that changes with every edit to the site.
-dist/web-para-subir.zip
+# Staging output. The two packages people actually download — the site and
+# the WordPress plugin — are committed instead of ignored: whoever publishes
+# this site cannot install Node to rebuild them, so a copy they can download
+# straight from the repository is worth more than a tidy history.
 dist/_subir/
 dist/web-de-prueba.zip
