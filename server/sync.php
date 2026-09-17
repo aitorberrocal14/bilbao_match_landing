@@ -36,14 +36,21 @@
 declare(strict_types=1);
 
 /* --- Compatibilidad --------------------------------------------------------
-   Este hosting ejecuta PHP 7.0.33 por línea de comandos, que es de 2016. Todo
-   lo que hay debajo está escrito para funcionar ahí: nada de funciones flecha,
-   ni tipos nullable, ni `void`. Estas tres funciones llegaron con PHP 8 y se
-   definen aquí si faltan.
+   Este hosting tiene DOS versiones de PHP, y son distintas:
 
-   Que funcione en 7.0 no significa que convenga quedarse en 7.0: esa versión
-   no recibe parches de seguridad desde diciembre de 2018. Subirla en
-   Servidor → PHP del panel es una buena idea por su cuenta. */
+     · la web  (php-fpm) → 7.4
+     · el cron (línea de comandos) → 7.0.33
+
+   Esto se ejecuta desde el cron, así que manda la vieja. Todo lo que hay
+   debajo está escrito para 7.0: nada de funciones flecha, ni tipos nullable,
+   ni `void`. Las tres funciones de aquí abajo llegaron con PHP 8 y se definen
+   si faltan, con function_exists, así que no estorban en versiones nuevas.
+
+   Que funcione en 7.0 no significa que convenga quedarse ahí: ni 7.0 ni 7.4
+   reciben parches de seguridad — 7.0 desde 2018, 7.4 desde 2022. En
+   Servidor → PHP del panel se puede subir a 8.1, y el panel deja volver atrás
+   si algo se tuerce. Aquí apenas hay PHP —este archivo y admin/save.php— así
+   que el riesgo de subir es pequeño y el de quedarse no lo es. */
 
 if (!function_exists('str_contains')) {
     function str_contains(string $h, string $n): bool { return $n === '' || strpos($h, $n) !== false; }
