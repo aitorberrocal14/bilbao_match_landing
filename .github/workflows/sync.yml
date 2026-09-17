@@ -29,10 +29,18 @@ on:
 
   workflow_dispatch:
     inputs:
+      dry_run:
+        description: >-
+          Ensayo: llama a la plataforma y dice qué cambiaría, sin escribir ni
+          publicar nada. Úsalo la primera vez, para comprobar que la conexión
+          funciona sin tocar la web.
+        type: boolean
+        default: false
       allow_shrink:
         description: >-
           Permitir que la lista se reduzca a menos de la mitad. Hace falta la
-          primera vez, al sustituir los expositores de prueba por los reales.
+          primera vez de verdad, al sustituir los expositores de prueba por los
+          reales.
         type: boolean
         default: false
 
@@ -77,16 +85,19 @@ jobs:
         # vaciar el directorio del evento sería peor que no actualizarlo.
         run: |
           node tools/sync-exhibitors.js \
+            ${{ inputs.dry_run && '--dry-run' || '' }} \
             ${{ inputs.allow_shrink && '--allow-shrink' || '' }}
 
+      # Un ensayo no escribe nada, así que tampoco hay nada que reconstruir ni
+      # que publicar: el flujo termina aquí con el informe en el registro.
       - name: Regenerar las páginas
-        if: steps.creds.outputs.ready == 'true'
+        if: steps.creds.outputs.ready == 'true' && ! inputs.dry_run
         run: |
           node tools/build-exhibitors.js
           node tools/build-sitemap.js
 
       - name: ¿Ha cambiado algo?
-        if: steps.creds.outputs.ready == 'true'
+        if: steps.creds.outputs.ready == 'true' && ! inputs.dry_run
         id: diff
         run: |
           if git diff --quiet; then
