@@ -142,7 +142,17 @@ function js_quote($s): string
 
 function load_config(): array
 {
-    foreach ([dirname(MBB_WEB) . '/config.php', __DIR__ . '/config.php'] as $candidate) {
+    // De fuera hacia dentro. La primera está fuera de la carpeta pública, que
+    // es donde debe estar: ninguna URL llega hasta ahí. Las otras dos son
+    // aceptables porque un .php se ejecuta en lugar de servirse, pero la
+    // primera es la buena.
+    $candidates = [
+        dirname(MBB_WEB, 2) . '/config.php',   // /home/<cuenta>/config.php
+        dirname(MBB_WEB) . '/config.php',
+        __DIR__ . '/config.php',
+    ];
+
+    foreach ($candidates as $candidate) {
         if (is_file($candidate)) {
             $conf = require $candidate;
             if (is_array($conf) && !empty($conf['api_key'])) {
@@ -154,8 +164,8 @@ function load_config(): array
         }
     }
     die_with(
-        'No hay configuración. Copia server/config-sample.php a ' .
-        dirname(MBB_WEB) . '/config.php y pon la clave dentro.'
+        'No hay configuración. Crea ' . dirname(MBB_WEB, 2) . '/config.php ' .
+        'con la clave dentro — ver server/config-sample.php.'
     );
 }
 

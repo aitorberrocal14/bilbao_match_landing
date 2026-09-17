@@ -1,0 +1,18 @@
+# Esta carpeta no es parte de la web.
+#
+# sync.php lo ejecuta el cron por línea de comandos, no el navegador, así que
+# nada de aquí necesita estar accesible desde internet. Y sí hay dos cosas que
+# no deben estarlo: un config.php que alguien deje aquí en lugar de fuera de la
+# carpeta pública, y sync.log, que lleva los nombres de las empresas y el
+# registro de cada ejecución.
+#
+# Apache 2.4
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+
+# Apache 2.2, por si el hosting es antiguo
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>

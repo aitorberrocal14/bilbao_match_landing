@@ -63,14 +63,102 @@ $json = shell_exec(
 );
 
 $data = json_decode((string) $json, true);
-if (!is_array($data) || empty($data['exhibitors'])) {
+if (!is_array($data) || !isset($data['exhibitors'])) {
     fwrite(STDERR, "No se han podido leer los datos de expositores.\n");
     exit(1);
 }
 
+$chrome = json_decode((string) file_get_contents($ROOT . '/server/chrome.json'), true);
+if (!is_array($chrome) || empty($chrome['icons'])) {
+    fwrite(STDERR, "No se ha podido leer server/chrome.json.\n");
+    exit(1);
+}
+
+/* --- La muestra difícil ----------------------------------------------------
+   Se compara siempre, haya expositores publicados o no. Un directorio vacío es
+   un estado legítimo —lo está hasta la primera alta— y sin esto la prueba se
+   quedaría sin nada que comprobar justo cuando más falta hace, mientras se
+   escribe el motor de PHP.
+
+   Los casos están elegidos por donde dos motores se separan de verdad: acentos,
+   un ampersand, comillas de los dos tipos, un apóstrofo tipográfico, HTML en el
+   texto, campos vacíos, y una empresa sin logotipo ni categoría. */
+
+$muestra = [
+    [
+        'id' => 'prueba-acentos',
+        'name' => 'Hotel Aránzazu & Cía. "El Puente"',
+        'category' => 'accommodation',
+        'logo' => 'assets/img/exhibitors/prueba.jpg',
+        'contactName' => "Iñaki O'Donnell",
+        'contactRole' => 'Director <comercial>',
+        'email' => 'test@example.org',
+        'phone' => '+34 944 20 53 77',
+        'website' => 'https://example.org/',
+        'websiteLabel' => 'example.org',
+        'address' => 'C/ Uribitarte 6, 2ª planta — 48001 Bilbao',
+        'paragraphs' => ['Primero, con "comillas" y & ampersand.', 'Segundo, con apóstrofo tipográfico: l’Hôtel.'],
+    ],
+    [
+        'id' => 'prueba-minima',
+        'name' => 'Sin Nada SL',
+        'category' => '',
+        'logo' => '',
+        'contactName' => '', 'contactRole' => '', 'email' => '', 'phone' => '',
+        'website' => '', 'websiteLabel' => '', 'address' => '',
+        'paragraphs' => [],
+    ],
+];
+
+$js = shell_exec(
+    'cd ' . escapeshellarg($ROOT) . ' && node -e ' . escapeshellarg(
+        'const fs=require("fs"),vm=require("vm");' .
+        'const s={window:{},Date};s.globalThis=s;vm.createContext(s);' .
+        '["assets/js/data/site.js","assets/js/components.js"].forEach(f=>' .
+        'vm.runInContext(fs.readFileSync(f,"utf8"),s,{filename:f}));' .
+        'const m=s.window.MBB, d=JSON.parse(process.argv[1]);' .
+        'process.stdout.write(JSON.stringify(d.map((x,i)=>' .
+        'm.ExhibitorPage(x, d.cats||' . json_encode($chromeCats = [
+            ['id' => 'all', 'label' => 'All'],
+            ['id' => 'accommodation', 'label' => 'Accommodation'],
+        ]) . ', d.filter((o,j)=>j!==i), "../"))));'
+    ) . ' ' . escapeshellarg(json_encode($muestra, JSON_UNESCAPED_UNICODE))
+);
+
+$jsBodies = json_decode((string) $js, true);
+if (!is_array($jsBodies)) {
+    fwrite(STDERR, "No se ha podido renderizar la muestra con JavaScript.\n");
+    exit(1);
+}
+
+$fallosMuestra = [];
+foreach ($muestra as $i => $x) {
+    $otros = array_values(array_filter($muestra, fn($o, $j) => $j !== $i, ARRAY_FILTER_USE_BOTH));
+    $php = exhibitor_body($x, $chromeCats, $otros, '../', $chrome['icons']);
+    if ($php !== $jsBodies[$i]) {
+        $n = min(strlen($jsBodies[$i]), strlen($php));
+        $p = 0;
+        while ($p < $n && $jsBodies[$i][$p] === $php[$p]) { $p++; }
+        $fallosMuestra[] = [
+            $x['id'],
+            'difieren en el byte ' . $p . "\n      JS : …" . substr($jsBodies[$i], max(0, $p - 40), 90) .
+            "\n      PHP: …" . substr($php, max(0, $p - 40), 90),
+        ];
+    }
+}
+
+printf("muestra difícil: %d de %d idénticas\n", count($muestra) - count($fallosMuestra), count($muestra));
+foreach ($fallosMuestra as [$id, $por]) {
+    echo '  ✗ ' . $id . ': ' . $por . "\n";
+}
+
+if (!$data['exhibitors']) {
+    echo "No hay expositores publicados, así que no hay páginas completas que comparar.\n";
+    exit($fallosMuestra ? 1 : 0);
+}
+
 $exhibitors = $data['exhibitors'];
 $categories = $data['categories'];
-$chrome = json_decode((string) file_get_contents($ROOT . '/server/chrome.json'), true);
 
 /* --- Comparar -------------------------------------------------------------- */
 
