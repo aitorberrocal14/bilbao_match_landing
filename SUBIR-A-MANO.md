@@ -36,32 +36,95 @@ Siempre lo mismo:
 
 ---
 
-## La lista
+## Las carpetas van unas dentro de otras
 
-Ve tachando. La columna de la derecha es para comprobar que no se ha quedado
-nada por el camino.
+Cuando abajo pone `assets/img/brand`, **no es una carpeta llamada así**. Son
+tres, metidas una dentro de la otra: dentro de `assets` está `img`, y dentro de
+`img` está `brand`. La barra `/` significa "entra".
 
-### Dentro de `www`, crea `assets`. Entra.
+Esto es lo que tiene que quedar:
 
-- [ ] **`assets/css`** — 1 archivo
-- [ ] **`assets/fonts`** — 2 archivos
-- [ ] **`assets/js`** — 2 archivos *(no los de `data`, esos van aparte)*
-- [ ] **`assets/js/data`** — 6 archivos
-- [ ] **`assets/img`** — 1 archivo *(suelto en `img`, antes de las subcarpetas)*
-- [ ] **`assets/img/brand`** — 6 archivos
-- [ ] **`assets/img/photos`** — 3 archivos
-- [ ] **`assets/img/exhibitors`** — 39 archivos
-- [ ] **`assets/img/brochures`** — 16 archivos
+```
+www/
+├── index.html          ← sueltos aquí
+├── robots.txt
+├── sitemap.xml
+│
+├── assets/
+│   ├── css/            1 archivo
+│   ├── fonts/          2 archivos
+│   ├── js/             2 archivos
+│   │   └── data/       6 archivos
+│   └── img/            1 archivo suelto aquí
+│       ├── brand/      6 archivos
+│       ├── photos/     3 archivos
+│       ├── exhibitors/ 39 archivos  ← los logotipos
+│       └── brochures/  16 archivos
+│
+├── exhibitors/         39 archivos  ← las páginas .html
+└── admin/              6 archivos
+```
 
-### Vuelve a `www`.
+> ⚠️ **Hay dos carpetas llamadas `exhibitors`** y no son la misma. Para
+> rematarlo, los archivos se llaman igual en las dos —
+> `aktiba.jpg` y `aktiba.html` — así que la única diferencia visible es la
+> **extensión**:
+>
+> · `assets/img/exhibitors` → los **`.jpg`**, que son los logotipos
+> · `exhibitors` (colgando de `www`) → los **`.html`**, que son las páginas
+>
+> Si se cruzan, la web sale con los logos rotos y las fichas en blanco.
 
-- [ ] **`exhibitors`** — 39 archivos
-- [ ] **`admin`** — 6 archivos ⚠️ *uno de ellos es `.htaccess`, oculto*
-- [ ] **En `www` directamente** — 3 archivos: `index.html`, `robots.txt`,
+Las carpetas pequeñas, por si quieres comprobar que subes lo que toca:
+
+| Carpeta | Lo que lleva dentro |
+|---|---|
+| `assets/css` | `styles.css` |
+| `assets/fonts` | `bariol-bold.ttf`, `bariol-regular.ttf` |
+| `assets/js` | `components.js`, `main.js` |
+| `assets/js/data` | `site.js`, `content.js`, `programme.js`, `exhibitors.js`, `discover.js`, `exhibitors-local.json` |
+| `assets/img` (suelto) | `social-card.jpg` |
+
+---
+
+## La lista, en orden
+
+Son **12 carpetas que crear**. Ve tachando.
+
+### En `www`
+
+- [ ] Crea **`assets`** y entra
+
+### Dentro de `assets`, crea estas cuatro
+
+- [ ] **`css`** → entra, sube **1 archivo**, vuelve atrás
+- [ ] **`fonts`** → entra, sube **2 archivos**, vuelve atrás
+- [ ] **`js`** → entra, sube **2 archivos** *(los de `data` todavía no)*
+  - [ ] dentro de `js`, crea **`data`** → entra, sube **6 archivos**
+  - [ ] vuelve atrás dos veces, hasta `assets`
+- [ ] **`img`** → entra y sube **1 archivo** *(el que está suelto en `img`)*
+
+### Dentro de `img`, crea estas cuatro
+
+- [ ] **`brand`** → **6 archivos**
+- [ ] **`photos`** → **3 archivos**
+- [ ] **`exhibitors`** → **39 archivos** *(logotipos)*
+- [ ] **`brochures`** → **16 archivos**
+
+### Vuelve a `www`
+
+- [ ] Crea **`exhibitors`** → **39 archivos** *(páginas `.html`)*
+- [ ] Crea **`admin`** → **6 archivos** ⚠️ *uno es `.htaccess`, oculto*
+- [ ] Y sueltos en `www`: **3 archivos** — `index.html`, `robots.txt`,
       `sitemap.xml`
 
-**Total: 124 archivos.** Déjate los tres últimos para el final: hasta que
-`index.html` no esté arriba, nadie verá nada a medio hacer.
+**Total: 124 archivos en 12 carpetas.** Déjate los tres últimos para el final:
+hasta que `index.html` no esté arriba, nadie verá nada a medio hacer.
+
+> Para no perderte: ten abierta en tu ordenador la misma carpeta que estás
+> creando en el panel. Si en el panel estás dentro de `assets/img/brand`, en tu
+> ordenador tienes que estar dentro de esa misma. Así los archivos que subes son
+> siempre los que tienes delante.
 
 ---
 
