@@ -36,9 +36,14 @@
 declare(strict_types=1);
 
 /* --- Compatibilidad --------------------------------------------------------
-   Tres funciones que llegaron con PHP 8. Definirlas si faltan cuesta diez
-   líneas y evita que esto falle en un hosting con PHP 7.4 por un detalle que
-   no tiene nada que ver con lo que hace el programa. */
+   Este hosting ejecuta PHP 7.0.33 por línea de comandos, que es de 2016. Todo
+   lo que hay debajo está escrito para funcionar ahí: nada de funciones flecha,
+   ni tipos nullable, ni `void`. Estas tres funciones llegaron con PHP 8 y se
+   definen aquí si faltan.
+
+   Que funcione en 7.0 no significa que convenga quedarse en 7.0: esa versión
+   no recibe parches de seguridad desde diciembre de 2018. Subirla en
+   Servidor → PHP del panel es una buena idea por su cuenta. */
 
 if (!function_exists('str_contains')) {
     function str_contains(string $h, string $n): bool { return $n === '' || strpos($h, $n) !== false; }
@@ -67,7 +72,7 @@ $ALLOW_SHRINK = in_array('--allow-shrink', $argv, true);
 
 $LOG = [];
 
-function say(string $line): void
+function say($line)
 {
     global $LOG;
     $stamped = date('Y-m-d H:i:s') . '  ' . $line;
@@ -77,14 +82,14 @@ function say(string $line): void
     }
 }
 
-function die_with(string $message): void
+function die_with($message)
 {
     say('ERROR: ' . $message);
     flush_log();
     exit(1);
 }
 
-function flush_log(): void
+function flush_log()
 {
     global $LOG;
     $file = MBB_WEB . '/server/sync.log';
@@ -140,14 +145,36 @@ function js_quote($s): string
 
 /* --- 1. La respuesta de la plataforma -------------------------------------- */
 
+/**
+ * La carpeta personal de la cuenta: la que contiene a `www`.
+ *
+ * No se puede contar los niveles hacia arriba desde la web, porque la web no
+ * siempre está a la misma profundidad — hoy en www/pruebasbilbaoekintza26,
+ * mañana en www a secas. Lo que sí es estable en este hosting es que la raíz
+ * pública se llama `www` y cuelga de la carpeta de la cuenta.
+ */
+function account_home(): string
+{
+    $dir = MBB_WEB;
+    for ($i = 0; $i < 6; $i++) {
+        if (basename($dir) === 'www') {
+            return dirname($dir);
+        }
+        $parent = dirname($dir);
+        if ($parent === $dir) { break; }   // se llegó a la raíz
+        $dir = $parent;
+    }
+    return dirname(MBB_WEB);               // sin `www`, el padre de la web
+}
+
 function load_config(): array
 {
     // De fuera hacia dentro. La primera está fuera de la carpeta pública, que
-    // es donde debe estar: ninguna URL llega hasta ahí. Las otras dos son
+    // es donde debe estar: ninguna URL llega hasta ahí. Las otras son
     // aceptables porque un .php se ejecuta en lugar de servirse, pero la
     // primera es la buena.
     $candidates = [
-        dirname(MBB_WEB, 2) . '/config.php',   // /home/<cuenta>/config.php
+        account_home() . '/config.php',
         dirname(MBB_WEB) . '/config.php',
         __DIR__ . '/config.php',
     ];
@@ -164,7 +191,7 @@ function load_config(): array
         }
     }
     die_with(
-        'No hay configuración. Crea ' . dirname(MBB_WEB, 2) . '/config.php ' .
+        'No hay configuración. Crea ' . account_home() . '/config.php ' .
         'con la clave dentro — ver server/config-sample.php.'
     );
 }
@@ -275,7 +302,7 @@ function read_local(): array
  */
 function local_for(array $local, array $entry, string $slug): array
 {
-    $keys = array_values(array_filter(array_keys($local), fn($k) => $k[0] !== '_'));
+    $keys = array_values(array_filter(array_keys($local), function ($k) { return $k[0] !== '_'; }));
     $id = (string) ($entry['id_exhibitor'] ?? '');
 
     foreach ($keys as $k) {
@@ -296,7 +323,7 @@ function local_for(array $local, array $entry, string $slug): array
 
 /* --- 3. Logotipos ----------------------------------------------------------- */
 
-function fetch_logo(?string $url, string $slug, bool $dry): ?string
+function fetch_logo($url, $slug, $dry)
 {
     if (!$url || !preg_match('#^https?://#i', $url)) { return null; }
 
@@ -334,7 +361,7 @@ function fetch_logo(?string $url, string $slug, bool $dry): ?string
 }
 
 /** El logotipo que ya hay para este identificador, con la extensión que sea. */
-function existing_logo(string $slug): ?string
+function existing_logo($slug)
 {
     if (!is_dir(MBB_LOGOS)) { return null; }
     foreach (scandir(MBB_LOGOS) ?: [] as $f) {
@@ -371,7 +398,7 @@ function render_data(array $exhibitors, array $categories): string
             $out[] = '    },';
         }
         $out[] = '    paragraphs: [';
-        $out[] = implode(",\n", array_map(fn($p) => '      ' . js_quote($p), $x['paragraphs']));
+        $out[] = implode(",\n", array_map(function ($p) { return '      ' . js_quote($p); }, $x['paragraphs']));
         $out[] = '    ]';
         $out[] = '  }';
         $blocks[] = implode("\n", $out);
@@ -380,7 +407,13 @@ function render_data(array $exhibitors, array $categories): string
     $cats = json_encode($categories, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     $cats = preg_replace('/"([a-z]+)":/', '$1:', (string) $cats);
     // json_encode indenta con 4 espacios; el sitio usa 2.
-    $cats = preg_replace('/^(    )+/m', fn($m) => str_repeat('  ', strlen($m[0]) / 4), $cats) ?? $cats;
+    // El patrón solo captura múltiplos de cuatro espacios, así que la división
+    // es exacta; el cast está por strict_types, no por desconfianza.
+    $cats = preg_replace_callback(
+        '/^(    )+/m',
+        function ($m) { return str_repeat('  ', (int) (strlen($m[0]) / 4)); },
+        $cats
+    );
 
     return "/* =============================================================================\n"
         . "   EXHIBITORS\n"
@@ -554,7 +587,7 @@ function exhibitor_page(array $x, array $categories, array $related, array $c): 
 
 /* --- 6. Sitemap ------------------------------------------------------------- */
 
-function write_sitemap(array $exhibitors, string $site): void
+function write_sitemap(array $exhibitors, $site)
 {
     $today = date('Y-m-d');
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -585,8 +618,12 @@ $categories = $local['_categories'] ?? [
 ];
 $known = array_column($categories, 'id');
 
-$visible = array_values(array_filter($raw, fn($e) => !((int) ($e['hidden'] ?? 0))));
-usort($visible, fn($a, $b) => ((int) ($a['sort'] ?? 0)) <=> ((int) ($b['sort'] ?? 0)));
+$visible = array_values(array_filter($raw, function ($e) { return !((int) (isset($e['hidden']) ? $e['hidden'] : 0)); }));
+usort($visible, function ($a, $b) {
+    $x = (int) (isset($a['sort']) ? $a['sort'] : 0);
+    $y = (int) (isset($b['sort']) ? $b['sort'] : 0);
+    return $x <=> $y;
+});
 
 $exhibitors = [];
 $uncategorised = [];

@@ -41,7 +41,7 @@ const ALLOWED = [
 const MAX_BYTES = 4 * 1024 * 1024; // the largest data file is well under 1 MB
 
 /** Configured password, or null when the panel has not been set up. */
-function admin_token(): ?string
+function admin_token()
 {
     $config = __DIR__ . '/admin-config.php';
     if (!is_file($config)) {
@@ -54,7 +54,7 @@ function admin_token(): ?string
     return $token;
 }
 
-function fail(string $message, int $status = 400): void
+function fail($message, $status = 400)
 {
     http_response_code($status);
     echo json_encode(['ok' => false, 'error' => $message], JSON_UNESCAPED_UNICODE);
