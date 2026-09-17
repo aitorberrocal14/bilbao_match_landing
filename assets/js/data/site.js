@@ -33,9 +33,12 @@ window.MBB.site = {
   ],
 
   /* --- Login ------------------------------------------------------------- */
-  // [Insert login / meeting platform URL] — replace with the real platform URL.
+  // The Meetmaps event platform. Empty this, or point it back inside the page
+  // with a '#', and every Login button disappears — which is what should happen
+  // if the platform is ever taken down, rather than leaving buttons that lead
+  // nowhere.
   login: {
-    url: '#login-placeholder',
+    url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/virtual/join',
     label: 'Login'
   },
 
