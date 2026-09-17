@@ -117,12 +117,12 @@ say('git pull: ' . trim(preg_replace('/\s+/', ' ', $salida)));
 
 $ahora = trim((string) shell_exec('git -C ' . escapeshellarg(MBB_REPO) . ' rev-parse --short HEAD 2>&1'));
 
-if ($antes === $ahora) {
-    say('Sin cambios nuevos (' . $ahora . '). No se copia nada.');
-    flush_log();
-    exit(0);
-}
-say('De ' . $antes . ' a ' . $ahora . '.');
+// No se sale aquí aunque no haya commits nuevos. "El repositorio no ha
+// cambiado" no es lo mismo que "la web está al día": en el primer despliegue la
+// carpeta pública está vacía, y si alguien borra un archivo por error hay que
+// reponerlo. La copia compara contra el destino, archivo a archivo, y no cuesta
+// nada cuando ya está todo igual.
+say($antes === $ahora ? 'Sin commits nuevos (' . $ahora . ').' : 'De ' . $antes . ' a ' . $ahora . '.');
 
 /* --- 2. Comprobar antes de copiar ------------------------------------------- */
 
