@@ -17,3 +17,4 @@ dist/web-de-prueba.zip
 
 # El registro del sync, que lo escribe el servidor en cada ejecución.
 server/sync.log
+server/deploy.log
