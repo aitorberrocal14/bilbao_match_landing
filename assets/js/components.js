@@ -154,11 +154,18 @@ window.MBB = window.MBB || {};
         // A figure written as 'count:exhibitors' is the size of the directory,
         // so it follows the companies that register instead of being a number
         // somebody has to remember to change.
-        var value = f.value === 'count:exhibitors'
-          ? String((MBB.exhibitors || []).length)
-          : f.value;
+        if (f.value === 'count:exhibitors') {
+          var n = (MBB.exhibitors || []).length;
+          // Before the first company registers the honest figure is zero, and
+          // "0 Local exhibitors" under the title reads as a broken page rather
+          // than as an event that has not opened registration yet. The fact
+          // simply waits its turn.
+          if (!n) return '';
+          return '<div class="hero__fact"><span class="v">' + esc(String(n)) + '</span>' +
+            '<span class="l">' + esc(f.label) + '</span></div>';
+        }
 
-        return '<div class="hero__fact"><span class="v">' + esc(value) + '</span>' +
+        return '<div class="hero__fact"><span class="v">' + esc(f.value) + '</span>' +
           '<span class="l">' + esc(f.label) + '</span></div>';
       })
       .join('');
@@ -671,6 +678,34 @@ window.MBB = window.MBB || {};
         );
       })
       .join('');
+
+    // Before the first company registers there is nothing to filter and
+    // nothing to search, and the tools would sit above an empty grid offering
+    // to narrow down nothing. What the page owes a visitor here is an
+    // explanation and a way in, so that is what it shows instead.
+    if (!exhibitors.length) {
+      var site = MBB.site || {};
+      var join = loginHref(site)
+        ? '<p class="dir-waiting__cta">' + loginLink(site, 'btn btn--lg') + '</p>'
+        : '';
+
+      return (
+        '<div class="directory" id="exhibitors">' +
+          // The standing introduction offers to filter and to search. With no
+          // tools on screen it would be describing something that is not there,
+          // so the heading stands on its own until the directory opens.
+          '<div class="section-head section-head--center" data-reveal>' +
+            '<h2 class="h-1">' + esc(copy.title) + '</h2>' +
+          '</div>' +
+          '<div class="dir-waiting" data-reveal>' +
+            '<p class="lead">The exhibitor directory opens as companies register.</p>' +
+            '<p>Every participating company of the Bilbao Bizkaia destination will ' +
+              'appear here, each with its own profile.</p>' +
+            join +
+          '</div>' +
+        '</div>'
+      );
+    }
 
     return (
       '<div class="directory" id="exhibitors">' +

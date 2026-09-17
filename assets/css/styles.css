@@ -905,6 +905,21 @@ p:last-child { margin-bottom: 0; }
 
 .directory__empty { text-align: center; padding: 3rem 1rem; color: var(--grey-light); }
 
+/* The directory before the first company registers. Same soft ground as the
+   alternating sections, so an empty state reads as part of the page rather
+   than as something that failed to load. */
+.dir-waiting {
+  text-align: center;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 3rem);
+  max-width: 46rem;
+  margin-inline: auto;
+}
+.dir-waiting .lead { color: var(--grey-dark); margin-top: 0; }
+.dir-waiting p { margin-bottom: 0; }
+.dir-waiting__cta { margin-top: 1.75rem; }
+
 /* 13. EXHIBITOR PAGE ======================================================= */
 .ex-page { padding-block: clamp(2.5rem, 5vw, 4.5rem); }
 .ex-page__title { text-align: center; margin-bottom: clamp(2rem, 4vw, 3.5rem); }

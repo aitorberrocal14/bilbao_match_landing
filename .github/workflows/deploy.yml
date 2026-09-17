@@ -5,7 +5,7 @@ name: Publish the site to the hosting
 # action keeps a record of what it last uploaded, so a change to one exhibitor
 # moves a few kilobytes, not the whole 6 MB.
 #
-# What goes out is the folder — index.html, assets/, the 39 exhibitor pages,
+# What goes out is the folder — index.html, assets/, one page per exhibitor,
 # the sitemap and robots.txt — and not dist/, wordpress/ or tools/, which are
 # for handover, for WordPress and for building, and have no business on a
 # public server.
@@ -69,9 +69,11 @@ jobs:
           test -f _site/admin/index.html
           # The password must never travel with the site.
           test ! -f _site/admin/admin-config.php
-          pages=$(ls _site/exhibitors/*.html | wc -l)
+          # build-upload.js already refuses to produce a package whose page
+          # count disagrees with the exhibitor data, so by here that holds.
+          # This just records the number in the log, where it is worth seeing.
+          pages=$(ls _site/exhibitors/*.html 2>/dev/null | wc -l)
           echo "Exhibitor pages: $pages"
-          test "$pages" -ge 39
 
       - name: Is the hosting configured?
         id: creds

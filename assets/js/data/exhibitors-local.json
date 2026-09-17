@@ -1,4 +1,5 @@
 {
+  "_readme": "Lo que la plataforma no devuelve. El sync lo pega encima de lo que llega de Meetmaps y nunca lo pisa.\n\nLas 39 fichas de la edición anterior se retiraron el 2026-09-17 junto con el directorio. De ellas se conserva SOLO la categoría, para que una empresa que vuelva a registrarse caiga sola en su sitio del filtro. No se conservan personas de contacto, cargos ni direcciones: eran datos personales de la edición pasada y no hay motivo para guardarlos.\n\nPara rellenar los campos que faltan de una empresa nueva, abre tools/exhibitor-details.html.",
   "_categories": [
     {
       "id": "all",
@@ -17,356 +18,199 @@
       "label": "Unique Activities"
     }
   ],
-  "_readme": "Everything the event platform does not carry. Keyed by the slug the exhibitor page is addressed by; apiId is filled in by the first sync that matches, after which the name can change on the platform without losing this.",
   "bodega-crusoe-treasure": {
     "slug": "bodega-crusoe-treasure",
-    "apiId": 1000,
     "category": "activities",
-    "contactName": "Anna Riera",
-    "contactRole": "Tourism Manager",
-    "address": "C/ Uribitarte 6, 2ª planta 48001 Bilbao (Bizkaia). Spain",
     "name": "Bodega Crusoe Treasure"
   },
   "hotel-catalonia-gran-via-bilbao": {
     "slug": "hotel-catalonia-gran-via-bilbao",
-    "apiId": 1001,
     "category": "accommodation",
-    "contactName": "Alberto Cueto Lojo",
-    "contactRole": "Hotel Manager",
-    "address": "Gran Vía de Don Diego Lopez de Haro 7348011 Bilbao, Vizcaya",
     "name": "HOTEL CATALONIA GRAN VIA BILBAO"
   },
   "basque-experiences": {
     "slug": "basque-experiences",
-    "apiId": 1002,
     "category": "dmc",
-    "contactName": "Erik Sadler",
-    "contactRole": "Co-Founder",
-    "address": "JUAN DE GARAY 17 LONJA 48003 BILBAO BIZKAIA SPAIN",
     "name": "Basque Experiences"
   },
   "etxelaia": {
     "slug": "etxelaia",
-    "apiId": null,
     "category": "accommodation",
-    "contactName": "Juan Aldamizgogeascoa",
-    "contactRole": "Owner",
-    "address": "Zelaieta Kalea 1, 48314, Gautegiz Arteaga (Bizkaia)",
     "name": "Etxelaia"
   },
   "nekatur-basque-rural-lodging": {
     "slug": "nekatur-basque-rural-lodging",
-    "apiId": 1004,
     "category": "accommodation",
-    "contactName": "Amaia Pagola",
-    "contactRole": "Technical Staff",
-    "address": "c/Juan Fermin Gilisagasti, 2 - of.31020018 Donostia-San Sebastián (Gipuzkoa)",
     "name": "NEKATUR — Basque Rural Lodging"
   },
   "gran-hotel-domine": {
     "slug": "gran-hotel-domine",
-    "apiId": 1005,
     "category": "accommodation",
-    "contactName": "Estibaliz Egusquiza",
-    "contactRole": "Director of Sales & Marketing",
-    "address": "Alameda Mazarredo, 61 48009 Bilbao Bizkaia",
     "name": "Gran Hotel Domine"
   },
   "bilbaoservices-com-viajesgarcia-com": {
     "slug": "bilbaoservices-com-viajesgarcia-com",
-    "apiId": 1006,
     "category": "dmc",
-    "contactName": "Carlos Garcia",
-    "contactRole": "CEO",
-    "address": "Estrada de Mala 8 (48012) Bilbao. SPAIN.",
     "name": "BilbaoServices.com / Viajesgarcia.com"
   },
   "azul-marino-viajes": {
     "slug": "azul-marino-viajes",
-    "apiId": 1007,
     "category": "dmc",
-    "contactName": "Athenea",
-    "contactRole": "Bilbao DMC Manager",
-    "address": "Edificio Grupo AM. c/ Canciller Ayala, 2 | 48008 Bilbao",
     "name": "Azul Marino Viajes"
   },
   "abba-suites-bilbao-city-center": {
     "slug": "abba-suites-bilbao-city-center",
-    "apiId": 1008,
     "category": "accommodation",
-    "contactName": "David García Celdrán",
-    "contactRole": "International Sales Director",
-    "address": "C/ Huertas de la Villa, 15 48007 Bilbao Spain",
     "name": "abba Suites Bilbao City Center"
   },
   "sti-dmc-ttoo-bilbao-basque-country": {
     "slug": "sti-dmc-ttoo-bilbao-basque-country",
-    "apiId": 1009,
     "category": "dmc",
-    "contactName": "Enrique Hernaez",
-    "contactRole": "CEO",
-    "address": "Zabalea, 2948960 GALDAKAOBIZKAIA-BASQUE COUNTRY",
     "name": "STI — DMC & TTOO Bilbao / Basque Country"
   },
   "hotel-gran-bilbao": {
     "slug": "hotel-gran-bilbao",
-    "apiId": 1010,
     "category": "accommodation",
-    "contactName": "Raúl Amestoy Lara",
-    "contactRole": "Hotel Manager",
-    "address": "Avda Indalecio Prieto 1Bilbao",
     "name": "Hotel Gran Bilbao"
   },
   "xarma-charming-lodging-in-the-basque-country": {
     "slug": "xarma-charming-lodging-in-the-basque-country",
-    "apiId": 1011,
     "category": "accommodation",
-    "contactName": "Mertxe Begiristain",
-    "contactRole": "Marketing manager",
-    "address": "Barrio Olagorta, 6 Ea - Bizkaia Basque Country",
     "name": "XARMA — Charming Lodging in the Basque Country"
   },
   "nh-collection-villa-de-bilbao": {
     "slug": "nh-collection-villa-de-bilbao",
-    "apiId": 1012,
     "category": "accommodation",
-    "contactName": "Natalia Alonso",
-    "contactRole": "Meetings & Events Manager",
-    "address": "Gran Vía, 8748011 BilbaoSpain",
     "name": "NH Collection Villa de Bilbao"
   },
   "hoteles-silken": {
     "slug": "hoteles-silken",
-    "apiId": 1013,
     "category": "accommodation",
-    "contactName": "OLATZ",
-    "contactRole": "SALES",
-    "address": "",
     "name": "HOTELES SILKEN"
   },
   "romotur-dmc": {
     "slug": "romotur-dmc",
-    "apiId": 1014,
     "category": "dmc",
-    "contactName": "Anna Galatina",
-    "contactRole": "Commercial",
-    "address": "Gordoniz 22, 1 48012 Bilbao",
     "name": "Romotur DMC"
   },
   "hotel-carlton-hotel-abando": {
     "slug": "hotel-carlton-hotel-abando",
-    "apiId": 1015,
     "category": "accommodation",
-    "contactName": "Silvia Varea & Irune Martin",
-    "contactRole": "Sales Manager",
-    "address": "",
     "name": "Hotel Carlton & Hotel Abando"
   },
   "destination-consultant-dmc-basque-country": {
     "slug": "destination-consultant-dmc-basque-country",
-    "apiId": 1016,
     "category": "dmc",
-    "contactName": "Gorka Marques",
-    "contactRole": "General Manager",
-    "address": "C/Muguru 8, entreplanta 48960 - Galdakao - Bilbao Bizkaia Spain",
     "name": "Destination Consultant — DMC Basque Country"
   },
   "xarmanta-life": {
     "slug": "xarmanta-life",
-    "apiId": 1017,
     "category": "dmc",
-    "contactName": "Itziar Fernández Lamborena",
-    "contactRole": "CEO",
-    "address": "Edifico Fátima, A, Dpto. 3ALTO ENEKURI 48950 ERANDIOBizkaia",
     "name": "Xarmanta Life"
   },
   "basqueland-serv-turisticos": {
     "slug": "basqueland-serv-turisticos",
-    "apiId": 1018,
     "category": "dmc",
-    "contactName": "Cris del Rio",
-    "contactRole": "CEO",
-    "address": "",
     "name": "Basqueland Servicios Turísticos"
   },
   "hotel-palacio-urgoiti": {
     "slug": "hotel-palacio-urgoiti",
-    "apiId": 1019,
     "category": "accommodation",
-    "contactName": "Mikel Solano",
-    "contactRole": "CEO",
-    "address": "C/ARRITUGANE SN 48100 MUNGIA BIZKAIA",
     "name": "Hotel Palacio Urgoiti"
   },
   "radisson-collection-hotel-gran-via-bilbao": {
     "slug": "radisson-collection-hotel-gran-via-bilbao",
-    "apiId": 1020,
     "category": "accommodation",
-    "contactName": "Ander Elortegi Leniz",
-    "contactRole": "Director General",
-    "address": "Gran Vía Don Diego López de Haro 4, 48001 Bilbao Bizkaia",
     "name": "Radisson Collection Hotel Gran Via Bilbao"
   },
   "hotel-nafarrola": {
     "slug": "hotel-nafarrola",
-    "apiId": 1021,
     "category": "accommodation",
-    "contactName": "Josu Goikoetxea",
-    "contactRole": "Hotel Manager",
-    "address": "Artike Auzoa 45, 48370, Bermeo, Biscay, SPAIN",
     "name": "Hotel Nafarrola"
   },
   "leonardo-hotels": {
     "slug": "leonardo-hotels",
-    "apiId": 1022,
     "category": "accommodation",
-    "contactName": "Diego Buendía",
-    "contactRole": "Director of Sales Spain",
-    "address": "Areatza Kalea 4 , 48005 Bilbao",
     "name": "Leonardo Hotels"
   },
   "barcelo-hotels-resorts": {
     "slug": "barcelo-hotels-resorts",
-    "apiId": 1023,
     "category": "accommodation",
-    "contactName": "Alberto No",
-    "contactRole": "MICE Sales Manager",
-    "address": "Avenida Zumalakarregi 40",
     "name": "Barceló Hotels & Resorts"
   },
   "hogel-tayko-bilbao": {
     "slug": "hogel-tayko-bilbao",
-    "apiId": 1024,
     "category": "accommodation",
-    "contactName": "Israel Muñiz",
-    "contactRole": "General Manager",
-    "address": "Ribera 1348005 Bilbao",
     "name": "Hotel Tayko Bilbao"
   },
   "ercilla-de-bilbao-autograph-collection": {
     "slug": "ercilla-de-bilbao-autograph-collection",
-    "apiId": 1025,
     "category": "accommodation",
-    "contactName": "Adrian Vicente",
-    "contactRole": "Sales Manager",
-    "address": "",
     "name": "Ercilla de Bilbao Autograph Collection"
   },
   "melia-bilbao-hotel-5": {
     "slug": "melia-bilbao-hotel-5",
-    "apiId": 1026,
     "category": "accommodation",
-    "contactName": "Jon de Lorenzo",
-    "contactRole": "Director of Sales & Marketing",
-    "address": "Meliá Bilbao Hotel 5*Lehendakari Leizaola, 2948011. BilbaoSPAIN",
     "name": "Meliá Bilbao Hotel 5*"
   },
   "go-basquing": {
     "slug": "go-basquing",
-    "apiId": 1027,
     "category": "dmc",
-    "contactName": "Iñigo Garcia-Valenzuela",
-    "contactRole": "CEO",
-    "address": "Txakursolo, 3 48992 Getxo Bizkaia - Spain",
     "name": "go Basquing"
   },
   "fresco-tours": {
     "slug": "fresco-tours",
-    "apiId": 1028,
     "category": "dmc",
-    "contactName": "Alex Chang",
-    "contactRole": "CEO / Owner",
-    "address": "Colón de Larreategui 26 - 7ºC48009 Bilbao, Vizcaya",
     "name": "Fresco Tours"
   },
   "moana-eco-surf-house": {
     "slug": "moana-eco-surf-house",
-    "apiId": 1029,
     "category": "accommodation",
-    "contactName": "Arantza Etxebarria",
-    "contactRole": "Commercial",
-    "address": "",
     "name": "Moana Eco Surf house"
   },
   "opce-vasca-association": {
     "slug": "opce-vasca-association",
-    "apiId": 1030,
     "category": "dmc",
-    "contactName": "Virginia Perez",
-    "contactRole": "Event Manager",
-    "address": "Telesforo Aranzadi, 2-1º dcha48008 - Bilbao",
     "name": "OPCE VASCA ASSOCIATION"
   },
   "explora-norte": {
     "slug": "explora-norte",
-    "apiId": 1031,
     "category": "dmc",
-    "contactName": "Laura Martinez",
-    "contactRole": "CEO",
-    "address": "",
     "name": "EXPLORA-NORTE"
   },
   "bilbao-paso-a-paso": {
     "slug": "bilbao-paso-a-paso",
-    "apiId": 1032,
     "category": "dmc",
-    "contactName": "Garbiñe Naverán",
-    "contactRole": "CEO",
-    "address": "c/San Nicolás de Olabeaga, 62B posterior 48013 Bilbao. Bizkaia",
     "name": "BILBAO PASO A PASO"
   },
   "hotel-miro-bilbao": {
     "slug": "hotel-miro-bilbao",
-    "apiId": 1033,
     "category": "accommodation",
-    "contactName": "Estibaliz Egusquiza",
-    "contactRole": "Director of Sales & Marketing",
-    "address": "Alameda Mazarredo, 77 48009 Bilbao Bizkaia",
     "name": "Hotel Miro Bilbao"
   },
   "hotel-mercure-bilbao-jardines-de-albia": {
     "slug": "hotel-mercure-bilbao-jardines-de-albia",
-    "apiId": 1034,
     "category": "accommodation",
-    "contactName": "Sito Pons",
-    "contactRole": "General Manager",
-    "address": "SAN VICENTE 6 48001 BILBAO",
     "name": "Hotel Mercure Bilbao Jardines de Albia"
   },
   "aktiba": {
     "slug": "aktiba",
-    "apiId": 1035,
     "category": "activities",
-    "contactName": "Marina Estancona",
-    "contactRole": "Technical Office",
-    "address": "",
     "name": "Aktiba"
   },
   "hotel-zenit-bilbao": {
     "slug": "hotel-zenit-bilbao",
-    "apiId": 1036,
     "category": "accommodation",
-    "contactName": "Joseba Goirigolzarri",
-    "contactRole": "Hotel Manager",
-    "address": "Autonomia, 58 48012 Bilbao Bizkaia Basque Country",
     "name": "Hotel Zenit Bilbao"
   },
   "bizi-cycle-tours": {
     "slug": "bizi-cycle-tours",
-    "apiId": 1037,
     "category": "activities",
-    "contactName": "Ander Ortiz de Zarate",
-    "contactRole": "CEO",
-    "address": "Jardines de Gernika 13, 8C 48003, Bilbao (Vizcaya), SPAIN",
     "name": "Bizi Cycle Tours"
   },
   "nis-dmc": {
     "slug": "nis-dmc",
-    "apiId": 1038,
     "category": "dmc",
-    "contactName": "Chelo Escabias",
-    "contactRole": "Commercial Dpt",
-    "address": "BILBAO",
     "name": "NIS DMC"
   }
 }

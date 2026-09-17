@@ -122,7 +122,22 @@ const musts = [
 for (const m of musts) {
   if (!fs.existsSync(path.join(STAGE, m))) throw new Error('Falta ' + m + ' en el paquete');
 }
-if (pages.length < 39) throw new Error('Solo hay ' + pages.length + ' páginas de expositor');
+// Una página por expositor, ni una menos. Comparar contra la lista de datos y
+// no contra un número fijo: el directorio lo llena la plataforma según se
+// registran las empresas, así que cualquier cifra es legítima — incluido cero,
+// antes de la primera alta. Lo que nunca es legítimo es que no coincidan, que
+// es justo la señal de un paquete a medio construir.
+const listed = (
+  fs.readFileSync(path.join(STAGE, 'assets/js/data/exhibitors.js'), 'utf8')
+    .match(/^\s{4}id: /gm) || []
+).length;
+
+if (pages.length !== listed) {
+  throw new Error(
+    'Hay ' + listed + ' expositores en los datos pero ' + pages.length + ' páginas. ' +
+    'Ejecuta node tools/build-exhibitors.js'
+  );
+}
 if (fs.existsSync(path.join(STAGE, 'admin', 'admin-config.php'))) {
   throw new Error('La contraseña del panel no puede viajar en el paquete');
 }

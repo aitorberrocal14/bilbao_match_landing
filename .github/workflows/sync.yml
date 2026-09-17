@@ -143,7 +143,7 @@ jobs:
           test -f _site/assets/css/styles.css
           test -f _site/admin/index.html
           test ! -f _site/admin/admin-config.php
-          echo "Páginas de expositor: $(ls _site/exhibitors/*.html | wc -l)"
+          echo "Páginas de expositor: $(ls _site/exhibitors/*.html 2>/dev/null | wc -l)"
 
       - name: ¿Está configurado el hosting?
         if: steps.diff.outputs.changed == 'true'

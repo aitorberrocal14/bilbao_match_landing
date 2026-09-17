@@ -39,14 +39,26 @@ vm.createContext(sandbox);
 const MBB = sandbox.window.MBB;
 const BASE = '../'; // exhibitor pages live one folder down
 
+// The six icons the contact block of an exhibitor page uses. Exported rather
+// than copied into the PHP by hand, for the same reason as the chrome: one
+// source, so a change to an icon cannot leave the two renderers disagreeing.
+const ICON_KEYS = ['badge', 'briefcase', 'mail', 'phone', 'link', 'pin'];
+
+const icons = {};
+ICON_KEYS.forEach((k) => {
+  if (!MBB.icons[k]) throw new Error('Falta el icono ' + k + ' en components.js');
+  icons[k] = MBB.icons[k];
+});
+
 const chrome = {
   _readme:
-    'Generado por tools/build-chrome.js. La cabecera y el pie de las páginas de ' +
-    'expositor, tal y como los dibuja el sitio. server/sync.php los pega tal cual ' +
-    'para no tener que redibujarlos en PHP. No editar a mano.',
+    'Generado por tools/build-chrome.js. La cabecera, el pie y los iconos de las ' +
+    'páginas de expositor, tal y como los dibuja el sitio. server/sync.php los ' +
+    'pega tal cual para no tener que redibujarlos en PHP. No editar a mano.',
   base: BASE,
   header: MBB.Header(MBB.site, { base: BASE }),
-  footer: MBB.Footer(MBB.site, { base: BASE })
+  footer: MBB.Footer(MBB.site, { base: BASE }),
+  icons: icons
 };
 
 const outDir = path.join(ROOT, 'server');
@@ -55,7 +67,8 @@ const out = path.join(outDir, 'chrome.json');
 fs.writeFileSync(out, JSON.stringify(chrome, null, 2) + '\n');
 
 console.log(
-  'server/chrome.json — cabecera %d B, pie %d B',
+  'server/chrome.json — cabecera %d B, pie %d B, %d iconos',
   Buffer.byteLength(chrome.header),
-  Buffer.byteLength(chrome.footer)
+  Buffer.byteLength(chrome.footer),
+  ICON_KEYS.length
 );
