@@ -100,6 +100,20 @@ Ninguna debería llamarse como una persona ni ser compartida por todos.
 | Panel de edición de la web (`/admin/`) | Las personas que editen contenido |
 | Meetmaps | Quien gestione el evento |
 
+**No compartáis una sola cuenta del panel.** El hosting tiene una sección
+**Panel de acceso → Acceso independiente**, que permite dar acceso a personas
+concretas sin repartir la contraseña principal. Eso es lo que hay que usar:
+
+- Cada persona entra con lo suyo, y se le quita el acceso el día que cambia de
+  puesto sin tener que cambiar la contraseña a todos los demás.
+- Queda registro de quién hizo qué, que es justo lo que falta cuando algo se
+  rompe y nadie sabe por qué.
+- La cuenta principal queda para una o dos personas responsables, y no se usa a
+  diario.
+
+Hacerlo **antes** de que termine el contrato, no después: crear accesos requiere
+estar dentro.
+
 Si Bilbao Ekintza tiene gestor de contraseñas corporativo, ahí es donde van
 todas. Si no, un sobre cerrado con el responsable del área es mejor que un
 correo o un documento suelto.
