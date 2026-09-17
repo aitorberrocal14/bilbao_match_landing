@@ -66,7 +66,11 @@ jobs:
         env:
           MBB_API_URL: ${{ secrets.MBB_API_URL }}
           MBB_API_KEY: ${{ secrets.MBB_API_KEY }}
-          MBB_EVENT_ID: ${{ secrets.MBB_EVENT_ID }}
+          # El identificador de MATCHBILBAOBIZKAIA2026 en Meetmaps. No es un
+          # secreto —es un número de evento, no una credencial— así que vive
+          # aquí y no hay que crear un secreto para él. Si algún día cambia,
+          # un secreto o una variable con este nombre tiene preferencia.
+          MBB_EVENT_ID: ${{ secrets.MBB_EVENT_ID || vars.MBB_EVENT_ID || '15425' }}
         # La protección contra encogimiento está puesta a propósito: si la
         # plataforma responde con la mitad de expositores de los que hay
         # publicados, lo más probable es que algo haya ido mal en su lado, y
