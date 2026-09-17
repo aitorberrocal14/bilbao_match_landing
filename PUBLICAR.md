@@ -147,6 +147,52 @@ los cuatro.
 
 ---
 
+## Mientras la subida sea a mano: qué archivo toca cada cambio
+
+El sitio se edita en GitHub (o en el panel de `/admin/`) y se sube al hosting a
+mano. Casi nunca hay que subirlo entero: cada tipo de cambio toca un archivo
+concreto.
+
+Para bajarte un archivo de GitHub: entra en él y pulsa **Download raw file**,
+el icono de la flecha hacia abajo arriba a la derecha.
+
+| Qué has cambiado | Qué subes |
+|---|---|
+| Menú, portada, login, contacto, pie | `assets/js/data/site.js` |
+| Los textos de las secciones | `assets/js/data/content.js` |
+| El programa | `assets/js/data/programme.js` |
+| Los folletos | `assets/js/data/discover.js` |
+| Los expositores | `assets/js/data/exhibitors.js` |
+| Una foto o un logotipo | el archivo, a su carpeta de `assets/img/` |
+| Colores, tipografías, maquetación | `assets/css/styles.css` |
+
+Son archivos de entre 5 y 60 KB. Un cambio en el programa entero son 13 KB.
+
+> ⚠️ **Dos excepciones que llevan también las 39 fichas de expositor.**
+>
+> Las páginas de `exhibitors/` llevan la cabecera y el pie **escritos dentro**,
+> no los dibujan al vuelo como la portada. Así que si cambias algo del **menú,
+> del botón de Login o del pie**, o si **añades, quitas o editas una empresa**,
+> hay que volver a subir la carpeta `exhibitors` entera — una sola operación en
+> bloque, 39 archivos.
+>
+> Si solo cambias el programa, los folletos o los textos de las secciones, no
+> hace falta: esas partes solo existen en la portada.
+
+### Esto se puede acabar hoy mismo
+
+La subida a mano no es una condena: es la consecuencia de no haber configurado
+todavía tres secretos. **El proxy que bloquea el FTP está en la red de la
+oficina, no en el hosting** — y los servidores de GitHub no pasan por esa red.
+
+Con `FTP_HOST`, `FTP_USER` y `FTP_PASSWORD` en *Settings → Secrets and variables
+→ Actions*, cada cambio guardado en GitHub se publica solo, y la sincronización
+diaria de expositores también. Ver [`deploy.yml`](.github/workflows/deploy.yml).
+
+Si al probarlo el hosting rechaza la conexión, puede que limite el FTP por
+dirección IP. En ese caso se pide al hosting que permita el acceso, o se crea
+un usuario de FTP específico para esto.
+
 ## Después de publicar
 
 | Qué | Dónde |
