@@ -52,14 +52,45 @@ define('MBB_REPO', dirname(__DIR__));                  // el clon del repositori
 $argv = isset($argv) ? $argv : [];
 $DRY = in_array('--dry-run', $argv, true);
 
-/** La carpeta pública: la que se llama `www` y cuelga de la cuenta. */
-function web_root(): string
+/**
+ * A dónde se publica.
+ *
+ * Por defecto la carpeta pública de la cuenta. Pero mientras se prueba, la web
+ * vive en una subcarpeta —www/pruebasbilbaoekintza26— y conviene poder apuntar
+ * ahí sin mover el clon: el repositorio nunca debe estar dentro de la carpeta
+ * pública, porque eso deja `.git` descargable desde internet y con él todo el
+ * historial del proyecto.
+ *
+ * Se cambia con `web_dir` en config.php, o con --to en la línea de comandos.
+ */
+function web_root(array $conf, array $argv): string
 {
+    $i = array_search('--to', $argv, true);
+    if ($i !== false && isset($argv[$i + 1])) {
+        return rtrim($argv[$i + 1], '/');
+    }
+    if (!empty($conf['web_dir'])) {
+        return rtrim($conf['web_dir'], '/');
+    }
+
     $home = dirname(MBB_REPO);
     foreach ([$home . '/www', $home . '/public_html', $home . '/htdocs'] as $c) {
         if (is_dir($c)) { return $c; }
     }
     return '';
+}
+
+/** La configuración, si la hay. deploy.php funciona igual sin ella. */
+function read_config(): array
+{
+    $home = dirname(MBB_REPO);
+    foreach ([$home . '/config.php', MBB_REPO . '/server/config.php'] as $c) {
+        if (is_file($c)) {
+            $conf = require $c;
+            if (is_array($conf)) { return $conf; }
+        }
+    }
+    return [];
 }
 
 /**
@@ -126,7 +157,7 @@ say($antes === $ahora ? 'Sin commits nuevos (' . $ahora . ').' : 'De ' . $antes 
 
 /* --- 2. Comprobar antes de copiar ------------------------------------------- */
 
-$WEB = web_root();
+$WEB = web_root(read_config(), $argv);
 if ($WEB === '') {
     die_with('No se encuentra la carpeta pública junto a ' . dirname(MBB_REPO) . '.');
 }
