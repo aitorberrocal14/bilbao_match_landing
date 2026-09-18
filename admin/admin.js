@@ -437,6 +437,23 @@
           ]
         },
         {
+          h2: 'Botón “Add to calendar”',
+          fields: [
+            { t: 'note', html: '<p>De aquí salen los cuatro destinos del botón: Google Calendar, ' +
+              'Outlook, Office 365 y el archivo para Apple Calendar. Se escribe una vez y los ' +
+              'cuatro van solos.</p>' },
+            { t: 'row', fields: [
+              { t: 'text', k: 'site.event.calendar.start', label: 'Empieza',
+                hint: 'Con hora y desfase: <code>2026-10-06T09:00:00+02:00</code>. El <code>+02:00</code> es la hora de Bilbao en octubre.' },
+              { t: 'text', k: 'site.event.calendar.end', label: 'Termina',
+                hint: 'Mismo formato. Si una de las dos no se entiende, el botón no se dibuja.' }
+            ] },
+            { t: 'text', k: 'site.event.calendar.title', label: 'Título de la cita' },
+            { t: 'text', k: 'site.event.calendar.location', label: 'Lugar de la cita' },
+            { t: 'textarea', k: 'site.event.calendar.details', label: 'Descripción', rows: 2 }
+          ]
+        },
+        {
           h2: 'Titular',
           fields: [
             { t: 'text', k: 'site.hero.kicker', label: 'Línea superior' },

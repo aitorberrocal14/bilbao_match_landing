@@ -11,8 +11,7 @@
  *   4. The list is printed and copied to the clipboard — paste it back
  *
  * Each line is "Title | https://issuu.com/turismobilbao/docs/…", which is
- * exactly what assets/js/data/discover.js and the WordPress Brochures screen
- * need.
+ * exactly what assets/js/data/discover.js needs.
  */
 
 (function () {

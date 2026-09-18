@@ -8,13 +8,15 @@ node_modules/
 # The administration panel's password. Lives on the server only.
 admin/admin-config.php
 
-# Staging output. The two packages people actually download — the site and
-# the WordPress plugin — are committed instead of ignored: whoever publishes
-# this site cannot install Node to rebuild them, so a copy they can download
-# straight from the repository is worth more than a tidy history.
-dist/_subir/
-dist/web-de-prueba.zip
+# La copia de un solo archivo sí se versiona, aunque sea generada: quien
+# publique esta web no puede instalar Node para reconstruirla, así que una
+# copia descargable directamente del repositorio vale más que un historial
+# limpio.
 
 # El registro del sync, que lo escribe el servidor en cada ejecución.
 server/sync.log
 server/deploy.log
+
+# El candado que impide que deploy.php y sync.php se pisen. Lo crea el servidor
+# en la raíz del repositorio y está vacío; si se borra, se vuelve a crear solo.
+.turno

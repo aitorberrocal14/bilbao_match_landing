@@ -2,22 +2,13 @@
   "name": "Match Bilbao Bizkaia 2026",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
 
-  // Docker is only needed to run the WordPress test site
-  // (see wordpress/docker-compose.yml). The site itself needs nothing.
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
-
-  // 8080 — the static site.  8000 — the WordPress test site, when started.
-  "forwardPorts": [8080, 8000],
+  // El sitio no necesita nada: es HTML, CSS y JavaScript sueltos. Node sólo
+  // hace falta para las herramientas de tools/, que son de desarrollo.
+  "forwardPorts": [8080],
   "portsAttributes": {
     "8080": {
       "label": "Match Bilbao Bizkaia 2026",
       "onAutoForward": "openPreview"
-    },
-    "8000": {
-      "label": "WordPress (test)",
-      "onAutoForward": "notify"
     }
   },
 

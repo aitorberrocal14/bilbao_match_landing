@@ -20,7 +20,10 @@ return [
     // La user_key que emite Meetmaps. Pedidla de SOLO LECTURA: para mostrar el
     // directorio no hace falta más, y una clave que solo lee no puede causar
     // daño si algún día se filtra.
-    'api_key' => 'PON-AQUI-LA-USER-KEY',
+    //
+    // Si en vuestro config.php esta línea se llama 'api_key', también vale: es
+    // el nombre que tenía antes y se sigue aceptando. Es la misma clave.
+    'user_key' => 'PON-AQUI-LA-USER-KEY',
 
     // Los dos siguientes ya traen el valor correcto y normalmente no se tocan.
     'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',

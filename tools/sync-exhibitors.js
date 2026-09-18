@@ -388,5 +388,5 @@ function render(exhibitors, categories) {
 
   console.log('\nWrote %s', path.relative(ROOT, DATA));
   console.log('Now run: node tools/build-exhibitors.js && node tools/build-sitemap.js' +
-    ' && node tools/build-wp-seed.js && node tools/build-standalone.js');
+    ' && node tools/build-standalone.js');
 })().catch((err) => die(err && err.stack ? err.stack : String(err)));

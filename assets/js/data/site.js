@@ -14,13 +14,23 @@ window.MBB.site = {
     edition: '2026',
     dates: '6 – 10 October 2026',
     location: 'Bilbao · Bizkaia · Basque Country',
-    // Used for the "Add to calendar" link (ICS-free Google Calendar template).
-    calendarUrl:
-      'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=Match+Bilbao+Bizkaia+2026' +
-      '&dates=20261006T070000Z/20261010T160000Z' +
-      '&details=International+tourism+networking+event+in+Bilbao+Bizkaia.' +
-      '&location=Bilbao%2C+Bizkaia%2C+Basque+Country'
+
+    // La cita, en un solo sitio. De aquí se sacan solos los enlaces a Google
+    // Calendar, a Outlook, a Office 365 y el archivo .ics para Apple y para
+    // cualquier otro programa. Antes había una dirección de Google escrita a
+    // mano, que solo servía para Google y había que rehacer entera si cambiaba
+    // una hora.
+    //
+    // Las horas se escriben con su desfase (+02:00 es la hora de Bilbao en
+    // octubre), para que a quien lo abra desde otro país le caiga a la hora
+    // correcta y no a la suya.
+    calendar: {
+      title: 'Match Bilbao Bizkaia 2026',
+      details: 'International tourism networking event in Bilbao Bizkaia.',
+      location: 'Bilbao, Bizkaia, Basque Country',
+      start: '2026-10-06T09:00:00+02:00',
+      end: '2026-10-10T18:00:00+02:00'
+    }
   },
 
   /* --- Primary navigation ------------------------------------------------ */

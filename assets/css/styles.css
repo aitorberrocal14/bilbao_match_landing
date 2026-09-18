@@ -188,6 +188,78 @@ p:last-child { margin-bottom: 0; }
 .btn--lg { padding: 0.9rem 2.3rem; font-size: 0.92rem; }
 .btn .ico { width: 15px; height: 15px; }
 
+/* --- "Add to calendar": el botón con su menú -------------------------------
+   Es un <details>, así que se abre, se cierra y se maneja con el teclado sin
+   una sola línea de JavaScript. Lo único que hace el script es cerrarlo al
+   pulsar fuera, que es lo que espera cualquiera. */
+.cal { position: relative; display: inline-block; }
+.cal > summary { list-style: none; }
+.cal > summary::-webkit-details-marker { display: none; }
+.cal > summary::after {
+  content: "";
+  width: 0.42em;
+  height: 0.42em;
+  margin-left: 0.1rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform 0.25s var(--ease);
+}
+.cal[open] > summary::after { transform: translateY(0.1em) rotate(-135deg); }
+.cal > summary:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 3px; }
+
+/* Se la pone el script al bloque que contiene un menú abierto. Sin esto, los
+   bloques de debajo que todavía están entrando —y por tanto llevan transform—
+   se dibujan encima, y el menú se ve pero no se deja pulsar. */
+.cal-encima { position: relative; z-index: 60; }
+
+.cal__menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 15rem;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.13);
+  text-align: left;
+}
+.cal__menu a,
+.cal__menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  border-radius: 9px;
+  color: var(--grey-dark);
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.cal__menu small { display: block; font-size: 0.75rem; color: var(--grey-light); }
+.cal__menu a:focus-visible,
+.cal__menu button:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
+@media (hover: hover) {
+  .cal__menu a:hover,
+  .cal__menu button:hover { background: var(--bg-soft); color: var(--red); }
+  .cal__menu a:hover small,
+  .cal__menu button:hover small { color: var(--grey-dark); }
+}
+
+/* Pegado al borde derecho no cabe: el menú se abre hacia dentro. */
+@media (max-width: 560px) {
+  .cal, .cal > summary { display: flex; width: 100%; }
+  .cal__menu { left: 0; right: 0; min-width: 0; }
+}
+
 .link-red {
   color: var(--red);
   font-family: var(--font-head);

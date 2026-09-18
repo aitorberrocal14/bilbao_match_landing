@@ -1,7 +1,7 @@
 # Single-file build
 
-`match-bilbao-bizkaia-2026.html` is the whole site — landing page and the 39
-exhibitor pages — in one file, with the stylesheet, the scripts, the Bariol
+`match-bilbao-bizkaia-2026.html` is the whole site — the landing page and a
+view per exhibitor — in one file, with the stylesheet, the scripts, the Bariol
 fonts, the logos and the brochure covers inlined. Download it and open it: no
 server, no folder of assets, works offline.
 

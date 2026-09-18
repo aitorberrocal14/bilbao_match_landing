@@ -261,6 +261,78 @@ p:last-child { margin-bottom: 0; }
 .btn--lg { padding: 0.9rem 2.3rem; font-size: 0.92rem; }
 .btn .ico { width: 15px; height: 15px; }
 
+/* --- "Add to calendar": el botón con su menú -------------------------------
+   Es un <details>, así que se abre, se cierra y se maneja con el teclado sin
+   una sola línea de JavaScript. Lo único que hace el script es cerrarlo al
+   pulsar fuera, que es lo que espera cualquiera. */
+.cal { position: relative; display: inline-block; }
+.cal > summary { list-style: none; }
+.cal > summary::-webkit-details-marker { display: none; }
+.cal > summary::after {
+  content: "";
+  width: 0.42em;
+  height: 0.42em;
+  margin-left: 0.1rem;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform 0.25s var(--ease);
+}
+.cal[open] > summary::after { transform: translateY(0.1em) rotate(-135deg); }
+.cal > summary:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 3px; }
+
+/* Se la pone el script al bloque que contiene un menú abierto. Sin esto, los
+   bloques de debajo que todavía están entrando —y por tanto llevan transform—
+   se dibujan encima, y el menú se ve pero no se deja pulsar. */
+.cal-encima { position: relative; z-index: 60; }
+
+.cal__menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 15rem;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.13);
+  text-align: left;
+}
+.cal__menu a,
+.cal__menu button {
+  display: block;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0.6rem 0.8rem;
+  border-radius: 9px;
+  color: var(--grey-dark);
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.cal__menu small { display: block; font-size: 0.75rem; color: var(--grey-light); }
+.cal__menu a:focus-visible,
+.cal__menu button:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
+@media (hover: hover) {
+  .cal__menu a:hover,
+  .cal__menu button:hover { background: var(--bg-soft); color: var(--red); }
+  .cal__menu a:hover small,
+  .cal__menu button:hover small { color: var(--grey-dark); }
+}
+
+/* Pegado al borde derecho no cabe: el menú se abre hacia dentro. */
+@media (max-width: 560px) {
+  .cal, .cal > summary { display: flex; width: 100%; }
+  .cal__menu { left: 0; right: 0; min-width: 0; }
+}
+
 .link-red {
   color: var(--red);
   font-family: var(--font-head);
@@ -1574,13 +1646,23 @@ window.MBB.site = {
     edition: '2026',
     dates: '6 – 10 October 2026',
     location: 'Bilbao · Bizkaia · Basque Country',
-    // Used for the "Add to calendar" link (ICS-free Google Calendar template).
-    calendarUrl:
-      'https://calendar.google.com/calendar/render?action=TEMPLATE' +
-      '&text=Match+Bilbao+Bizkaia+2026' +
-      '&dates=20261006T070000Z/20261010T160000Z' +
-      '&details=International+tourism+networking+event+in+Bilbao+Bizkaia.' +
-      '&location=Bilbao%2C+Bizkaia%2C+Basque+Country'
+
+    // La cita, en un solo sitio. De aquí se sacan solos los enlaces a Google
+    // Calendar, a Outlook, a Office 365 y el archivo .ics para Apple y para
+    // cualquier otro programa. Antes había una dirección de Google escrita a
+    // mano, que solo servía para Google y había que rehacer entera si cambiaba
+    // una hora.
+    //
+    // Las horas se escriben con su desfase (+02:00 es la hora de Bilbao en
+    // octubre), para que a quien lo abra desde otro país le caiga a la hora
+    // correcta y no a la suya.
+    calendar: {
+      title: 'Match Bilbao Bizkaia 2026',
+      details: 'International tourism networking event in Bilbao Bizkaia.',
+      location: 'Bilbao, Bizkaia, Basque Country',
+      start: '2026-10-06T09:00:00+02:00',
+      end: '2026-10-10T18:00:00+02:00'
+    }
   },
 
   /* --- Primary navigation ------------------------------------------------ */
@@ -2625,10 +2707,164 @@ window.MBB = window.MBB || {};
       '<div class="section-head" data-reveal>' +
         '<h2 class="h-1">' + esc(intro.title) + '</h2>' +
         '<p class="lead measure">' + esc(intro.lead) + '</p>' +
-        '<p style="margin-top:1.5rem"><a class="btn" href="' + esc(site.event.calendarUrl) +
-          '" target="_blank" rel="noopener">Add to calendar</a></p>' +
+        '<p style="margin-top:1.5rem">' + MBB.CalendarButton(site.event.calendar) + '</p>' +
       '</div>' +
       '<div class="pillars" data-reveal style="--d:100ms">' + items + '</div>'
+    );
+  };
+
+
+  /* --- "Add to calendar": one date, four destinations --------------------- */
+  /**
+   * Cada programa de calendario tiene su propia manera de recibir una cita, y
+   * no hay ninguna que valga para todos. Así que se ofrecen las cuatro que
+   * cubren a casi todo el mundo y el visitante elige la suya, en vez de
+   * mandarles a todos a Google como hasta ahora.
+   *
+   * Los tres primeros son direcciones web: se abre el calendario del visitante
+   * con la cita ya rellenada y solo tiene que darle a guardar. El cuarto es un
+   * archivo .ics, que es el formato que entienden Apple Calendar, Thunderbird,
+   * Outlook de escritorio y prácticamente cualquier otro.
+   *
+   * @param {object} cal  site.event.calendar
+   */
+  MBB.calendarLinks = function (cal) {
+    // 2026-10-06T09:00:00+02:00 → 20261006T070000Z, que es lo que piden Google
+    // y el formato .ics. Se pasa por Date, así que el desfase se aplica solo.
+    function utc(iso) {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    var desde = utc(cal.start);
+    var hasta = utc(cal.end);
+    if (!desde || !hasta) return [];
+
+    var q = encodeURIComponent;
+
+    return [
+      {
+        label: 'Google Calendar',
+        href:
+          'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+          '&text=' + q(cal.title) +
+          '&dates=' + desde + '/' + hasta +
+          '&details=' + q(cal.details) +
+          '&location=' + q(cal.location)
+      },
+      {
+        label: 'Outlook',
+        href:
+          'https://outlook.live.com/calendar/0/deeplink/compose' +
+          '?path=/calendar/action/compose&rru=addevent' +
+          '&subject=' + q(cal.title) +
+          '&body=' + q(cal.details) +
+          '&location=' + q(cal.location) +
+          '&startdt=' + q(cal.start) +
+          '&enddt=' + q(cal.end)
+      },
+      {
+        label: 'Office 365',
+        href:
+          'https://outlook.office.com/calendar/0/deeplink/compose' +
+          '?path=/calendar/action/compose&rru=addevent' +
+          '&subject=' + q(cal.title) +
+          '&body=' + q(cal.details) +
+          '&location=' + q(cal.location) +
+          '&startdt=' + q(cal.start) +
+          '&enddt=' + q(cal.end)
+      },
+      {
+        // Un archivo, no un enlace. Y se escribe en el momento, desde estos
+        // mismos datos: si fuera un archivo guardado, el día que alguien
+        // cambiara una hora desde el panel los tres de arriba dirían una cosa
+        // y este otra, y nadie se enteraría hasta que alguien llegase tarde.
+        label: 'Apple Calendar',
+        archivo: true,
+        note: 'Also for Thunderbird and desktop Outlook'
+      }
+    ];
+  };
+
+  /**
+   * La cita entera en formato iCalendar, que es lo que entienden Apple
+   * Calendar, Thunderbird y el Outlook de escritorio.
+   *
+   * @param {object} cal  site.event.calendar
+   */
+  MBB.eventIcs = function (cal) {
+    function esc2(s) {
+      return String(s == null ? '' : s)
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    }
+
+    function utc(iso) {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    var desde = utc(cal.start);
+    if (!desde) return '';
+
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Match Bilbao Bizkaia//Event//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      // Identificador fijo: descargarlo dos veces actualiza la cita que ya se
+      // tenía en vez de dejar dos iguales en el calendario.
+      'UID:match-bilbao-bizkaia-' + desde + '@matchbilbaobizkaia.eus',
+      'DTSTAMP:' + utc(new Date().toISOString()),
+      'DTSTART:' + desde,
+      'DTEND:' + utc(cal.end),
+      'SUMMARY:' + esc2(cal.title),
+      'DESCRIPTION:' + esc2(cal.details),
+      'LOCATION:' + esc2(cal.location),
+      'END:VEVENT',
+      'END:VCALENDAR'
+      // Las líneas de un .ics acaban en CRLF, no en salto de línea a secas.
+    ].join('\r\n') + '\r\n';
+  };
+
+  /**
+   * El botón con su menú. Es un <details>: se abre y se cierra sin una línea de
+   * JavaScript, se maneja con el teclado desde el primer día y sigue
+   * funcionando aunque el navegador no ejecute scripts.
+   *
+   * @param {object} cal   site.event.calendar
+   * @param {object} opts  { base: prefijo para el archivo .ics }
+   */
+  MBB.CalendarButton = function (cal) {
+    var opciones = MBB.calendarLinks(cal);
+    if (!opciones.length) return '';
+
+    var items = opciones
+      .map(function (o) {
+        // El que descarga es un botón, no un enlace: no lleva a ninguna parte,
+        // hace algo. Y así el lector de pantalla lo anuncia por lo que es.
+        var dentro =
+          '<span>' + esc(o.label) + '</span>' +
+          (o.note ? '<small>' + esc(o.note) + '</small>' : '');
+
+        return o.archivo
+          ? '<li><button type="button" data-ics-event>' + dentro + '</button></li>'
+          : '<li><a href="' + esc(o.href) + '" target="_blank" rel="noopener">' +
+              dentro + '</a></li>';
+      })
+      .join('');
+
+    return (
+      '<details class="cal">' +
+        '<summary class="btn">' + ICONS.calendar + 'Add to calendar</summary>' +
+        '<ul class="cal__menu">' + items + '</ul>' +
+      '</details>'
     );
   };
 
@@ -3871,7 +4107,73 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
   }
 
   /* --------------------------------------------------------------------- */
-  /* 10. Boot                                                               */
+  /* 10. The "Add to calendar" menu                                         */
+  /* --------------------------------------------------------------------- */
+  /* El menú es un <details>: abrirlo, cerrarlo y recorrerlo con el teclado ya
+     funciona sin nosotros. Lo único que falta es que se cierre al pulsar fuera
+     o al darle a Escape, que es lo que cualquiera espera de un desplegable y
+     lo que <details> no hace por su cuenta. */
+  function initCalendarMenus() {
+    // Los bloques que aún están entrando llevan un `transform`, y un elemento
+    // transformado se dibuja por encima de uno que solo tiene z-index. Durante
+    // ese medio segundo el menú se veía, pero tres de sus cuatro opciones no se
+    // podían pulsar. Mientras está abierto, su bloque sube por encima de todo.
+    $all('details.cal').forEach(function (d) {
+      var bloque = d.closest('[data-reveal]') || d.parentElement;
+      if (!bloque) return;
+      // `toggle` no burbujea, así que se escucha en cada uno.
+      d.addEventListener('toggle', function () {
+        bloque.classList.toggle('cal-encima', d.open);
+      });
+    });
+
+    // El .ics se escribe aquí, en el momento de pulsar, desde los mismos datos
+    // que alimentan los otros tres destinos. No hay ningún archivo guardado que
+    // pueda quedarse diciendo una hora vieja.
+    $all('[data-ics-event]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var texto = MBB.eventIcs(MBB.site.event.calendar);
+        if (!texto) return;
+
+        var url = URL.createObjectURL(
+          new Blob([texto], { type: 'text/calendar;charset=utf-8' })
+        );
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'match-bilbao-bizkaia-2026.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        var menu = btn.closest('details.cal');
+        if (menu) menu.open = false;
+      });
+    });
+
+    function cerrarTodos(menos) {
+      $all('details.cal[open]').forEach(function (d) {
+        if (d !== menos) d.open = false;
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var dentro = e.target.closest ? e.target.closest('details.cal') : null;
+      cerrarTodos(dentro);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var abierto = $('details.cal[open]');
+      if (!abierto) return;
+      abierto.open = false;
+      var boton = $('summary', abierto);
+      if (boton) boton.focus();
+    });
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* 11. Boot                                                               */
   /* --------------------------------------------------------------------- */
   function boot() {
     initImageFallbacks();
@@ -3882,6 +4184,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     initVideos();
     initBrochures();
     initForms();
+    initCalendarMenus();
     initReveal();
   }
 

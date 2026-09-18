@@ -9,7 +9,6 @@
  * It writes assets/img/brochures/<id>.jpg at 800×1024 — the size the gallery
  * expects — replacing the stand-in covers. Then rebuild what you need:
  *
- *   node tools/build-wp-seed.js      # copies them into the plugin
  *   node tools/build-standalone.js   # refreshes the single-file version
  *
  * Requires poppler-utils (`apt-get install poppler-utils`, or `brew install
@@ -76,6 +75,6 @@ pdfs.forEach((file) => {
 
 console.log(
   '\nWrote %d covers into assets/img/brochures/.\n' +
-    'Now run: node tools/build-wp-seed.js && node tools/build-standalone.js',
+    'Now run: node tools/build-standalone.js',
   pdfs.length
 );

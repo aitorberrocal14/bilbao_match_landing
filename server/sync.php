@@ -216,13 +216,28 @@ function js_quote($s): string
 function load_config(): array
 {
     global $MBB_CONF, $FIXTURE;
-    if ($FIXTURE === null && empty($MBB_CONF['api_key'])) {
+
+    // Meetmaps a su clave la llama user_key. Aquí se aceptan los dos nombres,
+    // porque config.php se escribió pidiendo api_key y no tiene sentido que un
+    // archivo que ya funciona deje de funcionar por cambiarle el nombre a una
+    // línea. user_key manda si están las dos.
+    $clave = '';
+    if (!empty($MBB_CONF['user_key'])) {
+        $clave = (string) $MBB_CONF['user_key'];
+    } elseif (!empty($MBB_CONF['api_key'])) {
+        $clave = (string) $MBB_CONF['api_key'];
+    }
+
+    if ($FIXTURE === null && $clave === '') {
         die_with(
-            'No hay configuración, o le falta api_key. Crea config.php en la ' .
-            'carpeta de la cuenta (fuera de la web) — ver server/config-sample.php.'
+            'No hay configuración, o le falta la clave. En config.php debe haber ' .
+            "una línea 'user_key' => '...' con la clave de Meetmaps (también vale " .
+            "el nombre antiguo 'api_key'). El archivo va en la carpeta de la " .
+            'cuenta, fuera de la web — ver server/config-sample.php.'
         );
     }
-    return $MBB_CONF + [
+
+    return ['user_key' => $clave] + $MBB_CONF + [
         'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
         'event_id' => 15425,
     ];
@@ -242,7 +257,7 @@ function fetch_exhibitors(array $conf): array
     $payload = json_encode([
         'action'   => 'exhibitor_get_all',
         'event_id' => (int) $conf['event_id'],
-        'user_key' => (string) $conf['api_key'],
+        'user_key' => (string) $conf['user_key'],
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     $ch = curl_init($conf['api_url']);
@@ -649,6 +664,20 @@ say($DRY ? 'Ensayo: no se escribirá nada.' : 'Sincronizando desde la plataforma
 
 $raw = read_response(fetch_exhibitors($conf));
 
+/* El turno se coge aquí: después de hablar con la plataforma, que puede tardar,
+   y antes de escribir nada. Así el deploy no se queda esperando por una llamada
+   de red. En ensayo no hace falta, porque no se escribe. */
+require __DIR__ . '/turno.php';
+
+$TURNO = true;
+if (!$DRY) {
+    $TURNO = mbb_coger_turno('sync', 'say');
+    if ($TURNO === false) {
+        flush_log();
+        exit(0);                   // Le toca al deploy. Volvemos en la siguiente.
+    }
+}
+
 $local = read_local();
 $categories = $local['_categories'] ?? [
     ['id' => 'all',           'label' => 'All'],
@@ -772,4 +801,5 @@ if ($removed) { say('  ' . $removed . ' páginas retiradas.'); }
 write_sitemap($exhibitors, (string) ($conf['site_url'] ?? 'https://www.matchbilbaobizkaia.eus/'));
 
 say('Hecho: ' . count($exhibitors) . ' páginas de expositor y el sitemap.');
+mbb_soltar_turno($TURNO);
 flush_log();

@@ -418,7 +418,73 @@
   }
 
   /* --------------------------------------------------------------------- */
-  /* 10. Boot                                                               */
+  /* 10. The "Add to calendar" menu                                         */
+  /* --------------------------------------------------------------------- */
+  /* El menú es un <details>: abrirlo, cerrarlo y recorrerlo con el teclado ya
+     funciona sin nosotros. Lo único que falta es que se cierre al pulsar fuera
+     o al darle a Escape, que es lo que cualquiera espera de un desplegable y
+     lo que <details> no hace por su cuenta. */
+  function initCalendarMenus() {
+    // Los bloques que aún están entrando llevan un `transform`, y un elemento
+    // transformado se dibuja por encima de uno que solo tiene z-index. Durante
+    // ese medio segundo el menú se veía, pero tres de sus cuatro opciones no se
+    // podían pulsar. Mientras está abierto, su bloque sube por encima de todo.
+    $all('details.cal').forEach(function (d) {
+      var bloque = d.closest('[data-reveal]') || d.parentElement;
+      if (!bloque) return;
+      // `toggle` no burbujea, así que se escucha en cada uno.
+      d.addEventListener('toggle', function () {
+        bloque.classList.toggle('cal-encima', d.open);
+      });
+    });
+
+    // El .ics se escribe aquí, en el momento de pulsar, desde los mismos datos
+    // que alimentan los otros tres destinos. No hay ningún archivo guardado que
+    // pueda quedarse diciendo una hora vieja.
+    $all('[data-ics-event]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var texto = MBB.eventIcs(MBB.site.event.calendar);
+        if (!texto) return;
+
+        var url = URL.createObjectURL(
+          new Blob([texto], { type: 'text/calendar;charset=utf-8' })
+        );
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'match-bilbao-bizkaia-2026.ics';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        var menu = btn.closest('details.cal');
+        if (menu) menu.open = false;
+      });
+    });
+
+    function cerrarTodos(menos) {
+      $all('details.cal[open]').forEach(function (d) {
+        if (d !== menos) d.open = false;
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      var dentro = e.target.closest ? e.target.closest('details.cal') : null;
+      cerrarTodos(dentro);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      var abierto = $('details.cal[open]');
+      if (!abierto) return;
+      abierto.open = false;
+      var boton = $('summary', abierto);
+      if (boton) boton.focus();
+    });
+  }
+
+  /* --------------------------------------------------------------------- */
+  /* 11. Boot                                                               */
   /* --------------------------------------------------------------------- */
   function boot() {
     initImageFallbacks();
@@ -429,6 +495,7 @@
     initVideos();
     initBrochures();
     initForms();
+    initCalendarMenus();
     initReveal();
   }
 

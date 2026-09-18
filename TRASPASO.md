@@ -45,9 +45,9 @@ ser semanas de gestiones o directamente perder el dominio.
 
 Ahora mismo está en **`github.com/aitorberrocal14/bilbao_match_landing`**, una
 cuenta personal. Ahí está no solo la web publicada, sino todo lo que permite
-mantenerla: los scripts que regeneran las páginas de expositor, el plugin de
-WordPress, la sincronización con Meetmaps y el historial de por qué cada cosa
-está como está.
+mantenerla: los scripts que regeneran las páginas de expositor, los dos que el
+servidor ejecuta solo —el que publica y el que sincroniza con Meetmaps— y el
+historial de por qué cada cosa está como está.
 
 Hay dos salidas, según lo que Bilbao Ekintza quiera asumir:
 
@@ -136,7 +136,12 @@ Cuando esté decidido, esta sección recoge:
 - qué se puede cambiar desde ahí y qué no,
 - y qué hacer cuando algo no se puede cambiar desde ahí.
 
-**⟨pendiente de la decisión entre WordPress y el panel estático⟩**
+El panel de edición vive en `tu-web/admin/`. Se entra con la contraseña que
+está en el punto 5, se edita en formularios y se publica; no hace falta tocar
+GitHub ni conocerlo. Lo que se edita desde ahí son los textos, el programa, los
+folletos y los datos de contacto. Lo que **no** se edita desde ahí son los
+expositores: esos los escribe solo el servidor desde Meetmaps, y lo que se
+cambie en la plataforma aparece en la web en la siguiente vuelta.
 
 ---
 
@@ -156,12 +161,11 @@ Cuando esté decidido, esta sección recoge:
 1. Comprobar las cuatro titularidades del punto 1.
 2. Corregir las que estén a nombre personal. *Esto es lo más lento porque
    depende de terceros: empezar por aquí.*
-3. Decidir cómo se va a mantener la web (WordPress o panel estático).
-4. Dejarla funcionando de esa forma y con gente de la entidad entrando.
-5. Transferir el repositorio.
-6. Recrear los secretos de publicación, si procede.
-7. Entregar las contraseñas.
-8. Completar la sección 5 de este documento.
+3. Dejar el panel de edición funcionando y con gente de la entidad entrando.
+4. Transferir el repositorio.
+5. Recrear los secretos de publicación, si procede.
+6. Entregar las contraseñas.
+7. Completar la sección 5 de este documento.
 9. Comprobar, con la persona que se va todavía disponible, que alguien de
    Bilbao Ekintza hace un cambio de principio a fin sin ayuda.
 

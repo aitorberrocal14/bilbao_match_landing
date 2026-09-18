@@ -180,18 +180,8 @@ const out = path.join(ROOT, 'dist', 'match-bilbao-bizkaia-2026.html');
 fs.writeFileSync(out, html);
 
 // The same file, already carrying the name a web server looks for.
-//
-// Uploading this is the one route that needs no FTP client, no archive to
-// extract and no folders to create — which is the whole point of it on a
-// locked-down machine. Renaming a file afterwards is one more step in a clumsy
-// file manager, and one more thing to get wrong, so it arrives named.
-const ready = path.join(ROOT, 'dist', 'una-sola-pagina');
-fs.mkdirSync(ready, { recursive: true });
-fs.writeFileSync(path.join(ready, 'index.html'), html);
-
 console.log(
-  'Wrote %s and %s (%s MB)',
+  'Wrote %s (%s MB)',
   path.relative(ROOT, out),
-  path.relative(ROOT, path.join(ready, 'index.html')),
   (fs.statSync(out).size / 1048576).toFixed(2)
 );

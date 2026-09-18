@@ -86,7 +86,7 @@ if (!files.length) {
   await browser.close();
   console.log(
     '\nWrote %d covers into assets/img/brochures/.\n' +
-      'Now run: node tools/build-wp-seed.js && node tools/build-standalone.js',
+      'Now run: node tools/build-standalone.js',
     files.length
   );
 })();

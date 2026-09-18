@@ -48,19 +48,11 @@ Los documentos que importan, por orden:
    el servidor, paso a paso. Si algo hay que rehacer, se rehace con esto.
 3. **[`TRASPASO.md`](TRASPASO.md)** — a nombre de quién tiene que estar cada
    cuenta: dominio, hosting, Meetmaps, este repositorio.
-4. **[`PUBLICAR.md`](PUBLICAR.md)** — las otras formas de publicar la web, por
-   si alguna vez hace falta cambiar de alojamiento.
 
 Nada de este repositorio contiene contraseñas. La clave de Meetmaps y la del
 panel de edición viven solo en el servidor, fuera de la carpeta pública.
 
 ---
-
-## Publishing it
-
-[`PUBLICAR.md`](PUBLICAR.md) is the one to open at the hosting panel: the two
-ways to get the site live — WordPress, or the files — which to choose, and the
-steps for each, in Spanish.
 
 ## Handover
 
@@ -78,10 +70,6 @@ files and nothing else — never `index.html`, which holds no content — and
 publishes either straight to the server (PHP, password-protected) or by
 downloading the changed files to upload by FTP. See
 [`admin/README.md`](admin/README.md).
-
-There is also a **WordPress plugin** in `wordpress/`, for the same job on a
-WordPress install: exhibitors, brochures and programme as native post types, and
-every section as a shortcode. See [`wordpress/README.md`](wordpress/README.md).
 
 And a **single-file version** for review or handover:
 
@@ -103,8 +91,8 @@ domain as in a subdirectory.
 
 **GitHub Pages** is wired up in [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
 Enable it once — *Settings → Pages → Source: GitHub Actions* — and every push
-publishes. The workflow assembles only the site (the WordPress plugin and the
-build scripts stay out), stamps the address it is being published at into the
+publishes. The workflow assembles only the site (the build scripts stay out),
+stamps the address it is being published at into the
 canonical link, the sharing card and the sitemap, and refuses to deploy if the
 stylesheet, the sharing image or any of the 39 exhibitor pages are missing.
 
@@ -320,7 +308,7 @@ assets/
     data/site.js            Nav, hero, contact, footer, newsletter, login URL
     data/content.js         Event intro, Presentation of Bilbao, experts copy
     data/programme.js       Days → slots
-    data/exhibitors.js      39 exhibitors (contact block + profile text)
+    data/exhibitors.js      Exhibitors — written by server/sync.php from Meetmaps
     data/discover.js        Brochures + edition videos
     components.js           Pure render functions (data in → HTML out)
     main.js                 Mounting + interactions
@@ -328,17 +316,20 @@ assets/
     brand/ exhibitors/ brochures/ photos/
 tools/
   build-exhibitors.js       Generates exhibitors/*.html
+  build-site.js             Assembles just the site into a folder, for CI
   build-brochure-covers.js  Renders the brochure cover images
   build-standalone.js       Bundles everything into one shareable HTML file
   build-admin-standalone.js Same for the admin panel, to open with a double click
-  build-wp-css.js           Scopes the stylesheet for the WordPress plugin
-  build-wp-seed.js          Packages the content + images for the plugin
-  build-elementor-template.js  Builds the importable Elementor page template
   covers-from-pdf.js        Renders brochure covers from the real PDFs
   covers-from-images.js     Same, when the covers arrive as pictures
   issuu-links.js            Browser-console helper: collects the Issuu links
-wordpress/
-  match-bilbao-bizkaia/     WordPress plugin — see wordpress/README.md
+  verify/
+    site.js                 Opens the page in a browser and checks it, two widths
+    render-parity.php       Proves sync.php and components.js write the same HTML
+server/
+  deploy.php                Cron: git pull, then copy into the public folder
+  sync.php                  Cron: rewrites the exhibitors from Meetmaps
+  turno.php                 Stops those two from running over each other
 ```
 
 `index.html` holds no content: each section is an empty shell with a
@@ -372,8 +363,6 @@ node tools/build-exhibitors.js        # after editing data/exhibitors.js
 node tools/build-brochure-covers.js   # only to regenerate the cover images
 node tools/build-standalone.js        # one-file version for sharing
 node tools/build-admin-standalone.js  # one-file version of the admin panel
-node tools/build-wp-css.js            # WordPress stylesheet
-node tools/build-wp-seed.js           # WordPress content + images
 ```
 
 `build-brochure-covers.js` needs Playwright (`npm i -D playwright`); the other
@@ -446,7 +435,6 @@ the brochure id (`city-experience.pdf`, `coast.pdf`, …) and run:
 
 ```
 node tools/covers-from-pdf.js <folder>     # → assets/img/brochures/<id>.jpg
-node tools/build-wp-seed.js                # copies them into the plugin
 node tools/build-standalone.js             # refreshes the single-file version
 ```
 
@@ -495,10 +483,10 @@ photograph.
 - **Dates.** 6–10 October 2026. Participants arrive on Tuesday 6 and leave on
   Saturday 10; there is no programme on the last day, so the agenda covers four
   days, Tuesday 6 to Friday 9.
-- **Exhibitors.** The hero says 49, and 39 are in the grid. The remaining ten
-  are pending: send their name, category, logo, contact person, email, phone,
-  website, address and profile text and they go into the grid, their own pages
-  and the WordPress importer.
+- **Exhibitors.** The directory is empty on purpose. The 2026 companies come
+  from Meetmaps as they register: `server/sync.php` writes the grid, the
+  logos, a page per company and the sitemap, and the hero counts whatever is
+  there. Nothing is typed in by hand, and last year's list is not reused.
 - **Brochures.** More English titles are on the way, and the covers shipped
   here are stand-ins. See *Brochures* above.
 - **Categories.** The three categories of the current site are kept as they

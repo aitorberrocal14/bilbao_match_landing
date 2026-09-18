@@ -1,48 +1,44 @@
 /**
- * Packs exactly what belongs on the web server into
- * dist/web-para-subir.zip, ready to unzip and drop into the public folder.
+ * Monta en una carpeta exactamente lo que es la web, y nada más.
  *
- * The repository holds more than the site: the build scripts, the WordPress
- * plugin, the single-file copies, the git history. None of that should be on a
- * public server, and deciding what to leave out by hand — at an FTP client, at
- * speed, on a folder of 126 files — is exactly how a `tools/` folder ends up
- * published. So the decision is made once, here.
+ * El repositorio tiene más cosas que el sitio: los scripts de construcción, la
+ * copia de un solo archivo, la documentación, el historial de git. Nada de eso
+ * debe acabar en un servidor público, y decidir qué se deja fuera a mano, a
+ * toda prisa, sobre una carpeta de más de cien archivos, es exactamente como
+ * termina publicada una carpeta `tools/`. Así que la decisión se toma una vez,
+ * aquí.
  *
- * What goes in: index.html, assets/, exhibitors/, admin/, robots.txt,
- * sitemap.xml. The same list the deployment workflow uses.
+ * Lo que entra: index.html, assets/, exhibitors/, admin/, robots.txt y
+ * sitemap.xml. La misma lista que usa server/deploy.php en el servidor.
  *
- *   node tools/build-upload.js             → dist/web-para-subir.zip
- *   node tools/build-upload.js --dir _site → the same files, unzipped
- *   node tools/build-upload.js --test      → dist/web-de-prueba.zip
+ *   node tools/build-site.js --dir _site
+ *   node tools/build-site.js --dir _pruebas --test
  *
- * The deployment workflow uses `--dir`, so what a push publishes and what this
- * package contains are the same set by construction, not by two lists kept in
- * step by hand.
+ * Lo usan los flujos de GitHub, así que lo que se publica al hacer push y lo
+ * que dice esta lista son el mismo conjunto por construcción, no por dos
+ * listas que alguien mantiene en paralelo.
  *
- * `--test` is the same site, prepared to live somewhere temporary — a
- * subfolder, a subdomain — without competing with the real one. Every page
- * gets a noindex, robots.txt refuses everything and the sitemap is left out.
- * Two copies of the same site indexed at once is the one real cost of having a
- * staging copy, and it is entirely avoidable.
+ * `--test` es el mismo sitio preparado para vivir en algún sitio temporal —una
+ * subcarpeta, un subdominio— sin competir con el real. Cada página lleva un
+ * noindex, robots.txt lo rechaza todo y el sitemap se queda fuera. Dos copias
+ * del mismo sitio indexadas a la vez es el único coste real de tener una copia
+ * de pruebas, y es del todo evitable.
  */
 
 const fs = require('fs');
 const path = require('path');
-const { execFileSync } = require('child_process');
 
 const ROOT = path.join(__dirname, '..');
 
 const dirFlag = process.argv.indexOf('--dir');
 const outDir = dirFlag !== -1 ? process.argv[dirFlag + 1] : null;
-if (dirFlag !== -1 && !outDir) {
-  console.error('Uso: node tools/build-upload.js --dir <carpeta>');
+if (!outDir) {
+  console.error('Uso: node tools/build-site.js --dir <carpeta> [--test]');
   process.exit(1);
 }
 
 const isTest = process.argv.includes('--test');
-
-const STAGE = outDir ? path.resolve(ROOT, outDir) : path.join(ROOT, 'dist', '_subir');
-const ZIP = path.join(ROOT, 'dist', isTest ? 'web-de-prueba.zip' : 'web-para-subir.zip');
+const STAGE = path.resolve(ROOT, outDir);
 
 // Files at the root of the site, and whole folders that travel as they are.
 const FILES = ['index.html', 'robots.txt', 'sitemap.xml'];
@@ -144,25 +140,5 @@ if (fs.existsSync(path.join(STAGE, 'admin', 'admin-config.php'))) {
 
 /* --- Hand it over --------------------------------------------------------- */
 
-if (outDir) {
-  console.log('%s — %d páginas de expositor', outDir, pages.length);
-  return;
-}
-
-// -r recurse, -q quiet, -X drop the filesystem extras. Zipped from inside the
-// staging folder so the archive has no wrapper directory: unzipping it gives
-// index.html and the folders directly, which is what has to land in the
-// public folder of the hosting.
-fs.rmSync(ZIP, { force: true });
-execFileSync('zip', ['-rqX', ZIP, '.'], { cwd: STAGE });
-fs.rmSync(STAGE, { recursive: true, force: true });
-
-const count = execFileSync('unzip', ['-l', ZIP]).toString().trim().split('\n').pop();
-console.log(
-  'dist/%s — %s MB · %d páginas de expositor%s\n%s',
-  path.basename(ZIP),
-  (fs.statSync(ZIP).size / 1024 / 1024).toFixed(1),
-  pages.length,
-  isTest ? ' · sin indexar' : '',
-  count.trim()
-);
+console.log('%s — %d páginas de expositor%s', outDir, pages.length,
+  isTest ? ' · sin indexar' : '');

@@ -200,10 +200,164 @@ window.MBB = window.MBB || {};
       '<div class="section-head" data-reveal>' +
         '<h2 class="h-1">' + esc(intro.title) + '</h2>' +
         '<p class="lead measure">' + esc(intro.lead) + '</p>' +
-        '<p style="margin-top:1.5rem"><a class="btn" href="' + esc(site.event.calendarUrl) +
-          '" target="_blank" rel="noopener">Add to calendar</a></p>' +
+        '<p style="margin-top:1.5rem">' + MBB.CalendarButton(site.event.calendar) + '</p>' +
       '</div>' +
       '<div class="pillars" data-reveal style="--d:100ms">' + items + '</div>'
+    );
+  };
+
+
+  /* --- "Add to calendar": one date, four destinations --------------------- */
+  /**
+   * Cada programa de calendario tiene su propia manera de recibir una cita, y
+   * no hay ninguna que valga para todos. Así que se ofrecen las cuatro que
+   * cubren a casi todo el mundo y el visitante elige la suya, en vez de
+   * mandarles a todos a Google como hasta ahora.
+   *
+   * Los tres primeros son direcciones web: se abre el calendario del visitante
+   * con la cita ya rellenada y solo tiene que darle a guardar. El cuarto es un
+   * archivo .ics, que es el formato que entienden Apple Calendar, Thunderbird,
+   * Outlook de escritorio y prácticamente cualquier otro.
+   *
+   * @param {object} cal  site.event.calendar
+   */
+  MBB.calendarLinks = function (cal) {
+    // 2026-10-06T09:00:00+02:00 → 20261006T070000Z, que es lo que piden Google
+    // y el formato .ics. Se pasa por Date, así que el desfase se aplica solo.
+    function utc(iso) {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    var desde = utc(cal.start);
+    var hasta = utc(cal.end);
+    if (!desde || !hasta) return [];
+
+    var q = encodeURIComponent;
+
+    return [
+      {
+        label: 'Google Calendar',
+        href:
+          'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+          '&text=' + q(cal.title) +
+          '&dates=' + desde + '/' + hasta +
+          '&details=' + q(cal.details) +
+          '&location=' + q(cal.location)
+      },
+      {
+        label: 'Outlook',
+        href:
+          'https://outlook.live.com/calendar/0/deeplink/compose' +
+          '?path=/calendar/action/compose&rru=addevent' +
+          '&subject=' + q(cal.title) +
+          '&body=' + q(cal.details) +
+          '&location=' + q(cal.location) +
+          '&startdt=' + q(cal.start) +
+          '&enddt=' + q(cal.end)
+      },
+      {
+        label: 'Office 365',
+        href:
+          'https://outlook.office.com/calendar/0/deeplink/compose' +
+          '?path=/calendar/action/compose&rru=addevent' +
+          '&subject=' + q(cal.title) +
+          '&body=' + q(cal.details) +
+          '&location=' + q(cal.location) +
+          '&startdt=' + q(cal.start) +
+          '&enddt=' + q(cal.end)
+      },
+      {
+        // Un archivo, no un enlace. Y se escribe en el momento, desde estos
+        // mismos datos: si fuera un archivo guardado, el día que alguien
+        // cambiara una hora desde el panel los tres de arriba dirían una cosa
+        // y este otra, y nadie se enteraría hasta que alguien llegase tarde.
+        label: 'Apple Calendar',
+        archivo: true,
+        note: 'Also for Thunderbird and desktop Outlook'
+      }
+    ];
+  };
+
+  /**
+   * La cita entera en formato iCalendar, que es lo que entienden Apple
+   * Calendar, Thunderbird y el Outlook de escritorio.
+   *
+   * @param {object} cal  site.event.calendar
+   */
+  MBB.eventIcs = function (cal) {
+    function esc2(s) {
+      return String(s == null ? '' : s)
+        .replace(/\\/g, '\\\\')
+        .replace(/;/g, '\\;')
+        .replace(/,/g, '\\,')
+        .replace(/\r?\n/g, '\\n');
+    }
+
+    function utc(iso) {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return '';
+      return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    }
+
+    var desde = utc(cal.start);
+    if (!desde) return '';
+
+    return [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Match Bilbao Bizkaia//Event//EN',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      'BEGIN:VEVENT',
+      // Identificador fijo: descargarlo dos veces actualiza la cita que ya se
+      // tenía en vez de dejar dos iguales en el calendario.
+      'UID:match-bilbao-bizkaia-' + desde + '@matchbilbaobizkaia.eus',
+      'DTSTAMP:' + utc(new Date().toISOString()),
+      'DTSTART:' + desde,
+      'DTEND:' + utc(cal.end),
+      'SUMMARY:' + esc2(cal.title),
+      'DESCRIPTION:' + esc2(cal.details),
+      'LOCATION:' + esc2(cal.location),
+      'END:VEVENT',
+      'END:VCALENDAR'
+      // Las líneas de un .ics acaban en CRLF, no en salto de línea a secas.
+    ].join('\r\n') + '\r\n';
+  };
+
+  /**
+   * El botón con su menú. Es un <details>: se abre y se cierra sin una línea de
+   * JavaScript, se maneja con el teclado desde el primer día y sigue
+   * funcionando aunque el navegador no ejecute scripts.
+   *
+   * @param {object} cal   site.event.calendar
+   * @param {object} opts  { base: prefijo para el archivo .ics }
+   */
+  MBB.CalendarButton = function (cal) {
+    var opciones = MBB.calendarLinks(cal);
+    if (!opciones.length) return '';
+
+    var items = opciones
+      .map(function (o) {
+        // El que descarga es un botón, no un enlace: no lleva a ninguna parte,
+        // hace algo. Y así el lector de pantalla lo anuncia por lo que es.
+        var dentro =
+          '<span>' + esc(o.label) + '</span>' +
+          (o.note ? '<small>' + esc(o.note) + '</small>' : '');
+
+        return o.archivo
+          ? '<li><button type="button" data-ics-event>' + dentro + '</button></li>'
+          : '<li><a href="' + esc(o.href) + '" target="_blank" rel="noopener">' +
+              dentro + '</a></li>';
+      })
+      .join('');
+
+    return (
+      '<details class="cal">' +
+        '<summary class="btn">' + ICONS.calendar + 'Add to calendar</summary>' +
+        '<ul class="cal__menu">' + items + '</ul>' +
+      '</details>'
     );
   };
 

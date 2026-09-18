@@ -133,7 +133,7 @@ jobs:
 
       - name: Preparar lo que se publica
         if: steps.diff.outputs.changed == 'true'
-        run: node tools/build-upload.js --dir _site
+        run: node tools/build-site.js --dir _site
 
       - name: Comprobar que está entero
         if: steps.diff.outputs.changed == 'true'

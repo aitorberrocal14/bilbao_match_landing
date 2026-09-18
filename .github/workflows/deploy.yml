@@ -6,8 +6,8 @@ name: Publish the site to the hosting
 # moves a few kilobytes, not the whole 6 MB.
 #
 # What goes out is the folder — index.html, assets/, one page per exhibitor,
-# the sitemap and robots.txt — and not dist/, wordpress/ or tools/, which are
-# for handover, for WordPress and for building, and have no business on a
+# the sitemap and robots.txt — and not dist/ or tools/, which are
+# for handover and for building, and have no business on a
 # public server.
 #
 # ---------------------------------------------------------------------------
@@ -52,10 +52,10 @@ jobs:
 
       - name: Assemble what gets published
         # Staged into a clean folder rather than uploading the repository, so
-        # that .git, the build scripts and the WordPress plugin cannot reach the
+        # that .git and the build scripts cannot reach the
         # server even by accident. The same script builds the manual upload
         # package, so a push and a hand upload publish the same set of files.
-        run: node tools/build-upload.js --dir _site
+        run: node tools/build-site.js --dir _site
 
       - name: Check the site is whole
         # An upload that quietly lost the exhibitor pages or the stylesheet is
@@ -69,7 +69,7 @@ jobs:
           test -f _site/admin/index.html
           # The password must never travel with the site.
           test ! -f _site/admin/admin-config.php
-          # build-upload.js already refuses to produce a package whose page
+          # build-site.js already refuses to produce a package whose page
           # count disagrees with the exhibitor data, so by here that holds.
           # This just records the number in the log, where it is worth seeing.
           pages=$(ls _site/exhibitors/*.html 2>/dev/null | wc -l)

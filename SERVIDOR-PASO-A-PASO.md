@@ -333,6 +333,23 @@ lista de expositores está vacía; la sincronización la vuelve a llenar desde
 Meetmaps. Al revés, cada noche la web se quedaría sin expositores durante una
 hora.
 
+**Mientras se está trabajando en la web** conviene que las dos vayan más
+seguidas. Se pueden poner cada 15 minutos, pero **no en el mismo minuto**:
+
+| Comando | Minuto |
+|---|---|
+| `php /home/matchbilbaobizkaia/repo/server/deploy.php` | `*/15` |
+| `php /home/matchbilbaobizkaia/repo/server/sync.php` | `5,20,35,50` |
+
+Así la sincronización entra siempre cinco minutos después del despliegue. Si el
+panel no acepta la lista con comas, pon la sincronización en el minuto `5` y
+que se ejecute una vez por hora: para lo que hace, sobra.
+
+Aunque se solaparan, no romperían nada: los dos piden turno antes de escribir
+—`server/turno.php`— y el que llega y encuentra al otro dentro se espera, y si
+sigue ocupado se retira y vuelve en la siguiente vuelta. Lo dice en su registro.
+Pero es un seguro, no una excusa para ponerlas a la vez.
+
 ---
 
 # PARTE 6 · Cerrar el panel de edición

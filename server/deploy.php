@@ -94,8 +94,8 @@ function read_config(): array
 }
 
 /**
- * Lo que se publica. La misma lista que tools/build-upload.js, porque publicar
- * de dos maneras distintas acaba con dos webs distintas.
+ * Lo que se publica. Todo lo demás —documentación, herramientas, el historial
+ * de git— se queda en el repositorio y no llega nunca a la carpeta pública.
  */
 $FILES = ['index.html', 'robots.txt', 'sitemap.xml'];
 $DIRS  = ['assets', 'exhibitors', 'admin'];
@@ -172,7 +172,20 @@ foreach (['assets/css/styles.css', 'assets/js/main.js', 'admin/index.html'] as $
     if (!is_file(MBB_REPO . '/' . $f)) { die_with('Falta ' . $f . ' en el repositorio.'); }
 }
 
-/* --- 3. Copiar -------------------------------------------------------------- */
+/* --- 3. Coger el turno ------------------------------------------------------ */
+/* A partir de aquí se escribe en la carpeta pública, y sync.php escribe en la
+   misma. Uno de los dos espera. El git pull de arriba no hace falta protegerlo:
+   toca el repositorio, no la web. */
+
+require __DIR__ . '/turno.php';
+
+$TURNO = mbb_coger_turno('deploy', 'say');
+if ($TURNO === false) {
+    flush_log();
+    exit(0);                       // No es un error: le toca al otro, ya volverá.
+}
+
+/* --- 4. Copiar -------------------------------------------------------------- */
 
 $copiados = 0;
 $saltados = 0;
@@ -236,4 +249,5 @@ if ($DRY) {
     say('Recuerda: los expositores los repone sync.php, que debe ejecutarse después.');
 }
 
+mbb_soltar_turno($TURNO);
 flush_log();
