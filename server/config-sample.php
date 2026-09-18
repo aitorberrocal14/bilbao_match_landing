@@ -68,6 +68,24 @@ return [
         'field_ref' => 'PON-AQUI-EL-REF-DEL-CAMPO-LOGO',
     ],
 
+    // LA CATEGORÍA DEL DIRECTORIO.
+    // -------------------------------------------------------------------------
+    // El formulario pregunta «What kind of company are you?» y sus tres
+    // respuestas son las tres categorías de la web. Con este mapa la categoría
+    // llega sola y los filtros funcionan sin que nadie clasifique a mano.
+    //
+    // A la izquierda, la respuesta tal cual la ofrece el formulario. A la
+    // derecha, el id de la categoría en la web. Una respuesta que no esté aquí
+    // deja a la empresa bajo «All» y se nombra en el registro.
+    'categories_from' => [
+        'field_ref' => 'PON-AQUI-EL-REF-DE-LA-PREGUNTA',
+        'map' => [
+            'Accommodation'                         => 'accommodation',
+            'Basque DMC'                            => 'dmc',
+            'Boutique Experience in Bilbao Bizkaia' => 'activities',
+        ],
+    ],
+
     // La plataforma devuelve solo el nombre del archivo —«i20260918122516.png»—,
     // no su dirección. Aquí va la parte de delante, que hay que pedirle a
     // Meetmaps. Sin esto los logotipos no se descargan, y el sync lo dice con el

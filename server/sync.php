@@ -966,6 +966,109 @@ function mbb_solo_expositores(array $lista, array $conf)
 }
 
 /**
+ * Los filtros del directorio: su id y cómo se llaman en la web.
+ *
+ * Salen del mapa de `categories_from`, y eso no es un atajo: ese mapa ya dice
+ * qué respuesta del formulario es qué categoría, así que la etiqueta de la web
+ * es, palabra por palabra, la respuesta que eligió quien se inscribió. Se
+ * reconoce en el filtro sin tener que traducir nada.
+ *
+ * Y sobre todo, se dice en un solo sitio. Antes esta lista estaba escrita aquí
+ * Y en assets/js/data/exhibitors.js, y como el sync reescribe ese archivo, la
+ * de aquí ganaba siempre en silencio: cambiar la del repositorio no servía de
+ * nada y no había forma de saber por qué.
+ *
+ * `_categories` en exhibitors-local.json sigue mandando sobre todo lo demás,
+ * para el caso de querer una etiqueta distinta de la del formulario.
+ */
+function mbb_categorias(array $local, array $conf)
+{
+    if (isset($local['_categories']) && is_array($local['_categories']) && $local['_categories']) {
+        return $local['_categories'];
+    }
+
+    $mapa = isset($conf['categories_from']['map']) && is_array($conf['categories_from']['map'])
+        ? $conf['categories_from']['map'] : [];
+
+    if ($mapa) {
+        $lista = [['id' => 'all', 'label' => 'All']];
+        $vistos = [];
+        foreach ($mapa as $respuesta => $id) {
+            $id = (string) $id;
+            if ($id === '' || isset($vistos[$id])) { continue; }
+            $vistos[$id] = true;
+            $lista[] = ['id' => $id, 'label' => (string) $respuesta];
+        }
+        return $lista;
+    }
+
+    // Sin mapa y sin archivo local: los de siempre, para que la web no se quede
+    // sin filtros el primer día.
+    return [
+        ['id' => 'all',           'label' => 'All'],
+        ['id' => 'accommodation', 'label' => 'Accommodation'],
+        ['id' => 'dmc',           'label' => 'DMC'],
+        ['id' => 'activities',    'label' => 'Unique Activities'],
+    ];
+}
+
+/**
+ * La categoría del directorio, sacada de la respuesta del formulario.
+ *
+ * El formulario pregunta «What kind of company are you?» y ofrece tres
+ * respuestas que son las tres categorías de la web. Con el mapa de config.php
+ * cada respuesta se convierte en su categoría y el filtro funciona solo, sin
+ * que nadie asigne nada a mano empresa por empresa.
+ *
+ * Si una respuesta no está en el mapa se prueba con su versión simplificada
+ * —«Accommodation» → «accommodation»—, y si tampoco encaja se devuelve vacío:
+ * la empresa sale bajo «All» y su respuesta se nombra en el registro, que es
+ * mejor que colocarla por aproximación en la categoría equivocada.
+ *
+ * En config.php:
+ *
+ *     'categories_from' => [
+ *         'field_ref' => 'company_kind',
+ *         'map' => [
+ *             'Accommodation'                         => 'accommodation',
+ *             'Basque DMC'                            => 'dmc',
+ *             'Boutique Experience in Bilbao Bizkaia' => 'activities',
+ *         ],
+ *     ],
+ */
+function mbb_categoria_de(array $entry, array $conf, array $conocidas, &$sin_mapa)
+{
+    $regla = isset($conf['categories_from']) && is_array($conf['categories_from'])
+        ? $conf['categories_from'] : [];
+    $ref = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
+    if ($ref === '') { return ''; }
+
+    $respuesta = '';
+    foreach ((isset($entry['fields']) ? $entry['fields'] : []) as $campo) {
+        if (!is_array($campo)) { continue; }
+        if (mbb_plano(isset($campo['ref']) ? $campo['ref'] : '') !== mbb_plano($ref)) { continue; }
+        $respuesta = trim((string) (isset($campo['value']) ? $campo['value'] : ''));
+        break;
+    }
+    if ($respuesta === '') { return ''; }
+
+    $mapa = isset($regla['map']) && is_array($regla['map']) ? $regla['map'] : [];
+    foreach ($mapa as $desde => $hacia) {
+        if (mbb_plano($desde) === mbb_plano($respuesta)) {
+            return in_array($hacia, $conocidas, true) ? $hacia : '';
+        }
+    }
+
+    // Sin entrada en el mapa: se prueba con el nombre simplificado por si
+    // coincide de forma natural, y si no, se deja constancia de la respuesta.
+    $simple = slugify($respuesta);
+    if (in_array($simple, $conocidas, true)) { return $simple; }
+
+    $sin_mapa[$respuesta] = true;
+    return '';
+}
+
+/**
  * De dónde sale el logotipo de una empresa.
  *
  * Del campo del formulario que se diga en config.php, y de ninguna parte más.
@@ -1171,12 +1274,7 @@ if (!$DRY) {
 }
 
 $local = read_local();
-$categories = $local['_categories'] ?? [
-    ['id' => 'all',           'label' => 'All'],
-    ['id' => 'accommodation', 'label' => 'Accommodation'],
-    ['id' => 'dmc',           'label' => 'DMC'],
-    ['id' => 'activities',    'label' => 'Unique Activities'],
-];
+$categories = mbb_categorias($local, $conf);
 $known = array_column($categories, 'id');
 
 $visible = array_values(array_filter($raw, function ($e) { return !((int) (isset($e['hidden']) ? $e['hidden'] : 0)); }));
@@ -1190,6 +1288,7 @@ $exhibitors = [];
 $uncategorised = [];
 $pinned = [];
 $sin_base = [];   // tienen logotipo en la plataforma pero no sabemos de dónde bajarlo
+$sin_mapa = [];   // respuestas del formulario que no corresponden a ninguna categoría
 
 foreach ($visible as $entry) {
     $name = trim((string) ($entry['name'] ?? ''));
@@ -1213,7 +1312,11 @@ foreach ($visible as $entry) {
     }
     $logo = fetch_logo($url_logo, $id, $DRY) ?? existing_logo($id);
 
+    // Lo escrito a mano manda; si no hay nada, lo dice el formulario.
     $category = in_array($rec['category'] ?? '', $known, true) ? $rec['category'] : '';
+    if ($category === '') {
+        $category = mbb_categoria_de($entry, $conf, $known, $sin_mapa);
+    }
     if ($category === '') { $uncategorised[] = $name; }
 
     $web = trim((string) ($entry['web'] ?? ''));
@@ -1272,6 +1375,14 @@ if (!isset($conf['logo_from']['field_ref']) || trim((string) $conf['logo_from'][
     say("  Sin 'logo_from' en config.php no se descarga ningún logotipo. El formulario " .
         'pide dos imágenes —Photo, la cara de la persona, y Logo, la marca de la empresa— ' .
         'y hay que decir expresamente cuál es cuál. Mira los campos con --fields.');
+}
+
+// Una respuesta que no encaja en ninguna categoría no es un error del que se
+// inscribe: es que el mapa de config.php se ha quedado corto. Se nombra.
+if ($sin_mapa) {
+    say('  Respuestas del formulario sin categoría en config.php:');
+    foreach (array_keys($sin_mapa) as $r) { say('    "' . $r . '"'); }
+    say("    Añádelas a 'categories_from' => 'map'.");
 }
 
 if ($uncategorised) {

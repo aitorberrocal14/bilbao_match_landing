@@ -1,5 +1,5 @@
 {
-  "_readme": "Lo que la plataforma no devuelve. El sync lo pega encima de lo que llega de Meetmaps y nunca lo pisa.\n\nLas 39 fichas de la edición anterior se retiraron el 2026-09-17 junto con el directorio. De ellas se conserva SOLO la categoría, para que una empresa que vuelva a registrarse caiga sola en su sitio del filtro. No se conservan personas de contacto, cargos ni direcciones: eran datos personales de la edición pasada y no hay motivo para guardarlos.\n\nPara rellenar los campos que faltan de una empresa nueva, abre tools/exhibitor-details.html.",
+  "_readme": "Lo que la plataforma no devuelve. El sync lo pega encima de lo que llega de Meetmaps y nunca lo pisa.\n\nLas 39 fichas de la edición anterior se retiraron el 2026-09-17 junto con el directorio. De ellas se conserva SOLO la categoría, para que una empresa que vuelva a registrarse caiga sola en su sitio del filtro. No se conservan personas de contacto, cargos ni direcciones: eran datos personales de la edición pasada y no hay motivo para guardarlos.\n\nPara rellenar los campos que faltan de una empresa nueva, abre tools/exhibitor-details.html.\n\nLas etiquetas de _categories son, palabra por palabra, las respuestas de la pregunta \"What kind of company are you?\" del formulario de inscripción de Meetmaps. Quien se inscribe elige una y se reconoce después en el filtro de la web. Si esa pregunta cambia en el formulario, hay que cambiarlas aquí y también el mapa \"categories_from\" de config.php en el servidor. Los id son internos y no se tocan.",
   "_categories": [
     {
       "id": "all",
@@ -11,11 +11,11 @@
     },
     {
       "id": "dmc",
-      "label": "DMC"
+      "label": "Basque DMC"
     },
     {
       "id": "activities",
-      "label": "Unique Activities"
+      "label": "Boutique Experience in Bilbao Bizkaia"
     }
   ],
   "bodega-crusoe-treasure": {

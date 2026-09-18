@@ -19,11 +19,19 @@
 window.MBB = window.MBB || {};
 
 /* Categories as on the original site */
+// Las etiquetas son, palabra por palabra, las tres respuestas de la pregunta
+// «What kind of company are you?» del formulario de inscripción. Quien se
+// inscribe elige una y se reconoce después en el filtro de la web: si aquí
+// pusiera otra cosa, tendría que traducir mentalmente entre las dos.
+//
+// Los `id` son internos y no se tocan: los usa el sync para clasificar y las
+// direcciones para filtrar. Cambiar una etiqueta es seguro; cambiar un id
+// obliga a cambiarlo también en config.php del servidor.
 window.MBB.exhibitorCategories = [
   { id: 'all',           label: 'All' },
   { id: 'accommodation', label: 'Accommodation' },
-  { id: 'dmc',           label: 'DMC' },
-  { id: 'activities',    label: 'Unique Activities' }
+  { id: 'dmc',           label: 'Basque DMC' },
+  { id: 'activities',    label: 'Boutique Experience in Bilbao Bizkaia' }
 ];
 
 window.MBB.exhibitors = [];
