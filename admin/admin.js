@@ -84,7 +84,11 @@
     programme: clone(SRC.programme || {}),
     exhibitorCategories: clone(SRC.exhibitorCategories || []),
     exhibitors: clone(SRC.exhibitors || []),
-    discover: clone(SRC.discover || {})
+    discover: clone(SRC.discover || {}),
+    // Los vídeos viven en discover.js, junto a los folletos. Si no estuvieran
+    // aquí, el panel reescribiría ese archivo sin ellos y desaparecerían de la
+    // web en cuanto alguien pulsara Publicar.
+    editions: clone(SRC.editions || [])
   };
 
   var dirty = false;
@@ -143,11 +147,16 @@
       'removing an exhibitor the per-exhibitor pages have to be regenerated —\n' +
       'see the note on the Expositores screen of the panel.',
     'discover.js':
-      'DISCOVER — ENGLISH BROCHURES\n' +
+      'DISCOVER — BROCHURES AND EDITION VIDEOS\n' +
       '-----------------------------------------------------------------------------\n' +
-      'Each brochure shows its cover and opens either an Issuu reader (paste the\n' +
-      'normal Issuu link; it is turned into the embed URL automatically) or a\n' +
+      'Two things live here.\n\n' +
+      'BROCHURES. Each one shows its cover and opens either an Issuu reader (paste\n' +
+      'the normal Issuu link; it is turned into the embed URL automatically) or a\n' +
       'direct PDF download.\n\n' +
+      'EDITIONS. The videos under the presentation of the destination. Only the\n' +
+      'YouTube id is kept, and the player is loaded when someone presses play, so\n' +
+      'the page stays fast and sets no YouTube cookies on anyone who walks past.\n' +
+      'Leave `thumbnail` empty to use the still the video has on YouTube.\n\n' +
       'Written by the administration panel (admin/index.html).'
   };
 
@@ -157,7 +166,7 @@
     { name: 'content.js', keys: ['eventIntro', 'presentation', 'experts'] },
     { name: 'programme.js', keys: ['programme'] },
     { name: 'exhibitors.js', keys: ['exhibitorCategories', 'exhibitors'] },
-    { name: 'discover.js', keys: ['discover'] }
+    { name: 'discover.js', keys: ['discover', 'editions'] }
   ];
 
   function emit(file, state) {
@@ -344,6 +353,7 @@
       return { id: 'day-' + n, label: 'Day ' + n, date: '', dateISO: '', theme: '', summary: '', slots: [] };
     },
     'exhibitorCategories': function () { return { id: '', label: '' }; },
+    'editions': function () { return { youtubeId: '', title: '', caption: '', thumbnail: '' }; },
     'exhibitors': function () {
       return {
         id: '', name: '', category: '', logo: '',
@@ -821,6 +831,42 @@
                   { t: 'text', k: 'id', label: 'Identificador', width: 'mid' },
                   { t: 'text', k: 'label', label: 'Nombre visible', refresh: true }
                 ] }
+              ] }
+          ]
+        }
+      ]
+    },
+
+    /* ---------------------------------------------------------------- */
+    {
+      id: 'videos',
+      label: 'Vídeos',
+      title: 'Vídeos de ediciones anteriores',
+      lede: 'Los vídeos que se ven bajo la presentación del destino.',
+      cards: [
+        {
+          plain: true,
+          fields: [
+            { t: 'note', html: '<p>El vídeo no se sube aquí: se sube a YouTube y aquí se pone ' +
+              'su <b>identificador</b>, que es lo que va detrás de <code>watch?v=</code> en la ' +
+              'dirección. De <code>youtube.com/watch?v=kkrUeAfrWEY</code>, el identificador es ' +
+              '<code>kkrUeAfrWEY</code>.</p><p>El reproductor solo se carga cuando alguien le ' +
+              'da al play, así que la página va rápida y no se ponen cookies de YouTube a quien ' +
+              'solo pasa por delante.</p>' },
+            { t: 'rep', k: 'editions', label: 'Vídeos', itemLabel: 'Vídeo',
+              title: function (o) { return o.title || 'Vídeo sin título'; },
+              sub: function (o) { return o.youtubeId ? o.youtubeId : 'sin identificador'; },
+              fields: [
+                { t: 'text', k: 'title', label: 'Título', refresh: true },
+                { t: 'text', k: 'youtubeId', label: 'Identificador de YouTube', width: 'mid',
+                  refresh: true,
+                  hint: 'Solo el identificador, no la dirección entera. Vacío, el vídeo no se dibuja.' },
+                { t: 'textarea', k: 'caption', label: 'Pie', rows: 2 },
+                { t: 'image', k: 'thumbnail', label: 'Imagen de portada',
+                  hint: 'Opcional. Vacío, se usa la que tenga el vídeo en YouTube — que es lo ' +
+                    'recomendable, porque así se cambia en un solo sitio. Para poner otra, súbela ' +
+                    'a <code>assets/img/photos/</code> y escribe aquí su ruta. Apaisada, ' +
+                    '1280×720 o mayor.' }
               ] }
           ]
         }
