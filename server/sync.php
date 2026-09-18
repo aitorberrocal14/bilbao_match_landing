@@ -275,17 +275,21 @@ function fetch_exhibitors(array $conf): array
         'user_key' => (string) $conf['user_key'],
     ];
 
-    // Dos maneras de enviar lo mismo. Hay APIs de este estilo que esperan un
-    // cuerpo JSON y otras que esperan un formulario de toda la vida, y las que
-    // esperan formulario contestan justo "Request invalid" cuando les llega
-    // JSON, porque no encuentran los campos. Se prueba primero la documentada
-    // y, si la rechaza, la otra — y se dice en el registro cuál ha funcionado,
-    // para poder dejar sólo esa.
+    // El formulario va primero, y no por casualidad. Enviando lo mismo de las
+    // dos maneras, la plataforma contesta cosas distintas:
+    //
+    //   JSON        → 1 Request invalid   (ni encuentra los campos)
+    //   formulario  → 2 Unauthorized      (los lee, y rechaza la credencial)
+    //
+    // Es decir: lo que entiende es el formulario. El JSON se queda de reserva
+    // por si algún día cambian de opinión, pero probándolo primero lo único
+    // que se conseguía era que el registro enseñara el error inútil en vez del
+    // que dice la verdad.
     $intentos = [
-        ['nombre' => 'JSON', 'cuerpo' => json_encode($campos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-         'cabeceras' => ['Content-Type: application/json', 'Accept: application/json']],
         ['nombre' => 'formulario', 'cuerpo' => http_build_query($campos),
          'cabeceras' => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json']],
+        ['nombre' => 'JSON', 'cuerpo' => json_encode($campos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+         'cabeceras' => ['Content-Type: application/json', 'Accept: application/json']],
     ];
 
     if ($DEBUG) {
@@ -334,10 +338,24 @@ function fetch_exhibitors(array $conf): array
             return $json;
         }
 
+        // Una credencial rechazada no es un formato rechazado, y confundirlas
+        // manda a buscar donde no es. Si la plataforma ha entendido la
+        // petición y lo que no acepta es la clave, se para aquí: probar el
+        // otro formato no va a cambiar nada y sólo enturbia el registro.
+        $mensaje = ($json !== null && isset($json['error']['message']))
+            ? (string) $json['error']['message'] : '';
+        if ($json !== null && !empty($json['error']['code']) && mbb_es_credencial($mensaje)) {
+            die_with(
+                'La plataforma entendió la petición y rechazó la clave: "' . $mensaje . '". ' .
+                'Así que ni el formato ni el evento (' . (int) $conf['event_id'] . ') son el ' .
+                'problema. Pídele a Meetmaps una user_key habilitada para ese evento y para ' .
+                'la acción exhibitor_get_all, de solo lectura.'
+            );
+        }
+
         // Se guardan los dos, no solo el primero: cuando los formatos fallan
-        // por motivos distintos, el segundo suele ser el que dice la verdad
-        // ("Invalid user key" frente a un genérico "Request invalid"), y en el
-        // cron no hay nadie mirando para volver a lanzarlo con --debug.
+        // por motivos distintos, el segundo suele ser el que dice la verdad,
+        // y en el cron no hay nadie mirando para volver a lanzarlo con --debug.
         if ($json !== null && !empty($json['error']['code'])) {
             $fallos[] = $intento['nombre'] . ' → ' . $json['error']['code'] . ' ' .
                 (isset($json['error']['message']) ? $json['error']['message'] : '');
@@ -354,6 +372,16 @@ function fetch_exhibitors(array $conf): array
         'para este evento, o el evento no es el ' . (int) $conf['event_id'] . ', o la ' .
         'clave todavía no está activa. Ejecútalo con --debug para ver el detalle.'
     );
+}
+
+/** ¿La plataforma se está quejando de la credencial y no de la petición? */
+function mbb_es_credencial($mensaje)
+{
+    $m = strtolower($mensaje);
+    foreach (['unauthorized', 'user key', 'user_key', 'forbidden', 'permission', 'token'] as $pista) {
+        if (strpos($m, $pista) !== false) { return true; }
+    }
+    return false;
 }
 
 /** Cuánto mide la clave y cómo acaba. Nunca la clave. */
