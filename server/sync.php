@@ -19,6 +19,11 @@
  *
  *     php .../server/sync.php --dry-run --debug
  *
+ * Y si lo que se quiere saber es si la clave sirve para algo, esto pregunta por
+ * cada acción y dice cuáles acepta, sin escribir nada:
+ *
+ *     php .../server/sync.php --probe
+ *
  * Por qué vive aquí y no en GitHub
  * --------------------------------
  * Porque la web tiene que seguir funcionando cuando la persona que la montó ya
@@ -136,6 +141,12 @@ $ALLOW_SHRINK = in_array('--allow-shrink', $argv, true);
 // mide y sus cuatro últimos caracteres, que basta para saber si es la que se
 // pegó en config.php o se coló un espacio al copiarla.
 $DEBUG = in_array('--debug', $argv, true);
+
+// Pregunta a la plataforma por varias acciones y dice cuáles acepta. Sirve
+// para separar dos cosas que se confunden: una clave que no vale de una clave
+// que vale pero no tiene permiso para la acción que se le está pidiendo. No
+// escribe nada, ni en la web ni en el registro más allá del veredicto.
+$PROBE = in_array('--probe', $argv, true);
 
 // Repite una respuesta guardada en lugar de llamar a la plataforma. Sirve para
 // probar todo el recorrido —incluido lo que escribe y dónde— sin gastar una
@@ -301,18 +312,10 @@ function fetch_exhibitors(array $conf): array
     $fallos = [];
 
     foreach ($intentos as $n => $intento) {
-        $ch = curl_init($conf['api_url']);
-        curl_setopt_array($ch, [
-            CURLOPT_POST           => true,
-            CURLOPT_POSTFIELDS     => $intento['cuerpo'],
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 60,
-            CURLOPT_HTTPHEADER     => $intento['cabeceras'],
-        ]);
-        $body = curl_exec($ch);
-        $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $err  = curl_error($ch);
-        curl_close($ch);
+        $r = mbb_llamar($conf['api_url'], $intento['cuerpo'], $intento['cabeceras']);
+        $body = $r['body'];
+        $code = $r['code'];
+        $err  = $r['err'];
 
         if ($body === false) {
             // Esto no es que la petición no guste: es que no se llega. Probar
@@ -322,7 +325,7 @@ function fetch_exhibitors(array $conf): array
 
         if ($DEBUG) {
             say('  intento ' . ($n + 1) . ' (' . $intento['nombre'] . '): HTTP ' . $code);
-            say('  respuesta: ' . mbb_recorta((string) $body, 400));
+            say('  respuesta: ' . mbb_resumen_respuesta((string) $body));
         }
 
         $json = json_decode((string) $body, true);
@@ -372,6 +375,62 @@ function fetch_exhibitors(array $conf): array
         'para este evento, o el evento no es el ' . (int) $conf['event_id'] . ', o la ' .
         'clave todavía no está activa. Ejecútalo con --debug para ver el detalle.'
     );
+}
+
+/** Una llamada a la plataforma. Devuelve ['body'=>…, 'code'=>…, 'err'=>…]. */
+function mbb_llamar($url, $cuerpo, array $cabeceras)
+{
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $cuerpo,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 60,
+        CURLOPT_HTTPHEADER     => $cabeceras,
+    ]);
+    $body = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    return ['body' => $body, 'code' => $code, 'err' => $err];
+}
+
+/**
+ * Lo que se puede escribir en un registro sin cometer una imprudencia.
+ *
+ * Un error se imprime entero, porque no lleva datos de nadie y es justo lo que
+ * hace falta leer. Una respuesta CON registros no se imprime nunca: en cuanto
+ * se consulta la acción de asistentes, esos registros llevan nombres, apellidos,
+ * correos y teléfonos de personas. Un archivo de registro se lee, se descarga
+ * y se pega en un correo o en un chat sin pensarlo, y ahí ya no hay vuelta
+ * atrás. Así que de una respuesta con datos solo sale cuántos son.
+ */
+function mbb_resumen_respuesta($body)
+{
+    $json = json_decode((string) $body, true);
+    if (!is_array($json)) {
+        return 'no es JSON: ' . mbb_recorta((string) $body, 200);
+    }
+
+    $n = mbb_cuantos_registros($json);
+    if ($n === null) {
+        return mbb_recorta((string) $body, 400);          // sin registros: es un error
+    }
+
+    return $n . ' registros (contenido omitido a propósito: puede llevar datos personales)';
+}
+
+/** Cuántos registros trae una respuesta, o null si no trae ninguna lista. */
+function mbb_cuantos_registros(array $json)
+{
+    if (isset($json['results']) && is_array($json['results'])) {
+        return count($json['results']);                    // attendee_get_all
+    }
+    if (isset($json['body']['exhibitors']) && is_array($json['body']['exhibitors'])) {
+        return count($json['body']['exhibitors']);         // exhibitor_get_all
+    }
+    return null;
 }
 
 /** ¿La plataforma se está quejando de la credencial y no de la petición? */
@@ -770,9 +829,80 @@ function write_sitemap(array $exhibitors, $site)
     file_put_contents(MBB_WEB . '/sitemap.xml', $xml);
 }
 
+/* --- Sondeo ----------------------------------------------------------------- */
+
+/**
+ * Llama a varias acciones con la misma clave y cuenta qué contesta cada una.
+ *
+ * Es la única manera de distinguir "la clave no vale" de "la clave vale pero no
+ * para esto": las dos cosas se contestan igual, con un Unauthorized, y llevan a
+ * sitios distintos. Si una acción pasa y otra no, el problema son los permisos
+ * de la clave y no la clave.
+ *
+ * De las respuestas solo sale el veredicto y CUÁNTOS registros hay. Nunca el
+ * contenido: la acción de asistentes devuelve nombres, correos y teléfonos de
+ * personas, y un archivo de registro acaba pegado en un correo.
+ */
+function probe(array $conf)
+{
+    $acciones = ['exhibitor_get_all', 'attendee_get_all'];
+
+    say('Sondeo: se pregunta por cada acción y no se escribe nada.');
+    say('  evento: ' . (int) $conf['event_id'] .
+        ' · clave: ' . mbb_pista_clave((string) $conf['user_key']));
+
+    $alguna = false;
+
+    foreach ($acciones as $accion) {
+        $cuerpo = http_build_query([
+            'action'   => $accion,
+            'event_id' => (int) $conf['event_id'],
+            'user_key' => (string) $conf['user_key'],
+        ]);
+
+        $r = mbb_llamar($conf['api_url'], $cuerpo, [
+            'Content-Type: application/x-www-form-urlencoded',
+            'Accept: application/json',
+        ]);
+
+        if ($r['body'] === false) {
+            say('  ' . $accion . ' → no se ha podido contactar: ' . $r['err']);
+            continue;
+        }
+
+        $json = json_decode((string) $r['body'], true);
+        if (!is_array($json)) {
+            say('  ' . $accion . ' → HTTP ' . $r['code'] . ', no devolvió JSON');
+            continue;
+        }
+
+        if (!empty($json['error']['code'])) {
+            say('  ' . $accion . ' → RECHAZADA: ' . $json['error']['code'] . ' ' .
+                (isset($json['error']['message']) ? $json['error']['message'] : ''));
+            continue;
+        }
+
+        $n = mbb_cuantos_registros($json);
+        $alguna = true;
+        say('  ' . $accion . ' → ACEPTADA, ' .
+            ($n === null ? 'sin lista de registros' : $n . ' registros'));
+    }
+
+    say($alguna
+        ? 'La clave sirve. Si una acción pasa y otra no, es cuestión de permisos ' .
+          'de la clave, no de la clave.'
+        : 'Ninguna acción pasa: entonces es la clave, no los permisos por acción.');
+
+    flush_log();
+    exit(0);
+}
+
 /* --- Principal -------------------------------------------------------------- */
 
 $conf = load_config();
+
+if ($PROBE) { probe($conf); }
+
 say($DRY ? 'Ensayo: no se escribirá nada.' : 'Sincronizando desde la plataforma.');
 
 $raw = read_response(fetch_exhibitors($conf));
