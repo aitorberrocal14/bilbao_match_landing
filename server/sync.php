@@ -539,10 +539,12 @@ function mbb_de_asistente(array $a)
         // `description_of` espera la lista por idiomas del otro extremo. Aquí es
         // un texto plano, así que se envuelve igual y no hay dos caminos.
         'description'  => $texto === '' ? [] : [['lang' => 'en', 'description' => $texto]],
-        // `img` es el logotipo de la empresa, subido en la inscripción. Llega
-        // como nombre de archivo suelto, así que hay que saber de qué URL
-        // cuelga: eso es `img_base` en config.php.
-        'logo'         => trim((string) ($a['img'] ?? '')),
+        // OJO: `img` es la foto de perfil de la PERSONA, el avatar redondo del
+        // formulario. El logotipo de la empresa es otro campo distinto, y vive
+        // en `fields`. Se guardan los dos por separado a propósito: confundirlos
+        // publica la cara de alguien como si fuera la marca de su empresa.
+        'img'          => trim((string) ($a['img'] ?? '')),
+        'logo'         => '',
         'hidden'       => 0,
         'sort'         => 0,
         'contact_name' => $persona,
@@ -964,6 +966,34 @@ function mbb_solo_expositores(array $lista, array $conf)
 }
 
 /**
+ * De dónde sale el logotipo de una empresa.
+ *
+ * Del campo del formulario que se diga en config.php, y de ninguna parte más.
+ * El formulario de inscripción pide DOS imágenes —«Photo», que es la cara de
+ * quien se inscribe, y «Logo», que es la marca de su empresa— y la plataforma
+ * devuelve la primera en `img`, que es el campo estándar del perfil. Coger esa
+ * por comodidad significaría llenar el directorio de fotos de carnet, así que
+ * no hay ningún valor por defecto: o se nombra el campo, o no hay logotipo.
+ *
+ * En config.php:
+ *
+ *     'logo_from' => ['field_ref' => 'logo'],
+ */
+function mbb_logo_de(array $entry, array $conf)
+{
+    $regla = isset($conf['logo_from']) && is_array($conf['logo_from']) ? $conf['logo_from'] : [];
+    $ref   = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
+    if ($ref === '') { return ''; }
+
+    foreach ((isset($entry['fields']) ? $entry['fields'] : []) as $campo) {
+        if (!is_array($campo)) { continue; }
+        if (mbb_plano(isset($campo['ref']) ? $campo['ref'] : '') !== mbb_plano($ref)) { continue; }
+        return trim((string) (isset($campo['value']) ? $campo['value'] : ''));
+    }
+    return '';
+}
+
+/**
  * La dirección completa del logotipo, o cadena vacía si no se puede saber.
  *
  * La plataforma devuelve el nombre del archivo, no su dirección. Sin `img_base`
@@ -1176,8 +1206,9 @@ foreach ($visible as $entry) {
         $local[$found['key']] = $rec;
     }
 
-    $url_logo = mbb_url_logo(isset($entry['logo']) ? $entry['logo'] : '', $conf);
-    if ($url_logo === '' && trim((string) (isset($entry['logo']) ? $entry['logo'] : '')) !== '') {
+    $archivo_logo = mbb_logo_de($entry, $conf);
+    $url_logo = mbb_url_logo($archivo_logo, $conf);
+    if ($url_logo === '' && $archivo_logo !== '') {
         $sin_base[] = $name;
     }
     $logo = fetch_logo($url_logo, $id, $DRY) ?? existing_logo($id);
@@ -1233,6 +1264,14 @@ if ($sin_base) {
     foreach ($sin_base as $n) { say('    ' . $n); }
     say("    Falta 'img_base' en config.php: la dirección de la que cuelgan esas imágenes. " .
         'Pídesela a Meetmaps.');
+}
+
+// Y si no se ha dicho de qué campo sale el logotipo, tampoco se calla: sin eso
+// el directorio sale entero con iniciales en vez de marcas.
+if (!isset($conf['logo_from']['field_ref']) || trim((string) $conf['logo_from']['field_ref']) === '') {
+    say("  Sin 'logo_from' en config.php no se descarga ningún logotipo. El formulario " .
+        'pide dos imágenes —Photo, la cara de la persona, y Logo, la marca de la empresa— ' .
+        'y hay que decir expresamente cuál es cuál. Mira los campos con --fields.');
 }
 
 if ($uncategorised) {

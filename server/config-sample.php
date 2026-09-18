@@ -51,13 +51,27 @@ return [
         'values'    => ['Basque Supplier'],
     ],
 
-    // DE DÓNDE SE BAJAN LOS LOGOTIPOS.
+    // EL LOGOTIPO: DE QUÉ CAMPO SALE, Y DE DÓNDE SE BAJA.
     // -------------------------------------------------------------------------
-    // El campo `img` de cada inscripción es el logotipo de la empresa, pero la
-    // plataforma solo devuelve el nombre del archivo —«i20260918122516.png»—, no
-    // su dirección. Aquí va la parte de delante, que hay que pedirle a Meetmaps.
-    // Sin esto los logotipos no se descargan, y el sync lo dice en cada vuelta
-    // con el nombre de cada empresa afectada.
+    // El formulario de inscripción pide DOS imágenes y no son intercambiables:
+    //
+    //   · «Photo» — el avatar redondo. La CARA de quien se inscribe. La
+    //     plataforma la devuelve en `img`, que es el campo estándar del perfil.
+    //     No se publica nunca: el directorio es de empresas, no de personas.
+    //   · «Logo»  — la marca de la empresa. Es un campo propio del formulario y
+    //     llega dentro de `fields`, con su `ref`.
+    //
+    // Por eso hay que nombrar el campo expresamente. Sin esta línea no se baja
+    // ningún logotipo, y el sync lo dice en cada vuelta. Para ver los `ref` que
+    // existen:  php .../server/sync.php --fields
+    'logo_from' => [
+        'field_ref' => 'PON-AQUI-EL-REF-DEL-CAMPO-LOGO',
+    ],
+
+    // La plataforma devuelve solo el nombre del archivo —«i20260918122516.png»—,
+    // no su dirección. Aquí va la parte de delante, que hay que pedirle a
+    // Meetmaps. Sin esto los logotipos no se descargan, y el sync lo dice con el
+    // nombre de cada empresa afectada.
     'img_base' => '',
 
     // Opcional: limitar a ciertos estados de inscripción, p. ej. ['activated'].
