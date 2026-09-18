@@ -275,9 +275,14 @@ function render(exhibitors, categories) {
     'window.MBB = window.MBB || {};\n' +
     '\n' +
     '/* Categories as on the original site */\n' +
-    'window.MBB.exhibitorCategories = ' +
-    JSON.stringify(categories, null, 2).replace(/"([a-z]+)":/g, '$1:') +
-    ';\n\n' +
+    'window.MBB.exhibitorCategories = [\n' +
+    // Una por línea, como en el archivo escrito a mano: en varias líneas sus
+    // `id:` caen a la misma sangría que los de los expositores y desbaratan
+    // cualquier recuento que busque `^    id: `.
+    categories
+      .map((c) => '  { id: ' + quote(c.id) + ', label: ' + quote(c.label) + ' }')
+      .join(',\n') +
+    '\n];\n\n' +
     'window.MBB.exhibitors = [\n' +
     lines.join(',\n') +
     '\n];\n'

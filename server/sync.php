@@ -62,9 +62,58 @@ if (!function_exists('array_is_list')) {
     function array_is_list(array $a): bool { return $a === [] || array_keys($a) === range(0, count($a) - 1); }
 }
 
-/* --- Dónde está todo ------------------------------------------------------- */
+/* --- Dónde está todo -------------------------------------------------------
+   Esto no puede darse por hecho, y era un error real: `dirname(__DIR__)` es la
+   carpeta que contiene a `server/`, que es la web SOLO si este archivo está
+   dentro de la web. Cuando se ejecuta desde el clon del repositorio —que es lo
+   normal— esa carpeta es el clon, no la web publicada.
 
-define('MBB_WEB', dirname(__DIR__));                       // la carpeta pública
+   Escribir ahí habría tenido dos efectos, los dos malos: los expositores no
+   habrían aparecido nunca en la web, y el clon habría quedado modificado, con
+   lo que `git pull --ff-only` fallaría desde entonces y el despliegue se
+   rompería. Así que la carpeta pública se resuelve igual que en deploy.php:
+   del config primero, detectada después, y solo al final por vecindad. */
+
+define('MBB_HERE', __DIR__);
+
+/** Busca config.php subiendo desde aquí; devuelve [] si no hay. */
+function mbb_find_config()
+{
+    $dir = MBB_HERE;
+    for ($i = 0; $i < 5; $i++) {
+        $c = $dir . '/config.php';
+        if (is_file($c)) {
+            $conf = require $c;
+            if (is_array($conf)) { return $conf; }
+        }
+        $parent = dirname($dir);
+        if ($parent === $dir) { break; }
+        $dir = $parent;
+    }
+    return [];
+}
+
+$MBB_CONF = mbb_find_config();
+
+/** La carpeta pública: la del config, la que se llame `www`, o la vecina. */
+function mbb_web_root(array $conf)
+{
+    if (!empty($conf['web_dir']) && is_dir($conf['web_dir'])) {
+        return rtrim($conf['web_dir'], '/');
+    }
+    $dir = MBB_HERE;
+    for ($i = 0; $i < 5; $i++) {
+        foreach (['/www', '/public_html', '/htdocs'] as $n) {
+            if (is_dir($dir . $n)) { return $dir . $n; }
+        }
+        $parent = dirname($dir);
+        if ($parent === $dir) { break; }
+        $dir = $parent;
+    }
+    return dirname(MBB_HERE);
+}
+
+define('MBB_WEB', mbb_web_root($MBB_CONF));                // la carpeta pública
 define('MBB_DATA', MBB_WEB . '/assets/js/data/exhibitors.js');
 define('MBB_LOCAL', MBB_WEB . '/assets/js/data/exhibitors-local.json');
 define('MBB_LOGOS', MBB_WEB . '/assets/img/exhibitors');
@@ -74,6 +123,15 @@ define('MBB_CHROME', __DIR__ . '/chrome.json');
 $argv = $argv ?? [];
 $DRY = in_array('--dry-run', $argv, true);
 $ALLOW_SHRINK = in_array('--allow-shrink', $argv, true);
+
+// Repite una respuesta guardada en lugar de llamar a la plataforma. Sirve para
+// probar todo el recorrido —incluido lo que escribe y dónde— sin gastar una
+// llamada a la API ni depender de que la plataforma esté disponible.
+$FIXTURE = null;
+$i_fix = array_search('--fixture', $argv, true);
+if ($i_fix !== false && isset($argv[$i_fix + 1])) {
+    $FIXTURE = $argv[$i_fix + 1];
+}
 
 /* --- Salida ---------------------------------------------------------------- */
 
@@ -99,7 +157,10 @@ function die_with($message)
 function flush_log()
 {
     global $LOG;
-    $file = MBB_WEB . '/server/sync.log';
+    // Junto al script, no dentro de la web: cuando esto corre desde el clon,
+    // MBB_WEB es la carpeta publicada y crear un `server/` ahí dejaría el
+    // registro descargable desde internet.
+    $file = MBB_HERE . '/sync.log';
     // Solo las últimas 200 líneas: un registro que crece sin límite acaba
     // siendo un problema en lugar de una ayuda.
     $old = is_file($file) ? array_slice(file($file, FILE_IGNORE_NEW_LINES), -200) : [];
@@ -152,59 +213,32 @@ function js_quote($s): string
 
 /* --- 1. La respuesta de la plataforma -------------------------------------- */
 
-/**
- * La carpeta personal de la cuenta: la que contiene a `www`.
- *
- * No se puede contar los niveles hacia arriba desde la web, porque la web no
- * siempre está a la misma profundidad — hoy en www/pruebasbilbaoekintza26,
- * mañana en www a secas. Lo que sí es estable en este hosting es que la raíz
- * pública se llama `www` y cuelga de la carpeta de la cuenta.
- */
-function account_home(): string
-{
-    $dir = MBB_WEB;
-    for ($i = 0; $i < 6; $i++) {
-        if (basename($dir) === 'www') {
-            return dirname($dir);
-        }
-        $parent = dirname($dir);
-        if ($parent === $dir) { break; }   // se llegó a la raíz
-        $dir = $parent;
-    }
-    return dirname(MBB_WEB);               // sin `www`, el padre de la web
-}
-
 function load_config(): array
 {
-    // De fuera hacia dentro. La primera está fuera de la carpeta pública, que
-    // es donde debe estar: ninguna URL llega hasta ahí. Las otras son
-    // aceptables porque un .php se ejecuta en lugar de servirse, pero la
-    // primera es la buena.
-    $candidates = [
-        account_home() . '/config.php',
-        dirname(MBB_WEB) . '/config.php',
-        __DIR__ . '/config.php',
-    ];
-
-    foreach ($candidates as $candidate) {
-        if (is_file($candidate)) {
-            $conf = require $candidate;
-            if (is_array($conf) && !empty($conf['api_key'])) {
-                return $conf + [
-                    'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
-                    'event_id' => 15425,
-                ];
-            }
-        }
+    global $MBB_CONF, $FIXTURE;
+    if ($FIXTURE === null && empty($MBB_CONF['api_key'])) {
+        die_with(
+            'No hay configuración, o le falta api_key. Crea config.php en la ' .
+            'carpeta de la cuenta (fuera de la web) — ver server/config-sample.php.'
+        );
     }
-    die_with(
-        'No hay configuración. Crea ' . account_home() . '/config.php ' .
-        'con la clave dentro — ver server/config-sample.php.'
-    );
+    return $MBB_CONF + [
+        'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
+        'event_id' => 15425,
+    ];
 }
 
 function fetch_exhibitors(array $conf): array
 {
+    global $FIXTURE;
+    if ($FIXTURE !== null) {
+        if (!is_file($FIXTURE)) { die_with('No existe ' . $FIXTURE); }
+        say('Repitiendo ' . $FIXTURE);
+        $j = json_decode((string) file_get_contents($FIXTURE), true);
+        if (!is_array($j)) { die_with('El fixture no es JSON válido.'); }
+        return $j;
+    }
+
     $payload = json_encode([
         'action'   => 'exhibitor_get_all',
         'event_id' => (int) $conf['event_id'],
@@ -411,16 +445,15 @@ function render_data(array $exhibitors, array $categories): string
         $blocks[] = implode("\n", $out);
     }
 
-    $cats = json_encode($categories, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    $cats = preg_replace('/"([a-z]+)":/', '$1:', (string) $cats);
-    // json_encode indenta con 4 espacios; el sitio usa 2.
-    // El patrón solo captura múltiplos de cuatro espacios, así que la división
-    // es exacta; el cast está por strict_types, no por desconfianza.
-    $cats = preg_replace_callback(
-        '/^(    )+/m',
-        function ($m) { return str_repeat('  ', (int) (strlen($m[0]) / 4)); },
-        $cats
-    );
+    // Una categoría por línea, como en el archivo escrito a mano. Además de
+    // leerse mejor, evita un problema real: escritas en varias líneas, sus
+    // `id:` quedaban a la misma sangría que los de los expositores, y todo lo
+    // que cuenta expositores buscando `^    id: ` contaba cuatro de más.
+    $lineas = [];
+    foreach ($categories as $c) {
+        $lineas[] = '  { id: ' . js_quote($c['id']) . ', label: ' . js_quote($c['label']) . ' }';
+    }
+    $cats = "[\n" . implode(",\n", $lineas) . "\n]";
 
     return "/* =============================================================================\n"
         . "   EXHIBITORS\n"
