@@ -40,13 +40,15 @@ En el servidor hay dos tareas programadas y nada más:
 tocar nada de esto: se entra en `tu-web/admin/`, se edita en formularios y se
 publica. Ver [`admin/README.md`](admin/README.md).
 
-Los tres documentos que importan, por orden:
+Los documentos que importan, por orden:
 
-1. **[`SERVIDOR-PASO-A-PASO.md`](SERVIDOR-PASO-A-PASO.md)** — cómo está montado
+1. **[`CIERRE-DEL-TRASPASO.md`](CIERRE-DEL-TRASPASO.md)** — el estado final, qué
+   mantiene quién, y qué se puede cambiar sin ayuda técnica y qué no.
+2. **[`SERVIDOR-PASO-A-PASO.md`](SERVIDOR-PASO-A-PASO.md)** — cómo está montado
    el servidor, paso a paso. Si algo hay que rehacer, se rehace con esto.
-2. **[`TRASPASO.md`](TRASPASO.md)** — a nombre de quién tiene que estar cada
+3. **[`TRASPASO.md`](TRASPASO.md)** — a nombre de quién tiene que estar cada
    cuenta: dominio, hosting, Meetmaps, este repositorio.
-3. **[`PUBLICAR.md`](PUBLICAR.md)** — las otras formas de publicar la web, por
+4. **[`PUBLICAR.md`](PUBLICAR.md)** — las otras formas de publicar la web, por
    si alguna vez hace falta cambiar de alojamiento.
 
 Nada de este repositorio contiene contraseñas. La clave de Meetmaps y la del
