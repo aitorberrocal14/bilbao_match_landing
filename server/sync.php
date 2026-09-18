@@ -148,6 +148,10 @@ $DEBUG = in_array('--debug', $argv, true);
 // escribe nada, ni en la web ni en el registro más allá del veredicto.
 $PROBE = in_array('--probe', $argv, true);
 
+// Lista los campos del formulario de inscripción, para poder escribir la regla
+// que decide quién es expositor. No escribe nada.
+$FIELDS = in_array('--fields', $argv, true);
+
 // Repite una respuesta guardada en lugar de llamar a la plataforma. Sirve para
 // probar todo el recorrido —incluido lo que escribe y dónde— sin gastar una
 // llamada a la API ni depender de que la plataforma esté disponible.
@@ -264,6 +268,9 @@ function load_config(): array
     return ['user_key' => $clave] + $MBB_CONF + [
         'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
         'event_id' => 15425,
+        // Meetmaps ha confirmado que los datos de este evento viven en los
+        // asistentes, no en el módulo de expositores.
+        'action'   => 'attendee_get_all',
     ];
 }
 
@@ -281,22 +288,36 @@ function fetch_exhibitors(array $conf): array
     global $DEBUG;
 
     $campos = [
-        'action'   => 'exhibitor_get_all',
+        'action'   => (string) $conf['action'],
         'event_id' => (int) $conf['event_id'],
         'user_key' => (string) $conf['user_key'],
     ];
 
-    // El formulario va primero, y no por casualidad. Enviando lo mismo de las
-    // dos maneras, la plataforma contesta cosas distintas:
+    // `status` solo viaja si se ha pedido: en la documentación no es
+    // obligatorio, y mandarlo vacío es una forma tonta de que te lo rechacen.
+    // En multipart no caben arrays anidados, así que se numeran a mano.
+    $campos_planos = $campos;
+    if (!empty($conf['status']) && is_array($conf['status'])) {
+        $campos['status'] = $conf['status'];
+        foreach (array_values($conf['status']) as $i => $v) {
+            $campos_planos['status[' . $i . ']'] = (string) $v;
+        }
+    }
+
+    // Tres formas de mandar lo mismo, en el orden en que tiene sentido probarlas.
     //
-    //   JSON        → 1 Request invalid   (ni encuentra los campos)
-    //   formulario  → 2 Unauthorized      (los lee, y rechaza la credencial)
-    //
-    // Es decir: lo que entiende es el formulario. El JSON se queda de reserva
-    // por si algún día cambian de opinión, pero probándolo primero lo único
-    // que se conseguía era que el registro enseñara el error inútil en vez del
-    // que dice la verdad.
+    //   multipart   → lo que enseña el ejemplo de Postman de Meetmaps: en su
+    //                 pestaña Body está marcado "form-data", que es esto y no
+    //                 lo de abajo. Pasándole a cURL un array, lo compone solo
+    //                 con su boundary, que es exactamente lo que hace Postman.
+    //   formulario  → x-www-form-urlencoded. Distinto de multipart, aunque PHP
+    //                 llene $_POST con los dos. Llegó a evaluar la clave, así
+    //                 que la plataforma lo entiende; se queda de respaldo.
+    //   JSON        → contestó "Request invalid", ni encuentra los campos. Va
+    //                 el último y está de puro descarte.
     $intentos = [
+        ['nombre' => 'multipart', 'cuerpo' => $campos_planos,
+         'cabeceras' => ['Accept: application/json']],
         ['nombre' => 'formulario', 'cuerpo' => http_build_query($campos),
          'cabeceras' => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json']],
         ['nombre' => 'JSON', 'cuerpo' => json_encode($campos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
@@ -472,14 +493,61 @@ function read_response(array $payload): array
         );
     }
 
-    $list = $payload['body']['exhibitors'] ?? null;
-    if (is_array($list) && !array_is_list($list)) {
-        $list = array_values($list);
+    // Dos acciones, dos envoltorios. El resto del proceso no se entera.
+    $list = null;
+    if (isset($payload['results']) && is_array($payload['results'])) {
+        $list = array_map('mbb_de_asistente', array_values($payload['results']));
+    } elseif (isset($payload['body']['exhibitors']) && is_array($payload['body']['exhibitors'])) {
+        $list = array_values($payload['body']['exhibitors']);
     }
+
     if (!is_array($list)) {
-        die_with('La respuesta no traía la lista de expositores (body.exhibitors).');
+        die_with('La respuesta no traía ninguna lista (ni results ni body.exhibitors).');
     }
     return $list;
+}
+
+/**
+ * Traduce la ficha de un asistente a la forma que espera el resto del archivo.
+ *
+ * Aquí hay una decisión de fondo: lo que se publica es la EMPRESA, no la
+ * persona. El nombre del directorio sale de `company`; quien se inscribió sale
+ * solo como persona de contacto de esa empresa, que es el papel que tiene en
+ * una feria profesional. Una ficha sin empresa no es una empresa, y se cae sola
+ * más abajo porque se queda sin nombre.
+ */
+function mbb_de_asistente(array $a)
+{
+    $persona = trim(trim((string) ($a['name'] ?? '')) . ' ' . trim((string) ($a['last_name'] ?? '')));
+
+    // El correo de contacto si lo hay; el de la cuenta solo como respaldo.
+    $correo = trim((string) ($a['contact_email'] ?? ''));
+    if ($correo === '') { $correo = trim((string) ($a['email'] ?? '')); }
+
+    $texto = trim((string) ($a['description'] ?? ''));
+
+    return [
+        'id_exhibitor' => isset($a['id']) ? $a['id'] : null,
+        'name'         => trim((string) ($a['company'] ?? '')),
+        'web'          => trim((string) ($a['web'] ?? '')),
+        'email'        => $correo,
+        'phone'        => trim((string) ($a['phone'] ?? '')),
+        'linkedin'     => (string) ($a['linkedin'] ?? ''),
+        'twitter'      => (string) ($a['twitter'] ?? ''),
+        'facebook'     => (string) ($a['facebook'] ?? ''),
+        'instagram'    => (string) ($a['instagram'] ?? ''),
+        // `description_of` espera la lista por idiomas del otro extremo. Aquí es
+        // un texto plano, así que se envuelve igual y no hay dos caminos.
+        'description'  => $texto === '' ? [] : [['lang' => 'en', 'description' => $texto]],
+        // Los asistentes no traen logotipo. Sale del archivo local, como el
+        // resto de lo que la plataforma no sabe.
+        'logo'         => '',
+        'hidden'       => 0,
+        'sort'         => 0,
+        'contact_name' => $persona,
+        'contact_role' => trim((string) ($a['position'] ?? '')),
+        'fields'       => isset($a['fields']) && is_array($a['fields']) ? $a['fields'] : [],
+    ];
 }
 
 /** El texto en inglés, o el que haya. Devuelve párrafos ya limpios de HTML. */
@@ -829,6 +897,127 @@ function write_sitemap(array $exhibitors, $site)
     file_put_contents(MBB_WEB . '/sitemap.xml', $xml);
 }
 
+/* --- Quién sale publicado y quién no ---------------------------------------- */
+
+/**
+ * De todos los inscritos, ¿cuáles son empresas expositoras?
+ *
+ * Esta es la función que separa un directorio profesional de una filtración.
+ * `attendee_get_all` devuelve a TODO el que se ha inscrito: las empresas vascas
+ * que exponen, pero también los compradores internacionales y la prensa. Los
+ * primeros se inscriben para que les encuentren; los segundos, para asistir. Su
+ * nombre, su correo y su teléfono no tienen por qué acabar en una página
+ * pública, y esto lo paga una entidad pública.
+ *
+ * Por eso no hay un valor por defecto que publique a alguien. Sin la regla
+ * escrita en config.php esto no publica a nadie y lo dice. Un directorio vacío
+ * se arregla en cinco minutos; un directorio con los datos de quien no tocaba,
+ * no se arregla: ya está indexado.
+ *
+ * En config.php:
+ *
+ *     'exhibitors_from' => [
+ *         'field_ref' => 'tipo_de_empresa',      // el `ref` que llega en fields[]
+ *         'values'    => ['Basque Supplier'],    // lo que significa "expositor"
+ *     ],
+ */
+function mbb_solo_expositores(array $lista, array $conf)
+{
+    $regla = isset($conf['exhibitors_from']) && is_array($conf['exhibitors_from'])
+        ? $conf['exhibitors_from'] : [];
+
+    $ref     = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
+    $valores = isset($regla['values']) && is_array($regla['values']) ? $regla['values'] : [];
+
+    if ($ref === '' || !$valores) {
+        die_with(
+            'No hay regla que diga quién es expositor, así que no se publica a nadie. ' .
+            'La acción attendee_get_all devuelve a todos los inscritos —también a los ' .
+            'compradores y a la prensa— y publicar sus datos sería una brecha. Añade a ' .
+            "config.php:  'exhibitors_from' => ['field_ref' => '<el ref del campo>', " .
+            "'values' => ['<el valor que significa expositor>']].  Para ver qué campos " .
+            'existen: php sync.php --fields'
+        );
+    }
+
+    // Se comparan en minúsculas y sin espacios sobrantes: nadie se queda fuera
+    // del directorio porque el formulario guardara "Basque supplier " con una
+    // mayúscula distinta.
+    $buscados = array_map('mbb_plano', $valores);
+
+    $dentro = [];
+    foreach ($lista as $e) {
+        foreach ((isset($e['fields']) ? $e['fields'] : []) as $campo) {
+            if (!is_array($campo)) { continue; }
+            $r = mbb_plano(isset($campo['ref']) ? $campo['ref'] : '');
+            if ($r !== mbb_plano($ref)) { continue; }
+            if (in_array(mbb_plano(isset($campo['value']) ? $campo['value'] : ''), $buscados, true)) {
+                $dentro[] = $e;
+                break;
+            }
+        }
+    }
+
+    say('  ' . count($dentro) . ' de ' . count($lista) . ' inscritos son expositores.');
+    return $dentro;
+}
+
+/** Minúsculas y sin espacios en los bordes, para comparar sin sorpresas. */
+function mbb_plano($v)
+{
+    return trim(mb_strtolower((string) $v, 'UTF-8'));
+}
+
+/**
+ * Enseña qué campos de inscripción existen, para poder escribir la regla.
+ *
+ * Los nombres de los campos no son datos personales, así que se listan todos.
+ * Los VALORES solo salen si son pocos y repetidos, que es como se comporta una
+ * pregunta de opción múltiple. Si hay muchos distintos es un campo de texto
+ * libre —un cargo, una dirección, un comentario— y ahí sí puede haber datos de
+ * personas, así que se dice cuántos hay y no se imprime ninguno.
+ */
+function campos(array $conf)
+{
+    $lista = read_response(fetch_exhibitors($conf));
+
+    $por_ref = [];
+    foreach ($lista as $e) {
+        foreach ((isset($e['fields']) ? $e['fields'] : []) as $campo) {
+            if (!is_array($campo) || !isset($campo['ref'])) { continue; }
+            $r = (string) $campo['ref'];
+            if (!isset($por_ref[$r])) { $por_ref[$r] = []; }
+            $v = trim((string) (isset($campo['value']) ? $campo['value'] : ''));
+            if ($v !== '') { $por_ref[$r][] = $v; }
+        }
+    }
+
+    say(count($lista) . ' inscritos. Campos del formulario:');
+    if (!$por_ref) {
+        say('  Ninguno. Sin un campo que los distinga no hay forma de saber quién ' .
+            'es expositor: habrá que añadir esa pregunta al formulario de inscripción.');
+    }
+
+    foreach ($por_ref as $ref => $valores) {
+        $distintos = array_values(array_unique($valores));
+        if (count($distintos) <= 12) {
+            $cuenta = array_count_values($valores);
+            $partes = [];
+            foreach ($cuenta as $v => $n) { $partes[] = '"' . $v . '" (' . $n . ')'; }
+            say('  ' . $ref . ' → ' . implode(', ', $partes));
+        } else {
+            say('  ' . $ref . ' → ' . count($distintos) . ' valores distintos. ' .
+                'Parece texto libre, así que no se imprimen: pueden ser datos personales.');
+        }
+    }
+
+    say('Elige el campo que separa expositores de compradores y escríbelo en ' .
+        "config.php como 'exhibitors_from'.");
+
+    flush_log();
+    exit(0);
+}
+
 /* --- Sondeo ----------------------------------------------------------------- */
 
 /**
@@ -854,16 +1043,13 @@ function probe(array $conf)
     $alguna = false;
 
     foreach ($acciones as $accion) {
-        $cuerpo = http_build_query([
+        // Multipart, como el ejemplo de Postman: si el sondeo usara otro
+        // formato, su veredicto no diría nada sobre el sync de verdad.
+        $r = mbb_llamar($conf['api_url'], [
             'action'   => $accion,
             'event_id' => (int) $conf['event_id'],
             'user_key' => (string) $conf['user_key'],
-        ]);
-
-        $r = mbb_llamar($conf['api_url'], $cuerpo, [
-            'Content-Type: application/x-www-form-urlencoded',
-            'Accept: application/json',
-        ]);
+        ], ['Accept: application/json']);
 
         if ($r['body'] === false) {
             say('  ' . $accion . ' → no se ha podido contactar: ' . $r['err']);
@@ -901,11 +1087,18 @@ function probe(array $conf)
 
 $conf = load_config();
 
-if ($PROBE) { probe($conf); }
+if ($PROBE)  { probe($conf); }
+if ($FIELDS) { campos($conf); }
 
 say($DRY ? 'Ensayo: no se escribirá nada.' : 'Sincronizando desde la plataforma.');
 
 $raw = read_response(fetch_exhibitors($conf));
+
+// El corte se hace aquí, lo primero, antes de tocar un logotipo o escribir una
+// línea: lo que no pase por aquí no existe para el resto del archivo.
+if ((string) $conf['action'] === 'attendee_get_all') {
+    $raw = mbb_solo_expositores($raw, $conf);
+}
 
 /* El turno se coge aquí: después de hablar con la plataforma, que puede tardar,
    y antes de escribir nada. Así el deploy no se queda esperando por una llamada
@@ -973,8 +1166,10 @@ foreach ($visible as $entry) {
         'name'         => $name,
         'category'     => $category,
         'logo'         => $logo ? 'assets/img/exhibitors/' . $logo : '',
-        'contactName'  => $rec['contactName'] ?? '',
-        'contactRole'  => $rec['contactRole'] ?? '',
+        // Lo escrito a mano manda sobre lo que venga de la plataforma: alguien
+        // pudo corregirlo ahí, y una corrección no debe deshacerse sola.
+        'contactName'  => $rec['contactName'] ?? ($entry['contact_name'] ?? ''),
+        'contactRole'  => $rec['contactRole'] ?? ($entry['contact_role'] ?? ''),
         'email'        => trim((string) ($entry['email'] ?? '')),
         'phone'        => trim((string) ($entry['phone'] ?? '')),
         'website'      => $web,

@@ -25,9 +25,35 @@ return [
     // el nombre que tenía antes y se sigue aceptando. Es la misma clave.
     'user_key' => 'PON-AQUI-LA-USER-KEY',
 
-    // Los dos siguientes ya traen el valor correcto y normalmente no se tocan.
+    // Los tres siguientes ya traen el valor correcto y normalmente no se tocan.
     'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
     'event_id' => 15425,
+    'action'   => 'attendee_get_all',
+
+    // QUIÉN SALE PUBLICADO. Sin esto no se publica a nadie, y es a propósito.
+    // -------------------------------------------------------------------------
+    // La plataforma devuelve a TODOS los inscritos: las empresas vascas que
+    // exponen, pero también los compradores internacionales y la prensa. Los
+    // primeros se inscriben para que les encuentren; los segundos, para asistir.
+    // Publicar el nombre, el correo y el teléfono de los segundos sería una
+    // brecha de datos personales.
+    //
+    // Por eso hay que decir aquí, expresamente, qué respuesta del formulario de
+    // inscripción significa "soy expositor". Para ver qué campos existen y qué
+    // valores tienen:
+    //
+    //     php .../server/sync.php --fields
+    //
+    // `field_ref` es el `ref` del campo; `values`, las respuestas que cuentan
+    // como expositor. No distingue mayúsculas ni espacios sobrantes.
+    'exhibitors_from' => [
+        'field_ref' => 'PON-AQUI-EL-REF-DEL-CAMPO',
+        'values'    => ['Basque Supplier'],
+    ],
+
+    // Opcional: limitar a ciertos estados de inscripción, p. ej. ['activated'].
+    // Vacío, se piden todos y el filtro de arriba hace el trabajo.
+    'status' => [],
 
     // La dirección pública del sitio, para el sitemap. Con barra final.
     'site_url' => 'https://www.matchbilbaobizkaia.eus/',
