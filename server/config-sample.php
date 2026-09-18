@@ -51,6 +51,15 @@ return [
         'values'    => ['Basque Supplier'],
     ],
 
+    // DE DÓNDE SE BAJAN LOS LOGOTIPOS.
+    // -------------------------------------------------------------------------
+    // El campo `img` de cada inscripción es el logotipo de la empresa, pero la
+    // plataforma solo devuelve el nombre del archivo —«i20260918122516.png»—, no
+    // su dirección. Aquí va la parte de delante, que hay que pedirle a Meetmaps.
+    // Sin esto los logotipos no se descargan, y el sync lo dice en cada vuelta
+    // con el nombre de cada empresa afectada.
+    'img_base' => '',
+
     // Opcional: limitar a ciertos estados de inscripción, p. ej. ['activated'].
     // Vacío, se piden todos y el filtro de arriba hace el trabajo.
     'status' => [],

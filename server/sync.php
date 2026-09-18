@@ -539,9 +539,10 @@ function mbb_de_asistente(array $a)
         // `description_of` espera la lista por idiomas del otro extremo. Aquí es
         // un texto plano, así que se envuelve igual y no hay dos caminos.
         'description'  => $texto === '' ? [] : [['lang' => 'en', 'description' => $texto]],
-        // Los asistentes no traen logotipo. Sale del archivo local, como el
-        // resto de lo que la plataforma no sabe.
-        'logo'         => '',
+        // `img` es el logotipo de la empresa, subido en la inscripción. Llega
+        // como nombre de archivo suelto, así que hay que saber de qué URL
+        // cuelga: eso es `img_base` en config.php.
+        'logo'         => trim((string) ($a['img'] ?? '')),
         'hidden'       => 0,
         'sort'         => 0,
         'contact_name' => $persona,
@@ -962,6 +963,26 @@ function mbb_solo_expositores(array $lista, array $conf)
     return $dentro;
 }
 
+/**
+ * La dirección completa del logotipo, o cadena vacía si no se puede saber.
+ *
+ * La plataforma devuelve el nombre del archivo, no su dirección. Sin `img_base`
+ * en config.php no hay forma de componerla, y lo que NO se puede hacer es
+ * callarse: un logotipo que no aparece y no se queja es un directorio que se ve
+ * a medias durante meses sin que nadie sepa por qué.
+ */
+function mbb_url_logo($valor, array $conf)
+{
+    $valor = trim((string) $valor);
+    if ($valor === '') { return ''; }
+    if (preg_match('#^https?://#i', $valor)) { return $valor; }
+
+    $base = isset($conf['img_base']) ? trim((string) $conf['img_base']) : '';
+    if ($base === '') { return ''; }
+
+    return rtrim($base, '/') . '/' . ltrim($valor, '/');
+}
+
 /** Minúsculas y sin espacios en los bordes, para comparar sin sorpresas. */
 function mbb_plano($v)
 {
@@ -1138,6 +1159,7 @@ usort($visible, function ($a, $b) {
 $exhibitors = [];
 $uncategorised = [];
 $pinned = [];
+$sin_base = [];   // tienen logotipo en la plataforma pero no sabemos de dónde bajarlo
 
 foreach ($visible as $entry) {
     $name = trim((string) ($entry['name'] ?? ''));
@@ -1154,7 +1176,11 @@ foreach ($visible as $entry) {
         $local[$found['key']] = $rec;
     }
 
-    $logo = fetch_logo($entry['logo'] ?? null, $id, $DRY) ?? existing_logo($id);
+    $url_logo = mbb_url_logo(isset($entry['logo']) ? $entry['logo'] : '', $conf);
+    if ($url_logo === '' && trim((string) (isset($entry['logo']) ? $entry['logo'] : '')) !== '') {
+        $sin_base[] = $name;
+    }
+    $logo = fetch_logo($url_logo, $id, $DRY) ?? existing_logo($id);
 
     $category = in_array($rec['category'] ?? '', $known, true) ? $rec['category'] : '';
     if ($category === '') { $uncategorised[] = $name; }
@@ -1198,6 +1224,16 @@ if ($before && count($exhibitors) < $before * 0.5 && !$ALLOW_SHRINK) {
 }
 
 say(count($exhibitors) . ' expositores (' . (count($raw) - count($visible)) . ' ocultos en la plataforma)');
+
+// Un logotipo que no se baja y no se queja es un directorio a medias durante
+// meses. Si la plataforma dice que hay imagen y no sabemos de dónde cogerla,
+// se dice una vez, con nombre y apellidos.
+if ($sin_base) {
+    say('  ' . count($sin_base) . ' con logotipo en la plataforma que NO se ha podido descargar:');
+    foreach ($sin_base as $n) { say('    ' . $n); }
+    say("    Falta 'img_base' en config.php: la dirección de la que cuelgan esas imágenes. " .
+        'Pídesela a Meetmaps.');
+}
 
 if ($uncategorised) {
     say('  ' . count($uncategorised) . ' sin categoría, aparecen solo bajo "All":');
