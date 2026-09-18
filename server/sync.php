@@ -984,8 +984,13 @@ function campos(array $conf)
     $por_ref = [];
     foreach ($lista as $e) {
         foreach ((isset($e['fields']) ? $e['fields'] : []) as $campo) {
-            if (!is_array($campo) || !isset($campo['ref'])) { continue; }
-            $r = (string) $campo['ref'];
+            if (!is_array($campo)) { continue; }
+            // Un campo sin `ref` sí existe y hay que poder verlo; imprimirlo
+            // como una línea en blanco solo confunde a quien lee el registro.
+            $r = trim((string) (isset($campo['ref']) ? $campo['ref'] : ''));
+            if ($r === '') {
+                $r = '(sin ref' . (isset($campo['id']) ? ', id ' . $campo['id'] : '') . ')';
+            }
             if (!isset($por_ref[$r])) { $por_ref[$r] = []; }
             $v = trim((string) (isset($campo['value']) ? $campo['value'] : ''));
             if ($v !== '') { $por_ref[$r][] = $v; }
