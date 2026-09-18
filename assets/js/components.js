@@ -918,7 +918,7 @@ window.MBB = window.MBB || {};
       '<div class="channels" data-reveal>' + channels + '</div>' +
       '<div class="newsletter">' +
         '<div data-reveal><h3 class="h-2">' + esc(nl.title) + '</h3>' +
-          '<p>' + esc(nl.text) + '</p></div>' +
+          (nl.text ? '<p>' + esc(nl.text) + '</p>' : '') + '</div>' +
         // Elegir antes que escribir. Los dos públicos quieren cosas distintas y
         // van a listas distintas, así que se pregunta lo único que hace falta
         // saber aquí — cuál de los dos eres — y el resto se pide en el
@@ -937,7 +937,7 @@ window.MBB = window.MBB || {};
               })
               .join('') +
           '</div>' +
-          '<p class="nl-consent">' + esc(nl.consent) + '</p>' +
+          (nl.consent ? '<p class="nl-consent">' + esc(nl.consent) + '</p>' : '') +
         '</div>' +
       '</div>'
     );

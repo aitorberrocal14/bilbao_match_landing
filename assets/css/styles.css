@@ -1128,7 +1128,11 @@ p:last-child { margin-bottom: 0; }
 .nl-opt {
   display: flex;
   flex-direction: column;
+  /* Las dos tarjetas miden lo mismo aunque una frase ocupe dos líneas, así que
+     el texto se centra: si no, la más corta se queda con un hueco debajo. */
+  justify-content: center;
   gap: 0.25rem;
+  min-height: 4.5rem;
   padding: 1rem 1.15rem;
   border: 1px solid var(--line);
   border-radius: 14px;

@@ -761,10 +761,11 @@ class MBB_Shortcodes {
 		}
 
 		$consent = MBB_Settings::get( 'nl_consent' );
+		$texto   = MBB_Settings::get( 'nl_text' );
 
 		return '<div class="newsletter">'
 			. '<div><h3 class="h-2">' . esc_html( MBB_Settings::get( 'nl_title' ) ) . '</h3>'
-			. '<p>' . esc_html( MBB_Settings::get( 'nl_text' ) ) . '</p></div>'
+			. ( $texto ? '<p>' . esc_html( $texto ) . '</p>' : '' ) . '</div>'
 			. '<div><div class="nl-choice">' . $options . '</div>'
 			. ( $consent ? '<p class="nl-consent">' . esc_html( $consent ) . '</p>' : '' )
 			. '</div></div>';

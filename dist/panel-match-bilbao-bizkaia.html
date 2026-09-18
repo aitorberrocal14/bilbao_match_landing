@@ -535,10 +535,12 @@ window.MBB.site = {
 
   /* --- Newsletter -------------------------------------------------------- */
   newsletter: {
-    title: 'Stay close to the destination',
-    text:
-      'Receive the Match Bilbao Bizkaia 2026 programme updates, exhibitor ' +
-      'announcements and registration reminders.',
+    title:
+      'Do you want to receive Bilbao Bizkaia’s Professional Newsletter? ' +
+      'Click here!',
+    // La pregunta se basta sola. Si algún día hace falta explicar más, se
+    // escribe aquí y aparece un párrafo debajo; vacío, no se dibuja nada.
+    text: '',
     // Dos públicos, dos formularios.
     //
     // No se pide el correo aquí. El visitante elige qué es, y desde ahí va al
@@ -547,21 +549,25 @@ window.MBB.site = {
     // ningún dato personal: solo enlaza.
     //
     // Para añadir o cambiar un público, basta con tocar esta lista.
+    // El botón habla en primera persona: el visitante se reconoce en él y
+    // pincha. `note` es una línea explicativa opcional bajo cada botón; vacía,
+    // el botón queda con su frase y nada más.
     audiences: [
       {
-        label: 'Basque supplier',
-        note: 'Companies of the Bilbao Bizkaia destination',
+        label: 'I’m a Basque Supplier',
+        note: '',
         url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=35fe8d2bdf'
       },
       {
-        label: 'International trade agent',
-        note: 'Buyers, tour operators and media',
+        label: 'I’m an International Trade Agent or Media',
+        note: '',
         url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=010b640237'
       }
     ],
     // El consentimiento se pide en el formulario de destino, no aquí, porque
-    // aquí no se recoge nada. Esta línea solo avisa de a dónde lleva el enlace.
-    consent: 'Both forms open on the Bilbao Turismo mailing platform.'
+    // aquí no se recoge nada. Si se escribe algo, sale en letra pequeña bajo
+    // los botones; vacío, no sale nada.
+    consent: ''
   }
 };
 
