@@ -19,10 +19,30 @@ $PLUGIN = $ROOT . '/wordpress/match-bilbao-bizkaia';
 
 $seed = json_decode( file_get_contents( $PLUGIN . '/data/seed.json' ), true );
 
+/* Los expositores de muestra.
+   -----------------------------------------------------------------------------
+   El directorio publicado está vacío a propósito: las empresas de 2026 llegan
+   desde Meetmaps según se registran. Pero el filtro, el buscador y el plegado
+   de acentos siguen existiendo y siguen teniendo que funcionar el día que
+   lleguen — y sin datos no hay nada que comprobar.
+
+   Así que estas comprobaciones traen sus propios expositores. Dos de ellos son
+   los casos que de verdad rompen un buscador: un nombre con acento, y una
+   empresa cuya marca en el logotipo no es la de su ficha. */
+$muestra = array(
+	array( 'name' => 'Meliá Bilbao Hotel 5*', 'slug' => 'melia-bilbao-hotel-5', 'category' => 'accommodation', 'website_label' => 'melia.com' ),
+	array( 'name' => 'Hotel Carlton & Hotel Abando', 'slug' => 'aranzazu-hoteles', 'category' => 'accommodation', 'website_label' => 'aranzazu-hoteles.com' ),
+	array( 'name' => 'Basque Experiences', 'slug' => 'basque-experiences', 'category' => 'dmc', 'website_label' => 'basqueexperiences.com' ),
+	array( 'name' => 'Bodega Crusoe Treasure', 'slug' => 'bodega-crusoe-treasure', 'category' => 'activities', 'website_label' => 'underwaterwine.com' ),
+);
+
+$exhibitors_para_probar = $seed['exhibitors'] ? $seed['exhibitors'] : $muestra;
+define( 'MBB_USANDO_MUESTRA', ! $seed['exhibitors'] );
+
 // Build the post store from the seed.
 $GLOBALS['mbb_posts'] = array();
 $id = 1;
-foreach ( $seed['exhibitors'] as $x ) {
+foreach ( $exhibitors_para_probar as $x ) {
 	$GLOBALS['mbb_posts'][ $id ] = (object) array(
 		'ID' => $id, 'post_type' => 'mbb_exhibitor', 'post_title' => $x['name'],
 		'slug' => $x['slug'], 'category' => $x['category'],
@@ -123,8 +143,11 @@ check( 'directorio: contador presente', false !== strpos( $dir, 'id="ex-count"' 
 check( 'directorio: etiqueta accesible', false !== strpos( $dir, 'for="ex-search"' ) );
 check( 'directorio: filtros intactos', substr_count( $dir, 'class="filter"' ) === 4,
 	substr_count( $dir, 'class="filter"' ) . ' filtros' );
-check( 'directorio: 39 tarjetas', substr_count( $dir, 'class="logo-tile"' ) === 39,
-	substr_count( $dir, 'class="logo-tile"' ) );
+// Una tarjeta por empresa, sean las de la plataforma o las de la muestra. Un
+// número fijo aquí solo acertaría el día que hubiera exactamente ese número.
+$esperadas = count( mbb_exhibitor_posts() );
+check( 'directorio: una tarjeta por empresa', substr_count( $dir, 'class="logo-tile"' ) === $esperadas,
+	substr_count( $dir, 'class="logo-tile"' ) . ' de ' . $esperadas );
 
 /* --- 3. Structured data -------------------------------------------------- */
 MBB_Schema::want();
@@ -146,7 +169,10 @@ $GLOBALS['mbb_option'] = MBB_Settings::defaults();
 /* --- 4. The dashboard ---------------------------------------------------- */
 ob_start(); MBB_Dashboard::render(); $dash = ob_get_clean();
 check( 'panel: se renderiza', strlen( $dash ) > 500 );
-check( 'panel: cuenta 39 expositores', false !== strpos( $dash, '>39<' ) );
+// El panel cuenta lo que haya, no una cifra concreta: hoy son cero porque el
+// directorio se llena desde la plataforma.
+$n_exp = count( mbb_exhibitor_posts() );
+check( 'panel: cuenta bien los expositores', false !== strpos( $dash, '>' . $n_exp . '<' ), $n_exp );
 check( 'panel: cuenta 16 folletos', false !== strpos( $dash, '>16<' ) );
 // The warning has to match the seed: present when brochures really are
 // unlinked, absent when they are all linked. Asserting it is always there

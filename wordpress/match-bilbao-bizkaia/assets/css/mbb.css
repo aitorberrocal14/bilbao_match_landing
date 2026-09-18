@@ -710,27 +710,49 @@
 
 
 /* --- Overview: the five days side by side -------------------------------- */
+/* The week as five rows, not five columns.
+   -----------------------------------------------------------------------------
+   It was five columns, which fits the days on one screen but gives each about
+   230px to say anything in — so "Crusoe Treasure underwater winery" arrived
+   over three lines, and because the summaries differ in length the highlight
+   lists ended up at ragged heights with voids above them.
+
+   Laid out as rows, the same content gets the full width of the shell: the day
+   and its theme on the left, what happens that day on the right. Nothing wraps
+   that does not need to, every day starts at the same left edge, and the eye
+   reads down the week.
+
+   This is done entirely in the stylesheet — the markup is untouched, so the
+   WordPress plugin renders the same thing from the same classes. */
 .mbb .prog__overview {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  /* Narrow enough that the five days fit on one row on a desktop. */
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: 1fr;
   border-top: 1px solid var(--line);
-  border-left: 1px solid var(--line);
 }
 
-/* The rules are drawn inside each day rather than as grid gaps: a gap would
-   still be painted where the grid has no day to put in it, leaving a stray
-   grey block whenever the five do not divide evenly into the row. */
 .mbb .ov-day {
   background: #fff;
-  box-shadow: inset -1px 0 0 var(--line), inset 0 -1px 0 var(--line);
-  padding: 1.5rem 1.35rem 1.75rem;
-  display: flex;
-  flex-direction: column;
+  border-bottom: 1px solid var(--line);
+  padding: clamp(1.25rem, 3vw, 1.85rem) 0;
+  display: grid;
+  grid-template-columns: minmax(9.5rem, 12rem) 1fr;
+  grid-template-rows: auto auto auto;
+  column-gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
 }
+
+.mbb .ov-day__date { grid-column: 1; grid-row: 1; }
+
+.mbb .ov-day__theme { grid-column: 1; grid-row: 2; }
+
+.mbb .ov-day__split { grid-column: 1; grid-row: 3; }
+
+.mbb .ov-day__text { grid-column: 2; grid-row: 1 / span 2; }
+
+.mbb .ov-day__list { grid-column: 2; grid-row: 3; }
 
 .mbb .ov-day__date {
   margin: 0 0 0.15rem;
@@ -746,32 +768,41 @@
   color: var(--red);
 }
 
-.mbb .ov-day__text { margin: 0 0 1rem; font-size: 0.9rem; line-height: 1.55; }
+.mbb .ov-day__text { margin: 0; font-size: 0.95rem; line-height: 1.6; max-width: 60ch; }
 
+/* The highlights run along the row instead of stacking. Three or four moments
+   of a day are a line, not a list. */
 .mbb .ov-day__list {
   list-style: none;
-  margin: auto 0 0;
-  padding: 1rem 0 0;
-  border-top: 1px solid var(--line);
-  font-size: 0.86rem;
+  margin: 0.85rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.4rem;
+  font-size: 0.875rem;
 }
 
-.mbb .ov-day__list li { margin-bottom: 0.5rem; color: var(--grey-dark); }
-
-.mbb .ov-day__list li:last-child { margin-bottom: 0; }
+.mbb .ov-day__list li {
+  margin: 0;
+  color: var(--grey-dark);
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
 
 .mbb .ov__t {
-  display: inline-block;
-  min-width: 3.1rem;
   font-family: var(--font-head);
   font-weight: 700;
-  color: var(--red);
+  /* Grey rather than red: the day's theme is already red just to its left, and
+     two reds in the same row compete instead of ranking. */
+  color: var(--grey-light);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .mbb .ov-day__split {
-  margin: 0.9rem 0 0;
-  font-size: 0.72rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--grey-light);
@@ -782,14 +813,36 @@
   .mbb .prog__bar { justify-content: center; }
   .mbb .prog__views { width: 100%; }
   .mbb .prog__view { flex: 1; }
-  .mbb /* Stacked one above another,
-.mbb five days of summary become a long scroll of
-     their own; the type tightens so the week still reads as a week. */
-  .ov-day { padding: 1.15rem 1.1rem 1.3rem; }
+  .mbb /* No room for two columns: the day label goes above its own content,
+.mbb and the
+     highlights go back to one per line,
+.mbb which is easier to scan on a phone
+     than a wrapped row of them. */
+  .ov-day {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(5, auto);
+    padding: 1.15rem 0 1.3rem;
+  }
+  .mbb /* Rows assigned rather than left to source order,
+.mbb because the "two
+     itineraries" note comes last in the markup and belongs under its day's
+     name,
+.mbb not stranded below the list of times. */
+  .ov-day__date { grid-column: 1; grid-row: 1; }
+  .mbb .ov-day__theme { grid-column: 1; grid-row: 2; }
+  .mbb .ov-day__split { grid-column: 1; grid-row: 3; margin: 0 0 0.55rem; }
+  .mbb .ov-day__text { grid-column: 1; grid-row: 4; }
+  .mbb .ov-day__list { grid-column: 1; grid-row: 5; }
   .mbb .ov-day__theme { font-size: 1.1rem; margin-bottom: 0.4rem; }
-  .mbb .ov-day__text { font-size: 0.88rem; line-height: 1.5; margin-bottom: 0.8rem; }
-  .mbb .ov-day__list { padding-top: 0.8rem; font-size: 0.84rem; line-height: 1.45; }
+  .mbb .ov-day__text { font-size: 0.9rem; line-height: 1.55; }
+  .mbb .ov-day__list {
+    display: block;
+    margin-top: 0.7rem;
+    font-size: 0.86rem;
+    line-height: 1.45;
+  }
   .mbb .ov-day__list li { margin-bottom: 0.35rem; }
+  .mbb .ov__t { min-width: 3.1rem; display: inline-block; }
 
 
 }
@@ -1087,6 +1140,25 @@
 
 
 .mbb .directory__empty { text-align: center; padding: 3rem 1rem; color: var(--grey-light); }
+
+
+/* The directory before the first company registers. Same soft ground as the
+   alternating sections, so an empty state reads as part of the page rather
+   than as something that failed to load. */
+.mbb .dir-waiting {
+  text-align: center;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  padding: clamp(2.5rem, 6vw, 4.5rem) clamp(1.25rem, 5vw, 3rem);
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.mbb .dir-waiting .lead { color: var(--grey-dark); margin-top: 0; }
+
+.mbb .dir-waiting p { margin-bottom: 0; }
+
+.mbb .dir-waiting__cta { margin-top: 1.75rem; }
 
 
 /* 13. EXHIBITOR PAGE ======================================================= */
