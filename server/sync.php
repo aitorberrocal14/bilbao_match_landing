@@ -24,6 +24,11 @@
  *
  *     php .../server/sync.php --probe
  *
+ * Y para saber qué significa un identificador de opción («210824»), quién lo
+ * eligió:
+ *
+ *     php .../server/sync.php --field 367992
+ *
  * Por qué vive aquí y no en GitHub
  * --------------------------------
  * Porque la web tiene que seguir funcionando cuando la persona que la montó ya
@@ -151,6 +156,14 @@ $PROBE = in_array('--probe', $argv, true);
 // Lista los campos del formulario de inscripción, para poder escribir la regla
 // que decide quién es expositor. No escribe nada.
 $FIELDS = in_array('--fields', $argv, true);
+
+// Mira UN campo y dice qué empresa ha elegido cada valor. Es la forma de saber
+// qué significa un identificador de opción como «210824». No escribe nada.
+$FIELD = null;
+$i_campo = array_search('--field', $argv, true);
+if ($i_campo !== false && isset($argv[$i_campo + 1])) {
+    $FIELD = $argv[$i_campo + 1];
+}
 
 // Repite una respuesta guardada en lugar de llamar a la plataforma. Sirve para
 // probar todo el recorrido —incluido lo que escribe y dónde— sin gastar una
@@ -930,9 +943,10 @@ function mbb_solo_expositores(array $lista, array $conf)
         ? $conf['exhibitors_from'] : [];
 
     $ref     = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
+    $id      = isset($regla['field_id']) ? trim((string) $regla['field_id']) : '';
     $valores = isset($regla['values']) && is_array($regla['values']) ? $regla['values'] : [];
 
-    if ($ref === '' || !$valores) {
+    if (($ref === '' && $id === '') || !$valores) {
         die_with(
             'No hay regla que diga quién es expositor, así que no se publica a nadie. ' .
             'La acción attendee_get_all devuelve a todos los inscritos —también a los ' .
@@ -950,14 +964,9 @@ function mbb_solo_expositores(array $lista, array $conf)
 
     $dentro = [];
     foreach ($lista as $e) {
-        foreach ((isset($e['fields']) ? $e['fields'] : []) as $campo) {
-            if (!is_array($campo)) { continue; }
-            $r = mbb_plano(isset($campo['ref']) ? $campo['ref'] : '');
-            if ($r !== mbb_plano($ref)) { continue; }
-            if (in_array(mbb_plano(isset($campo['value']) ? $campo['value'] : ''), $buscados, true)) {
-                $dentro[] = $e;
-                break;
-            }
+        $v = mbb_valor_campo($e, $regla);
+        if ($v !== null && in_array(mbb_plano($v), $buscados, true)) {
+            $dentro[] = $e;
         }
     }
 
@@ -1040,17 +1049,8 @@ function mbb_categoria_de(array $entry, array $conf, array $conocidas, &$sin_map
 {
     $regla = isset($conf['categories_from']) && is_array($conf['categories_from'])
         ? $conf['categories_from'] : [];
-    $ref = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
-    if ($ref === '') { return ''; }
-
-    $respuesta = '';
-    foreach ((isset($entry['fields']) ? $entry['fields'] : []) as $campo) {
-        if (!is_array($campo)) { continue; }
-        if (mbb_plano(isset($campo['ref']) ? $campo['ref'] : '') !== mbb_plano($ref)) { continue; }
-        $respuesta = trim((string) (isset($campo['value']) ? $campo['value'] : ''));
-        break;
-    }
-    if ($respuesta === '') { return ''; }
+    $respuesta = mbb_valor_campo($entry, $regla);
+    if ($respuesta === null || $respuesta === '') { return ''; }
 
     $mapa = isset($regla['map']) && is_array($regla['map']) ? $regla['map'] : [];
     foreach ($mapa as $desde => $hacia) {
@@ -1085,15 +1085,8 @@ function mbb_categoria_de(array $entry, array $conf, array $conocidas, &$sin_map
 function mbb_logo_de(array $entry, array $conf)
 {
     $regla = isset($conf['logo_from']) && is_array($conf['logo_from']) ? $conf['logo_from'] : [];
-    $ref   = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
-    if ($ref === '') { return ''; }
-
-    foreach ((isset($entry['fields']) ? $entry['fields'] : []) as $campo) {
-        if (!is_array($campo)) { continue; }
-        if (mbb_plano(isset($campo['ref']) ? $campo['ref'] : '') !== mbb_plano($ref)) { continue; }
-        return trim((string) (isset($campo['value']) ? $campo['value'] : ''));
-    }
-    return '';
+    $v = mbb_valor_campo($entry, $regla);
+    return $v === null ? '' : $v;
 }
 
 /**
@@ -1114,6 +1107,36 @@ function mbb_url_logo($valor, array $conf)
     if ($base === '') { return ''; }
 
     return rtrim($base, '/') . '/' . ltrim($valor, '/');
+}
+
+/**
+ * El valor de un campo del formulario, buscándolo por `ref` o por `id`.
+ *
+ * Los campos propios de este evento llegan SIN `ref` —viene vacío— y con un
+ * `id` numérico. Así que hay que poder nombrarlos de las dos maneras: `ref`
+ * cuando lo tienen, `id` cuando no. Devuelve null si el campo no está, que no
+ * es lo mismo que estar vacío.
+ *
+ * @param array $entry  la ficha ya normalizada
+ * @param array $regla  ['field_ref' => '…'] o ['field_id' => 372389]
+ */
+function mbb_valor_campo(array $entry, array $regla)
+{
+    $ref = isset($regla['field_ref']) ? trim((string) $regla['field_ref']) : '';
+    $id  = isset($regla['field_id']) ? trim((string) $regla['field_id']) : '';
+    if ($ref === '' && $id === '') { return null; }
+
+    foreach ((isset($entry['fields']) ? $entry['fields'] : []) as $campo) {
+        if (!is_array($campo)) { continue; }
+
+        if ($id !== '' && (string) (isset($campo['id']) ? $campo['id'] : '') === $id) {
+            return trim((string) (isset($campo['value']) ? $campo['value'] : ''));
+        }
+        if ($ref !== '' && mbb_plano(isset($campo['ref']) ? $campo['ref'] : '') === mbb_plano($ref)) {
+            return trim((string) (isset($campo['value']) ? $campo['value'] : ''));
+        }
+    }
+    return null;
 }
 
 /** Minúsculas y sin espacios en los bordes, para comparar sin sorpresas. */
@@ -1172,6 +1195,48 @@ function campos(array $conf)
 
     say('Elige el campo que separa expositores de compradores y escríbelo en ' .
         "config.php como 'exhibitors_from'.");
+
+    flush_log();
+    exit(0);
+}
+
+/**
+ * Un campo concreto, y qué EMPRESA ha elegido cada valor.
+ *
+ * Los campos propios llegan con los valores como identificadores de opción
+ * —«210823», «210824»— y no hay forma de saber cuál es «Exhibitor» mirando la
+ * respuesta. Mirando quién la eligió, sí.
+ *
+ * Se listan empresas, no personas. El nombre de una empresa es un dato de
+ * negocio; el de quien se inscribió, no, y no hace falta para esto.
+ *
+ *     php .../server/sync.php --field 367992
+ */
+function un_campo(array $conf, $cual)
+{
+    $lista = read_response(fetch_exhibitors($conf));
+    $regla = ctype_digit((string) $cual) ? ['field_id' => $cual] : ['field_ref' => $cual];
+
+    $por_valor = [];
+    $sin_responder = 0;
+
+    foreach ($lista as $e) {
+        $v = mbb_valor_campo($e, $regla);
+        if ($v === null || $v === '') { $sin_responder++; continue; }
+        $empresa = trim((string) (isset($e['name']) ? $e['name'] : ''));
+        if ($empresa === '') { $empresa = '(sin empresa)'; }
+        if (!isset($por_valor[$v])) { $por_valor[$v] = []; }
+        $por_valor[$v][] = $empresa;
+    }
+
+    say('Campo ' . $cual . ' — ' . count($lista) . ' inscritos');
+    if (!$por_valor) {
+        say('  Nadie ha contestado a ese campo, o el campo no existe.');
+    }
+    foreach ($por_valor as $v => $empresas) {
+        say('  "' . $v . '" → ' . implode(', ', $empresas));
+    }
+    if ($sin_responder) { say('  ' . $sin_responder . ' sin contestar.'); }
 
     flush_log();
     exit(0);
@@ -1248,6 +1313,7 @@ $conf = load_config();
 
 if ($PROBE)  { probe($conf); }
 if ($FIELDS) { campos($conf); }
+if ($FIELD !== null) { un_campo($conf, $FIELD); }
 
 say($DRY ? 'Ensayo: no se escribirá nada.' : 'Sincronizando desde la plataforma.');
 
@@ -1371,7 +1437,9 @@ if ($sin_base) {
 
 // Y si no se ha dicho de qué campo sale el logotipo, tampoco se calla: sin eso
 // el directorio sale entero con iniciales en vez de marcas.
-if (!isset($conf['logo_from']['field_ref']) || trim((string) $conf['logo_from']['field_ref']) === '') {
+$hay_logo_from = (isset($conf['logo_from']['field_ref']) && trim((string) $conf['logo_from']['field_ref']) !== '')
+    || (isset($conf['logo_from']['field_id']) && trim((string) $conf['logo_from']['field_id']) !== '');
+if (!$hay_logo_from) {
     say("  Sin 'logo_from' en config.php no se descarga ningún logotipo. El formulario " .
         'pide dos imágenes —Photo, la cara de la persona, y Logo, la marca de la empresa— ' .
         'y hay que decir expresamente cuál es cuál. Mira los campos con --fields.');

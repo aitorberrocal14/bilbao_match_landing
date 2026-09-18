@@ -46,9 +46,17 @@ return [
     //
     // `field_ref` es el `ref` del campo; `values`, las respuestas que cuentan
     // como expositor. No distingue mayúsculas ni espacios sobrantes.
+    // Los campos propios de este evento llegan SIN `ref` y con un `id` numérico,
+    // así que casi siempre se nombran con 'field_id'. Si algún día tuvieran
+    // nombre, vale 'field_ref' igual.
+    //
+    // Y sus valores tampoco son texto: son identificadores de opción, como
+    // «210824». Para saber cuál es cuál, mira quién eligió cada uno:
+    //
+    //     php .../server/sync.php --field 367992
     'exhibitors_from' => [
-        'field_ref' => 'PON-AQUI-EL-REF-DEL-CAMPO',
-        'values'    => ['Basque Supplier'],
+        'field_id' => 'PON-AQUI-EL-ID-DEL-CAMPO-Buyer/Exhibitor',
+        'values'   => ['PON-AQUI-EL-VALOR-QUE-SIGNIFICA-EXHIBITOR'],
     ],
 
     // EL LOGOTIPO: DE QUÉ CAMPO SALE, Y DE DÓNDE SE BAJA.
@@ -65,7 +73,7 @@ return [
     // ningún logotipo, y el sync lo dice en cada vuelta. Para ver los `ref` que
     // existen:  php .../server/sync.php --fields
     'logo_from' => [
-        'field_ref' => 'PON-AQUI-EL-REF-DEL-CAMPO-LOGO',
+        'field_id' => 'PON-AQUI-EL-ID-DEL-CAMPO-Logo',
     ],
 
     // LA CATEGORÍA DEL DIRECTORIO.
@@ -78,11 +86,14 @@ return [
     // derecha, el id de la categoría en la web. Una respuesta que no esté aquí
     // deja a la empresa bajo «All» y se nombra en el registro.
     'categories_from' => [
-        'field_ref' => 'PON-AQUI-EL-REF-DE-LA-PREGUNTA',
+        'field_id' => 'PON-AQUI-EL-ID-DE-LA-PREGUNTA',
+        // A la izquierda, el identificador de cada opción; a la derecha, el id
+        // de la categoría en la web. Las etiquetas que ve el visitante están en
+        // assets/js/data/exhibitors-local.json, en _categories.
         'map' => [
-            'Accommodation'                         => 'accommodation',
-            'Basque DMC'                            => 'dmc',
-            'Boutique Experience in Bilbao Bizkaia' => 'activities',
+            'ID-DE-LA-OPCION-Accommodation' => 'accommodation',
+            'ID-DE-LA-OPCION-Basque-DMC'    => 'dmc',
+            'ID-DE-LA-OPCION-Boutique'      => 'activities',
         ],
     ],
 
