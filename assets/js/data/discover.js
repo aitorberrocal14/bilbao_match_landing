@@ -180,7 +180,7 @@ window.MBB.editions = [
     thumbnail: '' // optional local fallback image
   },
   {
-    youtubeId: '', // [Insert YouTube video 2]
+    youtubeId: 'kkrUeAfrWEY',
     title: 'The destination in motion',
     caption:
       'A short portrait of Bilbao Bizkaia as seen by the professionals who ' +

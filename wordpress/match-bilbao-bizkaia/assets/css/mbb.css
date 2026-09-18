@@ -471,7 +471,14 @@
   transition: color 0.25s var(--ease);
 }
 
-.mbb .prog__tab:hover { color: var(--red); }
+/* Solo donde hay ratón: en una pantalla táctil el "hover" se queda pegado
+   después de tocar, y acababa habiendo dos días en rojo a la vez — el elegido
+   y el último que se tocó. */
+@media (hover: hover) {
+  .mbb .prog__tab:hover { color: var(--red); }
+
+
+}
 
 .mbb .prog__tab[aria-selected="true"] { color: var(--red); }
 
@@ -813,6 +820,54 @@
   .mbb .prog__bar { justify-content: center; }
   .mbb .prog__views { width: 100%; }
   .mbb .prog__view { flex: 1; }
+  .mbb /* Los días,
+.mbb como una fila deslizable.
+     ---------------------------------------------------------------------------
+     Eran cinco nombres largos con `flex-wrap`,
+.mbb y a 390px se partían a capricho:
+     uno,
+.mbb uno,
+.mbb dos juntos,
+.mbb uno. Quinientos píxeles de pestañas antes de llegar
+     al programa,
+.mbb y sin parecer botones.
+
+     Como fichas en una fila que se desliza con el dedo ocupan sesenta,
+.mbb se ve
+     de un vistazo cuántos días hay,
+.mbb y el elegido se distingue por relleno y no
+     solo por color. La fila llega hasta los bordes de la pantalla para que se
+     note que hay más a la derecha. */
+  .prog__tabs {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    gap: 0.5rem;
+    margin: 0 calc(var(--gutter) * -1) 1.5rem;
+    padding: 0 var(--gutter) 0.4rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .mbb .prog__tabs::-webkit-scrollbar { height: 3px; }
+  .mbb .prog__tabs::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+  .mbb .prog__tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .mbb .prog__tab[aria-selected="true"] {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .mbb .prog__tab .d { font-size: 0.7rem; }
+  .mbb .prog__tab[aria-selected="true"] .d { color: rgba(255, 255, 255, 0.85); }
+  .mbb .prog__theme { margin-bottom: 1.5rem; }
   .mbb /* No room for two columns: the day label goes above its own content,
 .mbb and the
      highlights go back to one per line,
@@ -1303,23 +1358,52 @@
   align-items: start;
 }
 
-.mbb .nl-form { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+/* Elegir, no escribir. Dos tarjetas grandes, una por público; cada una lleva
+   a su formulario. Se apilan solas si algún día hay un público más. */
+.mbb .nl-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.75rem; }
 
-.mbb .nl-form input {
-  flex: 1 1 240px;
-  padding: 0.8rem 1.1rem;
+.mbb .nl-opt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.15rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
+  border-radius: 14px;
+  background: #fff;
   color: var(--grey-dark);
+  text-decoration: none;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              transform 0.25s var(--ease);
 }
 
-.mbb .nl-form input:focus { outline: none; border-color: var(--red); }
+.mbb .nl-opt__label {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.14rem;
+  line-height: 1.25;
+  color: var(--charcoal);
+  /* La flecha va pegada al final del texto, no flotando en la esquina. */
+  padding-right: 1.1rem;
+  background: no-repeat right 0.32em / 0.62rem auto
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AE0000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+}
 
-.mbb .nl-status { font-size: 0.86rem; color: var(--red); min-height: 1.2em; margin-top: 0.6rem; }
+.mbb .nl-opt__note { font-size: 0.82rem; color: var(--grey-light); line-height: 1.45; }
 
-.mbb .nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.5rem; }
+.mbb .nl-opt:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+@media (hover: hover) {
+  .mbb .nl-opt:hover {
+    border-color: var(--red);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    transform: translateY(-2px);
+  }
+  .mbb .nl-opt:hover .nl-opt__label { color: var(--red); }
+
+
+}
+
+.mbb .nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.75rem; }
 
 
 /* 16. FOOTER =============================================================== */

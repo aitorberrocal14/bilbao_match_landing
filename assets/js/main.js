@@ -372,35 +372,14 @@
   }
 
   /* --------------------------------------------------------------------- */
-  /* 8. Newsletter                                                          */
+  /* 8. (libre)                                                             */
   /* --------------------------------------------------------------------- */
-  // The Login buttons used to warn, on click, that they were not connected
-  // yet. They now simply do not exist until `login.url` holds a real address,
-  // which is the right behaviour on a published site — so there is nothing
-  // left here to intercept.
-  function initForms() {
-    var form = $('#nl-form');
-    if (!form) return;
-    var status = $('#nl-status');
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = $('#nl-email').value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        status.textContent = 'Please enter a valid email address.';
-        return;
-      }
-      if (!MBB.site.newsletter.action) {
-        status.textContent =
-          'Thank you. [Insert newsletter endpoint in site.js to send this form.]';
-        form.reset();
-        return;
-      }
-      form.action = MBB.site.newsletter.action;
-      form.method = 'post';
-      form.submit();
-    });
-  }
+  // Aquí vivían dos cosas que ya no existen. El aviso de los botones de Login
+  // sin configurar: ahora esos botones simplemente no se dibujan hasta que hay
+  // una dirección. Y el formulario del boletín: ahora son dos enlaces a los
+  // formularios de Mailchimp, así que no hay nada que validar ni que enviar —
+  // y esta web no recoge ningún dato personal.
+  function initForms() {}
 
   /* --------------------------------------------------------------------- */
   /* 9. Graceful image fallbacks                                            */

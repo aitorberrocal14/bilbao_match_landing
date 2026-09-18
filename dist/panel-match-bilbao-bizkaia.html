@@ -539,20 +539,29 @@ window.MBB.site = {
     text:
       'Receive the Match Bilbao Bizkaia 2026 programme updates, exhibitor ' +
       'announcements and registration reminders.',
-    // [Insert newsletter endpoint] — point this at your CRM or mailing platform.
+    // Dos públicos, dos formularios.
     //
-    // Agreed in review, still to be built: this becomes a proper form rather
-    // than a single email field, collecting
-    //   · company name
-    //   · contact email
-    //   · where the company is based
-    // Held back until it is decided where the entries should land — a CRM, a
-    // mailing platform or an inbox — because that choice decides whether the
-    // form posts to an endpoint, and what the consent wording has to say.
-    action: '',
-    consent:
-      'By subscribing you accept the processing of your data for the purpose ' +
-      'of receiving information about Match Bilbao Bizkaia.'
+    // No se pide el correo aquí. El visitante elige qué es, y desde ahí va al
+    // formulario de Mailchimp que le corresponde, que es donde se piden los
+    // datos y donde se registra el consentimiento. Así esta web no recoge
+    // ningún dato personal: solo enlaza.
+    //
+    // Para añadir o cambiar un público, basta con tocar esta lista.
+    audiences: [
+      {
+        label: 'Basque supplier',
+        note: 'Companies of the Bilbao Bizkaia destination',
+        url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=35fe8d2bdf'
+      },
+      {
+        label: 'International trade agent',
+        note: 'Buyers, tour operators and media',
+        url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=010b640237'
+      }
+    ],
+    // El consentimiento se pide en el formulario de destino, no aquí, porque
+    // aquí no se recoge nada. Esta línea solo avisa de a dónde lleva el enlace.
+    consent: 'Both forms open on the Bilbao Turismo mailing platform.'
   }
 };
 
@@ -1233,7 +1242,7 @@ window.MBB.editions = [
     thumbnail: '' // optional local fallback image
   },
   {
-    youtubeId: '', // [Insert YouTube video 2]
+    youtubeId: 'kkrUeAfrWEY',
     title: 'The destination in motion',
     caption:
       'A short portrait of Bilbao Bizkaia as seen by the professionals who ' +
@@ -2130,13 +2139,23 @@ window.MBB.editions = [
         {
           h2: 'Boletín',
           fields: [
-            { t: 'note', html: '<p>El formulario de suscripción está pendiente de decidir dónde ' +
-              'deben llegar los datos. Mientras <b>Destino del formulario</b> esté vacío, el ' +
-              'bloque se muestra pero no envía nada.</p>' },
+            { t: 'note', html: '<p>Aquí no se pide ningún correo. El visitante marca qué es y ' +
+              'va al formulario de Mailchimp que le corresponde, que es donde se piden los datos ' +
+              'y donde queda el consentimiento. Si borras las dos direcciones, el bloque ' +
+              'desaparece de la web.</p>' },
             { t: 'text', k: 'site.newsletter.title', label: 'Título' },
             { t: 'textarea', k: 'site.newsletter.text', label: 'Texto', rows: 3 },
-            { t: 'text', k: 'site.newsletter.action', label: 'Destino del formulario' },
-            { t: 'textarea', k: 'site.newsletter.consent', label: 'Aviso de privacidad', rows: 3 }
+            { t: 'row', fields: [
+              { t: 'text', k: 'site.newsletter.audiences.0.label', label: 'Público 1 — nombre' },
+              { t: 'text', k: 'site.newsletter.audiences.0.note', label: 'Público 1 — quiénes son' }
+            ] },
+            { t: 'text', k: 'site.newsletter.audiences.0.url', label: 'Público 1 — formulario' },
+            { t: 'row', fields: [
+              { t: 'text', k: 'site.newsletter.audiences.1.label', label: 'Público 2 — nombre' },
+              { t: 'text', k: 'site.newsletter.audiences.1.note', label: 'Público 2 — quiénes son' }
+            ] },
+            { t: 'text', k: 'site.newsletter.audiences.1.url', label: 'Público 2 — formulario' },
+            { t: 'textarea', k: 'site.newsletter.consent', label: 'Aviso bajo la elección', rows: 2 }
           ]
         },
         {

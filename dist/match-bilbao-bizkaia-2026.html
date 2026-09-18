@@ -460,7 +460,12 @@ p:last-child { margin-bottom: 0; }
   color: var(--grey);
   transition: color 0.25s var(--ease);
 }
-.prog__tab:hover { color: var(--red); }
+/* Solo donde hay ratón: en una pantalla táctil el "hover" se queda pegado
+   después de tocar, y acababa habiendo dos días en rojo a la vez — el elegido
+   y el último que se tocó. */
+@media (hover: hover) {
+  .prog__tab:hover { color: var(--red); }
+}
 .prog__tab[aria-selected="true"] { color: var(--red); }
 .prog__tab .d { display: block; font-size: 0.78rem; font-weight: 400; color: var(--grey-light); }
 
@@ -752,6 +757,49 @@ p:last-child { margin-bottom: 0; }
   .prog__bar { justify-content: center; }
   .prog__views { width: 100%; }
   .prog__view { flex: 1; }
+
+  /* Los días, como una fila deslizable.
+     ---------------------------------------------------------------------------
+     Eran cinco nombres largos con `flex-wrap`, y a 390px se partían a capricho:
+     uno, uno, dos juntos, uno. Quinientos píxeles de pestañas antes de llegar
+     al programa, y sin parecer botones.
+
+     Como fichas en una fila que se desliza con el dedo ocupan sesenta, se ve
+     de un vistazo cuántos días hay, y el elegido se distingue por relleno y no
+     solo por color. La fila llega hasta los bordes de la pantalla para que se
+     note que hay más a la derecha. */
+  .prog__tabs {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    gap: 0.5rem;
+    margin: 0 calc(var(--gutter) * -1) 1.5rem;
+    padding: 0 var(--gutter) 0.4rem;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .prog__tabs::-webkit-scrollbar { height: 3px; }
+  .prog__tabs::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+  .prog__tab {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.85rem;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+  .prog__tab[aria-selected="true"] {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+  .prog__tab .d { font-size: 0.7rem; }
+  .prog__tab[aria-selected="true"] .d { color: rgba(255, 255, 255, 0.85); }
+
+  .prog__theme { margin-bottom: 1.5rem; }
 
   /* No room for two columns: the day label goes above its own content, and the
      highlights go back to one per line, which is easier to scan on a phone
@@ -1147,19 +1195,44 @@ p:last-child { margin-bottom: 0; }
   gap: clamp(2rem, 4vw, 3.5rem);
   align-items: start;
 }
-.nl-form { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-.nl-form input {
-  flex: 1 1 240px;
-  padding: 0.8rem 1.1rem;
+/* Elegir, no escribir. Dos tarjetas grandes, una por público; cada una lleva
+   a su formulario. Se apilan solas si algún día hay un público más. */
+.nl-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.75rem; }
+.nl-opt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.15rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
+  border-radius: 14px;
+  background: #fff;
   color: var(--grey-dark);
+  text-decoration: none;
+  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              transform 0.25s var(--ease);
 }
-.nl-form input:focus { outline: none; border-color: var(--red); }
-.nl-status { font-size: 0.86rem; color: var(--red); min-height: 1.2em; margin-top: 0.6rem; }
-.nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.5rem; }
+.nl-opt__label {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 1.14rem;
+  line-height: 1.25;
+  color: var(--charcoal);
+  /* La flecha va pegada al final del texto, no flotando en la esquina. */
+  padding-right: 1.1rem;
+  background: no-repeat right 0.32em / 0.62rem auto
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AE0000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+.nl-opt__note { font-size: 0.82rem; color: var(--grey-light); line-height: 1.45; }
+.nl-opt:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+@media (hover: hover) {
+  .nl-opt:hover {
+    border-color: var(--red);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    transform: translateY(-2px);
+  }
+  .nl-opt:hover .nl-opt__label { color: var(--red); }
+}
+.nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.75rem; }
 
 /* 16. FOOTER =============================================================== */
 /* The diagonal edge above the dark footer, as on the current site.
@@ -1631,20 +1704,29 @@ window.MBB.site = {
     text:
       'Receive the Match Bilbao Bizkaia 2026 programme updates, exhibitor ' +
       'announcements and registration reminders.',
-    // [Insert newsletter endpoint] — point this at your CRM or mailing platform.
+    // Dos públicos, dos formularios.
     //
-    // Agreed in review, still to be built: this becomes a proper form rather
-    // than a single email field, collecting
-    //   · company name
-    //   · contact email
-    //   · where the company is based
-    // Held back until it is decided where the entries should land — a CRM, a
-    // mailing platform or an inbox — because that choice decides whether the
-    // form posts to an endpoint, and what the consent wording has to say.
-    action: '',
-    consent:
-      'By subscribing you accept the processing of your data for the purpose ' +
-      'of receiving information about Match Bilbao Bizkaia.'
+    // No se pide el correo aquí. El visitante elige qué es, y desde ahí va al
+    // formulario de Mailchimp que le corresponde, que es donde se piden los
+    // datos y donde se registra el consentimiento. Así esta web no recoge
+    // ningún dato personal: solo enlaza.
+    //
+    // Para añadir o cambiar un público, basta con tocar esta lista.
+    audiences: [
+      {
+        label: 'Basque supplier',
+        note: 'Companies of the Bilbao Bizkaia destination',
+        url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=35fe8d2bdf'
+      },
+      {
+        label: 'International trade agent',
+        note: 'Buyers, tour operators and media',
+        url: 'https://bilbaoturismo.us17.list-manage.com/subscribe?u=5be092a34755c7cdec316f8cf&id=010b640237'
+      }
+    ],
+    // El consentimiento se pide en el formulario de destino, no aquí, porque
+    // aquí no se recoge nada. Esta línea solo avisa de a dónde lleva el enlace.
+    consent: 'Both forms open on the Bilbao Turismo mailing platform.'
   }
 };
 
@@ -2321,7 +2403,7 @@ window.MBB.editions = [
     thumbnail: '' // optional local fallback image
   },
   {
-    youtubeId: '', // [Insert YouTube video 2]
+    youtubeId: 'kkrUeAfrWEY',
     title: 'The destination in motion',
     caption:
       'A short portrait of Bilbao Bizkaia as seen by the professionals who ' +
@@ -3252,13 +3334,24 @@ window.MBB = window.MBB || {};
       '<div class="newsletter">' +
         '<div data-reveal><h3 class="h-2">' + esc(nl.title) + '</h3>' +
           '<p>' + esc(nl.text) + '</p></div>' +
+        // Elegir antes que escribir. Los dos públicos quieren cosas distintas y
+        // van a listas distintas, así que se pregunta lo único que hace falta
+        // saber aquí — cuál de los dos eres — y el resto se pide en el
+        // formulario de destino. Esta web no recoge ningún dato personal.
         '<div data-reveal style="--d:80ms">' +
-          '<form class="nl-form" id="nl-form" novalidate>' +
-            '<label class="sr-only" for="nl-email">Email address</label>' +
-            '<input id="nl-email" type="email" name="email" placeholder="your@company.com" required>' +
-            '<button class="btn" type="submit">Subscribe</button>' +
-          '</form>' +
-          '<p class="nl-status" id="nl-status" role="status"></p>' +
+          '<div class="nl-choice">' +
+            (nl.audiences || [])
+              .map(function (a) {
+                return (
+                  '<a class="nl-opt" href="' + esc(a.url) + '" ' +
+                    'target="_blank" rel="noopener">' +
+                    '<span class="nl-opt__label">' + esc(a.label) + '</span>' +
+                    (a.note ? '<span class="nl-opt__note">' + esc(a.note) + '</span>' : '') +
+                  '</a>'
+                );
+              })
+              .join('') +
+          '</div>' +
           '<p class="nl-consent">' + esc(nl.consent) + '</p>' +
         '</div>' +
       '</div>'
@@ -3722,35 +3815,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
   }
 
   /* --------------------------------------------------------------------- */
-  /* 8. Newsletter                                                          */
+  /* 8. (libre)                                                             */
   /* --------------------------------------------------------------------- */
-  // The Login buttons used to warn, on click, that they were not connected
-  // yet. They now simply do not exist until `login.url` holds a real address,
-  // which is the right behaviour on a published site — so there is nothing
-  // left here to intercept.
-  function initForms() {
-    var form = $('#nl-form');
-    if (!form) return;
-    var status = $('#nl-status');
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var email = $('#nl-email').value.trim();
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        status.textContent = 'Please enter a valid email address.';
-        return;
-      }
-      if (!MBB.site.newsletter.action) {
-        status.textContent =
-          'Thank you. [Insert newsletter endpoint in site.js to send this form.]';
-        form.reset();
-        return;
-      }
-      form.action = MBB.site.newsletter.action;
-      form.method = 'post';
-      form.submit();
-    });
-  }
+  // Aquí vivían dos cosas que ya no existen. El aviso de los botones de Login
+  // sin configurar: ahora esos botones simplemente no se dibujan hasta que hay
+  // una dirección. Y el formulario del boletín: ahora son dos enlaces a los
+  // formularios de Mailchimp, así que no hay nada que validar ni que enviar —
+  // y esta web no recoge ningún dato personal.
+  function initForms() {}
 
   /* --------------------------------------------------------------------- */
   /* 9. Graceful image fallbacks                                            */

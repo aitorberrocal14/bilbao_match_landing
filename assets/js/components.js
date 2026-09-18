@@ -919,13 +919,24 @@ window.MBB = window.MBB || {};
       '<div class="newsletter">' +
         '<div data-reveal><h3 class="h-2">' + esc(nl.title) + '</h3>' +
           '<p>' + esc(nl.text) + '</p></div>' +
+        // Elegir antes que escribir. Los dos públicos quieren cosas distintas y
+        // van a listas distintas, así que se pregunta lo único que hace falta
+        // saber aquí — cuál de los dos eres — y el resto se pide en el
+        // formulario de destino. Esta web no recoge ningún dato personal.
         '<div data-reveal style="--d:80ms">' +
-          '<form class="nl-form" id="nl-form" novalidate>' +
-            '<label class="sr-only" for="nl-email">Email address</label>' +
-            '<input id="nl-email" type="email" name="email" placeholder="your@company.com" required>' +
-            '<button class="btn" type="submit">Subscribe</button>' +
-          '</form>' +
-          '<p class="nl-status" id="nl-status" role="status"></p>' +
+          '<div class="nl-choice">' +
+            (nl.audiences || [])
+              .map(function (a) {
+                return (
+                  '<a class="nl-opt" href="' + esc(a.url) + '" ' +
+                    'target="_blank" rel="noopener">' +
+                    '<span class="nl-opt__label">' + esc(a.label) + '</span>' +
+                    (a.note ? '<span class="nl-opt__note">' + esc(a.note) + '</span>' : '') +
+                  '</a>'
+                );
+              })
+              .join('') +
+          '</div>' +
           '<p class="nl-consent">' + esc(nl.consent) + '</p>' +
         '</div>' +
       '</div>'

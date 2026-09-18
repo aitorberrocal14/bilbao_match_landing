@@ -883,13 +883,23 @@
         {
           h2: 'Boletín',
           fields: [
-            { t: 'note', html: '<p>El formulario de suscripción está pendiente de decidir dónde ' +
-              'deben llegar los datos. Mientras <b>Destino del formulario</b> esté vacío, el ' +
-              'bloque se muestra pero no envía nada.</p>' },
+            { t: 'note', html: '<p>Aquí no se pide ningún correo. El visitante marca qué es y ' +
+              'va al formulario de Mailchimp que le corresponde, que es donde se piden los datos ' +
+              'y donde queda el consentimiento. Si borras las dos direcciones, el bloque ' +
+              'desaparece de la web.</p>' },
             { t: 'text', k: 'site.newsletter.title', label: 'Título' },
             { t: 'textarea', k: 'site.newsletter.text', label: 'Texto', rows: 3 },
-            { t: 'text', k: 'site.newsletter.action', label: 'Destino del formulario' },
-            { t: 'textarea', k: 'site.newsletter.consent', label: 'Aviso de privacidad', rows: 3 }
+            { t: 'row', fields: [
+              { t: 'text', k: 'site.newsletter.audiences.0.label', label: 'Público 1 — nombre' },
+              { t: 'text', k: 'site.newsletter.audiences.0.note', label: 'Público 1 — quiénes son' }
+            ] },
+            { t: 'text', k: 'site.newsletter.audiences.0.url', label: 'Público 1 — formulario' },
+            { t: 'row', fields: [
+              { t: 'text', k: 'site.newsletter.audiences.1.label', label: 'Público 2 — nombre' },
+              { t: 'text', k: 'site.newsletter.audiences.1.note', label: 'Público 2 — quiénes son' }
+            ] },
+            { t: 'text', k: 'site.newsletter.audiences.1.url', label: 'Público 2 — formulario' },
+            { t: 'textarea', k: 'site.newsletter.consent', label: 'Aviso bajo la elección', rows: 2 }
           ]
         },
         {

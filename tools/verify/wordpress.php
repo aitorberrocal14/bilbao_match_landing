@@ -190,7 +190,14 @@ check(
 	$warns === ( $unlinked > 0 ),
 	$unlinked ? $unlinked . ' sin enlace, avisa: ' . ( $warns ? 'sí' : 'no' ) : 'todos enlazados, no avisa'
 );
-check( 'panel: avisa de que falta el login', false !== strpos( $dash, 'Login button has no address' ) );
+// El aviso debe seguir al dato, no a un momento concreto: con la dirección
+// puesta el panel tiene que callarse, y sin ella tiene que avisar.
+$sin_login = '' === (string) MBB_Settings::get( 'login_url' );
+check(
+	'panel: el aviso del login coincide con el contenido',
+	( false !== strpos( $dash, 'Login button has no address' ) ) === $sin_login,
+	$sin_login ? 'sin dirección, avisa' : 'con dirección, no avisa'
+);
 check( 'panel: enlaza a añadir expositor',
 	false !== strpos( $dash, 'post-new.php?post_type=mbb_exhibitor' ) );
 check( 'panel: sin PHP sin escapar', false === strpos( $dash, '<?php' ) );
@@ -259,6 +266,43 @@ sort( $bands );
 check( 'programa: nombres de franja esperados',
 	$bands === array( 'Afternoon', 'Evening', 'Morning', 'Times follow your flight' ),
 	implode( ' · ', $bands ) );
+
+/* --- 7. Contact and the mailing list -------------------------------------- */
+$cont = MBB_Shortcodes::contact();
+
+check( 'contacto: un bloque por canal con contenido', 2 === substr_count( $cont, 'class="channel"' ),
+	substr_count( $cont, 'class="channel"' ) );
+check( 'contacto: la dirección es un mailto', false !== strpos( $cont, 'mailto:welcome@matchbilbaobizkaia.eus' ) );
+check( 'contacto: el teléfono se puede marcar', false !== strpos( $cont, 'href="tel:+34944205377"' ) );
+
+// El boletín no pide nada: dos enlaces y ningún campo donde escribir.
+check( 'boletín: dos públicos', 2 === substr_count( $cont, 'class="nl-opt"' ),
+	substr_count( $cont, 'class="nl-opt"' ) );
+check( 'boletín: no se pide ningún dato', false === strpos( $cont, '<input' )
+	&& false === strpos( $cont, '<form' ) );
+check( 'boletín: los dos formularios abren fuera',
+	2 === substr_count( $cont, 'class="nl-opt" href="https://bilbaoturismo.us17.list-manage.com' )
+	&& 2 === substr_count( $cont, 'target="_blank" rel="noopener"' ) );
+check( 'boletín: cada público lleva a una lista distinta',
+	false !== strpos( $cont, 'id=35fe8d2bdf' ) && false !== strpos( $cont, 'id=010b640237' ) );
+
+// Vaciar las dos direcciones tiene que quitar el bloque entero, no dejar un
+// título prometiendo algo que no lleva a ninguna parte.
+$titulo_boletin = MBB_Settings::get( 'nl_title' );
+$guardado = $GLOBALS['mbb_option'];
+$GLOBALS['mbb_option']['nl1_url'] = '';
+$GLOBALS['mbb_option']['nl2_url'] = '';
+$vacio = MBB_Shortcodes::contact();
+check( 'boletín: sin direcciones desaparece entero',
+	false === strpos( $vacio, 'class="newsletter"' )
+	&& false === strpos( $vacio, $titulo_boletin ) );
+check( 'boletín: quitarlo no se lleva los canales por delante',
+	2 === substr_count( $vacio, 'class="channel"' ) );
+$GLOBALS['mbb_option'] = $guardado;
+
+// El vídeo 2 ya tiene identificador, así que las dos ediciones se ven.
+check( 'ediciones: los dos vídeos tienen identificador',
+	'' !== (string) MBB_Settings::get( 'video1_id' ) && '' !== (string) MBB_Settings::get( 'video2_id' ) );
 
 echo "\n" . ( $fail ? "$fail comprobaciones fallan\n" : "Todas las comprobaciones pasan\n" );
 exit( $fail ? 1 : 0 );

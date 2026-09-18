@@ -728,8 +728,45 @@ class MBB_Shortcodes {
 		$html = '<div class="section-head section-head--center">'
 			. '<h2 class="h-1">' . esc_html__( 'Contact', 'mbb' ) . '</h2>'
 			. '<p>' . esc_html( MBB_Settings::get( 'contact_intro' ) ) . '</p></div>'
-			. '<div class="channels">' . $items . '</div>';
+			. '<div class="channels">' . $items . '</div>'
+			. self::newsletter();
 
 		return self::wrap( $html, 'contact' );
+	}
+
+	/**
+	 * The mailing list: a choice between two audiences, each linking to its own
+	 * form. Nothing is typed here and nothing is stored here — emptying both
+	 * addresses removes the block rather than leaving a dead offer on the page.
+	 */
+	private static function newsletter() {
+		$options = '';
+
+		for ( $n = 1; $n <= 2; $n++ ) {
+			$url = MBB_Settings::get( "nl{$n}_url" );
+			if ( ! $url ) {
+				continue;
+			}
+
+			$note = MBB_Settings::get( "nl{$n}_note" );
+
+			$options .= '<a class="nl-opt" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">'
+				. '<span class="nl-opt__label">' . esc_html( MBB_Settings::get( "nl{$n}_label" ) ) . '</span>'
+				. ( $note ? '<span class="nl-opt__note">' . esc_html( $note ) . '</span>' : '' )
+				. '</a>';
+		}
+
+		if ( ! $options ) {
+			return '';
+		}
+
+		$consent = MBB_Settings::get( 'nl_consent' );
+
+		return '<div class="newsletter">'
+			. '<div><h3 class="h-2">' . esc_html( MBB_Settings::get( 'nl_title' ) ) . '</h3>'
+			. '<p>' . esc_html( MBB_Settings::get( 'nl_text' ) ) . '</p></div>'
+			. '<div><div class="nl-choice">' . $options . '</div>'
+			. ( $consent ? '<p class="nl-consent">' . esc_html( $consent ) . '</p>' : '' )
+			. '</div></div>';
 	}
 }

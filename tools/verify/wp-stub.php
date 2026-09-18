@@ -55,6 +55,7 @@ function remove_accents( $s ) {
 	$out = iconv( 'UTF-8', 'ASCII//TRANSLIT//IGNORE', (string) $s );
 	return false === $out ? (string) $s : $out;
 }
+function is_email( $s ) { return (bool) filter_var( (string) $s, FILTER_VALIDATE_EMAIL ); }
 function get_option( $k, $d = array() ) { return $GLOBALS['mbb_option']; }
 function update_option( $k, $v ) { $GLOBALS['mbb_option'] = $v; }
 function wp_parse_args( $a, $d ) { return array_merge( $d, (array) $a ); }
