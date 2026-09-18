@@ -14,6 +14,11 @@
  *     php .../server/sync.php --dry-run
  *     php .../server/sync.php --allow-shrink
  *
+ * Y si la plataforma rechaza la petición, esto dice por qué —qué se le manda y
+ * qué contesta, sin enseñar la clave:
+ *
+ *     php .../server/sync.php --dry-run --debug
+ *
  * Por qué vive aquí y no en GitHub
  * --------------------------------
  * Porque la web tiene que seguir funcionando cuando la persona que la montó ya
@@ -123,6 +128,14 @@ define('MBB_CHROME', __DIR__ . '/chrome.json');
 $argv = $argv ?? [];
 $DRY = in_array('--dry-run', $argv, true);
 $ALLOW_SHRINK = in_array('--allow-shrink', $argv, true);
+
+// Cuenta en voz alta qué se le manda a la plataforma y qué contesta. Cuando
+// Meetmaps rechaza la petición dice sólo "Request invalid", que no distingue
+// entre una clave que no vale, un evento que no es y un formato que no espera.
+// Con esto se ve cuál de las tres es. La clave nunca se imprime: sólo cuánto
+// mide y sus cuatro últimos caracteres, que basta para saber si es la que se
+// pegó en config.php o se coló un espacio al copiarla.
+$DEBUG = in_array('--debug', $argv, true);
 
 // Repite una respuesta guardada en lugar de llamar a la plataforma. Sirve para
 // probar todo el recorrido —incluido lo que escribe y dónde— sin gastar una
@@ -254,37 +267,109 @@ function fetch_exhibitors(array $conf): array
         return $j;
     }
 
-    $payload = json_encode([
+    global $DEBUG;
+
+    $campos = [
         'action'   => 'exhibitor_get_all',
         'event_id' => (int) $conf['event_id'],
         'user_key' => (string) $conf['user_key'],
-    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    ];
 
-    $ch = curl_init($conf['api_url']);
-    curl_setopt_array($ch, [
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $payload,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT        => 60,
-        CURLOPT_HTTPHEADER     => ['Content-Type: application/json', 'Accept: application/json'],
-    ]);
-    $body = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-    $err  = curl_error($ch);
-    curl_close($ch);
+    // Dos maneras de enviar lo mismo. Hay APIs de este estilo que esperan un
+    // cuerpo JSON y otras que esperan un formulario de toda la vida, y las que
+    // esperan formulario contestan justo "Request invalid" cuando les llega
+    // JSON, porque no encuentran los campos. Se prueba primero la documentada
+    // y, si la rechaza, la otra — y se dice en el registro cuál ha funcionado,
+    // para poder dejar sólo esa.
+    $intentos = [
+        ['nombre' => 'JSON', 'cuerpo' => json_encode($campos, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+         'cabeceras' => ['Content-Type: application/json', 'Accept: application/json']],
+        ['nombre' => 'formulario', 'cuerpo' => http_build_query($campos),
+         'cabeceras' => ['Content-Type: application/x-www-form-urlencoded', 'Accept: application/json']],
+    ];
 
-    if ($body === false) {
-        die_with('No se ha podido contactar con la plataforma: ' . $err);
-    }
-    if ($code < 200 || $code >= 300) {
-        die_with('La plataforma respondió ' . $code . '.');
+    if ($DEBUG) {
+        say('  URL:      ' . $conf['api_url']);
+        say('  evento:   ' . (int) $conf['event_id']);
+        say('  clave:    ' . mbb_pista_clave((string) $conf['user_key']));
     }
 
-    $json = json_decode((string) $body, true);
-    if (!is_array($json)) {
-        die_with('La plataforma no devolvió JSON.');
+    $fallos = [];
+
+    foreach ($intentos as $n => $intento) {
+        $ch = curl_init($conf['api_url']);
+        curl_setopt_array($ch, [
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => $intento['cuerpo'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 60,
+            CURLOPT_HTTPHEADER     => $intento['cabeceras'],
+        ]);
+        $body = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $err  = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false) {
+            // Esto no es que la petición no guste: es que no se llega. Probar
+            // el otro formato no arreglaría nada.
+            die_with('No se ha podido contactar con la plataforma: ' . $err);
+        }
+
+        if ($DEBUG) {
+            say('  intento ' . ($n + 1) . ' (' . $intento['nombre'] . '): HTTP ' . $code);
+            say('  respuesta: ' . mbb_recorta((string) $body, 400));
+        }
+
+        $json = json_decode((string) $body, true);
+        if (!is_array($json)) { $json = null; }
+
+        // Buena: se devuelve y se deja dicho con qué formato, que es el dato
+        // que hace falta para simplificar esto luego.
+        if ($code >= 200 && $code < 300 && $json !== null && empty($json['error']['code'])) {
+            if ($n > 0) {
+                say('La plataforma aceptó la petición como ' . $intento['nombre'] .
+                    ', no como ' . $intentos[0]['nombre'] . '.');
+            }
+            return $json;
+        }
+
+        // Se guardan los dos, no solo el primero: cuando los formatos fallan
+        // por motivos distintos, el segundo suele ser el que dice la verdad
+        // ("Invalid user key" frente a un genérico "Request invalid"), y en el
+        // cron no hay nadie mirando para volver a lanzarlo con --debug.
+        if ($json !== null && !empty($json['error']['code'])) {
+            $fallos[] = $intento['nombre'] . ' → ' . $json['error']['code'] . ' ' .
+                (isset($json['error']['message']) ? $json['error']['message'] : '');
+        } elseif ($code < 200 || $code >= 300) {
+            $fallos[] = $intento['nombre'] . ' → HTTP ' . $code;
+        } else {
+            $fallos[] = $intento['nombre'] . ' → no devolvió JSON';
+        }
     }
-    return $json;
+
+    die_with(
+        'La plataforma rechazó la petición en los dos formatos (' .
+        implode('; ', $fallos) . '). No es el formato, entonces: o la clave no vale ' .
+        'para este evento, o el evento no es el ' . (int) $conf['event_id'] . ', o la ' .
+        'clave todavía no está activa. Ejecútalo con --debug para ver el detalle.'
+    );
+}
+
+/** Cuánto mide la clave y cómo acaba. Nunca la clave. */
+function mbb_pista_clave($clave)
+{
+    $n = strlen($clave);
+    if ($n === 0) { return 'vacía'; }
+    $aviso = trim($clave) === $clave ? '' : '  ← OJO: lleva espacios al principio o al final';
+    return $n . ' caracteres, acaba en "' . substr($clave, -4) . '"' . $aviso;
+}
+
+/** Recorta una respuesta larga para que quepa en el registro. */
+function mbb_recorta($texto, $max)
+{
+    $texto = preg_replace('/\s+/', ' ', trim($texto));
+    return strlen($texto) > $max ? substr($texto, 0, $max) . ' […]' : $texto;
 }
 
 /**

@@ -298,6 +298,7 @@ y lo que significan:
 | `La plataforma rechazó la petición` | La user key no es correcta, o no tiene permiso |
 | `No se ha podido contactar` | La dirección de la API no responde |
 | `La respuesta no traía la lista` | Meetmaps contestó otra cosa. Pásame el log |
+| `rechazó la petición en los dos formatos` | La clave o el evento. Vuelve a lanzarlo añadiendo `--debug` al final y pásame lo que imprima: dice cuánto mide la clave, si lleva espacios pegados y qué contesta exactamente la plataforma. **No enseña la clave.** |
 
 ## Paso 5.2 · De verdad, la primera vez
 
