@@ -50,6 +50,21 @@
 
 declare(strict_types=1);
 
+/* --- Esto no se ejecuta desde un navegador ----------------------------------
+   Este archivo lleva la clave de la plataforma y trae los datos de las
+   personas inscritas. Lo llama el cron por línea de comandos y nadie más.
+
+   Si alguna vez acaba en una dirección accesible, un navegador no puede
+   dispararlo. La carpeta trae su propio .htaccess que deniega todo, pero eso
+   depende de que el servidor lo lea; esto no depende de nada.
+
+   REQUEST_METHOD solo existe cuando la petición llega por HTTP. */
+
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Esto se ejecuta desde las tareas programadas, no desde el navegador.');
+}
+
 /* --- Compatibilidad --------------------------------------------------------
    Este hosting tiene DOS versiones de PHP, y son distintas:
 

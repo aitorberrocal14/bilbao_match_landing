@@ -43,6 +43,24 @@
 
 declare(strict_types=1);
 
+/* --- Esto no se ejecuta desde un navegador ----------------------------------
+   Este archivo publica la web: trae código de internet y escribe en la carpeta
+   pública. Lo llama el cron por línea de comandos y nadie más.
+
+   Si alguna vez acaba en una dirección accesible —una copia de la carpeta mal
+   puesta, un servidor que no lee los .htaccess, una configuración nueva— un
+   navegador no puede dispararlo. La carpeta trae además su propio .htaccess
+   que deniega todo, pero eso depende de que el servidor lo lea; esto no
+   depende de nada.
+
+   REQUEST_METHOD solo existe cuando la petición llega por HTTP: el cron no lo
+   define, ni siquiera cuando el hosting usa un PHP raro para las tareas. */
+
+if (isset($_SERVER['REQUEST_METHOD'])) {
+    header('HTTP/1.1 403 Forbidden');
+    exit('Esto se ejecuta desde las tareas programadas, no desde el navegador.');
+}
+
 /* --- Compatibilidad: este hosting ejecuta PHP 7.0 en el cron ---------------- */
 
 if (!function_exists('str_ends_with')) {
