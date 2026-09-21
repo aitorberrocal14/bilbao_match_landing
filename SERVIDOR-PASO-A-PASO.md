@@ -9,101 +9,71 @@ servidor lo recoge. Se acabó subir archivos a mano.
 
 ---
 
-# PENDIENTE — lo que falta para que el directorio esté completo
+# Cómo está conectada la plataforma
 
-*Anotado el 2026-09-21. Cuando estas dos cosas estén, bórrese esta sección.*
+*Cerrado el 2026-09-21. El directorio se publica solo desde Meetmaps.*
 
-El servidor ya publica los expositores solos: quién sale, su ficha y su página.
-Lo comprobado ese día, en el registro del propio servidor:
+Los expositores no se escriben a mano en ningún sitio: `sync.php` los trae de
+la plataforma, decide quién sale, descarga los logotipos, clasifica y genera
+una página por empresa. Todo lo que necesita está en
+`/home/matchbilbaobizkaia/config.php`.
 
-```
-3 de 5 inscritos son expositores.
-2 expositores (0 ocultos en la plataforma)
-Hecho: 2 páginas de expositor y el sitemap.
-```
+## Los campos del formulario
 
-Faltan dos datos, y los dos se ponen en `/home/matchbilbaobizkaia/config.php`.
+La API no devuelve el nombre de los campos propios del evento: devuelve un
+**id numérico**, y por respuesta otro número. Por eso el config está lleno de
+cifras. Esto es lo que significa cada una.
 
-## 1. Las categorías del filtro
+| Campo del formulario | id | Para qué |
+|---|---|---|
+| Buyer / Exhibitor | `367992` | Decide quién sale publicado |
+| Logo | `372389` | El logotipo del directorio |
+| What kind of company are you? | `372592` | El filtro de categoría |
 
-El formulario de inscripción pregunta **«What kind of company are you?»** y sus
-tres respuestas son los tres filtros de la web. La API no devuelve el texto de
-la respuesta, solo un número, así que hay que decirle cuál es cuál.
+Y las respuestas:
 
-Lo que ya se sabe: el campo es el **372592** —es el único que ven los
-expositores; el 372361 es su equivalente para compradores y no sirve—. Y de sus
-opciones, una está confirmada:
+| | Número | |
+|---|---|---|
+| Exhibitor | `210824` | se publica |
+| Buyer | `210823` | no se publica |
+| Accommodation | `213999` | deducido |
+| Basque DMC | `214000` | confirmado |
+| Boutique Experience in Bilbao Bizkaia | `214001` | confirmado |
 
-| Desplegable | Número | Categoría | |
-|---|---|---|---|
-| 1. Accommodation | `213999` | `accommodation` | deducido |
-| 2. Basque DMC | `214000` | `dmc` | confirmado |
-| 3. Boutique Experience in Bilbao Bizkaia | `214001` | `activities` | confirmado |
+`372361` es la misma pregunta pero para compradores, y no se usa.
 
-Los números van seguidos en el orden del desplegable, así que el de
-Accommodation se deduce de los otros dos. Está puesto en `config.php`.
-
-**Por qué se puede poner sin haberlo visto:** el mapa exige coincidencia
-exacta. Un número equivocado no coincide con nada y no hace nada — no puede
-colocar a una empresa en la categoría que no es. Como mucho, esa empresa
-aparece bajo «All» y el registro del sync escribe el número correcto:
+**Para volver a averiguarlos** —si cambia el formulario, o en otra edición—:
 
 ```
-Respuestas del formulario sin categoría en config.php:
-  "2140XX"
+php /home/matchbilbaobizkaia/repo/server/sync.php --fields
+php /home/matchbilbaobizkaia/repo/server/sync.php --field 367992
 ```
 
-Si eso llega a salir, se sustituye la línea del `213999` por la buena. Para
-confirmarlo antes basta con una inscripción de prueba que elija Accommodation
-y volver a lanzar `--field 372592`.
+El primero lista los campos. El segundo dice qué EMPRESA eligió cada valor,
+que es la única forma de saber qué significa un número como `210824`. Ninguno
+de los dos escribe nada.
 
-**Qué hacer**, con gente de la oficina para poder inscribir pruebas:
+## Los logotipos
 
-1. Inscribir **tres asistentes de prueba**, eligiendo *Exhibitor* y una
-   categoría distinta en cada uno. Anotar cuál lleva cuál.
-2. Ejecutar, desde una tarea programada:
-   `php /home/matchbilbaobizkaia/repo/server/sync.php --field 372592`
-   Dice qué empresa eligió cada número.
-3. Escribir el mapa en `config.php`:
+No están en Meetmaps: están en Google Cloud Storage, en una carpeta propia de
+este evento. La dirección sale del panel de Meetmaps, en el listado de
+asistentes: la columna **Logo** tiene un chip azul **«File»**, y con el botón
+derecho → *Copiar dirección del enlace* aparece entera.
 
-```php
-    'categories_from' => [
-        'field_id' => '372592',
-        'map' => [
-            'NUMERO-DE-Accommodation'     => 'accommodation',
-            'NUMERO-DE-Basque-DMC'        => 'dmc',
-            'NUMERO-DE-Boutique-Experience' => 'activities',
-        ],
-    ],
-```
+**OJO PARA 2027:** el `EV6a8e…` de esa dirección identifica a ESTE evento. Con
+una edición nueva cambia. Si no se actualiza `img_base`, los logotipos dejan de
+aparecer **sin que nada dé error** — la única señal es el sync nombrando en su
+registro a cada empresa que no ha podido descargar.
 
-Si falta alguna, no se rompe nada: esa empresa sale bajo «All» y el registro
-escribe su número para poder añadirlo.
+## Dos cosas que no hay que confundir
 
-## 2. Los logotipos — RESUELTO el 2026-09-21
+**`img` no es el logotipo.** Es la foto de la cara de quien se inscribe, el
+avatar redondo del formulario. No se publica nunca: el directorio es de
+empresas, no de personas. El logotipo es el campo `372389`.
 
-El campo **Logo** es el **372389** y los archivos no están en Meetmaps: están
-en Google Cloud Storage, en una carpeta propia de este evento. Por eso ninguna
-ruta de `apiv1.meetmaps.com` funcionaba.
-
-La dirección se saca del panel de administración de Meetmaps, en el listado de
-asistentes: la columna **Logo** enseña un chip azul **«File»**, y con el botón
-derecho → *Copiar dirección del enlace* sale la dirección completa.
-
-En `config.php`:
-
-```php
-    'logo_from' => ['field_id' => '372389'],
-    'img_base'  => 'https://storage.googleapis.com/e-file/EV6a8ea32ab042b0ac3c6ff10108404b6bb4ffc/af/',
-```
-
-Comprobado que esa base sirve para todos los archivos del evento, no solo para
-uno, y que el logotipo llega a la web y se publica.
-
-**Para años siguientes:** ese `EV6a8e…` es el identificador de ESTE evento. Con
-un evento nuevo cambia, y hay que sacarlo otra vez de la misma manera. Si no se
-cambia, los logotipos dejan de aparecer sin que nada dé error — el sync lo dirá
-en su registro, nombrando a cada empresa afectada.
+**La plataforma manda sobre los expositores.** `deploy.php` no toca la lista,
+las fichas, los logotipos ni el sitemap: los copia solo si no existen todavía.
+Sin eso, cada despliegue pisaba lo que el sync acababa de publicar.
 
 ---
 
