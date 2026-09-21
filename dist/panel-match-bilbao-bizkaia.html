@@ -488,7 +488,11 @@ window.MBB.site = {
       // Counted from the directory, so it follows the platform rather than
       // being a number to keep in step by hand.
       { value: 'count:exhibitors', label: 'Local exhibitors' },
-      { value: '5', label: 'Days of programme' },
+      // Cuatro, no cinco. El programa tiene cinco pestañas porque la estancia
+      // dura cinco días, pero el día 5 es solo check-out y traslados al
+      // aeropuerto: no hay programa ese día. Contarlo inflaba la cifra y además
+      // contradecía al texto de arriba, que siempre ha dicho "Four days".
+      { value: '4', label: 'Days of programme' },
       { value: '1:1', label: 'Pre-scheduled meetings' }
     ],
     // Drop the file at the path below and it is used automatically.
