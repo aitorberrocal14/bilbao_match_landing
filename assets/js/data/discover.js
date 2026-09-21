@@ -173,18 +173,18 @@ window.MBB.discover = {
 window.MBB.editions = [
   {
     youtubeId: '2tI7kgSjPi8',
-    title: 'Match Bilbao Bizkaia 2025',
+    title: 'Match in Place',
     caption:
-      'Highlights of the latest edition: meetings, destination visits and new ' +
+      'Highlights of the 2022 edition: meetings, destination visits and new ' +
       'business connections.',
     thumbnail: '' // optional local fallback image
   },
   {
     youtubeId: 'kkrUeAfrWEY',
-    title: 'The destination in motion',
+    title: 'Match Asia Bilbao Bizkaia 2024',
     caption:
-      'A short portrait of Bilbao Bizkaia as seen by the professionals who ' +
-      'welcome visitors every day.',
+      'The 2024 edition with the Asian travel trade: agendas, destination ' +
+      'experiences and the professionals who welcome them.',
     thumbnail: ''
   }
 ];
