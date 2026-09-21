@@ -1625,6 +1625,66 @@ p:last-child { margin-bottom: 0; }
   margin-top: 0.9rem;
 }
 
+/* 17b. PÁGINAS LEGALES ======================================================
+   Aviso legal, privacidad, cookies y accesibilidad. Son páginas de leer, no de
+   mirar: una sola columna estrecha, sin fotos y sin adornos.
+
+   El ancho está en caracteres y no en píxeles porque lo que cansa la vista no
+   son los centímetros sino cuántas palabras hay que recorrer antes de saltar de
+   línea. Estas páginas se leen cuando algo ha ido mal —una reclamación, una
+   duda sobre los datos— y ese no es momento de pelearse con la tipografía. */
+.legal { max-width: 72ch; }
+.legal h2 { margin-top: 2.5rem; }
+.legal h2:first-of-type { margin-top: 2rem; }
+.legal ul { padding-left: 1.2rem; margin: 0 0 1.1rem; }
+.legal li { margin-bottom: 0.5rem; }
+.legal__date {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  margin-bottom: 2rem;
+}
+
+/* El resumen de arriba: lo que contestaría alguien con prisa. En privacidad y
+   en cookies la respuesta corta es la que casi todo el mundo busca. */
+.legal__note {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--red);
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  margin-bottom: 2rem;
+}
+.legal__note p:last-child { margin-bottom: 0; }
+
+.legal__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+}
+.legal__table th,
+.legal__table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.legal__table th { color: var(--grey-dark); font-weight: 500; }
+.legal__back { margin-top: 3rem; }
+
+/* En el móvil una tabla de tres columnas se estruja hasta partir las palabras
+   letra a letra. Cada fila pasa a ser un bloque con su etiqueta delante. */
+@media (max-width: 620px) {
+  .legal__table thead { display: none; }
+  .legal__table tr {
+    display: block;
+    border-bottom: 1px solid var(--line);
+    padding: 0.7rem 0;
+  }
+  .legal__table td { display: block; border: 0; padding: 0.15rem 0; }
+  .legal__table td:first-child { font-weight: 500; color: var(--grey-dark); }
+}
+
 /* 18. UTILITIES & MOTION =================================================== */
 [data-reveal] {
   opacity: 0;
@@ -1750,9 +1810,27 @@ p:last-child { margin-bottom: 0; }
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
-    <!-- SECTION 2 — MATCH BILBAO BIZKAIA 2026 ==========================
-         2a · Introduction   2b · Event Programme
-         2c · Presentation of Bilbao   2d · Latest editions            -->
+    <!-- SECTION 2 — EL DESTINO, ANTES QUE EL EVENTO =====================
+         La presentación de Bilbao y los vídeos van aquí, pegados a la portada
+         y POR DELANTE de la agenda. Estaban detrás, dentro del bloque del
+         evento, y eso los convertía en un apéndice suyo: parecían material de
+         apoyo del programa en vez de lo que son.
+
+         El orden importa porque cuenta otra historia. Quien llega quiere saber
+         primero A DÓNDE va a ir —la ciudad, la costa, el destino— y solo
+         después qué se hace allí cada día. Con la agenda delante, el destino
+         quedaba como una nota al pie de un horario.
+
+         Los vídeos van con la presentación: son el destino contado en imágenes
+         en vez de en párrafos. El ancla #editions se conserva por si hay
+         enlaces antiguos apuntando ahí. -->
+    <section class="section section--tight" id="presentation" aria-label="Presentation of Bilbao">
+      <div class="shell" data-mount="presentation"></div>
+      <div class="shell" id="editions" data-mount="editions"></div>
+    </section>
+
+    <!-- SECTION 3 — MATCH BILBAO BIZKAIA 2026 ==========================
+         3a · Introduction   3b · Event Programme                      -->
     <!-- The introduction and the programme are one block: the programme is
          the centre of gravity of the page and needs the weight. -->
     <section class="section section--soft" id="event" aria-label="Match Bilbao Bizkaia 2026">
@@ -1760,28 +1838,17 @@ p:last-child { margin-bottom: 0; }
       <div class="shell" id="programme" data-mount="programme"></div>
     </section>
 
-    <!-- La presentación del destino y los vídeos van juntos, en la misma
-         sección: los vídeos SON la presentación, contada en imágenes en vez de
-         en párrafos. Antes eran dos secciones separadas con sus dos titulares,
-         y quien bajaba leía el destino dos veces sin darse cuenta de que era
-         lo mismo. El ancla #editions se conserva por si hay enlaces antiguos
-         apuntando ahí. -->
-    <section class="section section--tight" id="presentation" aria-label="Presentation of Bilbao">
-      <div class="shell" data-mount="presentation"></div>
-      <div class="shell" id="editions" data-mount="editions"></div>
-    </section>
-
-    <!-- SECTION 3 — MEET BB'S EXPERTS (+ exhibitor directory) =========== -->
+    <!-- SECTION 4 — MEET BB'S EXPERTS (+ exhibitor directory) =========== -->
     <section class="section" id="experts" aria-label="Meet BB's Experts">
       <div class="shell shell--wide" data-mount="experts"></div>
     </section>
 
-    <!-- SECTION 4 — DISCOVER (English brochures) ======================== -->
+    <!-- SECTION 5 — DISCOVER (English brochures) ======================== -->
     <section class="section section--soft" id="discover" aria-label="Discover Bilbao Bizkaia">
       <div class="shell" data-mount="discover"></div>
     </section>
 
-    <!-- SECTION 5 — CONTACT ============================================= -->
+    <!-- SECTION 6 — CONTACT ============================================= -->
     <section class="section" id="contact" aria-label="Contact">
       <div class="shell" data-mount="contact"></div>
     </section>
@@ -1981,11 +2048,16 @@ window.MBB.site = {
         ]
       }
     ],
+    // Las cuatro páginas legales. Antes eran anclas —#legal-privacy y
+    // compañía— que no existían en ninguna parte: pulsarlas cambiaba la
+    // dirección del navegador y nada más. Son justo los enlaces que alguien
+    // busca cuando hay una reclamación, así que eran los peores que podían
+    // estar rotos.
     legal: [
-      { label: 'Privacy policy', href: '#legal-privacy' },      // [Insert legal link]
-      { label: 'Cookie policy', href: '#legal-cookies' },       // [Insert legal link]
-      { label: 'Legal notice', href: '#legal-notice' },         // [Insert legal link]
-      { label: 'Accessibility', href: '#legal-accessibility' }  // [Insert legal link]
+      { label: 'Privacy policy', href: 'privacy.html' },
+      { label: 'Cookie policy', href: 'cookies.html' },
+      { label: 'Legal notice', href: 'legal-notice.html' },
+      { label: 'Accessibility', href: 'accessibility.html' }
     ],
     copyright: 'Bilbao Bizkaia. All rights reserved.',
     mail: 'welcome@matchbilbaobizkaia.eus'
@@ -4091,8 +4163,15 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Las páginas legales están en la raíz de la web. Desde la ficha de un
+    // expositor, que vive en su propia carpeta, "privacy.html" apuntaría
+    // dentro de esa carpeta y daría 404: hay que anteponerle el camino de
+    // vuelta. Las direcciones completas y los anclas se dejan como están.
     var legal = f.legal
-      .map(function (l) { return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>'; })
+      .map(function (l) {
+        var href = /^([a-z]+:|#|\/)/i.test(l.href) ? l.href : base + l.href;
+        return '<a href="' + esc(href) + '">' + esc(l.label) + '</a>';
+      })
       .join('');
 
     return (

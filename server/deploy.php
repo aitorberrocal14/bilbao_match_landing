@@ -122,7 +122,14 @@ function read_config(): array
 // El .htaccess de la raíz impide que el navegador sirva una mezcla de
 // versiones —un archivo de hoy junto a otro de hace tres días, que juntos no
 // funcionan—. Sin él hay que pedirle a cada visitante que pulse Ctrl+F5.
-$FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml', '.htaccess'];
+$FILES = [
+    'index.html', 'platform.html',
+    // Las cuatro páginas legales. Si una de estas falta en el repositorio el
+    // despliegue se planta entero, que es lo que queremos: una web publicada
+    // con el enlace de privacidad roto es peor que una web sin publicar.
+    'privacy.html', 'cookies.html', 'legal-notice.html', 'accessibility.html',
+    'robots.txt', 'sitemap.xml', '.htaccess',
+];
 $DIRS  = ['assets', 'exhibitors'];
 
 /** Nunca se copia: la contraseña del panel vive en el servidor y solo ahí. */

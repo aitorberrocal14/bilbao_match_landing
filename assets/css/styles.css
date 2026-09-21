@@ -1552,6 +1552,66 @@ p:last-child { margin-bottom: 0; }
   margin-top: 0.9rem;
 }
 
+/* 17b. PÁGINAS LEGALES ======================================================
+   Aviso legal, privacidad, cookies y accesibilidad. Son páginas de leer, no de
+   mirar: una sola columna estrecha, sin fotos y sin adornos.
+
+   El ancho está en caracteres y no en píxeles porque lo que cansa la vista no
+   son los centímetros sino cuántas palabras hay que recorrer antes de saltar de
+   línea. Estas páginas se leen cuando algo ha ido mal —una reclamación, una
+   duda sobre los datos— y ese no es momento de pelearse con la tipografía. */
+.legal { max-width: 72ch; }
+.legal h2 { margin-top: 2.5rem; }
+.legal h2:first-of-type { margin-top: 2rem; }
+.legal ul { padding-left: 1.2rem; margin: 0 0 1.1rem; }
+.legal li { margin-bottom: 0.5rem; }
+.legal__date {
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+  margin-bottom: 2rem;
+}
+
+/* El resumen de arriba: lo que contestaría alguien con prisa. En privacidad y
+   en cookies la respuesta corta es la que casi todo el mundo busca. */
+.legal__note {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--red);
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  margin-bottom: 2rem;
+}
+.legal__note p:last-child { margin-bottom: 0; }
+
+.legal__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.92rem;
+}
+.legal__table th,
+.legal__table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.legal__table th { color: var(--grey-dark); font-weight: 500; }
+.legal__back { margin-top: 3rem; }
+
+/* En el móvil una tabla de tres columnas se estruja hasta partir las palabras
+   letra a letra. Cada fila pasa a ser un bloque con su etiqueta delante. */
+@media (max-width: 620px) {
+  .legal__table thead { display: none; }
+  .legal__table tr {
+    display: block;
+    border-bottom: 1px solid var(--line);
+    padding: 0.7rem 0;
+  }
+  .legal__table td { display: block; border: 0; padding: 0.15rem 0; }
+  .legal__table td:first-child { font-weight: 500; color: var(--grey-dark); }
+}
+
 /* 18. UTILITIES & MOTION =================================================== */
 [data-reveal] {
   opacity: 0;

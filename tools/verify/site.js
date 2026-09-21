@@ -519,8 +519,10 @@ function check(etiqueta, ok, detalle) {
   console.log('\n--- lo que publica el servidor ---');
 
   const deploy = fs.readFileSync(path.join(ROOT, 'server/deploy.php'), 'utf8');
-  const lista = (deploy.match(/\$FILES\s*=\s*\[([^\]]*)\]/) || [, ''])[1]
-    .split(',').map((s) => s.trim().replace(/^'|'$/g, '')).filter(Boolean);
+  // Se quedan solo los nombres entrecomillados: la lista lleva comentarios
+  // entre medias, y partir por comas sin más los tomaba por archivos.
+  const lista = ((deploy.match(/\$FILES\s*=\s*\[([\s\S]*?)\]/) || [, ''])[1]
+    .match(/'([^']+)'/g) || []).map((s) => s.replace(/'/g, ''));
 
   check('deploy.php enumera archivos', lista.length > 0, lista.join(' '));
   for (const f of lista) {
@@ -639,6 +641,60 @@ function check(etiqueta, ok, detalle) {
 
   await aviso.close();
 
+  /* --- Las cuatro páginas legales ------------------------------------------ */
+  // Son las que alguien busca cuando hay una reclamación, así que son las
+  // peores que pueden estar rotas. Y como platform.html, tienen que leerse
+  // aunque el JavaScript no llegue: por eso se abren con el script apagado.
+  console.log('\n--- las páginas legales ---');
+
+  const LEGALES = [
+    ['privacy.html', 'Privacy policy'],
+    ['cookies.html', 'Cookie policy'],
+    ['legal-notice.html', 'Legal notice'],
+    ['accessibility.html', 'Accessibility statement']
+  ];
+
+  const mudas = await navegador.newContext({ javaScriptEnabled: false });
+  const pendientes = [];
+
+  for (const [archivo, titulo] of LEGALES) {
+    const lp = await mudas.newPage();
+    await lp.goto('file://' + path.join(ROOT, archivo));
+    const r = await lp.evaluate(() => {
+      const t = document.body.textContent.replace(/\s+/g, ' ').trim();
+      return {
+        h1: (document.querySelector('h1') || {}).textContent || '',
+        largo: t.length,
+        // Lo que todavía no se puede escribir sin que lo diga la organización.
+        huecos: (t.match(/\[Insert [^\]]+\]/g) || []),
+        vuelta: [...document.querySelectorAll('a')]
+          .some((a) => /^index\.html$/.test(a.getAttribute('href') || ''))
+      };
+    });
+    await lp.close();
+
+    check(archivo + ' se lee sin JavaScript',
+      r.h1.trim() === titulo && r.largo > 1200, r.h1.trim() + ' · ' + r.largo + ' caracteres');
+    check('  y se puede volver a la web', r.vuelta);
+    r.huecos.forEach((h) => pendientes.push(archivo + ': ' + h));
+  }
+  await mudas.close();
+
+  // El pie tiene que llevar a las cuatro, y desde cualquier página.
+  const pie = await navegador.newPage({ viewport: { width: 1280, height: 900 } });
+  await pie.goto(PAGINA);
+  await pie.waitForTimeout(700);
+  const enlaces = await pie.evaluate(() => [...document.querySelectorAll('.footer a')]
+    .map((a) => a.getAttribute('href')));
+  await pie.close();
+
+  for (const [archivo] of LEGALES) {
+    check('el pie enlaza ' + archivo, enlaces.indexOf(archivo) > -1);
+  }
+  check('ningún enlace legal sin destino',
+    !enlaces.some((h) => /^#legal-/.test(h || '')),
+    enlaces.filter((h) => /^#legal-/.test(h || '')).join(' ') || 'ninguno');
+
   // Y el día que abra, esta página tiene que apartarse sola. Se adelanta el
   // reloj del navegador y se comprueba a dónde acaba el visitante. Meetmaps no
   // existe desde aquí, así que se intercepta la salida para ver la dirección.
@@ -679,5 +735,22 @@ function check(etiqueta, ok, detalle) {
   console.log(
     '\n' + (fallos ? fallos + ' comprobaciones fallan' : 'Todas las comprobaciones pasan')
   );
+
+  // Los datos que solo puede dar la organización —el NIF, la dirección, el
+  // correo de protección de datos, el grado de cumplimiento de accesibilidad—
+  // se listan aparte y NO cuentan como fallo.
+  //
+  // No son un fallo porque no hay nada que arreglar en el código: falta un dato
+  // que no se puede inventar. Y van en su propio bloque, y no escondidos en la
+  // lista de comprobaciones, para que se vean de un vistazo y no se publique la
+  // web con "[Insert NIF]" en la página de privacidad.
+  if (pendientes.length) {
+    console.log(
+      '\nPENDIENTE DE DATOS (' + pendientes.length + ') — no es un fallo del código,\n' +
+      'son datos que tiene que dar la organización antes de publicar:'
+    );
+    pendientes.forEach(function (p) { console.log('  · ' + p); });
+  }
+
   process.exit(fallos ? 1 : 0);
 })();

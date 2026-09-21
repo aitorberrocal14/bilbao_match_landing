@@ -1359,8 +1359,15 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Las páginas legales están en la raíz de la web. Desde la ficha de un
+    // expositor, que vive en su propia carpeta, "privacy.html" apuntaría
+    // dentro de esa carpeta y daría 404: hay que anteponerle el camino de
+    // vuelta. Las direcciones completas y los anclas se dejan como están.
     var legal = f.legal
-      .map(function (l) { return '<a href="' + esc(l.href) + '">' + esc(l.label) + '</a>'; })
+      .map(function (l) {
+        var href = /^([a-z]+:|#|\/)/i.test(l.href) ? l.href : base + l.href;
+        return '<a href="' + esc(href) + '">' + esc(l.label) + '</a>';
+      })
       .join('');
 
     return (

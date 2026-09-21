@@ -171,11 +171,16 @@ window.MBB.site = {
         ]
       }
     ],
+    // Las cuatro páginas legales. Antes eran anclas —#legal-privacy y
+    // compañía— que no existían en ninguna parte: pulsarlas cambiaba la
+    // dirección del navegador y nada más. Son justo los enlaces que alguien
+    // busca cuando hay una reclamación, así que eran los peores que podían
+    // estar rotos.
     legal: [
-      { label: 'Privacy policy', href: '#legal-privacy' },      // [Insert legal link]
-      { label: 'Cookie policy', href: '#legal-cookies' },       // [Insert legal link]
-      { label: 'Legal notice', href: '#legal-notice' },         // [Insert legal link]
-      { label: 'Accessibility', href: '#legal-accessibility' }  // [Insert legal link]
+      { label: 'Privacy policy', href: 'privacy.html' },
+      { label: 'Cookie policy', href: 'cookies.html' },
+      { label: 'Legal notice', href: 'legal-notice.html' },
+      { label: 'Accessibility', href: 'accessibility.html' }
     ],
     copyright: 'Bilbao Bizkaia. All rights reserved.',
     mail: 'welcome@matchbilbaobizkaia.eus'
