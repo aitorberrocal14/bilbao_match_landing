@@ -31,8 +31,14 @@ tres respuestas son los tres filtros de la web. La API no devuelve el texto de
 la respuesta, solo un número, así que hay que decirle cuál es cuál.
 
 Lo que ya se sabe: el campo es el **372592** —es el único que ven los
-expositores; el 372361 es su equivalente para compradores y no sirve— y dos de
-sus opciones son **214000** y **214001**.
+expositores; el 372361 es su equivalente para compradores y no sirve—. Y de sus
+opciones, una está confirmada:
+
+| Número | Respuesta |
+|---|---|
+| `214000` | Basque DMC → `dmc` |
+| `214001` | por confirmar |
+| ¿`214002`? | por confirmar |
 
 **Qué hacer**, con gente de la oficina para poder inscribir pruebas:
 
@@ -57,31 +63,30 @@ sus opciones son **214000** y **214001**.
 Si falta alguna, no se rompe nada: esa empresa sale bajo «All» y el registro
 escribe su número para poder añadirlo.
 
-## 2. Los logotipos
+## 2. Los logotipos — RESUELTO el 2026-09-21
 
-El campo **Logo** es el **372389** —está comprobado— y la API devuelve el
-nombre del archivo, por ejemplo `372389_2835567_9100918122516.png`. Falta saber
-de qué dirección cuelga.
+El campo **Logo** es el **372389** y los archivos no están en Meetmaps: están
+en Google Cloud Storage, en una carpeta propia de este evento. Por eso ninguna
+ruta de `apiv1.meetmaps.com` funcionaba.
 
-Las fotos de perfil están en
-`https://apiv1.meetmaps.com/root/projects/15425/attendees/`, pero los archivos
-de campos personalizados **no están ahí**; se comprobó y da 404.
+La dirección se saca del panel de administración de Meetmaps, en el listado de
+asistentes: la columna **Logo** enseña un chip azul **«File»**, y con el botón
+derecho → *Copiar dirección del enlace* sale la dirección completa.
 
-**Qué hacer:** preguntárselo a Meetmaps.
-
-> El campo de subida «Logo» (id 372389) del evento 15425 devuelve por API
-> valores como `372389_2835567_9100918122516.png`. ¿Desde qué URL se sirven
-> esos archivos?
-
-Y cuando contesten, en `config.php`:
+En `config.php`:
 
 ```php
-    'img_base' => 'https://.../',      // con la barra final
+    'logo_from' => ['field_id' => '372389'],
+    'img_base'  => 'https://storage.googleapis.com/e-file/EV6a8ea32ab042b0ac3c6ff10108404b6bb4ffc/af/',
 ```
 
-**Ojo para años siguientes:** esa dirección lleva dentro el número del evento.
-Al cambiar de edición hay que cambiar `img_base` además de `event_id`, o los
-logotipos dejan de aparecer sin que nada dé error.
+Comprobado que esa base sirve para todos los archivos del evento, no solo para
+uno, y que el logotipo llega a la web y se publica.
+
+**Para años siguientes:** ese `EV6a8e…` es el identificador de ESTE evento. Con
+un evento nuevo cambia, y hay que sacarlo otra vez de la misma manera. Si no se
+cambia, los logotipos dejan de aparecer sin que nada dé error — el sync lo dirá
+en su registro, nombrando a cada empresa afectada.
 
 ---
 
