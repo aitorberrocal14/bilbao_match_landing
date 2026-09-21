@@ -34,11 +34,19 @@ Lo que ya se sabe: el campo es el **372592** —es el único que ven los
 expositores; el 372361 es su equivalente para compradores y no sirve—. Y de sus
 opciones, una está confirmada:
 
-| Número | Respuesta |
-|---|---|
-| `214000` | Basque DMC → `dmc` |
-| `214001` | por confirmar |
-| ¿`214002`? | por confirmar |
+| Número | Respuesta | Categoría |
+|---|---|---|
+| `214000` | Basque DMC | `dmc` |
+| `214001` | Boutique Experience in Bilbao Bizkaia | `activities` |
+| ? | Accommodation | `accommodation` |
+
+**Falta el de Accommodation, y no se puede deducir:** los números NO van en el
+orden del desplegable —`214000` es la segunda opción de la lista, no la
+primera—, así que hay que verlo. Basta con una inscripción de prueba que elija
+Accommodation y volver a lanzar `--field 372592`.
+
+Mientras tanto no se rompe nada: una empresa con esa respuesta sale bajo «All»
+y el registro del sync escribe su número, listo para añadirlo.
 
 **Qué hacer**, con gente de la oficina para poder inscribir pruebas:
 
