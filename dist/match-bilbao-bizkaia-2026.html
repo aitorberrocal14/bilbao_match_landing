@@ -135,7 +135,14 @@
   --font-body: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial,
     sans-serif;
 
-  --shell: 1140px;
+  /* El ancho de la página. En pantallas grandes se notaba mucho margen a los
+     lados y las portadas de los folletos salían pequeñas para el sitio que
+     había. Los párrafos no se estiran con esto: los limita `.measure` a 68
+     caracteres por línea, que es lo que se lee cómodo. Lo que crece son las
+     imágenes y las retículas, que es donde sobraba hueco.
+
+     Es una sola línea: bajarla vuelve a dejar la página más estrecha. */
+  --shell: 1320px;
   --gutter: clamp(1.25rem, 5vw, 2.5rem);
   --section-y: clamp(3rem, 7vw, 6rem);
   --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -186,7 +193,12 @@ button { font: inherit; color: inherit; }
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
-.shell--wide { max-width: 1300px; }
+/* La cabecera y las retículas anchas van al mismo ancho que el resto de la
+   página, no a uno propio. Antes eran 1300 frente a 1140, y eso dejaba el
+   logotipo 80px por fuera del texto que tenía justo debajo: la cabecera
+   parecía descolocada respecto al contenido. Atado a --shell, no pueden
+   separarse otra vez. */
+.shell--wide { max-width: var(--shell); }
 
 .section { padding-block: var(--section-y); }
 .section--soft { background: var(--bg-soft); }

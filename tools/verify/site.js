@@ -403,6 +403,17 @@ function check(etiqueta, ok, detalle) {
     check('a ' + w + 'px la cabecera aguanta', bien && !r.desborde,
       (r.plegado ? 'plegado tras el botón' : r.filas + ' fila(s)') +
       (r.desborde ? ' — SE SALE DE ANCHO' : ''));
+
+    // Y el logotipo tiene que empezar donde empieza el texto de debajo. Antes
+    // la cabecera usaba un ancho propio y quedaba 80px por fuera del contenido.
+    const desfase = await cab.evaluate(() => {
+      const m = document.querySelector('.header__brand');
+      const t = document.querySelector('.hero__inner > div');
+      if (!m || !t) return null;
+      return Math.round(m.getBoundingClientRect().x - t.getBoundingClientRect().x);
+    });
+    check('a ' + w + 'px el logotipo va a una con el texto',
+      desfase !== null && Math.abs(desfase) <= 2, desfase + 'px');
   }
 
   await cab.close();
