@@ -4,12 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Esta página no lleva la fecha escrita: la dibuja components.js leyendo
-       site.login.opensAt, que es el mismo dato que decide a dónde van los
-       botones de Login. Así la página y los botones no pueden contradecirse.
-       Para cambiar la fecha se toca una sola línea, en
-       assets/js/data/site.js, y ya está: aquí no hay nada que actualizar. -->
-
   <title>Platform access — Match Bilbao Bizkaia 2026</title>
   <meta name="description" content="When the Match Bilbao Bizkaia 2026 platform opens, and how to create your profile in the meantime.">
   <meta name="theme-color" content="#ae0000">
@@ -25,7 +19,60 @@
   <header class="header" id="header" data-menu="closed" data-mount="header"></header>
 
   <main id="main">
-    <section class="section" data-mount="platform"></section>
+
+    <!-- ESTE TEXTO ESTÁ ESCRITO AQUÍ A PROPÓSITO.
+         =====================================================================
+         Antes lo dibujaba el JavaScript, y eso significaba que esta página
+         necesitaba que se cargaran y se ejecutaran tres archivos solo para
+         enseñar un párrafo. Si uno fallaba, llegaba tarde o el navegador
+         servía una copia vieja, la página salía EN BLANCO: el peor resultado
+         posible en la página a la que mandamos a todo el que pulsa "Login".
+
+         Ahora el mensaje es HTML corriente. Se lee aunque el JavaScript no
+         llegue nunca. La cabecera y el pie se siguen montando con el script,
+         pero son un añadido: si no aparecen, el mensaje se lee igual.
+
+         Para cambiar la fecha hay que tocar DOS sitios, y las pruebas no
+         pasan si no coinciden (tools/verify/site.js lo comprueba):
+           1. aquí abajo, el texto que lee la gente
+           2. `login.opensAt` en assets/js/data/site.js, que es lo que decide
+              a dónde va el botón de Login y cuándo deja de venir aquí
+         ==================================================================== -->
+
+    <section class="section" data-gate>
+      <div class="shell gate">
+        <p class="kicker">Match Bilbao Bizkaia 2026</p>
+
+        <h1 class="h-1">The platform opens on 28 September</h1>
+
+        <p class="lead measure">
+          Access to your profile, your availability and your meeting agenda
+          opens on <strong>Monday 28 September 2026</strong> at 00:01 (Bilbao
+          time). Until then the platform is being prepared, and signing in is
+          not yet possible.
+        </p>
+
+        <p class="measure">
+          You do not have to wait to take part. Create your profile now — tell
+          us about your company, your markets and who you would like to meet —
+          and you will be ready to schedule your meetings the moment the
+          platform opens.
+        </p>
+
+        <p class="gate__actions">
+          <a class="btn btn--lg"
+             href="https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration"
+             target="_blank" rel="noopener">Create your profile</a>
+          <a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>
+        </p>
+
+        <p class="gate__help">
+          Questions about your registration? Write to
+          <a class="link-red" href="mailto:welcome@matchbilbaobizkaia.eus">welcome@matchbilbaobizkaia.eus</a>.
+        </p>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer" id="footer" data-mount="footer"></footer>

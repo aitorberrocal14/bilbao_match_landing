@@ -384,6 +384,42 @@ function check(etiqueta, ok, detalle) {
   await aviso.goto('file://' + path.join(ROOT, 'platform.html'));
   await aviso.waitForTimeout(600);
 
+  // Lo primero y lo más importante de esta página: que se lea SIN JavaScript.
+  // Es la página a la que mandamos a todo el que pulsa "Login", así que no
+  // puede depender de que tres archivos lleguen y se ejecuten para enseñar un
+  // párrafo. Se abre con el script desactivado y tiene que decir lo mismo.
+  const mudo = await navegador.newContext({ javaScriptEnabled: false });
+  const sinJs = await mudo.newPage();
+  await sinJs.goto('file://' + path.join(ROOT, 'platform.html'));
+  const crudo = await sinJs.evaluate(() => {
+    const g = document.querySelector('[data-gate]');
+    const enlaces = g ? [...g.querySelectorAll('a')].map((a) => a.getAttribute('href')) : [];
+    return { texto: (g ? g.textContent : '').replace(/\s+/g, ' ').trim(), enlaces };
+  });
+  await mudo.close();
+
+  // La fecha que lee la gente y la que manda a los botones tienen que ser la
+  // misma. Si alguien cambia `opensAt` y se olvida del texto —o al revés— la
+  // web diría un día y se abriría otro, y nadie se enteraría hasta ese día.
+  const dia = await aviso.evaluate(() => window.MBB.platformOpensOn(window.MBB.site));
+  const completa = await aviso.evaluate(() => window.MBB.platformOpensFull(window.MBB.site));
+
+  check('el aviso se lee sin JavaScript', crudo.texto.length > 200,
+    crudo.texto.slice(0, 70) + '…');
+  // Las tres formas en que la fecha aparece escrita —"28 September" en el
+  // titular, "Monday 28 September 2026" y "00:01" en el párrafo— tienen que
+  // salir de la misma fecha que usan los botones. Si alguien cambia `opensAt`
+  // y se olvida del texto, esto falla aquí y no el día 28 delante de la gente.
+  const faltan = [dia, completa.fecha, completa.hora]
+    .filter((t) => crudo.texto.indexOf(t) === -1);
+  check('el texto escrito dice la misma fecha que site.js',
+    faltan.length === 0,
+    faltan.length ? 'falta en platform.html: ' + faltan.join(', ')
+                  : completa.fecha + ', ' + completa.hora);
+  check('sin JavaScript, el alta y la vuelta siguen a mano',
+    crudo.enlaces.some((h) => /registration/.test(h)) &&
+    crudo.enlaces.some((h) => /^index\.html$/.test(h)), crudo.enlaces.join(' '));
+
   const p = await aviso.evaluate(() => {
     const internos = [...document.querySelectorAll('.header a, .footer a')]
       .map((a) => ({ t: (a.textContent || '').trim(), h: a.getAttribute('href') || '' }))

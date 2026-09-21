@@ -2739,54 +2739,34 @@ window.MBB = window.MBB || {};
   };
 
   /**
-   * La página que explica cuándo abre la plataforma (platform.html).
+   * El aviso de platform.html CUANDO LA PLATAFORMA YA HA ABIERTO.
    *
-   * Se dibuja con el dato, no con una fecha escrita a mano: es el mismo
-   * `opensAt` que decide a dónde van los botones, así que la página y los
-   * botones no pueden decir cosas distintas por mucho que alguien cambie la
-   * fecha y se olvide de algo.
+   * El mensaje de espera —el que se lee hasta el día 28— no se dibuja aquí:
+   * está escrito en el propio platform.html, como HTML corriente. Eso es a
+   * posta. Esa página existe para decirle una cosa a quien pulsa "Login", y no
+   * puede depender de que tres archivos de JavaScript lleguen y se ejecuten
+   * para enseñar un párrafo: si algo fallaba, la persona se encontraba una
+   * pantalla en blanco justo donde más falta hacía el mensaje.
    *
-   * Y si la plataforma ya está abierta, esta página no insiste en una fecha
-   * pasada: dice que está abierta y ofrece entrar. Alguien puede llegar aquí
-   * desde un enlace guardado meses atrás.
+   * Lo que sí hace falta hacer con el script es lo de después: llegada la
+   * fecha, esta página no puede seguir insistiendo en un día que ya pasó.
+   * Alguien puede llegar meses más tarde desde un enlace guardado. Entonces
+   * —y solo entonces— este texto sustituye al escrito.
    */
   MBB.PlatformGate = function (site) {
-    var cuando = MBB.platformOpensFull(site);
-    var abierta = MBB.platformOpen(site);
-    var reg = site.register || {};
     var correo = (site.footer || {}).mail || '';
 
-    var cuerpo = abierta || !cuando
-      ? '<h1 class="h-1">The platform is open</h1>' +
+    return (
+      '<div class="shell gate">' +
+        '<p class="kicker">' + esc(site.event.name) + ' ' + esc(site.event.edition) + '</p>' +
+        '<h1 class="h-1">The platform is open</h1>' +
         '<p class="lead measure">Sign in to reach your profile, your ' +
           'availability and your confirmed meeting agenda.</p>' +
         '<p class="gate__actions">' +
           '<a class="btn btn--lg" href="' + esc(site.login.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(site.login.label) + '</a>' +
           '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
-        '</p>'
-      : '<h1 class="h-1">The platform opens on ' +
-          esc(MBB.platformOpensOn(site)) + '</h1>' +
-        '<p class="lead measure">Access to your profile, your availability and ' +
-          'your meeting agenda opens on <strong>' + esc(cuando.fecha) + '</strong> ' +
-          'at ' + esc(cuando.hora) + ' (Bilbao time). Until then the platform is ' +
-          'being prepared, and signing in is not yet possible.</p>' +
-        '<p class="measure">You do not have to wait to take part. Create your ' +
-          'profile now — tell us about your company, your markets and who you ' +
-          'would like to meet — and you will be ready to schedule your meetings ' +
-          'the moment the platform opens.</p>' +
-        '<p class="gate__actions">' +
-          (reg.url
-            ? '<a class="btn btn--lg" href="' + esc(reg.url) + '" ' +
-              'target="_blank" rel="noopener">' + esc(reg.label) + '</a>'
-            : '') +
-          '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
-        '</p>';
-
-    return (
-      '<div class="shell gate">' +
-        '<p class="kicker">' + esc(site.event.name) + ' ' + esc(site.event.edition) + '</p>' +
-        cuerpo +
+        '</p>' +
         (correo
           ? '<p class="gate__help">Questions about your registration? Write to ' +
             '<a class="link-red" href="mailto:' + esc(correo) + '">' + esc(correo) + '</a>.</p>'
@@ -4039,7 +4019,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     // aquí, sus enlaces tienen que nombrar la portada: si no, pulsar "Discover"
     // solo cambia la dirección del navegador y la pantalla se queda igual.
     var esPortada = !!$('[data-mount="hero"]');
-    var esAviso = !!$('[data-mount="platform"]');
+    var esAviso = !!$('[data-gate]');
     into('header', function () {
       return MBB.Header(MBB.site, {
         home: esPortada ? '' : 'index.html',
@@ -4060,7 +4040,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     into('footer', function () {
       return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
     });
-    into('platform', function () { return MBB.PlatformGate(MBB.site); });
+    // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
+    // Solo se toca si la plataforma ya ha abierto: entonces el mensaje de
+    // espera sobra y hay que ofrecer la entrada. Si esto falla, el visitante se
+    // queda con el texto escrito, que es un mal menor y no una pantalla vacía.
+    var puerta = $('[data-gate]');
+    if (puerta && MBB.platformOpen(MBB.site)) {
+      try {
+        puerta.innerHTML = MBB.PlatformGate(MBB.site);
+      } catch (e) {
+        if (window.console && console.error) { console.error(e); }
+      }
+    }
 
     // El título solo lo pone la portada: las demás páginas traen el suyo en el
     // HTML y no hay que pisárselo.

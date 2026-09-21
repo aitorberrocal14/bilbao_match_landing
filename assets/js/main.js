@@ -43,7 +43,7 @@
     // aquí, sus enlaces tienen que nombrar la portada: si no, pulsar "Discover"
     // solo cambia la dirección del navegador y la pantalla se queda igual.
     var esPortada = !!$('[data-mount="hero"]');
-    var esAviso = !!$('[data-mount="platform"]');
+    var esAviso = !!$('[data-gate]');
     into('header', function () {
       return MBB.Header(MBB.site, {
         home: esPortada ? '' : 'index.html',
@@ -64,7 +64,18 @@
     into('footer', function () {
       return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
     });
-    into('platform', function () { return MBB.PlatformGate(MBB.site); });
+    // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
+    // Solo se toca si la plataforma ya ha abierto: entonces el mensaje de
+    // espera sobra y hay que ofrecer la entrada. Si esto falla, el visitante se
+    // queda con el texto escrito, que es un mal menor y no una pantalla vacía.
+    var puerta = $('[data-gate]');
+    if (puerta && MBB.platformOpen(MBB.site)) {
+      try {
+        puerta.innerHTML = MBB.PlatformGate(MBB.site);
+      } catch (e) {
+        if (window.console && console.error) { console.error(e); }
+      }
+    }
 
     // El título solo lo pone la portada: las demás páginas traen el suyo en el
     // HTML y no hay que pisárselo.
