@@ -101,7 +101,10 @@ function read_config(): array
  * Lo que se publica. Todo lo demás —documentación, herramientas, el historial
  * de git— se queda en el repositorio y no llega nunca a la carpeta pública.
  */
-$FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml'];
+// El .htaccess de la raíz impide que el navegador sirva una mezcla de
+// versiones —un archivo de hoy junto a otro de hace tres días, que juntos no
+// funcionan—. Sin él hay que pedirle a cada visitante que pulse Ctrl+F5.
+$FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml', '.htaccess'];
 $DIRS  = ['assets', 'exhibitors', 'admin'];
 
 /** Nunca se copia: la contraseña del panel vive en el servidor y solo ahí. */

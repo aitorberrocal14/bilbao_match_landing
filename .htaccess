@@ -1,0 +1,41 @@
+# QUE EL NAVEGADOR NO SIRVA UNA COPIA VIEJA DE LA WEB
+# =============================================================================
+# Esto existe por un fallo real y difícil de ver. Un visitante tenía el
+# `components.js` del día en el navegador y el `main.js` de tres días antes,
+# guardado en su caché. Los dos archivos son de la misma web pero de versiones
+# distintas, y juntos no funcionan: la página daba un error y se quedaba a
+# medias. En el servidor estaba todo correcto y actualizado, así que mirando el
+# servidor no se veía nada raro.
+#
+# Y el síntoma engaña: parece que el despliegue no ha funcionado. Se vuelve a
+# desplegar, se mira el registro, todo dice que bien, y la persona sigue viendo
+# la versión antigua. Se pierde media mañana en eso.
+#
+# La regla de abajo dice: guarda la copia si quieres, pero PREGUNTA SIEMPRE si
+# sigue valiendo antes de usarla. Si no ha cambiado, el servidor contesta "sigue
+# igual" sin reenviar el archivo, así que no se pierde velocidad de verdad: se
+# ahorra la descarga, que es lo que pesa. Y si ha cambiado, llega el nuevo.
+#
+# Sin esto hay que ir pidiéndole a cada persona que pulse Ctrl+F5, y eso no es
+# una solución: a quien entre desde un correo no se le puede pedir nada.
+#
+# El <IfModule> es una red de seguridad. Si el servidor no tiene ese módulo,
+# estas líneas se ignoran en vez de tumbar la web con un error 500.
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|js|css|json|xml|ics)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+# Las imágenes y las tipografías también se revalidan. Pesan mucho más, pero
+# cuando no han cambiado el servidor contesta igualmente sin reenviarlas. Y sí
+# cambian: los logotipos de los expositores los reescribe sync.php cada vez que
+# alguien actualiza el suyo en la plataforma, conservando el mismo nombre de
+# archivo. Con una caché larga, ese logotipo nuevo tardaría días en verse.
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(png|jpe?g|gif|svg|webp|ico|woff2?|ttf|eot)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

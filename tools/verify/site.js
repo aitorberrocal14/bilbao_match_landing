@@ -418,6 +418,26 @@ function check(etiqueta, ok, detalle) {
 
   await cab.close();
 
+  /* --- Lo que el servidor publica ------------------------------------------ */
+  // deploy.php se planta si le falta uno de los archivos de su lista: no copia
+  // nada y deja la web como estaba. Así que un nombre en esa lista que no
+  // exista en el repositorio no es un despiste, es un despliegue parado.
+  console.log('\n--- lo que publica el servidor ---');
+
+  const deploy = fs.readFileSync(path.join(ROOT, 'server/deploy.php'), 'utf8');
+  const lista = (deploy.match(/\$FILES\s*=\s*\[([^\]]*)\]/) || [, ''])[1]
+    .split(',').map((s) => s.trim().replace(/^'|'$/g, '')).filter(Boolean);
+
+  check('deploy.php enumera archivos', lista.length > 0, lista.join(' '));
+  for (const f of lista) {
+    check('  publica ' + f, fs.existsSync(path.join(ROOT, f)));
+  }
+  // El .htaccess es el que impide que el navegador mezcle versiones. Si se cae
+  // de la lista, deja de publicarse y el problema vuelve sin hacer ruido.
+  check('el .htaccess se publica', lista.indexOf('.htaccess') > -1, lista.join(' '));
+  check('el .htaccess obliga a revalidar',
+    /no-cache/.test(fs.readFileSync(path.join(ROOT, '.htaccess'), 'utf8')));
+
   /* --- La página de aviso, que no es la portada ---------------------------- */
   // Esto existe por un fallo que se veía perfecto y no funcionaba: en
   // platform.html el menú se dibujaba entero, pero sus enlaces eran "#discover"
