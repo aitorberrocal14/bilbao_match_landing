@@ -34,19 +34,28 @@ Lo que ya se sabe: el campo es el **372592** —es el único que ven los
 expositores; el 372361 es su equivalente para compradores y no sirve—. Y de sus
 opciones, una está confirmada:
 
-| Número | Respuesta | Categoría |
-|---|---|---|
-| `214000` | Basque DMC | `dmc` |
-| `214001` | Boutique Experience in Bilbao Bizkaia | `activities` |
-| ? | Accommodation | `accommodation` |
+| Desplegable | Número | Categoría | |
+|---|---|---|---|
+| 1. Accommodation | `213999` | `accommodation` | deducido |
+| 2. Basque DMC | `214000` | `dmc` | confirmado |
+| 3. Boutique Experience in Bilbao Bizkaia | `214001` | `activities` | confirmado |
 
-**Falta el de Accommodation, y no se puede deducir:** los números NO van en el
-orden del desplegable —`214000` es la segunda opción de la lista, no la
-primera—, así que hay que verlo. Basta con una inscripción de prueba que elija
-Accommodation y volver a lanzar `--field 372592`.
+Los números van seguidos en el orden del desplegable, así que el de
+Accommodation se deduce de los otros dos. Está puesto en `config.php`.
 
-Mientras tanto no se rompe nada: una empresa con esa respuesta sale bajo «All»
-y el registro del sync escribe su número, listo para añadirlo.
+**Por qué se puede poner sin haberlo visto:** el mapa exige coincidencia
+exacta. Un número equivocado no coincide con nada y no hace nada — no puede
+colocar a una empresa en la categoría que no es. Como mucho, esa empresa
+aparece bajo «All» y el registro del sync escribe el número correcto:
+
+```
+Respuestas del formulario sin categoría en config.php:
+  "2140XX"
+```
+
+Si eso llega a salir, se sustituye la línea del `213999` por la buena. Para
+confirmarlo antes basta con una inscripción de prueba que elija Accommodation
+y volver a lanzar `--field 372592`.
 
 **Qué hacer**, con gente de la oficina para poder inscribir pruebas:
 
