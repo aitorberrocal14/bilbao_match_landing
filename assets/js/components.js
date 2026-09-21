@@ -822,13 +822,19 @@ window.MBB = window.MBB || {};
           })
           .join('');
 
+        // Una tarjeta por día. Antes era una fila de ancho completo por día, y
+        // los cinco días ocupaban pantalla y media de una web donde el
+        // programa es lo que la gente viene a mirar: había que bajar para
+        // enterarse de cuántos días eran. En tarjetas se ven los cinco de una
+        // vez y se comparan sin leer, que es lo que se hace con un programa.
         return (
           '<li class="ov-day">' +
+            '<p class="ov-day__n">' + esc(d.label) + '</p>' +
             '<p class="ov-day__date">' + esc(d.date) + '</p>' +
             '<h3 class="ov-day__theme">' + esc(d.theme) + '</h3>' +
+            (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
             '<p class="ov-day__text">' + esc(d.summary) + '</p>' +
             '<ul class="ov-day__list">' + lines + '</ul>' +
-            (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
           '</li>'
         );
       })

@@ -118,6 +118,50 @@ function check(etiqueta, ok, detalle) {
       check('las pestañas caben en una fila', prog.alto < 90, prog.alto + 'px de alto');
     }
 
+    /* --- La vista de conjunto: una tarjeta por día --------------------------- */
+    // El programa es lo que la gente viene a mirar, así que tiene que caber de
+    // un vistazo. En fila de ancho completo ocupaba pantalla y media y había
+    // que bajar solo para saber cuántos días eran.
+    // Arriba se ha pulsado "Day by day" para contar las pestañas, así que la
+    // vista de conjunto está escondida y mediría cero. Se vuelve a ella.
+    await pagina.click('.prog__view[data-view="overview"]');
+    await pagina.waitForTimeout(200);
+
+    const conj = await pagina.evaluate(() => {
+      const sec = document.querySelector('#programme');
+      const tarjetas = [...document.querySelectorAll('.ov-day')]
+        .map((c) => c.getBoundingClientRect());
+      const caja = document.querySelector('.prog__overview');
+      return {
+        n: tarjetas.length,
+        // Cuántas alturas distintas ocupan: una sola = todas en la misma fila.
+        filas: new Set(tarjetas.map((r) => Math.round(r.top))).size,
+        pantallas: +(sec.getBoundingClientRect().height / window.innerHeight).toFixed(2),
+        // En el móvil la fila se desliza; ahí está la prueba de que hay más
+        // días de los que se ven.
+        seDesliza: caja ? caja.scrollWidth > caja.clientWidth + 1 : false,
+        cabenEnAncho: tarjetas.every((r) => r.width > 120),
+        pagina: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+      };
+    });
+
+    check('los cinco días, cada uno en su tarjeta', conj.n === 5, conj.n);
+    check('el programa cabe en poco más de una pantalla',
+      conj.pantallas <= 1.25, conj.pantallas + ' pantallas');
+    check('ninguna tarjeta queda estrujada', conj.cabenEnAncho);
+    check('la página no se sale por el programa', conj.pagina);
+    if (ancho < 700) {
+      // Cinco tarjetas apiladas ocupaban más de dos pantallas: más que el
+      // diseño que vinimos a condensar. Van en una fila que se desliza.
+      check('en el móvil los días se deslizan', conj.filas === 1 && conj.seDesliza,
+        conj.filas + ' fila(s), se desliza: ' + conj.seDesliza);
+    } else if (ancho >= 1200) {
+      // Solo se exige una sola fila donde de verdad caben cinco. Entre los 700
+      // y los 1200 se reparten en dos filas, que es lo razonable y no un fallo.
+      check('en pantalla ancha los cinco días caben a la vez', conj.filas === 1,
+        conj.filas + ' fila(s)');
+    }
+
     /* --- "Add to calendar" -------------------------------------------------- */
     await (await pagina.$('details.cal')).scrollIntoViewIfNeeded();
     await pagina.click('details.cal > summary');

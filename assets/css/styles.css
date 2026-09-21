@@ -710,33 +710,100 @@ p:last-child { margin-bottom: 0; }
 
    This is done entirely in the stylesheet — the markup is untouched, so the
    WordPress plugin renders the same thing from the same classes. */
+/* LA VISTA DE CONJUNTO: UNA TARJETA POR DÍA.
+   ---------------------------------------------------------------------------
+   Antes era una fila de ancho completo por día. Los cinco días ocupaban
+   pantalla y media, y en una web donde el programa es justo lo que la gente
+   viene a mirar, había que bajar solo para enterarse de cuántos días eran.
+
+   En tarjetas se ven los cinco a la vez y se comparan sin leer: la forma de
+   cada una ya dice si ese día está cargado o es de llegada. Para el detalle
+   está la otra pestaña, que no se toca.
+
+   `auto-fit` con un ancho mínimo evita fijar cuántas caben por fila: cinco en
+   un monitor, dos o tres en una tableta y una en el móvil, sin una regla por
+   cada tamaño y sin que ninguna quede estrujada. */
 .prog__overview {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: 1fr;
-  border-top: 1px solid var(--line);
+  /* 12rem, no 13: con 13 los cinco días sumaban justo el ancho disponible en
+     un portátil de 1280 y el quinto se caía a una segunda fila él solo, que
+     es precisamente lo que veníamos a evitar. */
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: clamp(0.75rem, 1.5vw, 1.15rem);
 }
 .ov-day {
   background: #fff;
-  border-bottom: 1px solid var(--line);
-  padding: clamp(1.25rem, 3vw, 1.85rem) 0;
-  display: grid;
-  grid-template-columns: minmax(9.5rem, 12rem) 1fr;
-  grid-template-rows: auto auto auto;
-  column-gap: clamp(1.5rem, 4vw, 3rem);
-  align-items: start;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  padding: clamp(1rem, 2vw, 1.35rem);
+  display: flex;
+  flex-direction: column;
+  /* Los momentos destacados se pegan abajo, así que todas las tarjetas los
+     alinean a la misma altura por mucho que su resumen ocupe más o menos. */
+  gap: 0;
 }
-.ov-day__date  { grid-column: 1; grid-row: 1; }
-.ov-day__theme { grid-column: 1; grid-row: 2; }
-.ov-day__split { grid-column: 1; grid-row: 3; }
-.ov-day__text  { grid-column: 2; grid-row: 1 / span 2; }
-.ov-day__list  { grid-column: 2; grid-row: 3; }
+.ov-day__n {
+  margin: 0;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+}
 .ov-day__date {
-  margin: 0 0 0.15rem;
-  font-size: 0.74rem;
-  letter-spacing: 0.1em;
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+.ov-day__theme {
+  margin: 0.45rem 0 0;
+  font-size: 1.12rem;
+  line-height: 1.25;
+  color: var(--grey-dark);
+}
+.ov-day__text {
+  margin: 0.5rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--grey);
+}
+/* Los momentos del día, uno bajo otro con la hora delante. En una tarjeta
+   estrecha una fila corrida se partiría por cualquier sitio y dejaría las
+   horas huérfanas de su actividad. */
+.ov-day__list {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0.85rem 0 0;
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+.ov-day__list li {
+  margin: 0;
+  color: var(--grey-dark);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem;
+  align-items: baseline;
+  line-height: 1.4;
+}
+.ov__t {
+  font-family: var(--font-head);
+  font-weight: 700;
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.ov-day__split {
+  margin: 0.4rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--grey-light);
 }
@@ -829,32 +896,35 @@ p:last-child { margin-bottom: 0; }
 
   .prog__theme { margin-bottom: 1.5rem; }
 
-  /* No room for two columns: the day label goes above its own content, and the
-     highlights go back to one per line, which is easier to scan on a phone
-     than a wrapped row of them. */
+  /* En el móvil, las cinco tarjetas van en una FILA QUE SE DESLIZA, no
+     apiladas. Apiladas ocupaban más de dos pantallas —más que el diseño que
+     vinimos a condensar— y para saber cuántos días eran había que bajar hasta
+     el final. Deslizando, el programa entero cabe de un vistazo.
+     Es el mismo gesto que ya hacen las pestañas de día, justo encima.
+
+     Cada tarjeta ocupa el 78% del ancho, así que la siguiente ASOMA por el
+     borde: sin ese trozo visible nadie sabría que hay más y se quedaría
+     creyendo que el evento dura un día. */
+  .prog__overview {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* Los lados se comen el margen de la tarjeta para que la primera empiece
+       alineada con el texto y la última no quede pegada al borde. */
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    padding-bottom: 0.35rem;
+    scrollbar-width: none;
+  }
+  .prog__overview::-webkit-scrollbar { display: none; }
   .ov-day {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(5, auto);
-    padding: 1.15rem 0 1.3rem;
+    flex: 0 0 78%;
+    scroll-snap-align: start;
   }
-  /* Rows assigned rather than left to source order, because the "two
-     itineraries" note comes last in the markup and belongs under its day's
-     name, not stranded below the list of times. */
-  .ov-day__date  { grid-column: 1; grid-row: 1; }
-  .ov-day__theme { grid-column: 1; grid-row: 2; }
-  .ov-day__split { grid-column: 1; grid-row: 3; margin: 0 0 0.55rem; }
-  .ov-day__text  { grid-column: 1; grid-row: 4; }
-  .ov-day__list  { grid-column: 1; grid-row: 5; }
-  .ov-day__theme { font-size: 1.1rem; margin-bottom: 0.4rem; }
-  .ov-day__text { font-size: 0.9rem; line-height: 1.55; }
-  .ov-day__list {
-    display: block;
-    margin-top: 0.7rem;
-    font-size: 0.86rem;
-    line-height: 1.45;
-  }
-  .ov-day__list li { margin-bottom: 0.35rem; }
-  .ov__t { min-width: 3.1rem; display: inline-block; }
+  .ov-day__theme { font-size: 1.08rem; }
+  .ov-day__text { font-size: 0.9rem; }
 }
 
 /* 9. PRESENTATION OF BILBAO ================================================ */
