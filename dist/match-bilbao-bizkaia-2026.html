@@ -1096,6 +1096,12 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: repeat(4, 1fr);
 }
+/* El `display` de aquí abajo anulaba el atributo `hidden` del navegador: el
+   script ocultaba las tarjetas al filtrar y el CSS las volvía a enseñar, así
+   que pulsar un filtro no hacía nada visible. Cualquier elemento con display
+   propio que se oculte con `hidden` necesita esta línea. */
+.logo-tile[hidden] { display: none; }
+
 .logo-tile {
   position: relative;
   display: block;

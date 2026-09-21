@@ -229,6 +229,78 @@ function check(etiqueta, ok, detalle) {
     await pagina.close();
   }
 
+  /* --- El directorio, con empresas dentro ---------------------------------- */
+  // El directorio publicado está vacío —las empresas llegan de Meetmaps— así
+  // que los filtros no se pueden probar con la página tal cual. Se monta una
+  // copia con tres empresas de mentira, una por categoría.
+  //
+  // Esto existe por un fallo concreto: `.logo-tile` declaraba `display`, y eso
+  // anula el atributo `hidden` del navegador. El script ocultaba las tarjetas
+  // al filtrar y el CSS las volvía a enseñar, así que pulsar un filtro no hacía
+  // nada. Todo se veía perfecto; simplemente no funcionaba. Una captura de
+  // pantalla lo habría dado por bueno.
+  console.log('\n--- el directorio con empresas ---');
+
+  const fs = require('fs');
+  const os = require('os');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mbb-'));
+  const pagina_tmp = path.join(tmp, 'index.html');
+
+  const MUESTRA = [
+    ['berrocal', 'Berrocal', 'dmc'],
+    ['xxx', 'xxx', 'activities'],
+    ['hotel-prueba', 'Hotel Prueba', 'accommodation']
+  ];
+
+  fs.writeFileSync(
+    pagina_tmp,
+    fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')
+      // Los recursos se cogen del repositorio, sin copiar nada.
+      .replace(/(src|href)="assets\//g, '$1="file://' + path.join(ROOT, 'assets') + '/')
+      // Y la lista de empresas se sustituye por la de prueba.
+      .replace(
+        /<script src="file:\/\/[^"]*data\/exhibitors\.js"><\/script>/,
+        '<script src="file://' + path.join(ROOT, 'assets/js/data/exhibitors.js') + '"></script>' +
+        '<script>window.MBB.exhibitors = ' + JSON.stringify(
+          MUESTRA.map(([id, name, category]) => ({
+            id, name, category, logo: '', contactName: 'Nombre', contactRole: 'Cargo',
+            email: id + '@ejemplo.test', phone: '', website: '', websiteLabel: '',
+            address: '', social: {}, paragraphs: ['Texto de prueba.']
+          }))
+        ) + ';</script>'
+      )
+  );
+
+  const dir = await navegador.newPage({ viewport: { width: 1280, height: 1000 } });
+  await dir.goto('file://' + pagina_tmp);
+  await dir.waitForTimeout(1500);
+  await (await dir.$('#exhibitors')).scrollIntoViewIfNeeded();
+  await dir.waitForTimeout(400);
+
+  const visibles = () => dir.evaluate(() =>
+    [...document.querySelectorAll('.logo-tile')]
+      .filter((t) => t.getBoundingClientRect().height > 0).length);
+
+  check('se dibujan las tres empresas', (await visibles()) === 3, await visibles());
+
+  for (const [etiqueta, esperadas] of [
+    ['Accommodation', 1], ['Basque DMC', 1],
+    ['Boutique Experience in Bilbao Bizkaia', 1], ['All', 3]
+  ]) {
+    await dir.evaluate((t) => {
+      const f = [...document.querySelectorAll('.filter')].find((b) => b.textContent.trim() === t);
+      if (f) f.click();
+    }, etiqueta);
+    await dir.waitForTimeout(200);
+    const n = await visibles();
+    // Lo que se mide es cuántas tarjetas OCUPAN SITIO, no cuántas llevan el
+    // atributo: el fallo era precisamente que lo llevaban y se veían igual.
+    check('filtro "' + etiqueta + '"', n === esperadas, n + ' visibles, se esperaban ' + esperadas);
+  }
+
+  await dir.close();
+  fs.rmSync(tmp, { recursive: true, force: true });
+
   await navegador.close();
 
   console.log(
