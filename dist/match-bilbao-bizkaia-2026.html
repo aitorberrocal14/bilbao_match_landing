@@ -1157,7 +1157,6 @@ p:last-child { margin-bottom: 0; }
 }
 .dir-waiting .lead { color: var(--grey-dark); margin-top: 0; }
 .dir-waiting p { margin-bottom: 0; }
-.dir-waiting__cta { margin-top: 1.75rem; }
 
 /* 13. EXHIBITOR PAGE ======================================================= */
 .ex-page { padding-block: clamp(2.5rem, 5vw, 4.5rem); }
@@ -3348,16 +3347,16 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    // Before the first company registers there is nothing to filter and
-    // nothing to search, and the tools would sit above an empty grid offering
-    // to narrow down nothing. What the page owes a visitor here is an
-    // explanation and a way in, so that is what it shows instead.
+    // Before the first company registers there is nothing to filter and nothing
+    // to search, and the tools would sit above an empty grid offering to narrow
+    // down nothing. So the heading stands on its own and says what will be here.
+    //
+    // Y no lleva botón de Login. Esta sección es el escaparate de las empresas,
+    // no una puerta de acceso — y justo encima está la banda «Already
+    // registered?» con el suyo, y otro más en la cabecera. Tres botones iguales
+    // en una pantalla no dan tres oportunidades de entrar: dan la sensación de
+    // que la página insiste.
     if (!exhibitors.length) {
-      var site = MBB.site || {};
-      var join = loginHref(site)
-        ? '<p class="dir-waiting__cta">' + loginLink(site, 'btn btn--lg') + '</p>'
-        : '';
-
       return (
         '<div class="directory" id="exhibitors">' +
           // The standing introduction offers to filter and to search. With no
@@ -3370,7 +3369,6 @@ window.MBB = window.MBB || {};
             '<p class="lead">The exhibitor directory opens as companies register.</p>' +
             '<p>Every participating company of the Bilbao Bizkaia destination will ' +
               'appear here, each with its own profile.</p>' +
-            join +
           '</div>' +
         '</div>'
       );

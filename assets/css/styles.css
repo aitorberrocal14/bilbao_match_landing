@@ -1084,7 +1084,6 @@ p:last-child { margin-bottom: 0; }
 }
 .dir-waiting .lead { color: var(--grey-dark); margin-top: 0; }
 .dir-waiting p { margin-bottom: 0; }
-.dir-waiting__cta { margin-top: 1.75rem; }
 
 /* 13. EXHIBITOR PAGE ======================================================= */
 .ex-page { padding-block: clamp(2.5rem, 5vw, 4.5rem); }
