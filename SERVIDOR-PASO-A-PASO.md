@@ -9,6 +9,82 @@ servidor lo recoge. Se acabó subir archivos a mano.
 
 ---
 
+# PENDIENTE — lo que falta para que el directorio esté completo
+
+*Anotado el 2026-09-21. Cuando estas dos cosas estén, bórrese esta sección.*
+
+El servidor ya publica los expositores solos: quién sale, su ficha y su página.
+Lo comprobado ese día, en el registro del propio servidor:
+
+```
+3 de 5 inscritos son expositores.
+2 expositores (0 ocultos en la plataforma)
+Hecho: 2 páginas de expositor y el sitemap.
+```
+
+Faltan dos datos, y los dos se ponen en `/home/matchbilbaobizkaia/config.php`.
+
+## 1. Las categorías del filtro
+
+El formulario de inscripción pregunta **«What kind of company are you?»** y sus
+tres respuestas son los tres filtros de la web. La API no devuelve el texto de
+la respuesta, solo un número, así que hay que decirle cuál es cuál.
+
+Lo que ya se sabe: el campo es el **372592** —es el único que ven los
+expositores; el 372361 es su equivalente para compradores y no sirve— y dos de
+sus opciones son **214000** y **214001**.
+
+**Qué hacer**, con gente de la oficina para poder inscribir pruebas:
+
+1. Inscribir **tres asistentes de prueba**, eligiendo *Exhibitor* y una
+   categoría distinta en cada uno. Anotar cuál lleva cuál.
+2. Ejecutar, desde una tarea programada:
+   `php /home/matchbilbaobizkaia/repo/server/sync.php --field 372592`
+   Dice qué empresa eligió cada número.
+3. Escribir el mapa en `config.php`:
+
+```php
+    'categories_from' => [
+        'field_id' => '372592',
+        'map' => [
+            'NUMERO-DE-Accommodation'     => 'accommodation',
+            'NUMERO-DE-Basque-DMC'        => 'dmc',
+            'NUMERO-DE-Boutique-Experience' => 'activities',
+        ],
+    ],
+```
+
+Si falta alguna, no se rompe nada: esa empresa sale bajo «All» y el registro
+escribe su número para poder añadirlo.
+
+## 2. Los logotipos
+
+El campo **Logo** es el **372389** —está comprobado— y la API devuelve el
+nombre del archivo, por ejemplo `372389_2835567_9100918122516.png`. Falta saber
+de qué dirección cuelga.
+
+Las fotos de perfil están en
+`https://apiv1.meetmaps.com/root/projects/15425/attendees/`, pero los archivos
+de campos personalizados **no están ahí**; se comprobó y da 404.
+
+**Qué hacer:** preguntárselo a Meetmaps.
+
+> El campo de subida «Logo» (id 372389) del evento 15425 devuelve por API
+> valores como `372389_2835567_9100918122516.png`. ¿Desde qué URL se sirven
+> esos archivos?
+
+Y cuando contesten, en `config.php`:
+
+```php
+    'img_base' => 'https://.../',      // con la barra final
+```
+
+**Ojo para años siguientes:** esa dirección lleva dentro el número del evento.
+Al cambiar de edición hay que cambiar `img_base` además de `event_id`, o los
+logotipos dejan de aparecer sin que nada dé error.
+
+---
+
 ## Lo que vamos a montar
 
 ```
