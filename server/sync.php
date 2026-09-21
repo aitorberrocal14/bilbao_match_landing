@@ -1456,7 +1456,15 @@ if ($sin_mapa) {
 if ($uncategorised) {
     say('  ' . count($uncategorised) . ' sin categoría, aparecen solo bajo "All":');
     foreach ($uncategorised as $n) { say('    ' . $n); }
-    say('  Añádelos a assets/js/data/exhibitors-local.json.');
+    // El consejo tiene que llevar al arreglo que dura. Clasificar a mano en el
+    // archivo local funciona una vez y hay que repetirlo con cada empresa nueva
+    // para siempre; poner la regla en config.php lo arregla para todas, también
+    // para las que se inscriban mañana.
+    say(!isset($conf['categories_from']['field_id']) && !isset($conf['categories_from']['field_ref'])
+        ? "  Falta 'categories_from' en config.php: sin esa regla la categoría no llega " .
+          'de la plataforma y hay que ponerla a mano una por una.'
+        : '  Sus respuestas no están en el mapa, o no contestaron a la pregunta. ' .
+          'A mano se arreglan en assets/js/data/exhibitors-local.json.');
 }
 
 if ($DRY) {
