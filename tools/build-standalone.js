@@ -62,7 +62,13 @@ const SCRIPTS = [
   'assets/js/components.js',
   'assets/js/main.js'
 ];
-const bundle = SCRIPTS.map((f) => inlineAssets(read(f))).join('\n;\n');
+const bundle = SCRIPTS.map((f) => inlineAssets(read(f))).join('\n;\n') +
+  // Esta copia es un archivo suelto: no tiene al lado el platform.html que
+  // explica cuándo abre la plataforma, así que el botón de Login apuntaría a
+  // una página que aquí no existe. Se quita la espera y el botón va directo,
+  // que es lo único que puede funcionar en un archivo que se abre desde una
+  // memoria USB o un adjunto de correo.
+  '\n;\nwindow.MBB.site.login.opensAt = \'\';\n';
 
 /* --- client-side exhibitor views ----------------------------------------- */
 /* In the folder version each exhibitor is its own HTML file. Here the same

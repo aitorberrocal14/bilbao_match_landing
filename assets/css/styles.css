@@ -933,19 +933,49 @@ p:last-child { margin-bottom: 0; }
 .step h3 { font-size: 1.02rem; margin: 0 0 0.35rem; }
 .step p { margin: 0; font-size: 0.92rem; }
 
+/* Dos mitades: darse de alta y entrar. Cada una con su título, su explicación
+   y su botón, separadas por una línea fina — no por un hueco, que a esta
+   anchura se lee como que sobra sitio y no como que son dos cosas. */
 .login-band {
   margin-top: clamp(2.5rem, 5vw, 4rem);
   padding: clamp(2rem, 4vw, 3rem);
   background: var(--red);
   color: #fff;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2rem;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: start;
+}
+.login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
+/* La línea va entre las dos, nunca antes de la primera ni cuando se apilan. */
+@media (min-width: 880px) {
+  .login-band__half + .login-band__half {
+    padding-left: clamp(1.75rem, 4vw, 3rem);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+  }
 }
 .login-band h3 { color: #fff; margin: 0 0 0.35rem; font-size: 1.5rem; }
-.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 56ch; }
+.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 46ch; }
+.login-band .btn { margin-top: 1.25rem; }
 .login-band small { display: block; margin-top: 0.7rem; color: rgba(255, 255, 255, 0.7); }
+
+/* El aviso de la fecha. Va antes del botón a propósito: enterarse después de
+   pulsar es enterarse tarde. */
+.login-band__note {
+  margin-top: 0.9rem !important;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: #fff !important;
+}
+
+/* La página que explica cuándo abre la plataforma (platform.html). Es una
+   página de una sola idea, así que no lleva nada más que esa idea. */
+.gate { max-width: 44rem; padding-block: clamp(1rem, 4vw, 3rem); }
+.gate .lead { margin-top: 1.2rem; }
+.gate__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+.gate__help { margin-top: 2.5rem; font-size: 0.9rem; color: var(--grey-light); }
 
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
 /* The directory opens a subject of its own inside "Meet BB's Experts", right
@@ -1202,6 +1232,8 @@ p:last-child { margin-bottom: 0; }
 /* Elegir, no escribir. Dos tarjetas grandes, una por público; cada una lleva
    a su formulario. Se apilan solas si algún día hay un público más. */
 .nl-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.75rem; }
+/* Rojas y con la letra en blanco, como la banda de acceso: son una llamada a
+   la acción, no una nota al pie. En blanco pasaban por un aviso. */
 .nl-opt {
   display: flex;
   flex-direction: column;
@@ -1209,14 +1241,14 @@ p:last-child { margin-bottom: 0; }
      el texto se centra: si no, la más corta se queda con un hueco debajo. */
   justify-content: center;
   gap: 0.25rem;
-  min-height: 4.5rem;
-  padding: 1rem 1.15rem;
-  border: 1px solid var(--line);
+  min-height: 5rem;
+  padding: 1.15rem 1.35rem;
+  border: 2px solid var(--red);
   border-radius: 14px;
-  background: #fff;
-  color: var(--grey-dark);
+  background: var(--red);
+  color: #fff;
   text-decoration: none;
-  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+  transition: background-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
               transform 0.25s var(--ease);
 }
 .nl-opt__label {
@@ -1224,21 +1256,21 @@ p:last-child { margin-bottom: 0; }
   font-weight: 700;
   font-size: 1.14rem;
   line-height: 1.25;
-  color: var(--charcoal);
+  color: #fff;
   /* La flecha va pegada al final del texto, no flotando en la esquina. */
   padding-right: 1.1rem;
   background: no-repeat right 0.32em / 0.62rem auto
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AE0000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
 }
-.nl-opt__note { font-size: 0.82rem; color: var(--grey-light); line-height: 1.45; }
-.nl-opt:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.nl-opt__note { font-size: 0.82rem; color: rgba(255, 255, 255, 0.85); line-height: 1.45; }
+.nl-opt:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 3px; }
 @media (hover: hover) {
   .nl-opt:hover {
-    border-color: var(--red);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    background: var(--red-btn-dark);
+    border-color: var(--red-btn-dark);
+    box-shadow: 0 10px 24px rgba(174, 0, 0, 0.22);
     transform: translateY(-2px);
   }
-  .nl-opt:hover .nl-opt__label { color: var(--red); }
 }
 .nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.75rem; }
 

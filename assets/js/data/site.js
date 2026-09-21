@@ -49,7 +49,27 @@ window.MBB.site = {
   // nowhere.
   login: {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/virtual/join',
-    label: 'Login'
+    label: 'Login',
+
+    // La plataforma no abre hasta el 28 de septiembre a las 00:01, hora
+    // peninsular (el +02:00 es el horario de verano, que ese día sigue
+    // vigente). Hasta entonces TODOS los botones de Login llevan a
+    // platform.html, que lo explica, en vez de a un formulario que rechazaría
+    // a todo el mundo sin decir por qué.
+    //
+    // Llegada la fecha el cambio ocurre solo: nadie tiene que acordarse de
+    // tocar nada a medianoche. Y vacía esta línea y los botones vuelven a ir
+    // directos, por si hubiera que abrir antes.
+    opensAt: '2026-09-28T00:01:00+02:00',
+    waiting: 'platform.html'
+  },
+
+  /* --- Alta en la plataforma --------------------------------------------- */
+  // Esto sí está abierto desde ya: cualquiera puede crear su perfil aunque
+  // todavía no pueda entrar.
+  register: {
+    url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration',
+    label: 'Create your profile'
   },
 
   /* --- Hero -------------------------------------------------------------- */

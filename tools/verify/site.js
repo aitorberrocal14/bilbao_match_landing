@@ -217,7 +217,44 @@ function check(etiqueta, ok, detalle) {
       videosSinId: [...document.querySelectorAll('[data-yt]')].filter((v) => !v.dataset.yt).length
     }));
 
-    check('los botones de Login llevan a la plataforma', resto.login > 0, resto.login);
+    /* --- La puerta de la plataforma ---------------------------------------- */
+    // Mientras no abra, el Login no lleva al formulario de Meetmaps sino a la
+    // página que explica cuándo. Y la fecha se dice ANTES de pulsar.
+    const puerta = await pagina.evaluate(() => {
+      const site = window.MBB.site;
+      const abierta = window.MBB.platformOpen(site);
+      const logins = [...document.querySelectorAll('a[data-login]')];
+      return {
+        abierta: abierta,
+        logins: logins.length,
+        todosALaEspera: logins.every((a) => a.getAttribute('href') === site.login.waiting),
+        todosAMeetmaps: logins.every((a) => /^https?:/.test(a.getAttribute('href'))),
+        aviso: (document.querySelector('.login-band__note') || {}).textContent || '',
+        dia: window.MBB.platformOpensOn(site),
+        // Y que el día que abra, los botones vuelvan solos a la plataforma.
+        alAbrir: (() => {
+          const copia = JSON.parse(JSON.stringify(site));
+          copia.login.opensAt = '2020-01-01T00:00:00+01:00';
+          return window.MBB.loginHref(copia, '');
+        })(),
+        alta: (document.querySelector('.login-band__half .btn') || {}).getAttribute
+          ? document.querySelector('.login-band__half .btn').getAttribute('href') : ''
+      };
+    });
+
+    if (puerta.abierta) {
+      check('la plataforma está abierta: el Login va a Meetmaps', puerta.todosAMeetmaps);
+    } else {
+      check('antes de abrir, el Login va a la página de aviso', puerta.todosALaEspera,
+        puerta.logins + ' botones');
+      check('el aviso dice la fecha antes de pulsar',
+        puerta.aviso.indexOf(puerta.dia) > -1, puerta.aviso.trim());
+    }
+    check('al llegar la fecha vuelve solo a la plataforma',
+      /^https?:/.test(puerta.alAbrir || ''), puerta.alAbrir);
+    check('hay un botón para darse de alta',
+      /meetmaps\.com/.test(puerta.alta) && /registration/.test(puerta.alta), puerta.alta);
+
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
     check('las dos ediciones tienen vídeo',
       resto.videos === 2 && resto.videosSinId === 0,

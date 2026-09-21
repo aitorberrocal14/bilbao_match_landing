@@ -68,16 +68,64 @@ window.MBB = window.MBB || {};
    * the platform is a different site and nobody should lose the page to reach
    * it.
    */
-  function loginHref(site) {
-    var url = ((site.login && site.login.url) || '').trim();
-    return !url || url.charAt(0) === '#' ? null : url;
+  function loginHref(site, base) {
+    var login = site.login || {};
+    var url = (login.url || '').trim();
+    if (!url || url.charAt(0) === '#') return null;
+
+    // Hasta que la plataforma abre, el botón no lleva al formulario de acceso
+    // sino a la página que explica cuándo. Mandar a alguien a un login que le
+    // va a rechazar, sin decirle por qué, es peor que no tener botón.
+    //
+    // La fecha manda: llegado el día el cambio ocurre solo, sin que nadie
+    // tenga que tocar nada a medianoche.
+    if (login.opensAt && login.waiting && !MBB.platformOpen(site)) {
+      return (base || '') + login.waiting;
+    }
+    return url;
   }
 
-  function loginLink(site, classes) {
-    var url = loginHref(site);
+  /**
+   * ¿Está abierta ya la plataforma?
+   *
+   * Se mira contra el reloj de quien visita, que puede estar mal. No pasa
+   * nada: esto no guarda ninguna puerta —la de verdad la guarda Meetmaps—,
+   * solo decide qué se le cuenta a la gente. Alguien con el reloj adelantado
+   * llegará a un login que le dirá que no, que es exactamente lo que habría
+   * pasado sin todo esto.
+   */
+  MBB.platformOpen = function (site) {
+    var cuando = (site.login || {}).opensAt;
+    if (!cuando) return true;
+    var abre = new Date(cuando);
+    return isNaN(abre.getTime()) || Date.now() >= abre.getTime();
+  };
+
+  /**
+   * "28 September", sacado de la fecha para no escribirla dos veces.
+   *
+   * Y con la zona de Bilbao puesta a mano, que no es un detalle: las 00:01 del
+   * 28 aquí son las 22:01 del 27 en Londres, así que sin fijarla la web le
+   * anunciaría a media Europa un día que no es. La fecha que importa es la de
+   * aquí, porque es cuando abre.
+   */
+  MBB.platformOpensOn = function (site) {
+    var abre = new Date((site.login || {}).opensAt);
+    if (isNaN(abre.getTime())) return '';
+    return abre.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', timeZone: 'Europe/Madrid'
+    });
+  };
+
+  function loginLink(site, classes, base) {
+    var url = loginHref(site, base);
     if (!url) return '';
+    // La página de aviso es nuestra: se abre en la misma pestaña. La
+    // plataforma es otro sitio y se abre aparte, para no perder la página.
+    var fuera = /^https?:/i.test(url);
     return '<a class="' + classes + '" href="' + esc(url) + '" data-login' +
-      ' target="_blank" rel="noopener">' + esc(site.login.label) + '</a>';
+      (fuera ? ' target="_blank" rel="noopener"' : '') + '>' +
+      esc(site.login.label) + '</a>';
   }
 
   MBB.loginHref = loginHref;
@@ -122,7 +170,7 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          loginLink(site, 'btn btn--sm') +
+          loginLink(site, 'btn btn--sm', base) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -803,19 +851,55 @@ window.MBB = window.MBB || {};
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
       '<div class="steps" data-reveal>' + steps + '</div>' +
-      // The whole band goes, not just its button: a panel headed "Already
-      // registered?" with nowhere to sign in reads as a broken page.
-      (loginHref(site)
-        ? '<div class="login-band" data-reveal>' +
-            '<div>' +
-              '<h3>' + esc(e.loginPanel.title) + '</h3>' +
-              '<p>' + esc(e.loginPanel.text) + '</p>' +
-              '<small>' + esc(e.loginPanel.help) + '</small>' +
-            '</div>' +
-            loginLink(site, 'btn btn--lg btn--light') +
-          '</div>'
-        : '')
+      // La banda tiene dos mitades porque hay dos personas distintas leyéndola:
+      // la que todavía no está dada de alta y la que ya lo está. Antes solo
+      // atendía a la segunda, y la primera no tenía dónde ir.
+      //
+      // Y desaparece entera si no hay a dónde ir: un panel titulado "Already
+      // registered?" sin sitio donde entrar se lee como una página rota.
+      (loginHref(site) ? MBB.LoginBand(site, e) : '')
     );
+  };
+
+  /**
+   * La banda roja: crear perfil a la izquierda, entrar a la derecha.
+   *
+   * @param {object} site  window.MBB.site
+   * @param {object} e     window.MBB.experts
+   * @param {object} opts  { base } cuando se dibuja fuera de la portada
+   */
+  MBB.LoginBand = function (site, e, opts) {
+    opts = opts || {};
+    var base = opts.base || '';
+    var reg = site.register || {};
+    var abierta = MBB.platformOpen(site);
+
+    // Mientras no esté abierta se dice la fecha, y se dice en el botón mismo:
+    // enterarse después de pulsar es enterarse tarde.
+    var aviso = abierta
+      ? ''
+      : '<p class="login-band__note">Access to the platform opens on ' +
+          esc(MBB.platformOpensOn(site)) + '.</p>';
+
+    var alta = reg.url
+      ? '<div class="login-band__half">' +
+          '<h3>' + esc(e.registerPanel.title) + '</h3>' +
+          '<p>' + esc(e.registerPanel.text) + '</p>' +
+          '<a class="btn btn--lg btn--light" href="' + esc(reg.url) + '" ' +
+            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
+        '</div>'
+      : '';
+
+    var entrar =
+      '<div class="login-band__half">' +
+        '<h3>' + esc(e.loginPanel.title) + '</h3>' +
+        '<p>' + esc(e.loginPanel.text) + '</p>' +
+        aviso +
+        loginLink(site, 'btn btn--lg btn--light', base) +
+        '<small>' + esc(e.loginPanel.help) + '</small>' +
+      '</div>';
+
+    return '<div class="login-band" data-reveal>' + alta + entrar + '</div>';
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */
@@ -1155,7 +1239,7 @@ window.MBB = window.MBB || {};
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
           '<div><h4>Navigate</h4><ul>' + navLinks +
-            (loginHref(site) ? '<li>' + loginLink(site, '') + '</li>' : '') +
+            (loginHref(site, base) ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
           '<div><h4>Event</h4><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +

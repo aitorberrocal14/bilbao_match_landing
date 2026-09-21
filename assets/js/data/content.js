@@ -112,6 +112,15 @@ window.MBB.experts = {
       text: 'Confirm your agenda, meet in Bilbao and keep the contacts afterwards.'
     }
   ],
+  // La mitad izquierda de la banda roja: para quien todavía no está dentro.
+  registerPanel: {
+    title: 'Not registered yet?',
+    text:
+      'Create your profile on the Match Bilbao Bizkaia platform: tell us about ' +
+      'your company, your markets and who you would like to meet.'
+  },
+
+  // Y la derecha, para quien ya lo está.
   loginPanel: {
     title: 'Already registered?',
     text:

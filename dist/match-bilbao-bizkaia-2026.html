@@ -1006,19 +1006,49 @@ p:last-child { margin-bottom: 0; }
 .step h3 { font-size: 1.02rem; margin: 0 0 0.35rem; }
 .step p { margin: 0; font-size: 0.92rem; }
 
+/* Dos mitades: darse de alta y entrar. Cada una con su título, su explicación
+   y su botón, separadas por una línea fina — no por un hueco, que a esta
+   anchura se lee como que sobra sitio y no como que son dos cosas. */
 .login-band {
   margin-top: clamp(2.5rem, 5vw, 4rem);
   padding: clamp(2rem, 4vw, 3rem);
   background: var(--red);
   color: #fff;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 2rem;
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: start;
+}
+.login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
+/* La línea va entre las dos, nunca antes de la primera ni cuando se apilan. */
+@media (min-width: 880px) {
+  .login-band__half + .login-band__half {
+    padding-left: clamp(1.75rem, 4vw, 3rem);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+  }
 }
 .login-band h3 { color: #fff; margin: 0 0 0.35rem; font-size: 1.5rem; }
-.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 56ch; }
+.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 46ch; }
+.login-band .btn { margin-top: 1.25rem; }
 .login-band small { display: block; margin-top: 0.7rem; color: rgba(255, 255, 255, 0.7); }
+
+/* El aviso de la fecha. Va antes del botón a propósito: enterarse después de
+   pulsar es enterarse tarde. */
+.login-band__note {
+  margin-top: 0.9rem !important;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  color: #fff !important;
+}
+
+/* La página que explica cuándo abre la plataforma (platform.html). Es una
+   página de una sola idea, así que no lleva nada más que esa idea. */
+.gate { max-width: 44rem; padding-block: clamp(1rem, 4vw, 3rem); }
+.gate .lead { margin-top: 1.2rem; }
+.gate__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
+.gate__help { margin-top: 2.5rem; font-size: 0.9rem; color: var(--grey-light); }
 
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
 /* The directory opens a subject of its own inside "Meet BB's Experts", right
@@ -1275,6 +1305,8 @@ p:last-child { margin-bottom: 0; }
 /* Elegir, no escribir. Dos tarjetas grandes, una por público; cada una lleva
    a su formulario. Se apilan solas si algún día hay un público más. */
 .nl-choice { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 0.75rem; }
+/* Rojas y con la letra en blanco, como la banda de acceso: son una llamada a
+   la acción, no una nota al pie. En blanco pasaban por un aviso. */
 .nl-opt {
   display: flex;
   flex-direction: column;
@@ -1282,14 +1314,14 @@ p:last-child { margin-bottom: 0; }
      el texto se centra: si no, la más corta se queda con un hueco debajo. */
   justify-content: center;
   gap: 0.25rem;
-  min-height: 4.5rem;
-  padding: 1rem 1.15rem;
-  border: 1px solid var(--line);
+  min-height: 5rem;
+  padding: 1.15rem 1.35rem;
+  border: 2px solid var(--red);
   border-radius: 14px;
-  background: #fff;
-  color: var(--grey-dark);
+  background: var(--red);
+  color: #fff;
   text-decoration: none;
-  transition: border-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
+  transition: background-color 0.25s var(--ease), box-shadow 0.25s var(--ease),
               transform 0.25s var(--ease);
 }
 .nl-opt__label {
@@ -1297,21 +1329,21 @@ p:last-child { margin-bottom: 0; }
   font-weight: 700;
   font-size: 1.14rem;
   line-height: 1.25;
-  color: var(--charcoal);
+  color: #fff;
   /* La flecha va pegada al final del texto, no flotando en la esquina. */
   padding-right: 1.1rem;
   background: no-repeat right 0.32em / 0.62rem auto
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AE0000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
 }
-.nl-opt__note { font-size: 0.82rem; color: var(--grey-light); line-height: 1.45; }
-.nl-opt:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.nl-opt__note { font-size: 0.82rem; color: rgba(255, 255, 255, 0.85); line-height: 1.45; }
+.nl-opt:focus-visible { outline: 2px solid var(--charcoal); outline-offset: 3px; }
 @media (hover: hover) {
   .nl-opt:hover {
-    border-color: var(--red);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+    background: var(--red-btn-dark);
+    border-color: var(--red-btn-dark);
+    box-shadow: 0 10px 24px rgba(174, 0, 0, 0.22);
     transform: translateY(-2px);
   }
-  .nl-opt:hover .nl-opt__label { color: var(--red); }
 }
 .nl-consent { font-size: 0.78rem; color: var(--grey-light); margin-top: 0.75rem; }
 
@@ -1686,7 +1718,27 @@ window.MBB.site = {
   // nowhere.
   login: {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/virtual/join',
-    label: 'Login'
+    label: 'Login',
+
+    // La plataforma no abre hasta el 28 de septiembre a las 00:01, hora
+    // peninsular (el +02:00 es el horario de verano, que ese día sigue
+    // vigente). Hasta entonces TODOS los botones de Login llevan a
+    // platform.html, que lo explica, en vez de a un formulario que rechazaría
+    // a todo el mundo sin decir por qué.
+    //
+    // Llegada la fecha el cambio ocurre solo: nadie tiene que acordarse de
+    // tocar nada a medianoche. Y vacía esta línea y los botones vuelven a ir
+    // directos, por si hubiera que abrir antes.
+    opensAt: '2026-09-28T00:01:00+02:00',
+    waiting: 'platform.html'
+  },
+
+  /* --- Alta en la plataforma --------------------------------------------- */
+  // Esto sí está abierto desde ya: cualquiera puede crear su perfil aunque
+  // todavía no pueda entrar.
+  register: {
+    url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration',
+    label: 'Create your profile'
   },
 
   /* --- Hero -------------------------------------------------------------- */
@@ -1942,6 +1994,15 @@ window.MBB.experts = {
       text: 'Confirm your agenda, meet in Bilbao and keep the contacts afterwards.'
     }
   ],
+  // La mitad izquierda de la banda roja: para quien todavía no está dentro.
+  registerPanel: {
+    title: 'Not registered yet?',
+    text:
+      'Create your profile on the Match Bilbao Bizkaia platform: tell us about ' +
+      'your company, your markets and who you would like to meet.'
+  },
+
+  // Y la derecha, para quien ya lo está.
   loginPanel: {
     title: 'Already registered?',
     text:
@@ -2588,16 +2649,64 @@ window.MBB = window.MBB || {};
    * the platform is a different site and nobody should lose the page to reach
    * it.
    */
-  function loginHref(site) {
-    var url = ((site.login && site.login.url) || '').trim();
-    return !url || url.charAt(0) === '#' ? null : url;
+  function loginHref(site, base) {
+    var login = site.login || {};
+    var url = (login.url || '').trim();
+    if (!url || url.charAt(0) === '#') return null;
+
+    // Hasta que la plataforma abre, el botón no lleva al formulario de acceso
+    // sino a la página que explica cuándo. Mandar a alguien a un login que le
+    // va a rechazar, sin decirle por qué, es peor que no tener botón.
+    //
+    // La fecha manda: llegado el día el cambio ocurre solo, sin que nadie
+    // tenga que tocar nada a medianoche.
+    if (login.opensAt && login.waiting && !MBB.platformOpen(site)) {
+      return (base || '') + login.waiting;
+    }
+    return url;
   }
 
-  function loginLink(site, classes) {
-    var url = loginHref(site);
+  /**
+   * ¿Está abierta ya la plataforma?
+   *
+   * Se mira contra el reloj de quien visita, que puede estar mal. No pasa
+   * nada: esto no guarda ninguna puerta —la de verdad la guarda Meetmaps—,
+   * solo decide qué se le cuenta a la gente. Alguien con el reloj adelantado
+   * llegará a un login que le dirá que no, que es exactamente lo que habría
+   * pasado sin todo esto.
+   */
+  MBB.platformOpen = function (site) {
+    var cuando = (site.login || {}).opensAt;
+    if (!cuando) return true;
+    var abre = new Date(cuando);
+    return isNaN(abre.getTime()) || Date.now() >= abre.getTime();
+  };
+
+  /**
+   * "28 September", sacado de la fecha para no escribirla dos veces.
+   *
+   * Y con la zona de Bilbao puesta a mano, que no es un detalle: las 00:01 del
+   * 28 aquí son las 22:01 del 27 en Londres, así que sin fijarla la web le
+   * anunciaría a media Europa un día que no es. La fecha que importa es la de
+   * aquí, porque es cuando abre.
+   */
+  MBB.platformOpensOn = function (site) {
+    var abre = new Date((site.login || {}).opensAt);
+    if (isNaN(abre.getTime())) return '';
+    return abre.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'long', timeZone: 'Europe/Madrid'
+    });
+  };
+
+  function loginLink(site, classes, base) {
+    var url = loginHref(site, base);
     if (!url) return '';
+    // La página de aviso es nuestra: se abre en la misma pestaña. La
+    // plataforma es otro sitio y se abre aparte, para no perder la página.
+    var fuera = /^https?:/i.test(url);
     return '<a class="' + classes + '" href="' + esc(url) + '" data-login' +
-      ' target="_blank" rel="noopener">' + esc(site.login.label) + '</a>';
+      (fuera ? ' target="_blank" rel="noopener"' : '') + '>' +
+      esc(site.login.label) + '</a>';
   }
 
   MBB.loginHref = loginHref;
@@ -2642,7 +2751,7 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          loginLink(site, 'btn btn--sm') +
+          loginLink(site, 'btn btn--sm', base) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -3323,19 +3432,55 @@ window.MBB = window.MBB || {};
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
       '<div class="steps" data-reveal>' + steps + '</div>' +
-      // The whole band goes, not just its button: a panel headed "Already
-      // registered?" with nowhere to sign in reads as a broken page.
-      (loginHref(site)
-        ? '<div class="login-band" data-reveal>' +
-            '<div>' +
-              '<h3>' + esc(e.loginPanel.title) + '</h3>' +
-              '<p>' + esc(e.loginPanel.text) + '</p>' +
-              '<small>' + esc(e.loginPanel.help) + '</small>' +
-            '</div>' +
-            loginLink(site, 'btn btn--lg btn--light') +
-          '</div>'
-        : '')
+      // La banda tiene dos mitades porque hay dos personas distintas leyéndola:
+      // la que todavía no está dada de alta y la que ya lo está. Antes solo
+      // atendía a la segunda, y la primera no tenía dónde ir.
+      //
+      // Y desaparece entera si no hay a dónde ir: un panel titulado "Already
+      // registered?" sin sitio donde entrar se lee como una página rota.
+      (loginHref(site) ? MBB.LoginBand(site, e) : '')
     );
+  };
+
+  /**
+   * La banda roja: crear perfil a la izquierda, entrar a la derecha.
+   *
+   * @param {object} site  window.MBB.site
+   * @param {object} e     window.MBB.experts
+   * @param {object} opts  { base } cuando se dibuja fuera de la portada
+   */
+  MBB.LoginBand = function (site, e, opts) {
+    opts = opts || {};
+    var base = opts.base || '';
+    var reg = site.register || {};
+    var abierta = MBB.platformOpen(site);
+
+    // Mientras no esté abierta se dice la fecha, y se dice en el botón mismo:
+    // enterarse después de pulsar es enterarse tarde.
+    var aviso = abierta
+      ? ''
+      : '<p class="login-band__note">Access to the platform opens on ' +
+          esc(MBB.platformOpensOn(site)) + '.</p>';
+
+    var alta = reg.url
+      ? '<div class="login-band__half">' +
+          '<h3>' + esc(e.registerPanel.title) + '</h3>' +
+          '<p>' + esc(e.registerPanel.text) + '</p>' +
+          '<a class="btn btn--lg btn--light" href="' + esc(reg.url) + '" ' +
+            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
+        '</div>'
+      : '';
+
+    var entrar =
+      '<div class="login-band__half">' +
+        '<h3>' + esc(e.loginPanel.title) + '</h3>' +
+        '<p>' + esc(e.loginPanel.text) + '</p>' +
+        aviso +
+        loginLink(site, 'btn btn--lg btn--light', base) +
+        '<small>' + esc(e.loginPanel.help) + '</small>' +
+      '</div>';
+
+    return '<div class="login-band" data-reveal>' + alta + entrar + '</div>';
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */
@@ -3675,7 +3820,7 @@ window.MBB = window.MBB || {};
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
           '<div><h4>Navigate</h4><ul>' + navLinks +
-            (loginHref(site) ? '<li>' + loginLink(site, '') + '</li>' : '') +
+            (loginHref(site, base) ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
           '<div><h4>Event</h4><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +
@@ -4206,6 +4351,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     boot();
   }
 })(window.MBB);
+
+;
+window.MBB.site.login.opensAt = '';
 
 
 (function () {

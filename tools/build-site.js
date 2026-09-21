@@ -41,7 +41,7 @@ const isTest = process.argv.includes('--test');
 const STAGE = path.resolve(ROOT, outDir);
 
 // Files at the root of the site, and whole folders that travel as they are.
-const FILES = ['index.html', 'robots.txt', 'sitemap.xml'];
+const FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml'];
 const DIRS = ['assets', 'exhibitors', 'admin'];
 
 // Never published, whatever it is doing in the folder. The panel's password

@@ -9,7 +9,7 @@
 <!--
   PANEL DE ADMINISTRACIÓN — versión de un solo archivo
   ---------------------------------------------------------------------------
-  Generado por tools/build-admin-standalone.js el 2026-09-18.
+  Generado por tools/build-admin-standalone.js el 2026-09-21.
 
   Se abre con doble clic. Lleva dentro una copia de los datos de la web tomada
   el día que se generó, así que sirve para probar el panel y para preparar
@@ -440,7 +440,27 @@ window.MBB.site = {
   // nowhere.
   login: {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/virtual/join',
-    label: 'Login'
+    label: 'Login',
+
+    // La plataforma no abre hasta el 28 de septiembre a las 00:01, hora
+    // peninsular (el +02:00 es el horario de verano, que ese día sigue
+    // vigente). Hasta entonces TODOS los botones de Login llevan a
+    // platform.html, que lo explica, en vez de a un formulario que rechazaría
+    // a todo el mundo sin decir por qué.
+    //
+    // Llegada la fecha el cambio ocurre solo: nadie tiene que acordarse de
+    // tocar nada a medianoche. Y vacía esta línea y los botones vuelven a ir
+    // directos, por si hubiera que abrir antes.
+    opensAt: '2026-09-28T00:01:00+02:00',
+    waiting: 'platform.html'
+  },
+
+  /* --- Alta en la plataforma --------------------------------------------- */
+  // Esto sí está abierto desde ya: cualquiera puede crear su perfil aunque
+  // todavía no pueda entrar.
+  register: {
+    url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration',
+    label: 'Create your profile'
   },
 
   /* --- Hero -------------------------------------------------------------- */
@@ -697,6 +717,15 @@ window.MBB.experts = {
       text: 'Confirm your agenda, meet in Bilbao and keep the contacts afterwards.'
     }
   ],
+  // La mitad izquierda de la banda roja: para quien todavía no está dentro.
+  registerPanel: {
+    title: 'Not registered yet?',
+    text:
+      'Create your profile on the Match Bilbao Bizkaia platform: tell us about ' +
+      'your company, your markets and who you would like to meet.'
+  },
+
+  // Y la derecha, para quien ya lo está.
   loginPanel: {
     title: 'Already registered?',
     text:

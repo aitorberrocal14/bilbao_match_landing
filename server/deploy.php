@@ -101,7 +101,7 @@ function read_config(): array
  * Lo que se publica. Todo lo demás —documentación, herramientas, el historial
  * de git— se queda en el repositorio y no llega nunca a la carpeta pública.
  */
-$FILES = ['index.html', 'robots.txt', 'sitemap.xml'];
+$FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml'];
 $DIRS  = ['assets', 'exhibitors', 'admin'];
 
 /** Nunca se copia: la contraseña del panel vive en el servidor y solo ahí. */
