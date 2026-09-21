@@ -117,6 +117,78 @@ window.MBB = window.MBB || {};
     });
   };
 
+  /** "Monday, 28 September 2026" y "00:01", en hora de Bilbao. */
+  MBB.platformOpensFull = function (site) {
+    var abre = new Date((site.login || {}).opensAt);
+    if (isNaN(abre.getTime())) return null;
+    return {
+      fecha: abre.toLocaleDateString('en-GB', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+        timeZone: 'Europe/Madrid'
+      }),
+      hora: abre.toLocaleTimeString('en-GB', {
+        hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid'
+      })
+    };
+  };
+
+  /**
+   * La página que explica cuándo abre la plataforma (platform.html).
+   *
+   * Se dibuja con el dato, no con una fecha escrita a mano: es el mismo
+   * `opensAt` que decide a dónde van los botones, así que la página y los
+   * botones no pueden decir cosas distintas por mucho que alguien cambie la
+   * fecha y se olvide de algo.
+   *
+   * Y si la plataforma ya está abierta, esta página no insiste en una fecha
+   * pasada: dice que está abierta y ofrece entrar. Alguien puede llegar aquí
+   * desde un enlace guardado meses atrás.
+   */
+  MBB.PlatformGate = function (site) {
+    var cuando = MBB.platformOpensFull(site);
+    var abierta = MBB.platformOpen(site);
+    var reg = site.register || {};
+    var correo = (site.footer || {}).mail || '';
+
+    var cuerpo = abierta || !cuando
+      ? '<h1 class="h-1">The platform is open</h1>' +
+        '<p class="lead measure">Sign in to reach your profile, your ' +
+          'availability and your confirmed meeting agenda.</p>' +
+        '<p class="gate__actions">' +
+          '<a class="btn btn--lg" href="' + esc(site.login.url) + '" ' +
+            'target="_blank" rel="noopener">' + esc(site.login.label) + '</a>' +
+          '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
+        '</p>'
+      : '<h1 class="h-1">The platform opens on ' +
+          esc(MBB.platformOpensOn(site)) + '</h1>' +
+        '<p class="lead measure">Access to your profile, your availability and ' +
+          'your meeting agenda opens on <strong>' + esc(cuando.fecha) + '</strong> ' +
+          'at ' + esc(cuando.hora) + ' (Bilbao time). Until then the platform is ' +
+          'being prepared, and signing in is not yet possible.</p>' +
+        '<p class="measure">You do not have to wait to take part. Create your ' +
+          'profile now — tell us about your company, your markets and who you ' +
+          'would like to meet — and you will be ready to schedule your meetings ' +
+          'the moment the platform opens.</p>' +
+        '<p class="gate__actions">' +
+          (reg.url
+            ? '<a class="btn btn--lg" href="' + esc(reg.url) + '" ' +
+              'target="_blank" rel="noopener">' + esc(reg.label) + '</a>'
+            : '') +
+          '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
+        '</p>';
+
+    return (
+      '<div class="shell gate">' +
+        '<p class="kicker">' + esc(site.event.name) + ' ' + esc(site.event.edition) + '</p>' +
+        cuerpo +
+        (correo
+          ? '<p class="gate__help">Questions about your registration? Write to ' +
+            '<a class="link-red" href="mailto:' + esc(correo) + '">' + esc(correo) + '</a>.</p>'
+          : '') +
+      '</div>'
+    );
+  };
+
   function loginLink(site, classes, base) {
     var url = loginHref(site, base);
     if (!url) return '';

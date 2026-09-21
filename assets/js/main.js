@@ -14,25 +14,33 @@
   /* 1. Mount                                                               */
   /* --------------------------------------------------------------------- */
   function mount() {
-    var into = function (name, html) {
+    // El contenido se construye SOLO si la página tiene dónde ponerlo. No es
+    // una optimización: platform.html carga únicamente site.js, así que pedirle
+    // el programa o los folletos reventaría antes de llegar a lo suyo. Cada
+    // página carga los datos que usa y monta lo que tiene.
+    var into = function (name, construir) {
       var el = $('[data-mount="' + name + '"]');
-      if (el) el.innerHTML = html;
+      if (el) el.innerHTML = construir();
     };
 
-    into('header', MBB.Header(MBB.site));
-    into('hero', MBB.Hero(MBB.site));
-    into('event', MBB.EventIntro(MBB.eventIntro, MBB.site));
-    into('programme', MBB.Programme(MBB.programme));
-    into('presentation', MBB.Presentation(MBB.presentation));
-    into('editions', MBB.Editions(MBB.editions));
-    into(
-      'experts',
-      MBB.Experts(MBB.experts, MBB.site) +
-        MBB.Directory(MBB.exhibitors, MBB.exhibitorCategories, MBB.experts.directory)
-    );
-    into('discover', MBB.Discover(MBB.discover));
-    into('contact', MBB.Contact(MBB.site));
-    into('footer', MBB.Footer(MBB.site));
+    into('header', function () { return MBB.Header(MBB.site); });
+    into('hero', function () { return MBB.Hero(MBB.site); });
+    into('event', function () { return MBB.EventIntro(MBB.eventIntro, MBB.site); });
+    into('programme', function () { return MBB.Programme(MBB.programme); });
+    into('presentation', function () { return MBB.Presentation(MBB.presentation); });
+    into('editions', function () { return MBB.Editions(MBB.editions); });
+    into('experts', function () {
+      return MBB.Experts(MBB.experts, MBB.site) +
+        MBB.Directory(MBB.exhibitors, MBB.exhibitorCategories, MBB.experts.directory);
+    });
+    into('discover', function () { return MBB.Discover(MBB.discover); });
+    into('contact', function () { return MBB.Contact(MBB.site); });
+    into('footer', function () { return MBB.Footer(MBB.site); });
+    into('platform', function () { return MBB.PlatformGate(MBB.site); });
+
+    // El título solo lo pone la portada: las demás páginas traen el suyo en el
+    // HTML y no hay que pisárselo.
+    if (!$('[data-mount="hero"]')) return;
 
     document.title =
       MBB.site.event.name + ' ' + MBB.site.event.edition + ' — ' + MBB.site.event.dates;
