@@ -491,16 +491,20 @@ function check(etiqueta, ok, detalle) {
 
   check('el aviso se lee sin JavaScript', crudo.texto.length > 200,
     crudo.texto.slice(0, 70) + '…');
-  // Las tres formas en que la fecha aparece escrita —"28 September" en el
-  // titular, "Monday 28 September 2026" y "00:01" en el párrafo— tienen que
-  // salir de la misma fecha que usan los botones. Si alguien cambia `opensAt`
-  // y se olvida del texto, esto falla aquí y no el día 28 delante de la gente.
-  const faltan = [dia, completa.fecha, completa.hora]
-    .filter((t) => crudo.texto.indexOf(t) === -1);
+  // Las dos formas en que la fecha aparece escrita —"29 September" en el
+  // titular y "Tuesday 29 September 2026" en el párrafo— tienen que salir de
+  // la misma fecha que usan los botones. Si alguien cambia `opensAt` y se
+  // olvida del texto, esto falla aquí y no el día 29 delante de la gente.
+  //
+  // La hora no se comprueba porque no se escribe: la página dice el día y
+  // nada más, aunque `opensAt` lleve las 00:01 para saber cuándo cambiar.
+  const faltan = [dia, completa.fecha].filter((t) => crudo.texto.indexOf(t) === -1);
   check('el texto escrito dice la misma fecha que site.js',
     faltan.length === 0,
-    faltan.length ? 'falta en platform.html: ' + faltan.join(', ')
-                  : completa.fecha + ', ' + completa.hora);
+    faltan.length ? 'falta en platform.html: ' + faltan.join(', ') : completa.fecha);
+
+  check('el aviso no anuncia una hora', !/\d{1,2}:\d{2}/.test(crudo.texto),
+    (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);
   check('sin JavaScript, el alta y la vuelta siguen a mano',
     crudo.enlaces.some((h) => /registration/.test(h)) &&
     crudo.enlaces.some((h) => /^index\.html$/.test(h)), crudo.enlaces.join(' '));
@@ -545,8 +549,8 @@ function check(etiqueta, ok, detalle) {
   // reloj del navegador y se comprueba a dónde acaba el visitante. Meetmaps no
   // existe desde aquí, así que se intercepta la salida para ver la dirección.
   for (const [etiqueta, cuando, esperaIrse] of [
-    ['la víspera el aviso sigue puesto', '2026-09-27T23:59:00+02:00', false],
-    ['el día 28 el aviso se aparta solo', '2026-09-28T00:02:00+02:00', true],
+    ['la víspera el aviso sigue puesto', '2026-09-28T23:59:00+02:00', false],
+    ['el día 29 el aviso se aparta solo', '2026-09-29T00:02:00+02:00', true],
     ['semanas después sigue apartándose', '2026-10-15T12:00:00+02:00', true]
   ]) {
     const ctx = await navegador.newContext({ viewport: { width: 1280, height: 900 } });

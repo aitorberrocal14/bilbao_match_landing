@@ -60,7 +60,7 @@ window.MBB.site = {
     // Llegada la fecha el cambio ocurre solo: nadie tiene que acordarse de
     // tocar nada a medianoche. Y vacía esta línea y los botones vuelven a ir
     // directos, por si hubiera que abrir antes.
-    opensAt: '2026-09-28T00:01:00+02:00',
+    opensAt: '2026-09-29T00:01:00+02:00',
     waiting: 'platform.html'
   },
 
