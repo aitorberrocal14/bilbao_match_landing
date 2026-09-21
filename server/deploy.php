@@ -24,11 +24,15 @@
  *   · LA PLATAFORMA manda sobre los expositores. sync.php reescribe la lista,
  *     los logotipos, las fichas y el sitemap cada vez que se ejecuta.
  *
- * Por eso el orden del cron es: primero deploy.php, después sync.php. El
- * despliegue deja la web como está en el repositorio —expositores incluidos, que
- * en el repositorio están vacíos— y el sync la vuelve a llenar desde Meetmaps.
- * Si se hiciera al revés, cada despliegue borraría los expositores hasta el día
- * siguiente.
+ * Y esa separación se cumple de verdad: los archivos que escribe el sync —la
+ * lista, las fichas, los logotipos y el sitemap— este despliegue los copia solo
+ * si no existen todavía, y a partir de ahí no los toca. Ver $DE_LA_PLATAFORMA.
+ *
+ * Durante un tiempo no fue así, y el efecto era desconcertante: el sync llenaba
+ * el directorio y el siguiente despliegue lo vaciaba con la versión del
+ * repositorio, que está vacía a propósito. La web enseñaba expositores diez
+ * minutos de cada hora. Los dos registros decían que todo había ido bien,
+ * porque cada uno había hecho su trabajo.
  *
  * Dónde va el repositorio
  * -----------------------
@@ -102,6 +106,39 @@ $DIRS  = ['assets', 'exhibitors', 'admin'];
 
 /** Nunca se copia: la contraseña del panel vive en el servidor y solo ahí. */
 $NEVER = ['admin-config.php', 'config.php', 'sync.log', '.DS_Store', 'panel.png'];
+
+/**
+ * Lo que manda la PLATAFORMA, no el repositorio.
+ *
+ * Estos son los archivos que escribe sync.php con lo que llega de Meetmaps, y
+ * en el repositorio están vacíos a propósito: la lista de expositores, sus
+ * páginas, sus logotipos y el sitemap que los enumera.
+ *
+ * Se copian solo si NO existen ya en la web —para que una instalación nueva
+ * arranque con algo— y a partir de ahí no se tocan nunca más. Sin esto, cada
+ * despliegue pisaba el trabajo del sync con la versión vacía del repositorio:
+ * el directorio se llenaba a las y cinco y se vaciaba a las y cuarto, y así
+ * todo el día. La cabecera de este archivo ya decía que la plataforma mandaba
+ * sobre los expositores; esto es lo que hacía falta para que fuera verdad.
+ */
+$DE_LA_PLATAFORMA = [
+    'sitemap.xml',
+    'assets/js/data/exhibitors.js',
+    'assets/js/data/exhibitors-local.json',
+    'assets/img/exhibitors',
+    'exhibitors',
+];
+
+/** ¿Este archivo lo escribe el sync? La ruta va relativa a la raíz de la web. */
+function manda_la_plataforma(string $rel): bool
+{
+    global $DE_LA_PLATAFORMA;
+
+    foreach ($DE_LA_PLATAFORMA as $suyo) {
+        if ($rel === $suyo || strpos($rel, $suyo . '/') === 0) { return true; }
+    }
+    return false;
+}
 
 /* --- Salida ---------------------------------------------------------------- */
 
@@ -189,10 +226,11 @@ if ($TURNO === false) {
 
 $copiados = 0;
 $saltados = 0;
+$respetados = 0;   // los que escribe el sync y este despliegue no toca
 
-function copiar(string $desde, string $hasta, bool $dry)
+function copiar(string $desde, string $hasta, bool $dry, string $rel = '')
 {
-    global $copiados, $saltados, $NEVER;
+    global $copiados, $saltados, $respetados, $NEVER;
 
     if (!is_dir($hasta) && !$dry) { @mkdir($hasta, 0755, true); }
 
@@ -203,9 +241,16 @@ function copiar(string $desde, string $hasta, bool $dry)
 
         $src = $desde . '/' . $entry;
         $dst = $hasta . '/' . $entry;
+        $ruta = $rel === '' ? $entry : $rel . '/' . $entry;
 
         if (is_dir($src)) {
-            copiar($src, $dst, $dry);
+            copiar($src, $dst, $dry, $ruta);
+            continue;
+        }
+
+        // Lo que escribe el sync no se pisa, salvo que aún no exista.
+        if (manda_la_plataforma($ruta) && is_file($dst)) {
+            $respetados++;
             continue;
         }
 
@@ -226,6 +271,7 @@ function copiar(string $desde, string $hasta, bool $dry)
 foreach ($FILES as $f) {
     $src = MBB_REPO . '/' . $f;
     $dst = $WEB . '/' . $f;
+    if (manda_la_plataforma($f) && is_file($dst)) { $respetados++; continue; }
     if (is_file($dst) && md5_file($dst) === md5_file($src)) { $saltados++; continue; }
     if (!$DRY && !@copy($src, $dst)) { die_with('No se ha podido copiar ' . $f); }
     $copiados++;
@@ -233,20 +279,21 @@ foreach ($FILES as $f) {
 
 foreach ($DIRS as $d) {
     if (is_dir(MBB_REPO . '/' . $d)) {
-        copiar(MBB_REPO . '/' . $d, $WEB . '/' . $d, $DRY);
+        copiar(MBB_REPO . '/' . $d, $WEB . '/' . $d, $DRY, $d);
     }
 }
 
 say(
     ($DRY ? 'ENSAYO: se copiarían ' : 'Copiados ') . $copiados . ' archivos, ' .
-    $saltados . ' ya estaban iguales.'
+    $saltados . ' ya estaban iguales' .
+    ($respetados ? ', ' . $respetados . ' son de la plataforma y no se tocan' : '') . '.'
 );
 
 if ($DRY) {
     say('Ensayo terminado. No se ha tocado nada.');
 } else {
     say('Web actualizada en ' . $WEB);
-    say('Recuerda: los expositores los repone sync.php, que debe ejecutarse después.');
+    say('Los expositores no se tocan: los escribe sync.php desde la plataforma.');
 }
 
 mbb_soltar_turno($TURNO);
