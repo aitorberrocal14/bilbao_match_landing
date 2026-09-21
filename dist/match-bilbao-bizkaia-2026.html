@@ -3938,7 +3938,23 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     // página carga los datos que usa y monta lo que tiene.
     var into = function (name, construir) {
       var el = $('[data-mount="' + name + '"]');
-      if (el) el.innerHTML = construir();
+      if (!el) return;
+
+      // Cada sección se dibuja por su cuenta. Si una revienta —un dato mal
+      // editado desde el panel, un archivo que no ha llegado todavía— se
+      // pierde ESA sección y la página sigue en pie.
+      //
+      // Sin esto, un solo fallo dejaba la pantalla en blanco: ni cabecera, ni
+      // pie, ni forma de saber qué había pasado. Y la web la van a editar
+      // personas que no leen consolas de navegador.
+      try {
+        el.innerHTML = construir();
+      } catch (e) {
+        el.innerHTML = '';
+        if (window.console && console.error) {
+          console.error('No se ha podido dibujar la sección "' + name + '":', e);
+        }
+      }
     };
 
     into('header', function () { return MBB.Header(MBB.site); });
