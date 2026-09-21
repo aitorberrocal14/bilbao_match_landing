@@ -105,10 +105,35 @@ function read_config(): array
 // versiones —un archivo de hoy junto a otro de hace tres días, que juntos no
 // funcionan—. Sin él hay que pedirle a cada visitante que pulse Ctrl+F5.
 $FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml', '.htaccess'];
-$DIRS  = ['assets', 'exhibitors', 'admin'];
+$DIRS  = ['assets', 'exhibitors'];
 
 /** Nunca se copia: la contraseña del panel vive en el servidor y solo ahí. */
 $NEVER = ['admin-config.php', 'config.php', 'sync.log', '.DS_Store', 'panel.png'];
+
+/**
+ * LO QUE NO PUEDE ESTAR EN LA WEB.
+ *
+ * No basta con dejar de copiar algo: lo que ya se subió una vez se queda ahí
+ * para siempre, servido a quien pregunte por su dirección. Sacar una carpeta de
+ * $DIRS impide que se vuelva a copiar, pero no retira la que ya está publicada.
+ * Esto sí la retira, y lo hace en cada despliegue, así que tampoco vuelve por
+ * una copia manual hecha con prisa.
+ *
+ * Ahora mismo está el panel de administración. El panel edita la web: quien lo
+ * abre puede cambiar los textos, el programa y los folletos del evento. Estaba
+ * publicado confiando en una contraseña de carpeta que se pone a mano desde el
+ * hosting, y mientras no esté puesta, la dirección está abierta a cualquiera
+ * que la escriba. Publicar algo así y esperar a que alguien se acuerde de
+ * protegerlo es al revés: se publica cuando esté protegido, no antes.
+ *
+ * El panel NO se pierde. Sigue en el repositorio, y `node
+ * tools/build-admin-standalone.js` genera dist/panel-match-bilbao-bizkaia.html,
+ * que es el panel entero en un solo archivo: se abre desde el escritorio, sin
+ * servidor y sin estar al alcance de internet.
+ *
+ * Para volver a publicarlo: quitarlo de esta lista y devolverlo a $DIRS.
+ */
+$RETIRAR = ['admin'];
 
 /**
  * Lo que manda la PLATAFORMA, no el repositorio.
@@ -240,7 +265,7 @@ if (!is_writable($WEB)) {
 foreach ($FILES as $f) {
     if (!is_file(MBB_REPO . '/' . $f)) { die_with('Falta ' . $f . ' en el repositorio.'); }
 }
-foreach (['assets/css/styles.css', 'assets/js/main.js', 'admin/index.html'] as $f) {
+foreach (['assets/css/styles.css', 'assets/js/main.js'] as $f) {
     if (!is_file(MBB_REPO . '/' . $f)) { die_with('Falta ' . $f . ' en el repositorio.'); }
 }
 
@@ -323,6 +348,57 @@ say(
     $saltados . ' ya estaban iguales' .
     ($respetados ? ', ' . $respetados . ' son de la plataforma y no se tocan' : '') . '.'
 );
+
+/* --- 5. Retirar de la web lo que no debe estar ahí --------------------------
+   Borrar en la carpeta pública es la única operación de este archivo que
+   destruye algo, así que va con el cinturón puesto:
+
+     · solo se tocan los nombres escritos a mano en $RETIRAR, nunca algo
+       calculado ni leído de fuera;
+     · el nombre no puede llevar '/' ni '..', para que no se pueda salir de la
+       carpeta ni apuntar a otro sitio;
+     · se resuelve la ruta real y se comprueba que está DENTRO de la carpeta
+       pública, lo que descarta un enlace simbólico que apunte fuera;
+     · y nunca puede ser la carpeta pública misma. */
+
+function borrar_del_todo(string $ruta, bool $dry): int
+{
+    $n = 0;
+
+    if (is_dir($ruta) && !is_link($ruta)) {
+        foreach (scandir($ruta) as $e) {
+            if ($e === '.' || $e === '..') { continue; }
+            $n += borrar_del_todo($ruta . '/' . $e, $dry);
+        }
+        if (!$dry) { @rmdir($ruta); }
+        return $n;
+    }
+
+    if (!$dry) { @unlink($ruta); }
+    return $n + 1;
+}
+
+foreach ($RETIRAR as $nombre) {
+    if ($nombre === '' || strpos($nombre, '/') !== false || strpos($nombre, '..') !== false) {
+        say('Aviso: "' . $nombre . '" no es un nombre que se pueda retirar; se ignora.');
+        continue;
+    }
+
+    $ruta = $WEB . '/' . $nombre;
+    if (!file_exists($ruta)) { continue; }          // ya no está, nada que hacer
+
+    $real = realpath($ruta);
+    $raiz = realpath($WEB);
+    if ($real === false || $raiz === false ||
+        strpos($real, $raiz . DIRECTORY_SEPARATOR) !== 0 || $real === $raiz) {
+        say('Aviso: ' . $ruta . ' no está dentro de la web; no se toca.');
+        continue;
+    }
+
+    $n = borrar_del_todo($real, $DRY);
+    say(($DRY ? 'ENSAYO: se retiraría ' : 'Retirado de la web: ') . $nombre .
+        ' (' . $n . ' archivos). No debe estar publicado.');
+}
 
 if ($DRY) {
     say('Ensayo terminado. No se ha tocado nada.');

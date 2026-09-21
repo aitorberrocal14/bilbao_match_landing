@@ -438,6 +438,20 @@ function check(etiqueta, ok, detalle) {
   check('el .htaccess obliga a revalidar',
     /no-cache/.test(fs.readFileSync(path.join(ROOT, '.htaccess'), 'utf8')));
 
+  // El panel de administración edita la web: quien lo abre cambia los textos,
+  // el programa y los folletos. Mientras no tenga contraseña no puede estar
+  // publicado, y hay DOS caminos por los que podría volver —el despliegue
+  // automático y el paquete que se sube a mano—, así que se vigilan los dos.
+  const dirsDeploy = (deploy.match(/\$DIRS\s*=\s*\[([^\]]*)\]/) || [, ''])[1];
+  const retirar = (deploy.match(/\$RETIRAR\s*=\s*\[([^\]]*)\]/) || [, ''])[1];
+  const paquete = fs.readFileSync(path.join(ROOT, 'tools/build-site.js'), 'utf8');
+  const dirsPaquete = (paquete.match(/const DIRS\s*=\s*\[([^\]]*)\]/) || [, ''])[1];
+
+  check('el despliegue no publica el panel', !/admin/.test(dirsDeploy), dirsDeploy.trim());
+  check('el despliegue retira el panel de la web', /'admin'/.test(retirar), retirar.trim());
+  check('el paquete manual tampoco lleva el panel',
+    !/admin/.test(dirsPaquete), dirsPaquete.trim());
+
   /* --- La página de aviso, que no es la portada ---------------------------- */
   // Esto existe por un fallo que se veía perfecto y no funcionaba: en
   // platform.html el menú se dibujaba entero, pero sus enlaces eran "#discover"

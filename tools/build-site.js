@@ -8,8 +8,18 @@
  * termina publicada una carpeta `tools/`. Así que la decisión se toma una vez,
  * aquí.
  *
- * Lo que entra: index.html, assets/, exhibitors/, admin/, robots.txt y
- * sitemap.xml. La misma lista que usa server/deploy.php en el servidor.
+ * Lo que entra: index.html, platform.html, assets/, exhibitors/, robots.txt,
+ * sitemap.xml y .htaccess. La misma lista que usa server/deploy.php en el
+ * servidor.
+ *
+ * El panel de administración NO entra, y no es un olvido. El panel edita la
+ * web: quien lo abre cambia los textos, el programa y los folletos. Estaba
+ * publicado confiando en una contraseña de carpeta que se pone a mano desde el
+ * hosting, y mientras no esté puesta, la dirección está abierta a cualquiera
+ * que la escriba. Se publica cuando esté protegido, no antes.
+ *
+ * El panel no se pierde: `node tools/build-admin-standalone.js` lo deja entero
+ * en un solo archivo, para abrir desde el escritorio y fuera de internet.
  *
  *   node tools/build-site.js --dir _site
  *   node tools/build-site.js --dir _pruebas --test
@@ -41,8 +51,8 @@ const isTest = process.argv.includes('--test');
 const STAGE = path.resolve(ROOT, outDir);
 
 // Files at the root of the site, and whole folders that travel as they are.
-const FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml'];
-const DIRS = ['assets', 'exhibitors', 'admin'];
+const FILES = ['index.html', 'platform.html', 'robots.txt', 'sitemap.xml', '.htaccess'];
+const DIRS = ['assets', 'exhibitors'];
 
 // Never published, whatever it is doing in the folder. The panel's password
 // belongs on the server alone; the documentation and its screenshot belong in
@@ -112,8 +122,7 @@ const pages = fs.readdirSync(path.join(STAGE, 'exhibitors')).filter((f) => f.end
 const musts = [
   'index.html',
   'assets/css/styles.css',
-  'assets/img/social-card.jpg',
-  'admin/index.html'
+  'assets/img/social-card.jpg'
 ];
 for (const m of musts) {
   if (!fs.existsSync(path.join(STAGE, m))) throw new Error('Falta ' + m + ' en el paquete');
@@ -134,8 +143,10 @@ if (pages.length !== listed) {
     'Ejecuta node tools/build-exhibitors.js'
   );
 }
-if (fs.existsSync(path.join(STAGE, 'admin', 'admin-config.php'))) {
-  throw new Error('La contraseña del panel no puede viajar en el paquete');
+// El panel no puede colarse en el paquete por ninguna vía: ni la carpeta, ni
+// la contraseña que vive dentro de ella.
+if (fs.existsSync(path.join(STAGE, 'admin'))) {
+  throw new Error('El panel de administración no puede viajar en el paquete');
 }
 
 /* --- Hand it over --------------------------------------------------------- */
