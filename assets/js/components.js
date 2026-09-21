@@ -200,6 +200,24 @@ window.MBB = window.MBB || {};
       esc(site.login.label) + '</a>';
   }
 
+  /**
+   * El botón de alta, hermano del de Login.
+   *
+   * Vacía `site.register.url` y desaparece, igual que el de Login: es lo que
+   * tiene que pasar el día que se cierren las inscripciones, en vez de dejar
+   * un botón que lleva a un formulario cerrado.
+   */
+  function registerLink(site, classes, corto) {
+    var reg = site.register || {};
+    if (!reg.url) return '';
+    // En la cabecera cabe una palabra, no una frase: ahí se usa `short`. En el
+    // cuerpo de la página, donde hay sitio, se usa la frase entera, que dice
+    // mejor lo que uno va a hacer.
+    var texto = corto ? (reg.short || reg.label) : reg.label;
+    return '<a class="' + classes + '" href="' + esc(reg.url) + '" data-register ' +
+      'target="_blank" rel="noopener">' + esc(texto || 'Register') + '</a>';
+  }
+
   MBB.loginHref = loginHref;
 
   /**
@@ -224,16 +242,39 @@ window.MBB = window.MBB || {};
   MBB.Header = function (site, opts) {
     opts = opts || {};
     var base = opts.base || '';          // '../' when rendered inside /exhibitors
+
+    // Dónde viven las secciones del menú. En la portada están aquí mismo, así
+    // que "#discover" basta. En cualquier otra página —la ficha de un
+    // expositor, la de aviso de la plataforma— hay que nombrar la portada, o
+    // el enlace solo cambia la dirección del navegador y no lleva a ninguna
+    // parte: la pantalla se queda exactamente igual, sin decir por qué.
+    var portada = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+
     var links = site.nav
       .map(function (n) {
-        var href = /^#/.test(n.href) ? base + (base ? 'index.html' : '') + n.href : n.href;
+        var href = /^#/.test(n.href) ? portada + n.href : n.href;
         return '<li><a class="header__link" href="' + esc(href) + '">' + esc(n.label) + '</a></li>';
       })
       .join('');
 
+    // En un móvil estrecho no caben a la vez el logotipo, el Login, el alta y
+    // el botón del menú: algo se sale por el lado. Así que en pantalla pequeña
+    // el Login baja al menú desplegable —donde tiene su sitio y una zona de
+    // pulsación decente— y arriba se queda el alta, que es la acción que
+    // buscamos de quien llega por primera vez. De 620px para arriba esta
+    // entrada no se dibuja y el Login vuelve a la cabecera.
+    // Estando ya en la página de aviso, un Login que lleva a la página de
+    // aviso no hace nada: cambia la dirección y la pantalla se queda igual.
+    // Ahí sobra, y el alta se queda sola. Abierta la plataforma el Login ya
+    // lleva a Meetmaps, así que vuelve a la cabecera por su cuenta.
+    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
+
+    var loginEnMenu = conLogin ? loginLink(site, 'header__link', base) : '';
+    if (loginEnMenu) links += '<li class="header__links-login">' + loginEnMenu + '</li>';
+
     return (
       '<div class="shell shell--wide header__inner">' +
-        '<a class="header__brand" href="' + esc(base || '') + (base ? 'index.html' : '#home') + '">' +
+        '<a class="header__brand" href="' + esc(portada + '#home') + '">' +
           '<img src="' + esc(base) + 'assets/img/brand/match-bilbao-bizkaia-wordmark.png" ' +
             'alt="Match Bilbao Bizkaia">' +
           '<span class="header__year">' + esc(site.event.edition) + '</span>' +
@@ -242,7 +283,13 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          loginLink(site, 'btn btn--sm', base) +
+          // Dos puertas, y se distinguen a simple vista: entrar es para quien
+          // ya está dentro, y darse de alta es lo que queremos que haga quien
+          // llega por primera vez. Por eso el alta va en rojo macizo y el
+          // Login queda como enlace: si los dos fueran botones rojos, el
+          // visitante nuevo tendría que leerlos para saber cuál es el suyo.
+          (conLogin ? loginLink(site, 'header__login', base) : '') +
+          registerLink(site, 'btn btn--sm', true) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -1256,7 +1303,12 @@ window.MBB = window.MBB || {};
   MBB.Footer = function (site, opts) {
     opts = opts || {};
     var base = opts.base || '';
-    var home = base ? base + 'index.html' : '';
+    // Mismo asunto que en la cabecera: desde una página que no es la portada,
+    // "#discover" no lleva a ninguna parte. Hay que nombrarla.
+    var home = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    // Y lo mismo que arriba: en la página de aviso, un Login que lleva a la
+    // página de aviso es un enlace que no hace nada.
+    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
     var f = site.footer;
 
     var insts = f.institutions
@@ -1311,7 +1363,8 @@ window.MBB = window.MBB || {};
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
           '<div><h4>Navigate</h4><ul>' + navLinks +
-            (loginHref(site, base) ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
+            (conLogin && loginHref(site, base)
+              ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
           '<div><h4>Event</h4><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +

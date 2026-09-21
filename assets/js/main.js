@@ -39,7 +39,17 @@
       }
     };
 
-    into('header', function () { return MBB.Header(MBB.site); });
+    // La cabecera necesita saber en qué página está. Si las secciones no están
+    // aquí, sus enlaces tienen que nombrar la portada: si no, pulsar "Discover"
+    // solo cambia la dirección del navegador y la pantalla se queda igual.
+    var esPortada = !!$('[data-mount="hero"]');
+    var esAviso = !!$('[data-mount="platform"]');
+    into('header', function () {
+      return MBB.Header(MBB.site, {
+        home: esPortada ? '' : 'index.html',
+        aviso: esAviso
+      });
+    });
     into('hero', function () { return MBB.Hero(MBB.site); });
     into('event', function () { return MBB.EventIntro(MBB.eventIntro, MBB.site); });
     into('programme', function () { return MBB.Programme(MBB.programme); });
@@ -51,7 +61,9 @@
     });
     into('discover', function () { return MBB.Discover(MBB.discover); });
     into('contact', function () { return MBB.Contact(MBB.site); });
-    into('footer', function () { return MBB.Footer(MBB.site); });
+    into('footer', function () {
+      return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
+    });
     into('platform', function () { return MBB.PlatformGate(MBB.site); });
 
     // El título solo lo pone la portada: las demás páginas traen el suyo en el

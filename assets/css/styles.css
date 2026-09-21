@@ -315,6 +315,23 @@ p:last-child { margin-bottom: 0; }
 .header__link[aria-current="true"] { color: var(--red); }
 .header__actions { flex: none; display: flex; align-items: center; gap: 0.6rem; }
 
+/* El Login de la cabecera: enlace, no botón. Comparte la letra de los enlaces
+   del menú —misma familia, mismo tamaño, mismas mayúsculas— para que lea como
+   uno más y deje el rojo macizo al alta, que es la acción que buscamos. */
+.header__login {
+  font-size: 0.86rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--grey-dark);
+  white-space: nowrap;
+  transition: color 0.25s var(--ease);
+}
+.header__login:hover { color: var(--red); }
+
+/* El Login del menú desplegable solo sale en pantalla estrecha; su pareja de
+   la cabecera desaparece entonces, para que nunca estén los dos. */
+.header__links-login { display: none; }
+
 .burger {
   display: none;
   width: 40px;
@@ -1519,6 +1536,9 @@ p:last-child { margin-bottom: 0; }
   .header__year { font-size: 0.78rem; }
   .header__actions { gap: 0.25rem; }
   .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
+  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú. */
+  .header__actions .header__login { display: none; }
+  .header__links-login { display: block; }
   .burger { width: 36px; padding: 8px; }
   /* The rail moves in; everything placed from it follows on its own. */
   .tl { --rail: 58px; --clear: 0.9rem; }

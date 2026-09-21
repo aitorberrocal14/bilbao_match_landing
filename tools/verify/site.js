@@ -255,6 +255,35 @@ function check(etiqueta, ok, detalle) {
     check('hay un botón para darse de alta',
       /meetmaps\.com/.test(puerta.alta) && /registration/.test(puerta.alta), puerta.alta);
 
+    /* --- Las dos puertas de la barra de arriba ------------------------------ */
+    // Entrar y darse de alta conviven en la cabecera, y se distinguen sin leer:
+    // el alta en rojo macizo, el Login como enlace. En móvil no caben los dos
+    // al lado del logotipo y del botón del menú, así que el Login baja al menú
+    // desplegable. Lo que no puede pasar nunca es que se pierda por el camino.
+    const barra = await pagina.evaluate(() => {
+      const visible = (e) => !!e && e.getBoundingClientRect().width > 0;
+      const loginArriba = document.querySelector('.header__actions a[data-login]');
+      const loginMenu = document.querySelector('.header__links-login a[data-login]');
+      const alta = document.querySelector('.header__actions a[data-register]');
+      return {
+        alta: visible(alta),
+        altaTexto: alta ? alta.textContent.trim() : '',
+        altaUrl: alta ? alta.getAttribute('href') : '',
+        altaRoja: alta ? getComputedStyle(alta).backgroundColor : '',
+        // Uno de los dos, nunca los dos ni ninguno.
+        loginUno: (visible(loginArriba) ? 1 : 0) + (visible(loginMenu) ? 1 : 0),
+        loginDentro: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+      };
+    });
+
+    check('el alta está en la barra de arriba', barra.alta, barra.altaTexto);
+    check('el alta lleva al formulario de registro',
+      /registration/.test(barra.altaUrl || ''), barra.altaUrl);
+    check('el alta se ve en rojo, no como enlace',
+      /rgba?\(20[0-9], 3[0-9], 4[0-9]/.test(barra.altaRoja), barra.altaRoja);
+    check('el Login está una vez y solo una', barra.loginUno === 1, barra.loginUno);
+    check('la barra no se sale de ancho', barra.loginDentro);
+
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
     check('las dos ediciones tienen vídeo',
       resto.videos === 2 && resto.videosSinId === 0,
@@ -337,6 +366,59 @@ function check(etiqueta, ok, detalle) {
 
   await dir.close();
   fs.rmSync(tmp, { recursive: true, force: true });
+
+  /* --- La página de aviso, que no es la portada ---------------------------- */
+  // Esto existe por un fallo que se veía perfecto y no funcionaba: en
+  // platform.html el menú se dibujaba entero, pero sus enlaces eran "#discover"
+  // y esa sección no está en esa página. Pulsar cambiaba la dirección del
+  // navegador y nada más: ni saltaba, ni avisaba, ni se movía la pantalla.
+  // Parecía una página rota y estática.
+  //
+  // Lo que se comprueba aquí no es que los enlaces existan —existían— sino que
+  // LLEVAN A ALGÚN SITIO desde la página en la que están.
+  console.log('\n--- la página de aviso (platform.html) ---');
+
+  const aviso = await navegador.newPage({ viewport: { width: 1280, height: 1000 } });
+  const erroresAviso = [];
+  aviso.on('pageerror', (e) => erroresAviso.push(String(e)));
+  await aviso.goto('file://' + path.join(ROOT, 'platform.html'));
+  await aviso.waitForTimeout(600);
+
+  const p = await aviso.evaluate(() => {
+    const internos = [...document.querySelectorAll('.header a, .footer a')]
+      .map((a) => ({ t: (a.textContent || '').trim(), h: a.getAttribute('href') || '' }))
+      .filter((a) => a.h && !/^(mailto|tel|https?):/.test(a.h));
+    return {
+      montada: !!document.querySelector('.gate'),
+      cabecera: !!document.querySelector('.header__brand'),
+      pie: !!document.querySelector('.footer'),
+      // Un ancla que no encuentra su sección en ESTA página no lleva a ninguna
+      // parte. Los legales todavía son marcadores y se cuentan aparte.
+      sinDestino: internos.filter(
+        (a) => a.h.charAt(0) === '#' &&
+          !/^#legal-/.test(a.h) &&
+          !document.getElementById(a.h.slice(1))
+      ),
+      aPortada: internos.filter((a) => /^index\.html#/.test(a.h)).length,
+      // Y el Login, estando ya en la página de aviso, no puede llevar aquí
+      // mismo: sería pulsar y que no pase nada.
+      loginACasa: [...document.querySelectorAll('a[data-login]')]
+        .filter((a) => /platform\.html$/.test(a.getAttribute('href') || '')).length,
+      alta: [...document.querySelectorAll('.header a[data-register]')]
+        .map((a) => a.getAttribute('href'))
+    };
+  });
+
+  check('la página de aviso se monta', p.montada && p.cabecera && p.pie);
+  check('ningún enlace del menú se queda sin destino',
+    p.sinDestino.length === 0, JSON.stringify(p.sinDestino));
+  check('el menú lleva de vuelta a la portada', p.aPortada > 0, p.aPortada + ' enlaces');
+  check('el Login no se apunta a sí mismo', p.loginACasa === 0, p.loginACasa);
+  check('el alta sigue a mano desde el menú',
+    p.alta.length > 0 && /registration/.test(p.alta[0] || ''), p.alta.join(' '));
+  check('sin errores de JavaScript', erroresAviso.length === 0, erroresAviso.join(' | '));
+
+  await aviso.close();
 
   await navegador.close();
 

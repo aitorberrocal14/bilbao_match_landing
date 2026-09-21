@@ -388,6 +388,23 @@ p:last-child { margin-bottom: 0; }
 .header__link[aria-current="true"] { color: var(--red); }
 .header__actions { flex: none; display: flex; align-items: center; gap: 0.6rem; }
 
+/* El Login de la cabecera: enlace, no botón. Comparte la letra de los enlaces
+   del menú —misma familia, mismo tamaño, mismas mayúsculas— para que lea como
+   uno más y deje el rojo macizo al alta, que es la acción que buscamos. */
+.header__login {
+  font-size: 0.86rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--grey-dark);
+  white-space: nowrap;
+  transition: color 0.25s var(--ease);
+}
+.header__login:hover { color: var(--red); }
+
+/* El Login del menú desplegable solo sale en pantalla estrecha; su pareja de
+   la cabecera desaparece entonces, para que nunca estén los dos. */
+.header__links-login { display: none; }
+
 .burger {
   display: none;
   width: 40px;
@@ -1592,6 +1609,9 @@ p:last-child { margin-bottom: 0; }
   .header__year { font-size: 0.78rem; }
   .header__actions { gap: 0.25rem; }
   .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
+  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú. */
+  .header__actions .header__login { display: none; }
+  .header__links-login { display: block; }
   .burger { width: 36px; padding: 8px; }
   /* The rail moves in; everything placed from it follows on its own. */
   .tl { --rail: 58px; --clear: 0.9rem; }
@@ -1738,7 +1758,12 @@ window.MBB.site = {
   // todavía no pueda entrar.
   register: {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration',
-    label: 'Create your profile'
+    // La frase entera se usa donde hay sitio: la banda del final de la
+    // portada y la página de aviso.
+    label: 'Create your profile',
+    // En la cabecera solo cabe una palabra, y ahí conviven con el Login, el
+    // logotipo y el menú. Vacía esto y la cabecera usa la frase larga.
+    short: 'Register'
   },
 
   /* --- Hero -------------------------------------------------------------- */
@@ -2781,6 +2806,24 @@ window.MBB = window.MBB || {};
       esc(site.login.label) + '</a>';
   }
 
+  /**
+   * El botón de alta, hermano del de Login.
+   *
+   * Vacía `site.register.url` y desaparece, igual que el de Login: es lo que
+   * tiene que pasar el día que se cierren las inscripciones, en vez de dejar
+   * un botón que lleva a un formulario cerrado.
+   */
+  function registerLink(site, classes, corto) {
+    var reg = site.register || {};
+    if (!reg.url) return '';
+    // En la cabecera cabe una palabra, no una frase: ahí se usa `short`. En el
+    // cuerpo de la página, donde hay sitio, se usa la frase entera, que dice
+    // mejor lo que uno va a hacer.
+    var texto = corto ? (reg.short || reg.label) : reg.label;
+    return '<a class="' + classes + '" href="' + esc(reg.url) + '" data-register ' +
+      'target="_blank" rel="noopener">' + esc(texto || 'Register') + '</a>';
+  }
+
   MBB.loginHref = loginHref;
 
   /**
@@ -2805,16 +2848,39 @@ window.MBB = window.MBB || {};
   MBB.Header = function (site, opts) {
     opts = opts || {};
     var base = opts.base || '';          // '../' when rendered inside /exhibitors
+
+    // Dónde viven las secciones del menú. En la portada están aquí mismo, así
+    // que "#discover" basta. En cualquier otra página —la ficha de un
+    // expositor, la de aviso de la plataforma— hay que nombrar la portada, o
+    // el enlace solo cambia la dirección del navegador y no lleva a ninguna
+    // parte: la pantalla se queda exactamente igual, sin decir por qué.
+    var portada = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+
     var links = site.nav
       .map(function (n) {
-        var href = /^#/.test(n.href) ? base + (base ? 'index.html' : '') + n.href : n.href;
+        var href = /^#/.test(n.href) ? portada + n.href : n.href;
         return '<li><a class="header__link" href="' + esc(href) + '">' + esc(n.label) + '</a></li>';
       })
       .join('');
 
+    // En un móvil estrecho no caben a la vez el logotipo, el Login, el alta y
+    // el botón del menú: algo se sale por el lado. Así que en pantalla pequeña
+    // el Login baja al menú desplegable —donde tiene su sitio y una zona de
+    // pulsación decente— y arriba se queda el alta, que es la acción que
+    // buscamos de quien llega por primera vez. De 620px para arriba esta
+    // entrada no se dibuja y el Login vuelve a la cabecera.
+    // Estando ya en la página de aviso, un Login que lleva a la página de
+    // aviso no hace nada: cambia la dirección y la pantalla se queda igual.
+    // Ahí sobra, y el alta se queda sola. Abierta la plataforma el Login ya
+    // lleva a Meetmaps, así que vuelve a la cabecera por su cuenta.
+    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
+
+    var loginEnMenu = conLogin ? loginLink(site, 'header__link', base) : '';
+    if (loginEnMenu) links += '<li class="header__links-login">' + loginEnMenu + '</li>';
+
     return (
       '<div class="shell shell--wide header__inner">' +
-        '<a class="header__brand" href="' + esc(base || '') + (base ? 'index.html' : '#home') + '">' +
+        '<a class="header__brand" href="' + esc(portada + '#home') + '">' +
           '<img src="' + esc(base) + 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAxwAAAAwCAYAAACbgXzYAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAgAElEQVR4nO2de7BX1ZXnP7lFWQxlOcRmmLRF9tiGRmPcxKidOLYh9lEJUWIbX62oqPhAxKioCW0IYxnbdzI+EhtfqPhE26ENsY0i2TrGKEHb2B7bMAyxyWmHYRiaUAxFMxRza/7Y+5LLvb+z13nsc87v9+P3qaJS5pzfPvuex957rb3Wd32CQRil9wW2REm8k4YxSo8C+qIk3toGfekD9o6SeEvTfekGjNJjgPHAmEH/Pgn8Dlg/+F+UxBtr7ttYYFPV34B7p8YCG6Ik7q/yWnsqRumRwKgoiTdV0Pan6D27xjBK7w1s65T77+bWoWPeHwD/Cmwc9G89sLpT/q5uxii9D9DfDmuQpnDrsL2iJN5cQdv7AlujJN4Ruu2c/djH9aPxb67K+10Eo/TokH35hGv0SOBB4BBgK7AMuLiKiVrCKH0w8EPgaGAv4DXggiiJ1zbQl9HA9cAZwKeA5cAPoyR+oYJrHQf8GTA6dNsC/xNYGiXx+1VdwC38JgHHA5OBiTl+vhp4FngmSuIPKugeAEbpi4CbsEbADuAp4MrQRqZRei9gPnAVsDewBbgDuLUdDP1WuOd3GvB5YFSOn/Zj/75/ATYDq4B3qp5gjNLjsOPZZKAP+AiYHSXxSyXb7QOuBa7DfqfbgAeA66Ik3l6q04EwSh8NHAP8Yc6fbsc+p03AOmBFlMQbwvauPEbpY4BrsM92M7AEuCFK4vVN9msog8a8Y4HjgMNy/HwjYIBXgOVNzH0hccb5ycBngRE5froT+4x/h70n7wEfVr0wdOuh+/n9PPUmcGGUxKtKtDkOu474I+yYVCXbgb8Hni06pxilJ2DH0KOx/f0QuyZ8s2zn3FpnAdYA34md32fXvcg2Sk8BrsR+nxuA57BjSRPr3vHY+z0Je79XATOjJH69gb70Ad8GzsbaBO8Aj0RJ/Ndl2/6EW+D/Cru4H8wbwPF1TqRG6f2AtwA15NA64HN1vpDupv8YmDrk0E7gP0ZJ/E7Aa90NXBGqvQLsxA4mj4Zs1E26l2EXaGMCNLkK+1HeE3JxbpS+FDsADmVZlMRfDXUdd617sfdkKLdHSTw35LVCYJTeH/gpcFCgJrcDK4HHgcdCGx/O8x0D+7c4/JUyA7hR+gbgP7U49FiUxOcVbTcURukFwKUBm1wFvATcGSVxErDdQhilDwLexhrqg3kD+LN2MNidh/IyYC5hxjyA54H5VTpcqsItLv+GcI60zcDrwP1REr8YqM1deNZDm4DPFjHCjdJHYcfQfcr3MBcrgGOjJN6W50cuAuHXDH9/dwJfKPMeGqWnAU+2OPQ69huuZZfBKH0Ydq059Dm/CHy9zt0Ot9Pzj1in9mB2An8SJfF7dfXF9ee7wI0tDl0cJfFDZdrucw0PvelgLdv5ZRovwIMMNzYA9qP+Bfl0hhsbYD00TzuDpDTOY9eksQH2b1rgPFGlMUr3GaUvAX4D/IBwE+9Brr233YBRGvccb0k5PNkoHYW4jrvW/rQ2NgCudeFc7cYiwhkbAAOe3weB37r3JCSX0NrYgPTnLOK23b+Tcni6UfqQom2HwCh9PmGNDbDP/Srgn4zSi9yOb5MsYrixAXauanQMNUqPMEpfjh3z7iDcmAd2dyA2Sj/tPKEdgVtIPUnYXfvRwEnA3xmlYzd/huQGWq+H9sUakUVYRP3GBsCRwLwCv7uG1u/vCGwUQCHcs1qUcngSdteyctyc/yStn/MJwPl19GMQcxhubEDJ+10EN4+1MjYA7nWbAoXpA47wHL/abQVWjlvYneA55U/q6McgZnuOjcduw4Xg2EDtlGUk8MWyjbhdjWewW9KlXk4Ph2KNjtuM0nm26FtxAP4J0fd95MVnJPVh/662wQ0ukyq8xKeA+43SC12oWQgO9xw7rISjYCL+cJAgBnAJzq6w7T6sA+Ztt8tQO0bpI/CPT7NDOYHy4nbVfowNBQ7itEnhTODvQzpBKibChqhWxSHAz4zSIY1N33if+xt3Y2iTRmKRdyXoPYBdC9kf4x9D84Ral+EY/E60b9bUjwF897TueWWW59hewIwyjffht7xHkm7tBMNNFHcIp7XybFWC855LC03fg8nD/wnUTghK5Su4rdhXsfH+VTMQZ7iwZDuS5+mTJdsfjOTpa9qDPJQJNV1nBnBboLak8ayogSq9J00/uzoWNeOBV9wCu25mCscPIJwTKDNuQflz/M6ykOwDvOx2tNqdOt7JPuBuo3SoOcf3nRfZpcgVzlQBawv8Jug9cN9IlpCydXnbLoi0djvUKF3a+ZqD0O9cIdy4Pl04bWYZx06WH55vlK7a8jyT5j2Eg8liTJxUdnvJsRSbXNs0CTa2vhAu3OIt7DZunUw3ShcOlenhpU6P8RVG6bba4ekw6npW47BCGrXhwtmmZThVMkqC4nb/36b+nckRwCNG6atqvm5e6hw/7nbvSVvh8k5LiVWU5G8bvPbAt/tT7LjhYwMQXIynRX8GBAwkah1L2oQzkR3744ApRS+QdUAI5X0chgvBaZsFY47JrY+S20sATvniYpr1hCTAqXmTy4ZwP/k9Wu9hDa6HgNuB+7AJkiuwSlFZ+UuX+N2jc+nD5hE1EhbTIxdX1+CEGsw5ZFNHOzmQE0jEvaeLyB82+iF2YfUw8H3gR1iVntexCpF5uMOFmvWwz6HyaIyCXIid0+pmJVbFrRFcmOzfIodK9WOVSOsQBZpBtl3uaW2Qs1Y3WY2swtE9WcMLphilj4uSeHnRC3m4jNaJ4k0xjezSnzON0jeXVTSIkvhho/Tz2DCurC/5k6Q/v9VkT/hfB7xbxtgwSp+DlfzLwptYRaiXfDU2nOF3AnAe2SzqG4zSD7SDlvYexDJsCF0aI4BPYw3RI5C3h4/EJuw9HKJzPXaxESu24OMPsM/pEGTHQR9wL/Dl8l3LRNaJcMAJ9FcV9mWAq8keH/8BNr/jxSiJP047yS3QjgZOBy5Cnp9HAE8apb9Q0lnUFA9hk+zT+DdYAYjx2Pwd6X5cbpR+sN3UvKIkXmeU/jJ24R0qzOwa/DlN24FzG1ZuW0i2b+TCKhTHhuKcBBdnPH0k1tHxo+p61D5kTCMY4ASj9DjfWJZGnnjmO4zSh4dc0DkVi7qVsCTyWG8D20ulPxan/bws6/lG6UWkP78NURI/W7ZPGfsxDrv4kFgPzImSeHGWdl39i8XAYqP0Se4avm3ZsdjJunbd6j2Yn0VJfHuWE923fiPpKl0DnEjP4AjNxiiJb81yopuUp2Fz6nwJ0Ecbpfeuuiiaq4mQZzfl4hBOIKFPE8m2K78ZKwn+UJaFn5OINoAxSt8J3ImcGzIBa0yGyimsk8ezylS7uhB343c+9WGVjtrK4ABwz/9d968URulJyAIv86IkXl32WkUxSt+EXbBLzA0tx+9hMukKhq2YyR5icJBv/Bgw3HKH1uYJXziUbKFGeZhH88mWuygwuUFnDvQhmYPsuU6wtUsyGRtDiZJ4KfA5bBFIH+0oK9sDa1BHSTwbuEc49eA6+tOjNVES90dJ/ATW8JMW7XU8q7zjq6JEjHFG5iE76zYAfxol8X1FvMxREq+OkvhEIEuxrUvqUpNsCrd4PhE5NOlzNXSnMVxib5q07ABvAHfV0J2WOKnzNAnxwdyV1WEViLxjySGuhkpXkyONYDAXFVEIzRsvfYvLuSiNq0lweYi2AlIkUeiEbh/s03DvgpTHsgFb0GdtmWu5HY+vkZ5YthU70PZob+Zh34k0JgSUyO1RkCiJ38VWUfdRqcHhYqizhmoOpjInkEs6PUU4bRO2yOSHZa/njPT7hNPyhIp0LG7XSpqjG62HUwN34PfSb8PmQzQSWmyUnkrrIrpDWYwNC6sFl9vVqq6axJ7gUM6TRjBAofuZ1+AYR7gCSzfRuvBKI7jJ7cwCP90jBvsUzkDeofpWlMQfhbiYq3r/DYZ7/XZgq2CuD3GdHtXhQnB8Xso+6pPj7eHnZeG4rvj607Gx1Hmp0gl0CfLuxhwnBhKKOYA0hl4SoCZR2xMl8fv4HRZdu0NqlJ6MXNxzbpTEa+roz1CcgMEzyOvK5cB5NRtFF1FMNe0MFw7czRQ1qnI76Is8gHllH4B7MUOHZ5VFmtx8qkmFtpe6AOlFXQE8EfKCURLvdF6/Y4FbsTHSny8artWjEaTY4pBVmnsUp+nn5BtffONxJU4gN8ZLk+zrURI/FvK6ztHiK0QLNt8mi9xnN+BbUO8dKgqjnXAOUanm1GtkC8ELjlH6AKz8reQpfwf4hstXqgX33frGA19f9kKuTdGxZEgj8N2bKS5SKTNFDI59KJ/oLRX5awLfRLIJf4n5ott1HYsbAKWaG7dV5cWIkthESXxdlMS3BvYm9qie3wnH6yoA1cOPJFNZ2XMySh+Nvxrwj/AXNavCCXQIsgzuDYGvCUCUxC9hZcR9nFjFtdsQ33u5yRlo3cbd+EVTttJQKJUr+PsysgNiDXBi1UITLZiC/97dilXyS6Obw6okB8qckr/fjaKa95c7izY3RukTsKXl2wY3ufm2Yp/AxjP7PuZufilbIUmobaHZgkc92pcDheNJLb3oISFJeP62wmtL4+mD+D2+VTiBJGWgdcjCFmV4XDheZ3XkJvG9l103djiVRsnLfk3ZPMkiuN2knyCPFeuB46Mk9oXDVYVvLOnHjiW+XckJRuljgvaoDciQRrACmz+21nPOjDw5l0UNjhEUKNbnPE7tuLshTW4LXX6AT/52ct7tpQ5HmtyWdqmnqUd5fImdq3vvTdsgKfZJHvdCOI/paZ5TVrhdTSl0KXS14C8JxxdX7GGWwkYPdipGXYtRehTgc3a+X1df6sCFrz8onLYsSmJJ4CE4TkL7aeRIhy3AVxsyiBR+aellrp7EI0JT3Vh5XEojWOjGM59jZyxwUtYLlqnqe4ZROq9H5XzaLKkrw+T2rktUAzmGshtfyjSkyfftWnrRo6NwKiaHeU6RvrEeNeAWdnM9p6yOkriq6snT8QuKLASIkjjBX7sod4yxgDTf/SLgtYYRJfE65DA237fVDUiSxN02fizAL/e+BVvJvAnuRs4b2gF8fdAaqm6kXK6BseQDbGX2NE4zSneb7L5vvboNGKjlJjl2Mkf3lDE4IMduhZvAbix5vSrINLk5XsQf65dre6nDkUKqcleh7NHdGKXHYysup9GPPLj1qBg3hkkx45LXtQy+CWzwRAg1OYHc/CU5y+oI55HG1a4Nq3JhLdd6TlmTtZBgJ2CUPgNZFvrKIhWfy2KUvha5rEE/cFZTz8RF1FzkOWUTsHTQf/vGkhFYh3lXkCGN4DlXiiCLYydyc7uIZHCsAHzhDZNcfGEWrsZfuXYt/lixqpCUUJ4a+A+nrOBbEOXaXupwfM8Seom/PbCFqozShxqlvwPE+DXkr+9JGzeDUbrPKH2AUfoU4B/wT9QfUJEajlE6wh8PvmsidDyPXTikEcoJNBZ5vmwHg+MPa+hDbRil9zVKH2WUXgi8it852DV5lK7ei1TP4oUaq3Tvwih9JtmczbOiJF5SdX88nIR/nfLEELWsxfjXuzNdGFk3IKYRCP89lEyOHUnF42NsEtxfes65zSj9oq+aqtuK8m3P447XugOScXIbqoixEGs8pTELeK5s39oZFycsfXjdssMxzUnHhUBSuOk0rjdK+4o39ZFdOtUAN5fvUo8WTDBK/y/hnNFkq4u0DTg9SuJt5bvVkizJ4ruIkniHUfop0r2tA06gsmOyJAW/o6aEWMmokeoitRM/Nkr7ZDdHYlUxs3BzlMTLA/SpXbgf/zu3mWbqf2WpdA7WeVR7XskQ8o4lW4zSzwHnpJx/ABBh64h0LBnSCFrtFA44dtLeyRlG6flS/mUW2cBbsN6utIXDQdhq076X6wbsi5rGyiiJnzVK1x1yJVllw6y6KIk/NEqvJH3rOjJKj2+q+E5NSJNvP1aVohtQ7l+P4Ywif4XSViwGZjZVHXcPoA9/HHhW1mJDJCqRoXaOKV9M+Jooid9o8f8vxB/eEcIJJC3k61JH+mfheCcZHCH62g9cTxc5K4zS05EjJWY3tBvcRzbHRFX5XZlwKqrHeU55x+VtDGUh6QYH2LGkow0O8qURAJkcO/sCpzAoIqgV4vaQ276+XjjtxjR1DKP0BGx1Vh+1lbgfwE1up3hOSUiXONzTk8eliWKDb8erR49BvI7Vj98intmjSbZjdzaqXEjMoEBCcJTE7wHven6XOcbYQ7sYHNLOcdYdgW7hHuzuRlc4K4zS4/DnuQEsiZLYu7BrAx5vOMk6tzPZ8Trwked3J7lwt05GkglOSxsove7NGo/2AP6qs2OBb6Ucu024zvMpXquqESc3zyAmxfrN6MZqp4OQJt9uCafqUT2TgN8YpWd0UXxsNzIS+KVRekEVCwn37H0TliQoULUTSNrVbReDo5N2OEJwFfC2C4/uBhbiNxo30hm5KmORpWYrweVszfCcsp0UiWm35vP1e4TQdluTIY3gJaeGNwzn2PFJoU8ySnuFNTJN8M5bnWZQDHDtUMvPZcL7tsh3Iud2BMdNblL846NpB5w31rdFP7C91K1IW6p1VxLt0dnsh51of9HtdQQ6nD7gUuCfKiiEdRx+QYHUidCxGCvykUZZJ5AUflxVTstQpLG1mx1daRwG/MwofX/THSmDUfoSYLJw2qyGiucV4QSj9BUNXPdk/LmDS1rk5g7mUaH9Tk4eL7rzk/W4t/3MNy1K4qXY7aY0RmFzNQYjKRncFyWxb+ekKo7DXzxouZMC8yHJQnZzWJUU/tLpW449muFIbCLpniIt3amMAn5ilA5Z8yGvaspuREm8CfAp4pR1AkkL/brGPEl4wreQ6nYuMUrf1nQniuByDu4UTlscJXGnCdLcYZQ+tOZrlh1LPgZe8pyikA3DtiNDGsFG4AWhmafwO3am+xw7ea00KdfiIqP0QQBG6dPwV6DcwnADpS5KvZAALovfF+snbi91MNKk1m1qTD1asxo7MPv+LcPKqGatHh7RfcW7mmYb8nN6CXgTf52hwewNvGyULv2tuzZ8SbJZJkKoNqzKJ70L9QlL+GqjQGcZHCuR38nlwBpsSF0Wvm2UvjR8V6vDecsfwS/AsQGYXU+PcuFbA4GNhnjG1bGpHJczfIznlLWk5+YORhpLOiGsbShSGsFQmeBhZHDsjMZTOyaLStXgi71jlF4MnJlySh/Woj0Vm7vh46YoibNObsHIMLltxkqAZWEhcJPn+EzgyoxtdRLSDsc+RulRFUpn1skSsskAZuGrwGWB2moHFkZJfHuWE92kOh77vfgk+QDOMUpfHyWxNJn1yEYSJfHXsp5slB6NVTK5Cb+64BjsGCeJikjMwO/8EidCh8HmUqQt/icZpQ+OkvjDvB1EXsjXZXD8B+F4J4kvfCtrUTi363kENqFa2lmbb5R+qIOESy7H5rL5uNgt9tqJD4CvYJVMfcJAE7CFROuQ8ZWcCo9kFBhYil8GdqpRelwTRReLkCFHDrI7+haSbgOANcZa5tvlMjgc12G3ZdLCHqZiF2i+kKUEqy7RBNLkNhr4V6N0iGtNN0rPlbSJO5AsXrT9sJ6pTme1CycsjdO/3iNxg/xq4HS3+/k3wk9mIeeN9agAF998j1F6CfAKVvo8jUuM0jcWXdxlnAivMkpfVaT9FhR1AkmLvbFG6ZE1jPXdtMORGWdwvmmU/hLWEP625/T9sOuQrI7DxnAeeck5+1ioOSgga4DjoyTeZJSeg91VmOA5/yKj9MtVhoS5UJ7zhdNuMEqHiKwZyAMu62ypCylHDiAOtO490ig9MUri94ceyJ34EiXxWmRjwWf9AFzXxCI84+QWEu/2Uqfinp3kceyFVfVoiZt0HhVO66lWNYzz3kmhA58CTihxmROQF9Eh8cYYe8jiXa7j75B2UrrS4BjAGbbzAGmXqomieLkwSo/AOmd97+M62i9K4mPg2IE6IC6S4SysCJCPhUbpKncCT0NWkwvJRe4ZdgJ1h4C1XGcXndBvItsA3Ip3SZEkq4Ep1Du5QWfG+mVBKv7VMzh6+JiLPy57X8IUq+tRgiiJX8OGF/gok6tWt7hGISeQUwaSQoDrCKuS5q+4hj40SkbVzE7In7wWf54rwIWColLd7MQaG7uJ6kRJ/C42+sXHPsDTFS7S6x5L9qOcs6UWMqQRVMH0VoqThQwO9wEU3Za6psEiPU0s/o80Sk9s4LpVs1I4Xrdh16ODcAs4KUej9w61B78Ujn+6SKPO29nEhF10HpDGPF9ISWlcHoNk1Eh97BakApTj2nmH1Ch9CPIa6qEoiX1qSU2wzaMs+p+xeVQ+jgLmh+0SOIGeo0O3m4FOcChLaQRVsDctIp3KdOI+5AXDUF5wHrPaaXByg+6UyH1bOP6VWnrRo5ORJLF7Bkd7IO1mFn1OF1P/RAjFnUCS4XVqkc7kYDL+8JuNe4rQgkug9kVZjKBNd0idh/9x/PWsEmRV0LbCOZLPQw7r+66r0RaSphb+U4zS+zd0bZEG0ggGM+y6hQd7l8SVJ6mzP+f5oWlqcoOU7aUO5x3h+BSndtOjRxpSAas643F7pBP8OblF10XFuhOEIpOwtHsQDS1+G5hzheN7yu7GAJ06fswHpNoUF7gCwx2Fy/u6UDitDxtaFWR94CR3p4doqyDtnC9Ud47cYI4YWqup1AI8SuIlWO32LDwQJbHkKasEN7k1WY6+5fZShyPVVhhBDdXW23nbvIfI/sLxdpOB3FPZXzhe5DlNpdkCoUWcQCvx5x31UZER5QwZKQ77F1Vcux1x4/7+wmltN364Bdh3hdP+OkpiKTSpbXHrwoeF08YRrt7SGdj8kKaY0cbJ401H1+y28xRisZZl228rzcqHTcWfxLwF+PfAvy3x76+EPjT94IPidrieFU67vqAijIhR+nyj9K+B/2uUfssofUQV1+lRKeOF47XX6enRkgOF40WekxQCcR/lxuNPYtV00sjtBMpQ9ArguoqUeO7EH07VT4r2fZeyH/77AW02fri58HH8666PsIIanc6VyLL4pxilffU7siKNJbdSbiz5d/jDxLI4A2onYxrBn1Lu3nxDaH+aUXqXMVjaKouSeIVR+jn8xbxucUmiTSG9kI+V7Z9RegHwHdIHkyOM0oc5NYdu4X78W5kKq1wRzNh0noR72b3Q0JHAL4zSXyhY1KtHzRilD0Le6u2Iokp7AMcJx3M9J6P0Adh8BB8/LBtSYpR+EH9i7izgoZzN3ot/rhvlzvl6znZTMUpPRjaOnu+UImSBkN7J9W1Y+O8GZPWsC6Ik3lpHZ6okSuKtRumzgLfwrzPvNkq/UXTeNkofCnzRc0o/sCDAWPIo4KsFNAvZGVE3UhrByiiJs0YotcQovRRbvX3/lFNGAdOwDqRgOQ1zSddgXgfcFeg6uXEJPdLktqDsdaIkXocsH9kJigaZcS/rB8Jp33GF3krjQiB+QuuqpnvROUV4ethFmY/E1fzp0SBG6XOQpTtfzdmsFPNceAEyhIfwh0AdNjTGWMKJnkh9m2qUXhAi3NMofSRykUyQv6euwXlMpWJ5r9XQlcwYpY/CyuD6uCtr5fVOIErid5AVqUZi8zmKRkJIkSMvDpXwLYi0RjzOKC3t2NdGxjSC0mOGEwq4Xzht17o3iMHhlDEuaHFoG3CqKwzTFNIL+XpAr7j0AHfbXuoSpA9xBPCMUbpUDo3zir6KraWSRidor+/RGKVHGaXvACLh1OV19KdHOkbpKdhQHh/byZ7HNyDtWvlECLucQFK16SJOIOmeAFyKLXRWWCzE3f9XkOPTP+jkmP88uFyWJ5EVqH5WQ3cy4ZKaF+Ffb63BFjTsNm4HJCNqIrIBOQz3bZ0jnBZqLFmNLPnbTsnjUhrBZuSQ+Kw8jL/o40Sj9BchQEjVAFESP2GU3gKcDhyEVTFaFCWxpJddGRknt9K7G4MviR040izd3baXuoQHsMamL4eiDzv5XoCtw5JZTcUNKvOAq/HLCEKOhU+PIPRl8OL2YWNcJ2DHhW8hJ3sCPFKua7WT5V6kUnFtoqx92wc7do0H/gI4OcNvFrt8rqycjH+xuJGwoQkL8ItXTDNKX5Mz5OJhbGVlyWg+H6vWNxd4KmuIj1F6AnAH2eLCd2KlSDuRLO/lCGxo7gTsHPMtbP6Nj620V3jLLcj5ahcA20OJoDRY62w3oiTuN0qfjS1I6VOlusIo/UqUxC/kaH4a/ndhLbAsR3sSC/B/8zOM0vNzjodVITlSHo6S2Cf6k5koiTe4tApf2OcsYGXQzPooiZcihxXVyUn4J7cNBByY3Me1APiB57RZdJHBESXxTqP0ucA/IBsERwO/NEqvxg4Er2JD7jZiFUX2xkoZjsF6Pb4KTEJODhzgydx/QI8y3OL+hcZESfxGBe1WyZ1k83y3xCi9HRueOL+CYl8TgP8XuE2w4Uo35vyNtOP8UOAJO7gTyI3z5wL/iH8RBdbYXoSNVX8J+Cl2ITRQuXwUdo4ai03gnIod+7Iyr4PzAvOG4mXlHpfg3zhG6WOAKzKc+vPA190GvAHMjpJYSt6ulCiJPzZKzwSeEU59xCitoyRen7FpaVG9ILDh9TywnnR1vTFY58bigNfMTcYcuZCOdrA7ST6D40yj9JxulxTNYuWFtkYfBXxtTnRxuV2DkzvOo6wxAbgc+C/YpLL/DvwL8FvgV9gwgh8gF7oazMXdFP+6B7OD7lBpyctIrAf3p0bpqU13JiP35Ck05zz30q6AFA+cC7fgkCbX3GFVLlxLqjcwmNHYCXkR8F+BXwP/GzvmvQ38HVZ0JI+x8Trw/Rzn7wl8jN/hVzcPNnTdUdj58y2j9JiG+rCLKImfRVZRG0PGhbBTpfTVMtmBLM2bC7dDKYlMtEOerhTatTy0EeochL7UhJHA9K41OIzSY6l5coNd0omShXtW6Ou2AffQnDjArCiJ86rN9GhPZrlkwz2ZvLsGTfAa+anPxxwAAAXRSURBVAu5niEcf7EioYBH8dcMmuhU03Lh6g3Mwp+YXhVvAN9ol9CZNmE78OdttLtxGHIoVdWMAS5ruA8DzMbK/vqYmrEgoLSGei5K4ipkke/H/71Pqrj4ZxYkRbvQuxtZ2z1LMjjqHsxCXu8Q4XhVkxvIN17qWxZ896r2SShK4v4oiecAc2q87A5gZpTEVYaohbyXUlvttnioW+xhfpTEQb1SLSh6j+uMy829+MW/oA7NCuD0ArKjnxeOVzIRugWolCBZaEx2Y8+J2LyBulgMHN8uC2sPdb6T24C/qDi8LO/YIYW11MVnA7ZVeI5ycr9nC22MwC8MM4C0E1jVWPIxIOWZhFjfDZDrfjtRov09p6ynurSHx/CvGQ7pw6+hvjpsf0R82zx5+yINxlVZebhE+fc8p4TQS/fdj7qf2y6iJL4LKxxQ9WS4FPhslMQPlGxHksz7byXbH4z0XFYFvFYI3sMWxayazcCJURJLxTOz4Huea0to879HfQZhke3u10J3IoUfAV8p6D30/SYBXizWpUxI433hMdnl3HyZ6r/fHcD3gLNDJXxWzGs1XWcVcLjLIS2Lb/zI+12GkGMNQch+lwrFcWsjSb7eV2RvAN/64sOKcwBDjyUh7/d2/Iv+B6qqT+OEN57ynPJxH+kxhjvJpv8dksc9x57O2db7WE9cK16k2skNbKXNtAWK7+/Miq+Nup/bbkRJ/BzwR9iBJfSCdQ3wtSiJ/zxP/HgabuGUNlFtIazKxbukGx3v02YGh1vUXFnhJTZiFcg+EyVxqO/xEdK/u8IygO49ub3o73PiK1aXxnyqq6zcj713h0dJ/M0SeW8LSX8236wyPMgtdJ5IObwK+22Waf89QGMVo9aWaasF/djY8c9ESXx9p4RRud2GKkNdV2HVnT7v8ghD4Mu5yLsGeQ65TlXVbCa/NGzIe9CKm7Ehga1IPMcGkxYO348N3aoM52BIWzO8Q36H70LPMSnRfjfc2JwWJfAR1ec3XU/6PPR4H9ZjNTSZZyBU5f0qezYUl1g0dFLvB+a6gkt52urHbt8NffgfAedWPWi7BOahya/9wHVREoeoMXAXrXNFvhclcchFciGiJN4SJfH3+L3hsZLiHuJ1OM8qcGAFKj4zGb7g2Aqcl0MxQ8Qt4M/C/j2DWQuc1YaVcYmS+FHgVOzEWfT59WM9UmuwqkHfA44HPh0l8c0hQ0Nc/seVDNcFX0b5wpDzsCGDpQ3dFuzE3uPTncGeiyiJNwCHYyfCMkb+VqyH7l2sctPZ2OdUOlzFPZvZDH82twfyTkvMZPjOc4INxSkdMhcl8c4oiR8DDsQmbi6jXFjRKmxu3IFREl8cdWYl8ZnAdZT7ZnZiVb1WY5WCrgG+BHwuSuJHAwu/3EfrBdv3876jrl/HY5Uw664evgMrKvDlvHOYWz+0Ktj3LAHyNN3a6+sMdwhvwH6L4r1ydWfmMnxOmpd3rViQ8xi+tlyDncdzzZPub7mO4X/LEoqJQsxleB2rrdi5pdKIBSemcRbDQ5CfBW7/xMB/GaUjrGzpFmx+Q2NhOa5IyHHYgWaZ8x4VbWsUcBrwGWwxoDfq9BC5BKJTsJKvpf6WlPYHnts2rJxo20okumSwScCx2DjDAQncMVgVl03Yxfh6978fY2UkV1b9zFxlzlOwceb/A3ghClOhtNW1Rrtr/TE2ZGtJ1QNBCNw9kqSPW7G9bq+sUfpgbAz1J4G3o3z67lna34uAdYyAHSENTjfu5WVnBap9w3DPZgp2gl1S1XeWcu0+rBrYiViFqOeq/Pbce3IkVuJ7Ar8f7wb+bcN6BAf+rceqWC13k3fXUPCb6W8ifMwoPQk7V+0AXoty1I5Kaa+P7IqLISg9nhilD8Wuw0YBbwZylA5ufxRW2OdLwD9jx4Jcu7RG6YnYsWSr+30wB2GGa/cBR2GNyt9gx5LCeY/ub5mMvd8ryjiOXd+mYp1QvwJeqvM7cvXTpmLzh34+8O78f0pMSUtMxRa8AAAAAElFTkSuQmCC" ' +
             'alt="Match Bilbao Bizkaia">' +
           '<span class="header__year">' + esc(site.event.edition) + '</span>' +
@@ -2823,7 +2889,13 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          loginLink(site, 'btn btn--sm', base) +
+          // Dos puertas, y se distinguen a simple vista: entrar es para quien
+          // ya está dentro, y darse de alta es lo que queremos que haga quien
+          // llega por primera vez. Por eso el alta va en rojo macizo y el
+          // Login queda como enlace: si los dos fueran botones rojos, el
+          // visitante nuevo tendría que leerlos para saber cuál es el suyo.
+          (conLogin ? loginLink(site, 'header__login', base) : '') +
+          registerLink(site, 'btn btn--sm', true) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -3837,7 +3909,12 @@ window.MBB = window.MBB || {};
   MBB.Footer = function (site, opts) {
     opts = opts || {};
     var base = opts.base || '';
-    var home = base ? base + 'index.html' : '';
+    // Mismo asunto que en la cabecera: desde una página que no es la portada,
+    // "#discover" no lleva a ninguna parte. Hay que nombrarla.
+    var home = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    // Y lo mismo que arriba: en la página de aviso, un Login que lleva a la
+    // página de aviso es un enlace que no hace nada.
+    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
     var f = site.footer;
 
     var insts = f.institutions
@@ -3892,7 +3969,8 @@ window.MBB = window.MBB || {};
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
           '<div><h4>Navigate</h4><ul>' + navLinks +
-            (loginHref(site, base) ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
+            (conLogin && loginHref(site, base)
+              ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
           '<div><h4>Event</h4><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +
@@ -3957,7 +4035,17 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       }
     };
 
-    into('header', function () { return MBB.Header(MBB.site); });
+    // La cabecera necesita saber en qué página está. Si las secciones no están
+    // aquí, sus enlaces tienen que nombrar la portada: si no, pulsar "Discover"
+    // solo cambia la dirección del navegador y la pantalla se queda igual.
+    var esPortada = !!$('[data-mount="hero"]');
+    var esAviso = !!$('[data-mount="platform"]');
+    into('header', function () {
+      return MBB.Header(MBB.site, {
+        home: esPortada ? '' : 'index.html',
+        aviso: esAviso
+      });
+    });
     into('hero', function () { return MBB.Hero(MBB.site); });
     into('event', function () { return MBB.EventIntro(MBB.eventIntro, MBB.site); });
     into('programme', function () { return MBB.Programme(MBB.programme); });
@@ -3969,7 +4057,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     });
     into('discover', function () { return MBB.Discover(MBB.discover); });
     into('contact', function () { return MBB.Contact(MBB.site); });
-    into('footer', function () { return MBB.Footer(MBB.site); });
+    into('footer', function () {
+      return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
+    });
     into('platform', function () { return MBB.PlatformGate(MBB.site); });
 
     // El título solo lo pone la portada: las demás páginas traen el suyo en el

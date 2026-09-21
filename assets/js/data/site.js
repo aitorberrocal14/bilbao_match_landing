@@ -69,7 +69,12 @@ window.MBB.site = {
   // todavía no pueda entrar.
   register: {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration',
-    label: 'Create your profile'
+    // La frase entera se usa donde hay sitio: la banda del final de la
+    // portada y la página de aviso.
+    label: 'Create your profile',
+    // En la cabecera solo cabe una palabra, y ahí conviven con el Login, el
+    // logotipo y el menú. Vacía esto y la cabecera usa la frase larga.
+    short: 'Register'
   },
 
   /* --- Hero -------------------------------------------------------------- */
