@@ -284,6 +284,27 @@ function check(etiqueta, ok, detalle) {
     check('el Login está una vez y solo una', barra.loginUno === 1, barra.loginUno);
     check('la barra no se sale de ancho', barra.loginDentro);
 
+    /* --- El orden de "Meet BB's Experts" ------------------------------------ */
+    // Lo que se viene a hacer va primero. Antes las dos puertas estaban al
+    // final, detrás de un párrafo largo y de los cuatro pasos, y quien pulsaba
+    // la entrada del menú aterrizaba en una pared de texto con los botones
+    // fuera de la pantalla. El orden es: titular, puertas, expositores y, por
+    // último, cómo funciona.
+    const orden = await pagina.evaluate(() => {
+      const y = (s) => { const e = document.querySelector(s);
+        return e ? e.getBoundingClientRect().top + window.scrollY : null; };
+      // El directorio, por su contenedor y no por la rejilla: antes de la
+      // primera empresa no hay rejilla, solo el aviso de que se irá llenando.
+      return { banda: y('.login-band'), directorio: y('.directory'), pasos: y('.steps') };
+    });
+
+    check('las dos puertas van antes que el directorio',
+      orden.banda !== null && orden.directorio !== null && orden.banda < orden.directorio,
+      'banda ' + orden.banda + ' · directorio ' + orden.directorio);
+    check('"cómo funciona" queda para el final',
+      orden.pasos !== null && orden.banda < orden.pasos,
+      'banda ' + orden.banda + ' · pasos ' + orden.pasos);
+
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
     check('las dos ediciones tienen vídeo',
       resto.videos === 2 && resto.videosSinId === 0,

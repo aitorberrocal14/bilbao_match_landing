@@ -55,9 +55,15 @@
     into('programme', function () { return MBB.Programme(MBB.programme); });
     into('presentation', function () { return MBB.Presentation(MBB.presentation); });
     into('editions', function () { return MBB.Editions(MBB.editions); });
+    // El directorio se le pasa a Experts en vez de pegarlo detrás: así el
+    // orden de la sección lo decide un solo sitio —la propia función— y no
+    // queda repartido entre dos archivos que hay que leer a la vez.
     into('experts', function () {
-      return MBB.Experts(MBB.experts, MBB.site) +
-        MBB.Directory(MBB.exhibitors, MBB.exhibitorCategories, MBB.experts.directory);
+      return MBB.Experts(MBB.experts, MBB.site, {
+        directorio: MBB.Directory(
+          MBB.exhibitors, MBB.exhibitorCategories, MBB.experts.directory
+        )
+      });
     });
     into('discover', function () { return MBB.Discover(MBB.discover); });
     into('contact', function () { return MBB.Contact(MBB.site); });

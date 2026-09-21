@@ -939,7 +939,8 @@ window.MBB = window.MBB || {};
   };
 
   /* --- Meet BB's Experts -------------------------------------------------- */
-  MBB.Experts = function (e, site) {
+  MBB.Experts = function (e, site, opts) {
+    opts = opts || {};
     var steps = e.steps
       .map(function (s) {
         return (
@@ -951,20 +952,36 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // ORDEN DE LA SECCIÓN. Las dos puertas —darse de alta y entrar— van
+    // ARRIBA, pegadas al titular.
+    //
+    // Antes iban al final, después de un párrafo largo y de los cuatro pasos.
+    // Quien pulsaba "Meet BB's Experts" en el menú aterrizaba en una pared de
+    // texto: lo que venía a hacer estaba fuera de la pantalla, y los
+    // expositores, más abajo todavía. Ahora lo primero que ve es a dónde ir, y
+    // justo debajo asoma el resto.
+    //
+    // La banda desaparece entera si no hay a dónde ir: un panel titulado
+    // "Already registered?" sin sitio donde entrar se lee como una página rota.
     return (
       '<div class="section-head section-head--center" data-reveal>' +
         '<h2 class="h-1">' + esc(e.title) + '</h2>' +
         '<p class="lead">' + esc(e.lead) + '</p>' +
+      '</div>' +
+      (loginHref(site) ? MBB.LoginBand(site, e) : '') +
+      // Y justo debajo, los expositores. Van AQUÍ y no al final para que
+      // asomen por el borde de la pantalla al llegar a la sección: quien entra
+      // ve las dos puertas y, sin leer nada, entiende que más abajo hay
+      // empresas de verdad. El directorio lo arma main.js, que es quien tiene
+      // los datos; esta función solo decide en qué orden va todo.
+      (opts.directorio || '') +
+      // El párrafo explicativo y los cuatro pasos cuentan CÓMO funciona, que es
+      // la segunda pregunta, no la primera. Bajan al final.
+      '<div class="section-head section-head--center steps__head" data-reveal>' +
+        '<h3 class="h-2">How it works</h3>' +
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
-      '<div class="steps" data-reveal>' + steps + '</div>' +
-      // La banda tiene dos mitades porque hay dos personas distintas leyéndola:
-      // la que todavía no está dada de alta y la que ya lo está. Antes solo
-      // atendía a la segunda, y la primera no tenía dónde ir.
-      //
-      // Y desaparece entera si no hay a dónde ir: un panel titulado "Already
-      // registered?" sin sitio donde entrar se lee como una página rota.
-      (loginHref(site) ? MBB.LoginBand(site, e) : '')
+      '<div class="steps" data-reveal>' + steps + '</div>'
     );
   };
 
