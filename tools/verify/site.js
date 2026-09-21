@@ -367,6 +367,46 @@ function check(etiqueta, ok, detalle) {
   await dir.close();
   fs.rmSync(tmp, { recursive: true, force: true });
 
+  /* --- La cabecera, a cualquier ancho -------------------------------------- */
+  // El menú necesita unos 1275px para caber en una fila. Por debajo se iba
+  // envolviendo y la cabecera salía partida en dos y en tres filas: el
+  // logotipo arriba y el menú desparramado debajo. En un portátil con la
+  // ventana a media pantalla pasaba siempre, y se veía roto.
+  //
+  // La regla es simple y no depende de cuántas entradas tenga el menú: o el
+  // menú cabe en UNA fila, o está plegado tras su botón. Nunca dos filas. Si
+  // algún día se añade una entrada al menú y ya no cabe, esto lo dice.
+  console.log('\n--- la cabecera a distintos anchos ---');
+
+  const cab = await navegador.newPage({ viewport: { width: 1600, height: 700 } });
+  await cab.goto(PAGINA);
+  await cab.waitForTimeout(700);
+
+  for (const w of [1600, 1440, 1366, 1280, 1250, 1200, 1100, 1024, 950, 820, 620, 390]) {
+    await cab.setViewportSize({ width: w, height: 700 });
+    await cab.waitForTimeout(160);
+    const r = await cab.evaluate(() => {
+      const vis = (e) => e && e.getBoundingClientRect().width > 0;
+      const nav = document.querySelector('.header__nav');
+      const plegado = getComputedStyle(nav).position === 'absolute';
+      const ys = [...document.querySelectorAll('.header__links li')]
+        .filter(vis).map((li) => Math.round(li.getBoundingClientRect().y));
+      return {
+        plegado: plegado,
+        filas: new Set(ys).size,
+        boton: vis(document.querySelector('.burger')),
+        desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth
+      };
+    });
+    // Plegado: tiene que haber botón para abrirlo. Desplegado: una sola fila.
+    const bien = r.plegado ? r.boton : r.filas === 1;
+    check('a ' + w + 'px la cabecera aguanta', bien && !r.desborde,
+      (r.plegado ? 'plegado tras el botón' : r.filas + ' fila(s)') +
+      (r.desborde ? ' — SE SALE DE ANCHO' : ''));
+  }
+
+  await cab.close();
+
   /* --- La página de aviso, que no es la portada ---------------------------- */
   // Esto existe por un fallo que se veía perfecto y no funcionaba: en
   // platform.html el menú se dibujaba entero, pero sus enlaces eran "#discover"
@@ -455,6 +495,41 @@ function check(etiqueta, ok, detalle) {
   check('sin errores de JavaScript', erroresAviso.length === 0, erroresAviso.join(' | '));
 
   await aviso.close();
+
+  // Y el día que abra, esta página tiene que apartarse sola. Se adelanta el
+  // reloj del navegador y se comprueba a dónde acaba el visitante. Meetmaps no
+  // existe desde aquí, así que se intercepta la salida para ver la dirección.
+  for (const [etiqueta, cuando, esperaIrse] of [
+    ['la víspera el aviso sigue puesto', '2026-09-27T23:59:00+02:00', false],
+    ['el día 28 el aviso se aparta solo', '2026-09-28T00:02:00+02:00', true],
+    ['semanas después sigue apartándose', '2026-10-15T12:00:00+02:00', true]
+  ]) {
+    const ctx = await navegador.newContext({ viewport: { width: 1280, height: 900 } });
+    let fueA = null;
+    await ctx.route('**://event.meetmaps.com/**', (ruta) => {
+      fueA = ruta.request().url();
+      ruta.fulfill({ status: 200, contentType: 'text/html', body: 'ok' });
+    });
+    const t = await ctx.newPage();
+    await t.addInitScript((iso) => {
+      const real = Date;
+      const salto = new real(iso).getTime() - real.now();
+      class F extends real {
+        constructor(...a) { if (!a.length) super(real.now() + salto); else super(...a); }
+        static now() { return real.now() + salto; }
+      }
+      window.Date = F;
+    }, cuando);
+    await t.goto('file://' + path.join(ROOT, 'platform.html'));
+    await t.waitForTimeout(700);
+    const titular = await t.evaluate(() => {
+      const h = document.querySelector('h1');
+      return h ? h.textContent.trim() : '';
+    });
+    check(etiqueta, esperaIrse ? /virtual\/join/.test(fueA || '') : fueA === null,
+      fueA ? 'va a ' + fueA : 'se queda en "' + titular + '"');
+    await ctx.close();
+  }
 
   await navegador.close();
 

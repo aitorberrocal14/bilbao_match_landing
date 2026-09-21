@@ -65,9 +65,8 @@
       return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
     });
     // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
-    // Solo se toca si la plataforma ya ha abierto: entonces el mensaje de
-    // espera sobra y hay que ofrecer la entrada. Si esto falla, el visitante se
-    // queda con el texto escrito, que es un mal menor y no una pantalla vacía.
+    // Si la plataforma sigue cerrada no hay nada que hacer. El día que abra,
+    // esta página deja de tener sentido y se aparta sola: ver apartaElAviso().
     var puerta = $('[data-gate]');
     if (puerta && MBB.platformOpen(MBB.site)) {
       try {
@@ -117,7 +116,10 @@
       if (e.key === 'Escape') closeMenu();
     });
     window.addEventListener('resize', function () {
-      if (window.innerWidth > 900) closeMenu();
+      // El mismo punto en el que el CSS despliega el menú (1250px). Si los dos
+      // números no coinciden, al ensanchar la ventana el menú se queda abierto
+      // por detrás de una cabecera que ya no tiene botón para cerrarlo.
+      if (window.innerWidth > 1250) closeMenu();
     });
 
     var sections = links
@@ -533,7 +535,41 @@
   /* --------------------------------------------------------------------- */
   /* 11. Boot                                                               */
   /* --------------------------------------------------------------------- */
+  /**
+   * EL DÍA 28 ESTA PÁGINA SE APARTA SOLA.
+   *
+   * platform.html existe para una cosa: decirle a quien pulsa "Login" que
+   * todavía no puede entrar. Abierta la plataforma ya no hace falta, y dejar a
+   * alguien parado en ella sería mandarle a una vía muerta.
+   *
+   * A partir de esa fecha, quien llegue aquí —desde un correo de septiembre,
+   * desde un enlace guardado, desde un mensaje reenviado— va directo al acceso
+   * de Meetmaps sin ver nada por el camino. La página no desaparece del
+   * servidor, y eso es a propósito: borrarla rompería todos esos enlaces con un
+   * error 404. Sigue ahí, pero ya no se le enseña a nadie.
+   *
+   * Se usa replace() y no la dirección a secas para no dejar rastro en el
+   * historial: si no, al darle a "atrás" el navegador volvería aquí y la página
+   * le expulsaría otra vez, atrapándole en un bucle.
+   *
+   * Y si algún día se vacía `login.url` —la plataforma se retira— no hay a
+   * dónde mandar a nadie y esto no se activa.
+   */
+  function apartaElAviso() {
+    if (!$('[data-gate]')) return;                 // no estamos en esa página
+    if (!MBB.platformOpen(MBB.site)) return;       // todavía no ha abierto
+
+    var destino = ((MBB.site.login || {}).url || '').trim();
+    if (!/^https?:/i.test(destino)) return;
+
+    window.location.replace(destino);
+  }
+
   function boot() {
+    // Lo primero de todo: si hay que apartarse, cuanto antes, para que no se
+    // llegue a ver un mensaje que ya no viene a cuento.
+    apartaElAviso();
+
     initImageFallbacks();
     if ($('[data-mount="header"]')) mount();   // landing page only
     initHeader();

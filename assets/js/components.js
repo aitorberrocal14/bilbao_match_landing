@@ -288,13 +288,17 @@ window.MBB = window.MBB || {};
         'data-label="[Insert hero image]">'
       : '<div class="ph">[Insert hero image]</div>';
 
+    // Aquí había un tercer botón de Login. Sobraba desde que Login y el alta
+    // están en la barra de arriba, a la vista en todo momento y en todas las
+    // páginas: repetirlo aquí no añadía nada y rompía la fila —los dos
+    // primeros cabían juntos y el Login se caía solo a una segunda línea,
+    // dejando la portada descuadrada.
     var ctas = h.ctas
       .map(function (c) {
         return '<a class="btn btn--lg' + (c.variant === 'ghost' ? ' btn--outline' : '') +
           '" href="' + esc(c.href) + '">' + esc(c.label) + '</a>';
       })
-      .join('') +
-      loginLink(site, 'btn btn--lg btn--outline');
+      .join('');
 
     var facts = h.facts
       .map(function (f) {

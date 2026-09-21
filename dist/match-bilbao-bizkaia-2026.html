@@ -1559,7 +1559,20 @@ p:last-child { margin-bottom: 0; }
   .brochures { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 900px) {
+/* --- Cuándo se pliega el menú ----------------------------------------------
+   El menú necesita unos 1275px para caber en una sola fila: son cinco
+   entradas y una de ellas es "Match Bilbao Bizkaia 2026", que es larga de por
+   sí. Por debajo de eso las entradas se iban envolviendo y la cabecera salía
+   partida en dos y hasta en tres filas, con el logotipo arriba y el menú
+   desparramado debajo. Se veía roto, y en portátiles con la ventana a media
+   pantalla —1024, 1152, 1200— pasaba constantemente.
+
+   Así que el menú se pliega tras el botón de siempre bastante antes de llegar
+   a ese punto. Pliega SOLO la cabecera: la retícula de la página (portada a
+   dos columnas, folletos, expositores) sigue cambiando a 900px, que es donde
+   le toca. Antes las dos cosas compartían la misma regla, y mover una habría
+   arrastrado a la otra. */
+@media (max-width: 1250px) {
   :root { --header-h: 68px; }
 
   .burger { display: flex; margin-left: auto; }
@@ -1589,7 +1602,10 @@ p:last-child { margin-bottom: 0; }
      the width of the text. Blocking the link also widens the tap target. */
   .header__link { display: block; padding: 0.85rem 0; font-size: 0.95rem; }
   .header__links > li { border-bottom: 1px solid var(--line); }
+}
 
+/* La retícula de la página, que se pliega más tarde y por su cuenta. */
+@media (max-width: 900px) {
   .hero__inner, .present, .videos, .newsletter, .login-band { grid-template-columns: 1fr; }
   .hero__facts { grid-template-columns: 1fr 1fr; gap: 1.5rem 1rem; }
   .logo-grid, .ex-related { grid-template-columns: repeat(3, 1fr); }
@@ -2894,13 +2910,17 @@ window.MBB = window.MBB || {};
         'data-label="[Insert hero image]">'
       : '<div class="ph">[Insert hero image]</div>';
 
+    // Aquí había un tercer botón de Login. Sobraba desde que Login y el alta
+    // están en la barra de arriba, a la vista en todo momento y en todas las
+    // páginas: repetirlo aquí no añadía nada y rompía la fila —los dos
+    // primeros cabían juntos y el Login se caía solo a una segunda línea,
+    // dejando la portada descuadrada.
     var ctas = h.ctas
       .map(function (c) {
         return '<a class="btn btn--lg' + (c.variant === 'ghost' ? ' btn--outline' : '') +
           '" href="' + esc(c.href) + '">' + esc(c.label) + '</a>';
       })
-      .join('') +
-      loginLink(site, 'btn btn--lg btn--outline');
+      .join('');
 
     var facts = h.facts
       .map(function (f) {
@@ -4041,9 +4061,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
     });
     // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
-    // Solo se toca si la plataforma ya ha abierto: entonces el mensaje de
-    // espera sobra y hay que ofrecer la entrada. Si esto falla, el visitante se
-    // queda con el texto escrito, que es un mal menor y no una pantalla vacía.
+    // Si la plataforma sigue cerrada no hay nada que hacer. El día que abra,
+    // esta página deja de tener sentido y se aparta sola: ver apartaElAviso().
     var puerta = $('[data-gate]');
     if (puerta && MBB.platformOpen(MBB.site)) {
       try {
@@ -4093,7 +4112,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       if (e.key === 'Escape') closeMenu();
     });
     window.addEventListener('resize', function () {
-      if (window.innerWidth > 900) closeMenu();
+      // El mismo punto en el que el CSS despliega el menú (1250px). Si los dos
+      // números no coinciden, al ensanchar la ventana el menú se queda abierto
+      // por detrás de una cabecera que ya no tiene botón para cerrarlo.
+      if (window.innerWidth > 1250) closeMenu();
     });
 
     var sections = links
@@ -4509,7 +4531,41 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
   /* --------------------------------------------------------------------- */
   /* 11. Boot                                                               */
   /* --------------------------------------------------------------------- */
+  /**
+   * EL DÍA 28 ESTA PÁGINA SE APARTA SOLA.
+   *
+   * platform.html existe para una cosa: decirle a quien pulsa "Login" que
+   * todavía no puede entrar. Abierta la plataforma ya no hace falta, y dejar a
+   * alguien parado en ella sería mandarle a una vía muerta.
+   *
+   * A partir de esa fecha, quien llegue aquí —desde un correo de septiembre,
+   * desde un enlace guardado, desde un mensaje reenviado— va directo al acceso
+   * de Meetmaps sin ver nada por el camino. La página no desaparece del
+   * servidor, y eso es a propósito: borrarla rompería todos esos enlaces con un
+   * error 404. Sigue ahí, pero ya no se le enseña a nadie.
+   *
+   * Se usa replace() y no la dirección a secas para no dejar rastro en el
+   * historial: si no, al darle a "atrás" el navegador volvería aquí y la página
+   * le expulsaría otra vez, atrapándole en un bucle.
+   *
+   * Y si algún día se vacía `login.url` —la plataforma se retira— no hay a
+   * dónde mandar a nadie y esto no se activa.
+   */
+  function apartaElAviso() {
+    if (!$('[data-gate]')) return;                 // no estamos en esa página
+    if (!MBB.platformOpen(MBB.site)) return;       // todavía no ha abierto
+
+    var destino = ((MBB.site.login || {}).url || '').trim();
+    if (!/^https?:/i.test(destino)) return;
+
+    window.location.replace(destino);
+  }
+
   function boot() {
+    // Lo primero de todo: si hay que apartarse, cuanto antes, para que no se
+    // llegue a ver un mensaje que ya no viene a cuento.
+    apartaElAviso();
+
     initImageFallbacks();
     if ($('[data-mount="header"]')) mount();   // landing page only
     initHeader();
