@@ -192,6 +192,38 @@ $ahora = trim((string) shell_exec('git -C ' . escapeshellarg(MBB_REPO) . ' rev-p
 // nada cuando ya está todo igual.
 say($antes === $ahora ? 'Sin commits nuevos (' . $ahora . ').' : 'De ' . $antes . ' a ' . $ahora . '.');
 
+/* --- 1b. ¿Ha cambiado este mismo archivo? ----------------------------------
+   PHP lee el script entero antes de ejecutarlo, así que la ejecución que se
+   trae un cambio en deploy.php sigue corriendo con la versión vieja: la lista
+   de lo que se publica, las reglas, todo. El cambio no surtía efecto hasta la
+   vuelta siguiente, quince minutos después, sin que nada lo dijera.
+
+   Pasó de verdad: se añadió platform.html a la lista, el despliegue se lo
+   trajo al clon y no lo copió a la web. La página daba 404 y el registro decía
+   que todo había ido bien.
+
+   Así que si el pull ha tocado este archivo, se vuelve a ejecutar una sola vez
+   —de ahí --reexec, que impide que se llame a sí mismo sin fin— y ya con la
+   versión nueva. */
+
+if ($antes !== $ahora && !in_array('--reexec', $argv, true)) {
+    $tocados = (string) shell_exec(
+        'git -C ' . escapeshellarg(MBB_REPO) . ' diff --name-only ' .
+        escapeshellarg($antes) . ' ' . escapeshellarg($ahora) . ' 2>&1'
+    );
+
+    if (strpos($tocados, 'server/deploy.php') !== false) {
+        say('Este mismo deploy.php ha cambiado; se repite con la versión nueva.');
+        flush_log();
+
+        $cmd = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__FILE__) . ' --reexec';
+        foreach (array_slice($argv, 1) as $a) { $cmd .= ' ' . escapeshellarg($a); }
+
+        passthru($cmd, $codigo);
+        exit((int) $codigo);
+    }
+}
+
 /* --- 2. Comprobar antes de copiar ------------------------------------------- */
 
 $WEB = web_root(read_config(), $argv);
