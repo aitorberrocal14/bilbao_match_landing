@@ -924,9 +924,13 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Los vídeos cuelgan de "Presentation of Bilbao", así que su titular va un
+    // escalón por debajo: es un apartado de esa sección, no otra sección. Con
+    // dos titulares del mismo tamaño seguidos, quien baja no sabe si ha
+    // cambiado de tema o sigue en el mismo.
     return (
-      '<div class="section-head section-head--center" data-reveal>' +
-        '<h2 class="h-1">Match Bilbao Bizkaia Latest Editions</h2>' +
+      '<div class="section-head section-head--center videos__head" data-reveal>' +
+        '<h3 class="h-2">Latest editions</h3>' +
         '<p>A look back at how the event brings the destination and the ' +
         'international travel trade together.</p>' +
       '</div>' +

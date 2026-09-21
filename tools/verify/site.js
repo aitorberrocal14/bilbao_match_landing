@@ -289,6 +289,35 @@ function check(etiqueta, ok, detalle) {
       resto.videos === 2 && resto.videosSinId === 0,
       resto.videos + ' vídeos, ' + resto.videosSinId + ' sin identificador');
 
+    /* --- Los vídeos, con la presentación ------------------------------------ */
+    // Los vídeos cuentan el destino en imágenes, así que van dentro de
+    // "Presentation of Bilbao" y no en una sección aparte con su propio
+    // titular. En escritorio van uno al lado del otro; en el móvil, uno debajo
+    // del otro y sin salirse, que es donde se rompía.
+    const vid = await pagina.evaluate(() => {
+      const sec = document.querySelector('#presentation');
+      const rejilla = document.querySelector('.videos');
+      const marcos = [...document.querySelectorAll('.video__frame')]
+        .map((f) => f.getBoundingClientRect());
+      return {
+        dentro: !!(sec && rejilla && sec.contains(rejilla)),
+        columnas: rejilla ? getComputedStyle(rejilla).gridTemplateColumns.split(' ').length : 0,
+        // 16:9 con un margen de holgura: lo que no vale es un marco aplastado.
+        proporcion: marcos.every((r) => r.width > 0 && Math.abs(r.width / r.height - 16 / 9) < 0.1),
+        anchos: marcos.map((r) => Math.round(r.width) + '×' + Math.round(r.height)),
+        cabe: marcos.every((r) => r.right <= document.documentElement.clientWidth + 1),
+        // Un solo titular de sección: los vídeos son un apartado, no otro tema.
+        h2: sec ? sec.querySelectorAll('h2').length : -1
+      };
+    });
+
+    check('los vídeos van con la presentación', vid.dentro);
+    check('un solo titular de sección', vid.h2 === 1, vid.h2 + ' h2');
+    check('los vídeos se colocan según la pantalla',
+      vid.columnas === (ancho < 900 ? 1 : 2), vid.columnas + ' columna(s)');
+    check('los vídeos guardan la proporción y caben',
+      vid.proporcion && vid.cabe, vid.anchos.join(' · '));
+
     /* --- Nada roto por el camino -------------------------------------------- */
     check('sin errores de JavaScript', errores.length === 0, errores.join(' | '));
 

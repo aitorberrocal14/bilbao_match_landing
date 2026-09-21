@@ -960,6 +960,17 @@ p:last-child { margin-bottom: 0; }
 .pillar p { margin: 0; font-size: 0.92rem; }
 
 /* 10. VIDEOS =============================================================== */
+
+/* Los vídeos viven dentro de "Presentation of Bilbao", debajo del texto y las
+   fotos. Necesitan aire por arriba y una línea que los separe, o se leerían
+   pegados al último párrafo como si fueran parte de él; pero no tanto aire
+   como para parecer otra sección distinta, que es justo lo que eran antes. */
+.videos__head {
+  margin-top: clamp(2.5rem, 5vw, 4rem);
+  padding-top: clamp(2rem, 4vw, 3rem);
+  border-top: 1px solid var(--line);
+}
+
 .videos { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 2.5rem); }
 .video__frame {
   position: relative;
@@ -1670,12 +1681,15 @@ p:last-child { margin-bottom: 0; }
       <div class="shell" id="programme" data-mount="programme"></div>
     </section>
 
+    <!-- La presentación del destino y los vídeos van juntos, en la misma
+         sección: los vídeos SON la presentación, contada en imágenes en vez de
+         en párrafos. Antes eran dos secciones separadas con sus dos titulares,
+         y quien bajaba leía el destino dos veces sin darse cuenta de que era
+         lo mismo. El ancla #editions se conserva por si hay enlaces antiguos
+         apuntando ahí. -->
     <section class="section section--tight" id="presentation" aria-label="Presentation of Bilbao">
       <div class="shell" data-mount="presentation"></div>
-    </section>
-
-    <section class="section section--soft" id="editions" aria-label="Latest editions">
-      <div class="shell" data-mount="editions"></div>
+      <div class="shell" id="editions" data-mount="editions"></div>
     </section>
 
     <!-- SECTION 3 — MEET BB'S EXPERTS (+ exhibitor directory) =========== -->
@@ -2619,18 +2633,18 @@ window.MBB.discover = {
 window.MBB.editions = [
   {
     youtubeId: '2tI7kgSjPi8',
-    title: 'Match Bilbao Bizkaia 2025',
+    title: 'Match in Place',
     caption:
-      'Highlights of the latest edition: meetings, destination visits and new ' +
+      'Highlights of the 2022 edition: meetings, destination visits and new ' +
       'business connections.',
     thumbnail: '' // optional local fallback image
   },
   {
     youtubeId: 'kkrUeAfrWEY',
-    title: 'The destination in motion',
+    title: 'Match Asia Bilbao Bizkaia 2024',
     caption:
-      'A short portrait of Bilbao Bizkaia as seen by the professionals who ' +
-      'welcome visitors every day.',
+      'The 2024 edition with the Asian travel trade: agendas, destination ' +
+      'experiences and the professionals who welcome them.',
     thumbnail: ''
   }
 ];
@@ -3562,9 +3576,13 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Los vídeos cuelgan de "Presentation of Bilbao", así que su titular va un
+    // escalón por debajo: es un apartado de esa sección, no otra sección. Con
+    // dos titulares del mismo tamaño seguidos, quien baja no sabe si ha
+    // cambiado de tema o sigue en el mismo.
     return (
-      '<div class="section-head section-head--center" data-reveal>' +
-        '<h2 class="h-1">Match Bilbao Bizkaia Latest Editions</h2>' +
+      '<div class="section-head section-head--center videos__head" data-reveal>' +
+        '<h3 class="h-2">Latest editions</h3>' +
         '<p>A look back at how the event brings the destination and the ' +
         'international travel trade together.</p>' +
       '</div>' +
