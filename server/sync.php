@@ -1370,10 +1370,28 @@ $uncategorised = [];
 $pinned = [];
 $sin_base = [];   // tienen logotipo en la plataforma pero no sabemos de dónde bajarlo
 $sin_mapa = [];   // respuestas del formulario que no corresponden a ninguna categoría
+$sin_nombre = []; // expositores sin nombre de empresa: no se pueden publicar
 
 foreach ($visible as $entry) {
+    // El directorio es de EMPRESAS, y el nombre sale del campo «company». Sin
+    // él no hay nada que enseñar: ni título de tarjeta, ni dirección de ficha
+    // —que se construye a partir del nombre—, ni forma de que un comprador la
+    // encuentre. Así que se salta.
+    //
+    // Pero se salta DICIÉNDOLO. Antes desaparecía en silencio: el registro
+    // decía «3 de 5 son expositores» y acto seguido «2 expositores», y esa
+    // resta no la explicaba nadie. Una empresa que se inscribe y no aparece en
+    // la web, sin que nada lo justifique, es de los fallos que se descubren
+    // tarde y con la empresa enfadada al teléfono.
+    //
+    // Se nombra por su identificador en la plataforma, no por el correo ni por
+    // la persona: basta para buscarla en Meetmaps y no saca datos personales a
+    // un registro que luego se pega en un correo o en un chat.
     $name = trim((string) ($entry['name'] ?? ''));
-    if ($name === '') { continue; }
+    if ($name === '') {
+        $sin_nombre[] = (string) ($entry['id_exhibitor'] ?? $entry['id'] ?? '?');
+        continue;
+    }
 
     $slug = slugify($name);
     $found = local_for($local, $entry, $slug);
@@ -1439,6 +1457,16 @@ if ($before && count($exhibitors) < $before * 0.5 && !$ALLOW_SHRINK) {
 }
 
 say(count($exhibitors) . ' expositores (' . (count($raw) - count($visible)) . ' ocultos en la plataforma)');
+
+// La resta entre «X son expositores» y «Y expositores» tiene que estar siempre
+// explicada. Si no, el registro dice que todo ha ido bien mientras una empresa
+// se queda fuera de la web sin motivo aparente.
+if ($sin_nombre) {
+    say('  ' . count($sin_nombre) . ' NO se publican: les falta el nombre de la empresa.');
+    foreach ($sin_nombre as $id) { say('    id en la plataforma: ' . $id); }
+    say('    Búscalos en Meetmaps por ese id y rellénales el campo «company».');
+    say('    El directorio es de empresas: sin nombre no hay tarjeta ni ficha.');
+}
 
 // Un logotipo que no se baja y no se queja es un directorio a medias durante
 // meses. Si la plataforma dice que hay imagen y no sabemos de dónde cogerla,
