@@ -577,18 +577,20 @@
       id: 'evento',
       label: 'El evento',
       title: 'El evento',
-      lede: 'La sección que explica qué es Match Bilbao Bizkaia.',
+      lede: 'Los tres bloques que salen en la portada, debajo de la entrada y ' +
+        'encima de las cifras.',
       cards: [
-        {
-          h2: 'Introducción',
-          fields: [
-            { t: 'row', fields: [
-              { t: 'text', k: 'eventIntro.eyebrow', label: 'Antetítulo', width: 'mid' },
-              { t: 'text', k: 'eventIntro.title', label: 'Título' }
-            ] },
-            { t: 'textarea', k: 'eventIntro.lead', label: 'Texto de entrada', rows: 6 }
-          ]
-        },
+        // AQUÍ HABÍA TRES CAMPOS MÁS —antetítulo, título y texto de entrada— y
+        // se han quitado del panel, no de los datos.
+        //
+        // Eran de una sección que ya no se dibuja: decía casi lo mismo que la
+        // entrada de la portada y se quitó por repetirse. Los campos seguían
+        // apareciendo aquí, y eso es peor que no tenerlos: alguien escribe un
+        // texto nuevo, le da a guardar, va a mirar la web y no lo encuentra
+        // por ninguna parte. Media mañana buscando un fallo que no existe.
+        //
+        // El texto sigue guardado en data/content.js por si algún día se
+        // recupera la sección; simplemente ya no se ofrece cambiarlo.
         {
           h2: 'Claves',
           fields: [

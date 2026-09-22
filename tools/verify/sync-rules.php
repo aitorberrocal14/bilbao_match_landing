@@ -229,6 +229,52 @@ $relativa = $datos !== false && preg_match("/website: '(?!https?:)(?!')/", $dato
 echo '  ' . ($relativa ? 'FALLA' : 'OK   ') . "  ninguna dirección queda relativa\n";
 if ($relativa) { $fallos++; }
 
+/* 6. La cabecera de la ficha tiene que cambiar sola el día que abre la
+      plataforma. Estas páginas llevan la cabecera escrita, no dibujada por el
+      JavaScript, así que sin esto se quedarían con el Login apuntando al
+      cartel de aviso y con los colores del día en que se generaron: el 29 por
+      la mañana la portada diría una cosa y las 39 fichas otra.
+
+      Se corre dos veces la misma web de mentira, con el reloj a un lado y a
+      otro del día de apertura, y se mira el archivo que queda. */
+echo "\n· El día que abre la plataforma, la cabecera de la ficha cambia sola\n";
+
+$chrome = json_decode((string) file_get_contents($ROOT . '/server/chrome.json'), true);
+$abre = strtotime((string) ($chrome['opensAt'] ?? ''));
+
+if (!$abre) {
+    echo "  FALLA  server/chrome.json no dice cuándo abre la plataforma\n";
+    $fallos++;
+} else {
+    foreach ([
+        ['la víspera lleva al cartel de aviso', $abre - 3600, '../platform.html', 'virtual/join'],
+        ['abierta lleva a la plataforma',       $abre + 3600, 'virtual/join', '../platform.html'],
+    ] as [$titulo, $cuando, $debe, $noDebe]) {
+        array_map('unlink', glob($destino . '/exhibitors/*') ?: []);
+        shell_exec(
+            'php ' . escapeshellarg($ROOT . '/server/sync.php') .
+            ' --fixture ' . escapeshellarg($f) .
+            ' --now ' . escapeshellarg(date('c', $cuando)) . ' 2>&1'
+        );
+        $p = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
+        // Solo se mira la cabecera: el pie lleva los mismos enlaces y cualquiera
+        // de los dos textos aparecería allí por su cuenta.
+        preg_match('~<header\b.*?</header>~s', $p, $m);
+        $cab = $m[0] ?? '';
+        $bien = $cab !== '' &&
+            strpos($cab, $debe) !== false && strpos($cab, $noDebe) === false;
+        echo '  ' . ($bien ? 'OK   ' : 'FALLA') . '  ' . $titulo . "\n";
+        if (!$bien) { $fallos++; }
+    }
+
+    // Y el color: abierta, el Login es el botón y el alta se queda en blanco.
+    $cab = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
+    $bien = strpos($cab, 'class="header__enter btn btn--sm"') !== false &&
+        strpos($cab, 'class="btn btn--sm btn--outline"') !== false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y con ella cambian los dos botones\n";
+    if (!$bien) { $fallos++; }
+}
+
 // Lo escrito se borra: esta prueba no deja web montada en ningún sitio.
 foreach (['/assets/js/data/exhibitors.js', '/assets/js/data/exhibitors-local.json',
           '/sitemap.xml'] as $x) { @unlink($destino . $x); }

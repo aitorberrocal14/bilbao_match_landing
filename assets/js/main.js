@@ -61,9 +61,8 @@
         aviso: esAviso
       });
     });
-    into('hero', function () { return MBB.Hero(MBB.site); });
-    into('event', function () { return MBB.EventIntro(MBB.eventIntro, MBB.site); });
-    into('programme', function () { return MBB.Programme(MBB.programme); });
+    into('hero', function () { return MBB.Hero(MBB.site, MBB.eventIntro); });
+    into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });
     into('presentation', function () { return MBB.Presentation(MBB.presentation); });
     into('editions', function () { return MBB.Editions(MBB.editions); });
     // El directorio se le pasa a Experts en vez de pegarlo detrás: así el
@@ -133,10 +132,10 @@
       if (e.key === 'Escape') closeMenu();
     });
     window.addEventListener('resize', function () {
-      // El mismo punto en el que el CSS despliega el menú (1250px). Si los dos
+      // El mismo punto en el que el CSS despliega el menú (1275px). Si los dos
       // números no coinciden, al ensanchar la ventana el menú se queda abierto
       // por detrás de una cabecera que ya no tiene botón para cerrarlo.
-      if (window.innerWidth > 1250) closeMenu();
+      if (window.innerWidth > 1275) closeMenu();
     });
 
     var sections = links
@@ -507,6 +506,43 @@
      funciona sin nosotros. Lo único que falta es que se cierre al pulsar fuera
      o al darle a Escape, que es lo que cualquiera espera de un desplegable y
      lo que <details> no hace por su cuenta. */
+  /**
+   * Si el menú recién abierto se sale por debajo de la pantalla, se sube la
+   * página lo justo para que se vea entero.
+   *
+   * El menú se abre HACIA ABAJO, y desde que el botón vive en la barra del
+   * programa puede quedar a media pantalla de altura: se pulsa, se despliega
+   * por debajo del borde y parece que no ha pasado nada. Sigue estando ahí
+   * —basta con bajar— pero nadie baja para buscar algo que no sabe que se ha
+   * abierto.
+   *
+   * Se mueve lo mínimo, y solo cuando de verdad no cabe: si el menú entero ya
+   * se ve, la página no se mueve. El salto es seco y no animado a propósito:
+   * son unos pocos píxeles con un menú ya abierto delante, y deslizarlos poco
+   * a poco se lee como que la página se mueve sola.
+   */
+  function aLaVista(d) {
+    var menu = d.querySelector('.cal__menu');
+    if (!menu) return;
+    // Hasta el siguiente fotograma el menú todavía no tiene medidas.
+    requestAnimationFrame(function () {
+      var c = menu.getBoundingClientRect();
+      var sobra = c.bottom - (window.innerHeight - 16);
+      if (sobra <= 0) return;
+      // La hoja de estilos pide desplazamiento suave para toda la página, que
+      // es lo que se quiere al saltar de una sección a otra desde el menú. Aquí
+      // no: son unos pocos píxeles con el desplegable ya abierto delante, y
+      // verlos deslizarse se lee como que la página se mueve sola. `instant`
+      // se salta esa regla; si un navegador antiguo no lo entiende, se cae al
+      // desplazamiento de siempre, que también deja el menú a la vista.
+      try {
+        window.scrollBy({ top: sobra, behavior: 'instant' });
+      } catch (e) {
+        window.scrollBy(0, sobra);
+      }
+    });
+  }
+
   function initCalendarMenus() {
     // Los bloques que aún están entrando llevan un `transform`, y un elemento
     // transformado se dibuja por encima de uno que solo tiene z-index. Durante
@@ -518,6 +554,7 @@
       // `toggle` no burbujea, así que se escucha en cada uno.
       d.addEventListener('toggle', function () {
         bloque.classList.toggle('cal-encima', d.open);
+        if (d.open) aLaVista(d);
       });
     });
 

@@ -247,7 +247,8 @@ window.MBB = window.MBB || {};
     // aviso no hace nada: cambia la dirección y la pantalla se queda igual.
     // Ahí sobra, y el alta se queda sola. Abierta la plataforma el Login ya
     // lleva a Meetmaps, así que vuelve a la cabecera por su cuenta.
-    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
+    var abierta = MBB.platformOpen(site);
+    var conLogin = !(opts.aviso && !abierta);
 
     var loginEnMenu = conLogin ? loginLink(site, 'header__link', base) : '';
     if (loginEnMenu) links += '<li class="header__links-login">' + loginEnMenu + '</li>';
@@ -263,13 +264,26 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          // Dos puertas, y se distinguen a simple vista: entrar es para quien
-          // ya está dentro, y darse de alta es lo que queremos que haga quien
-          // llega por primera vez. Por eso el alta va en rojo macizo y el
-          // Login queda como enlace: si los dos fueran botones rojos, el
-          // visitante nuevo tendría que leerlos para saber cuál es el suyo.
-          (conLogin ? loginLink(site, 'header__login', base) : '') +
-          registerLink(site, 'btn btn--sm', true) +
+          // DOS PUERTAS, Y LA QUE MANDA CAMBIA EL DÍA QUE ABRE LA PLATAFORMA.
+          //
+          // Hasta que abre, entrar no es posible: quien llega solo puede darse
+          // de alta, así que el alta se lleva el rojo macizo y el Login se
+          // queda como enlace. Si los dos fueran botones rojos, el visitante
+          // nuevo tendría que leerlos para saber cuál es el suyo.
+          //
+          // Abierta la plataforma se cambian los papeles. La mayoría de quien
+          // llega entonces ya tiene su perfil hecho y viene a entrar, no a
+          // apuntarse: el Login pasa a rojo macizo y el alta se queda en
+          // blanco con el borde rojo —sigue a la vista, para quien llegue
+          // tarde, pero deja de ser lo primero que pide que lo pulsen.
+          //
+          // Es automático: lo decide la misma fecha que ya decide a dónde
+          // lleva el Login, `login.opensAt` en site.js. No hay que acordarse
+          // de venir a cambiarlo ese día.
+          (conLogin
+            ? loginLink(site, 'header__enter ' + (abierta ? 'btn btn--sm' : 'header__login'), base)
+            : '') +
+          registerLink(site, 'btn btn--sm' + (abierta ? ' btn--outline' : ''), true) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -280,7 +294,19 @@ window.MBB = window.MBB || {};
   };
 
   /* --- Hero -------------------------------------------------------------- */
-  MBB.Hero = function (site) {
+  /**
+   * La portada.
+   *
+   * @param {object} site   window.MBB.site
+   * @param {object} intro  window.MBB.eventIntro — de aquí salen los tres
+   *                        bloques ("Structured B2B meetings", …). Vivían en
+   *                        una sección aparte, debajo, que repetía casi palabra
+   *                        por palabra lo que ya dice la entrada de la portada.
+   *                        Se quitó la sección y los bloques subieron aquí, que
+   *                        es donde sirven: los lee quien acaba de llegar,
+   *                        antes de decidir si sigue bajando.
+   */
+  MBB.Hero = function (site, intro) {
     var h = site.hero;
 
     var media = h.media && h.media.image
@@ -321,6 +347,17 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Los tres bloques, entre la entrada y las cifras. Van en <h2> y no en
+    // <h3>: aquí encima solo está el <h1> de la portada, y saltar de h1 a h3
+    // deja un hueco en el esquema por el que un lector de pantalla recorre la
+    // página. El tamaño lo pone la hoja de estilos, así que se ven igual.
+    var pilares = ((intro && intro.highlights) || [])
+      .map(function (p) {
+        return '<div class="pillar"><h2>' + esc(p.title) + '</h2><p>' +
+          esc(p.text) + '</p></div>';
+      })
+      .join('');
+
     return (
       '<div class="shell">' +
         '<div class="hero__inner">' +
@@ -334,28 +371,29 @@ window.MBB = window.MBB || {};
           '</div>' +
           '<div class="hero__media" data-reveal style="--d:100ms">' + media + '</div>' +
         '</div>' +
+        (pilares ? '<div class="pillars" data-reveal>' + pilares + '</div>' : '') +
         '<div class="hero__facts" data-reveal>' + facts + '</div>' +
       '</div>'
     );
   };
 
-  /* --- Section 2: event intro + programme -------------------------------- */
-  MBB.EventIntro = function (intro, site) {
-    var items = intro.highlights
-      .map(function (h) {
-        return '<div class="pillar"><h3>' + esc(h.title) + '</h3><p>' + esc(h.text) + '</p></div>';
-      })
-      .join('');
-
-    return (
-      '<div class="section-head" data-reveal>' +
-        '<h2 class="h-1">' + esc(intro.title) + '</h2>' +
-        '<p class="lead measure">' + esc(intro.lead) + '</p>' +
-        '<p style="margin-top:1.5rem">' + MBB.CalendarButton(site.event.calendar) + '</p>' +
-      '</div>' +
-      '<div class="pillars" data-reveal style="--d:100ms">' + items + '</div>'
-    );
-  };
+  /* --- AQUÍ HABÍA UNA SECCIÓN, Y SE QUITÓ --------------------------------
+   *
+   * Se llamaba "Match Bilbao Bizkaia 2026" y llevaba un titular, un párrafo de
+   * entrada, el botón de añadir al calendario y los tres bloques destacados.
+   *
+   * El párrafo decía casi lo mismo que la entrada de la portada, tres pantallas
+   * más arriba, y el titular repetía el nombre del evento que ya está en el
+   * logotipo, en la portada y en la pestaña del navegador. Quien bajaba se
+   * encontraba leyendo dos veces lo mismo y concluía que se había perdido.
+   *
+   * No se tiró nada de lo que servía, se repartió:
+   *   · los tres bloques → MBB.Hero, entre la entrada y las cifras;
+   *   · el botón de añadir al calendario → MBB.Programme, en su barra.
+   *
+   * El texto sigue en data/content.js, sin dibujarse. No estorba y es lo que
+   * hay que recuperar si algún día se quiere volver atrás.
+   */
 
 
   /* --- "Add to calendar": one date, four destinations --------------------- */
@@ -651,7 +689,12 @@ window.MBB = window.MBB || {};
    * of their own, the split lives inside that day, because it is a property of
    * the day and not a way of reading the programme.
    */
-  MBB.Programme = function (programme) {
+  /**
+   * @param {object} programme  window.MBB.programme
+   * @param {object} site       window.MBB.site — solo para la fecha del evento
+   *                            que necesita el botón de añadir al calendario.
+   */
+  MBB.Programme = function (programme, site) {
     var days = programme.days;
 
     /* --- shared pieces -------------------------------------------------- */
@@ -856,9 +899,23 @@ window.MBB = window.MBB || {};
             '<button class="prog__view" type="button" data-view="overview" aria-pressed="true">Overview</button>' +
             '<button class="prog__view" type="button" data-view="detail" aria-pressed="false">Day by day</button>' +
           '</div>' +
-          '<button class="btn btn--sm" type="button" data-ics="all">' +
-            ICONS.calendar + 'Add the full programme' +
-          '</button>' +
+          // DOS BOTONES DE CALENDARIO, Y NO SON LO MISMO.
+          //
+          // El desplegable guarda EL EVENTO: una sola cita con las fechas, y
+          // la guarda en Google, en Outlook, en Yahoo o en un archivo. Es lo
+          // que quiere quien todavía está decidiendo si viene, y por eso va
+          // delante, en rojo. Vivía en la sección que se quitó, y bajó aquí.
+          //
+          // El otro guarda EL PROGRAMA ENTERO: una cita por cada sesión de
+          // cada día. Es mucho más y lo quiere mucha menos gente, así que se
+          // queda detrás y en blanco. Antes era el único y estaba en rojo:
+          // ahora el rojo es del que la mayoría va a pulsar.
+          '<div class="prog__cals">' +
+            (site ? MBB.CalendarButton(site.event.calendar) : '') +
+            '<button class="btn btn--sm btn--outline" type="button" data-ics="all">' +
+              ICONS.calendar + 'Add the full programme' +
+            '</button>' +
+          '</div>' +
         '</div>' +
 
         '<div class="prog__pane" data-pane="detail" hidden>' +

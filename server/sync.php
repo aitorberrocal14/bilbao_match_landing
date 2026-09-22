@@ -189,6 +189,28 @@ if ($i_fix !== false && isset($argv[$i_fix + 1])) {
     $FIXTURE = $argv[$i_fix + 1];
 }
 
+// Adelanta el reloj SOLO para esta ejecución. La cabecera de las fichas cambia
+// el día que abre la plataforma, y eso hay que poder verlo antes de ese día:
+// el día después ya no hay margen para arreglarlo. Lo usa
+// tools/verify/sync-rules.php. No toca nada más —ni los datos, ni quién se
+// publica, ni la fecha que se escribe en el registro— y en el cron no se pasa.
+$AHORA = null;
+$i_now = array_search('--now', $argv, true);
+if ($i_now !== false && isset($argv[$i_now + 1])) {
+    $AHORA = strtotime($argv[$i_now + 1]);
+    if ($AHORA === false) {
+        fwrite(STDERR, "--now no entiende esa fecha.\n");
+        exit(1);
+    }
+}
+
+/** El reloj, para lo que depende de la fecha. `--now` lo adelanta. */
+function ahora(): int
+{
+    global $AHORA;
+    return $AHORA !== null ? $AHORA : time();
+}
+
 /* --- Salida ---------------------------------------------------------------- */
 
 $LOG = [];
@@ -774,6 +796,27 @@ function chrome(): array
     if (!is_array($c) || empty($c['header']) || empty($c['footer']) || empty($c['icons'])) {
         die_with('server/chrome.json no tiene la forma esperada.');
     }
+
+    // LA CABECERA NO ES LA MISMA ANTES Y DESPUÉS DE QUE ABRA LA PLATAFORMA.
+    //
+    // El día que abre, el Login deja de llevar al cartel de aviso y lleva a
+    // Meetmaps, y cambia de aspecto: rojo macizo él, y el alta en blanco. En
+    // la portada eso lo hace el JavaScript al dibujarla, pero estas fichas
+    // llevan la cabecera escrita, así que aquí hay que elegirla.
+    //
+    // Y no se dibuja: se ESCOGE. chrome.json trae las dos versiones, hechas
+    // por los mismos componentes que dibujan el resto de la web, y lo único
+    // que se hace aquí es mirar el reloj. Dibujarla en PHP sería una segunda
+    // copia del diseño, y dos copias acaban diciendo cosas distintas.
+    //
+    // Si faltara la versión de después —un chrome.json viejo— se queda la de
+    // antes. Peor que lo correcto, pero una página entera, no un error.
+    $abre = empty($c['opensAt']) ? false : strtotime((string) $c['opensAt']);
+    if ($abre !== false && ahora() >= $abre) {
+        if (!empty($c['headerOpen'])) { $c['header'] = $c['headerOpen']; }
+        if (!empty($c['footerOpen'])) { $c['footer'] = $c['footerOpen']; }
+    }
+
     return $c;
 }
 

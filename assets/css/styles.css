@@ -310,7 +310,7 @@ p:last-child { margin-bottom: 0; }
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 0.35rem 1.5rem;
+  gap: 0.35rem 1.2rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -325,11 +325,30 @@ p:last-child { margin-bottom: 0; }
 }
 .header__link:hover,
 .header__link[aria-current="true"] { color: var(--red); }
-.header__actions { flex: none; display: flex; align-items: center; gap: 0.6rem; }
+.header__actions { flex: none; display: flex; align-items: center; gap: 0.5rem; }
 
-/* El Login de la cabecera: enlace, no botón. Comparte la letra de los enlaces
-   del menú —misma familia, mismo tamaño, mismas mayúsculas— para que lea como
-   uno más y deje el rojo macizo al alta, que es la acción que buscamos. */
+/* La cabecera va más justa que el resto de la página, y por una razón que solo
+   se ve el día que abre la plataforma: ese día el Login deja de ser un enlace
+   y pasa a ser una pastilla, y dos pastillas ocupan unos 45px más que una
+   pastilla y un enlace. A 1280px —una anchura de portátil de las más
+   corrientes— el menú se quedaba sin sitio y se partía en dos filas.
+   Aquí se recupera ese espacio: un poco menos de hueco entre las entradas del
+   menú, un poco menos de relleno en los dos botones. No se nota mirando la
+   web, y evita tener que plegar el menú 70px antes para todo el mundo. */
+.header__actions .btn { padding-inline: 1.05rem; }
+
+/* `.header__enter` no pinta nada: marca cuál de los dos botones de la cabecera
+   es el de entrar, para poder esconderlo en pantalla estrecha sin tener que
+   saber qué aspecto tiene ese día. Y cambia de aspecto: hasta que abre la
+   plataforma es `.header__login` —un enlace— y a partir de ese día es un botón
+   rojo. Sin esta marca, la regla de más abajo dejaría de encontrarlo justo el
+   día que abre, y el 29 por la mañana la cabecera se saldría de ancho en el
+   móvil sin que nadie hubiera tocado nada. */
+
+/* El Login de la cabecera mientras la plataforma está cerrada: enlace, no
+   botón. Comparte la letra de los enlaces del menú —misma familia, mismo
+   tamaño, mismas mayúsculas— para que lea como uno más y deje el rojo macizo
+   al alta, que es la acción que buscamos hasta que se pueda entrar. */
 .header__login {
   font-size: 0.86rem;
   letter-spacing: 0.05em;
@@ -630,6 +649,12 @@ p:last-child { margin-bottom: 0; }
   gap: 1rem;
   margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
 }
+
+/* Los dos botones de calendario del programa: el desplegable —guardar las
+   fechas del evento— y el que se descarga el programa entero. Van juntos y en
+   ese orden, y en pantalla estrecha se ponen uno debajo del otro en vez de
+   encogerse hasta partir sus textos. */
+.prog__cals { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
 
 /* A bordered pair reads unmistakably as two states of one thing, which a row
    of plain text buttons does not. */
@@ -945,15 +970,20 @@ p:last-child { margin-bottom: 0; }
   padding-top: 0.5rem;
 }
 
+/* Los tres bloques de la portada, entre la entrada y las cifras.
+   La retícula se ajusta a cuantos haya —hoy tres— en vez de fijar cuatro
+   columnas: con cuatro fijas y tres bloques quedaba una columna vacía a la
+   derecha y el conjunto se leía descentrado. Es la misma regla que usan las
+   cifras que van justo debajo, así que los dos bloques se alinean. */
 .pillars {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: clamp(1.25rem, 3vw, 2.5rem);
   margin-top: clamp(2.5rem, 5vw, 4rem);
   padding-top: clamp(2rem, 4vw, 3rem);
   border-top: 1px solid var(--line);
 }
-.pillar h3 { font-size: 1.1rem; margin: 0 0 0.4rem; }
+.pillar h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
 .pillar p { margin: 0; font-size: 0.92rem; }
 
 /* 10. VIDEOS =============================================================== */
@@ -1665,8 +1695,20 @@ p:last-child { margin-bottom: 0; }
    a ese punto. Pliega SOLO la cabecera: la retícula de la página (portada a
    dos columnas, folletos, expositores) sigue cambiando a 900px, que es donde
    le toca. Antes las dos cosas compartían la misma regla, y mover una habría
-   arrastrado a la otra. */
-@media (max-width: 1250px) {
+   arrastrado a la otra.
+
+   EL NÚMERO ES 1275 Y NO 1250 desde que la cabecera puede llevar dos botones:
+   abierta la plataforma, el Login pasa de enlace a pastilla y la fila necesita
+   unos 30px más. Entre 1251 y 1275 el menú se partía en dos filas ese día y
+   solo ese día. Son anchuras en las que casi nadie tiene la ventana —1280 es
+   la de portátil corriente, y esa sigue con el menú entero—, así que se pliega
+   ahí en vez de apretar más la cabecera.
+
+   Si se toca este número hay que tocar también main.js, que lo repite para
+   saber cuándo cerrar el menú al cambiar el tamaño de la ventana. Y
+   tools/verify/site.js mide la cabecera a catorce anchuras, con la plataforma
+   abierta y cerrada: si el número se queda corto, lo dice antes de publicar. */
+@media (max-width: 1275px) {
   :root { --header-h: 68px; }
 
   .burger { display: flex; margin-left: auto; }
@@ -1719,8 +1761,10 @@ p:last-child { margin-bottom: 0; }
   .header__year { font-size: 0.78rem; }
   .header__actions { gap: 0.25rem; }
   .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
-  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú. */
-  .header__actions .header__login { display: none; }
+  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú.
+     Se busca por `.header__enter`, que lleva puesto tanto cuando es enlace
+     como cuando es botón rojo. */
+  .header__actions .header__enter { display: none; }
   .header__links-login { display: block; }
   .burger { width: 36px; padding: 8px; }
   /* The rail moves in; everything placed from it follows on its own. */

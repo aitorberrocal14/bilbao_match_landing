@@ -40,6 +40,30 @@ try {
 const ROOT = path.join(__dirname, '..', '..');
 const PAGINA = 'file://' + path.join(ROOT, 'index.html');
 
+// ADELANTAR EL RELOJ DEL NAVEGADOR.
+//
+// Media web cambia sola el día que abre la plataforma: el Login deja de llevar
+// al cartel de aviso y lleva a Meetmaps, el propio cartel se aparta, y los dos
+// botones de la cabecera se cambian los papeles. Eso hay que poder verlo ANTES
+// de ese día, porque el día de después ya no hay margen para arreglarlo.
+//
+// Se sustituye el reloj del navegador por uno adelantado, y la página se dibuja
+// creyendo que es esa fecha. No se toca ningún dato ni ningún archivo: lo que
+// se mira es exactamente el mismo código que estará publicado.
+const RELOJ = (iso) => {
+  const real = Date;
+  const salto = new real(iso).getTime() - real.now();
+  class F extends real {
+    constructor(...a) { if (!a.length) super(real.now() + salto); else super(...a); }
+    static now() { return real.now() + salto; }
+  }
+  window.Date = F;
+};
+
+// El rojo de los botones, --red-btn, tal y como lo devuelve el navegador.
+const ROJO = 'rgb(201, 32, 44)';
+const SIN_FONDO = 'rgba(0, 0, 0, 0)';
+
 let fallos = 0;
 function check(etiqueta, ok, detalle) {
   if (!ok) fallos++;
@@ -206,6 +230,14 @@ function check(etiqueta, ok, detalle) {
           const c = e.getBoundingClientRect();
           return c.left >= -1 && c.right <= window.innerWidth + 1;
         }),
+        // Y ENTERO POR ABAJO, que es por donde se salía. El botón vive en la
+        // barra del programa, dentro de una tarjeta alta: si se pulsaba con la
+        // barra a media pantalla, el menú se desplegaba por debajo del borde y
+        // parecía que no había pasado nada. Ahora la página se sube lo justo.
+        seVeEntero: (() => {
+          const c = document.querySelector('.cal__menu').getBoundingClientRect();
+          return c.top >= -1 && c.bottom <= window.innerHeight + 1;
+        })(),
         // Las fechas de los tres enlaces salen de site.js, no están escritas
         // a mano: si alguien las cambia en el panel, tienen que seguirlas.
         googleSigueALosDatos: (() => {
@@ -225,6 +257,7 @@ function check(etiqueta, ok, detalle) {
       cal.fuera + ' fuera, ' + cal.descarga + ' descarga');
     check('las fechas salen de los datos, no a mano', cal.googleSigueALosDatos);
     check('el menú no se sale de la pantalla', cal.dentroDePantalla);
+    check('  ni por debajo del borde', cal.seVeEntero);
 
     // El archivo se escribe en el momento: se comprueba que llega y qué dice.
     const descarga = pagina.waitForEvent('download', { timeout: 5000 });
@@ -559,6 +592,95 @@ function check(etiqueta, ok, detalle) {
 
   await cab.close();
 
+  /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
+  // Entrar y darse de alta son dos acciones distintas, y la que interesa
+  // cambia el día que abre la plataforma. Antes de abrir, entrar no se puede:
+  // manda el alta, en rojo macizo, y el Login es un enlace. Abierta, manda el
+  // Login —la mayoría ya tiene perfil y viene a entrar— y el alta se queda en
+  // blanco con el borde rojo.
+  //
+  // El cambio lo hace sola la fecha de site.js, así que aquí se comprueba
+  // adelantando el reloj: si algún día alguien reordena las clases, esto lo
+  // dice antes de que la cabecera amanezca con dos botones rojos iguales.
+  console.log('\n--- los dos botones de la cabecera ---');
+
+  async function cabecera(cuando, ancho) {
+    const ctx = await navegador.newContext({ viewport: { width: ancho, height: 800 } });
+    const pg = await ctx.newPage();
+    if (cuando) await pg.addInitScript(RELOJ, cuando);
+    await pg.goto(PAGINA);
+    await pg.waitForTimeout(700);
+    const r = await pg.evaluate(() => {
+      const leer = (sel) => {
+        const e = document.querySelector(sel);
+        if (!e) return null;
+        const s = getComputedStyle(e);
+        return {
+          fondo: s.backgroundColor,
+          tinta: s.color,
+          borde: parseFloat(s.borderTopWidth) + ' ' + s.borderTopColor,
+          visible: e.getBoundingClientRect().width > 0
+        };
+      };
+      const nav = document.querySelector('.header__nav');
+      const ys = [...document.querySelectorAll('.header__links li')]
+        .filter((li) => li.getBoundingClientRect().width > 0)
+        .map((li) => Math.round(li.getBoundingClientRect().y));
+      return {
+        entrar: leer('.header__actions [data-login]'),
+        alta: leer('.header__actions [data-register]'),
+        enMenu: !!document.querySelector('.header__links [data-login]'),
+        plegado: getComputedStyle(nav).position === 'absolute',
+        boton: document.querySelector('.burger').getBoundingClientRect().width > 0,
+        filas: new Set(ys).size,
+        desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth
+      };
+    });
+    await ctx.close();
+    return r;
+  }
+
+  const hoy = await cabecera(null, 1280);
+  check('cerrada, el alta es el botón rojo',
+    hoy.alta && hoy.alta.fondo === ROJO, hoy.alta && hoy.alta.fondo);
+  check('cerrada, el Login es un enlace, no un botón',
+    hoy.entrar && hoy.entrar.fondo === SIN_FONDO && parseFloat(hoy.entrar.borde) === 0,
+    hoy.entrar && hoy.entrar.fondo + ' · borde ' + hoy.entrar.borde);
+
+  const ABRE = '2026-09-29T09:00:00+02:00';
+  const luego = await cabecera(ABRE, 1280);
+  check('abierta, el Login pasa a rojo macizo',
+    luego.entrar && luego.entrar.fondo === ROJO && luego.entrar.tinta === 'rgb(255, 255, 255)',
+    luego.entrar && luego.entrar.fondo + ' · letra ' + luego.entrar.tinta);
+  check('abierta, el alta se queda en blanco con el borde rojo',
+    luego.alta && luego.alta.fondo === SIN_FONDO &&
+    luego.alta.borde === '2 ' + ROJO && luego.alta.tinta === ROJO,
+    luego.alta && luego.alta.fondo + ' · borde ' + luego.alta.borde);
+  check('abierta, los dos botones no son iguales',
+    luego.entrar && luego.alta && luego.entrar.fondo !== luego.alta.fondo);
+
+  // Y LO QUE DE VERDAD SE ROMPE SIN QUE NADIE LO VEA: con dos pastillas en vez
+  // de una pastilla y un enlace, la fila de la cabecera pesa unos 45px más. La
+  // primera versión de esto partía el menú en dos filas a 1280px —la anchura
+  // de portátil más corriente que hay— y solo a partir del día que abriera la
+  // plataforma. Nadie lo habría visto hasta el 29 por la mañana.
+  //
+  // Así que la cabecera se mide a las mismas catorce anchuras que ya se miden
+  // con la plataforma cerrada, pero con el reloj adelantado. La regla es la
+  // misma: o el menú cabe en UNA fila, o está plegado tras su botón.
+  for (const w of [1600, 1440, 1366, 1280, 1276, 1275, 1200, 1100, 1024, 950, 820, 620, 390, 320]) {
+    const est = await cabecera(ABRE, w);
+    // Por encima de 620px el Login vive en la barra; por debajo baja al
+    // desplegable y no puede estar en los dos sitios a la vez.
+    const login = w > 620 ? est.entrar.visible : (!est.entrar.visible && est.enMenu);
+    const menu = est.plegado ? est.boton : est.filas === 1;
+    check('abierta, a ' + w + 'px la cabecera aguanta',
+      menu && login && !est.desborde,
+      (est.plegado ? 'plegado tras el botón' : est.filas + ' fila(s)') +
+      ', Login ' + (est.entrar.visible ? 'en la barra' : 'en el menú') +
+      (est.desborde ? ' — SE SALE DE ANCHO' : ''));
+  }
+
   /* --- Lo que el servidor publica ------------------------------------------ */
   // deploy.php se planta si le falta uno de los archivos de su lista: no copia
   // nada y deja la web como estaba. Así que un nombre en esa lista que no
@@ -822,15 +944,7 @@ function check(etiqueta, ok, detalle) {
       ruta.fulfill({ status: 200, contentType: 'text/html', body: 'ok' });
     });
     const t = await ctx.newPage();
-    await t.addInitScript((iso) => {
-      const real = Date;
-      const salto = new real(iso).getTime() - real.now();
-      class F extends real {
-        constructor(...a) { if (!a.length) super(real.now() + salto); else super(...a); }
-        static now() { return real.now() + salto; }
-      }
-      window.Date = F;
-    }, cuando);
+    await t.addInitScript(RELOJ, cuando);
     await t.goto('file://' + path.join(ROOT, 'platform.html'));
     await t.waitForTimeout(700);
     const titular = await t.evaluate(() => {

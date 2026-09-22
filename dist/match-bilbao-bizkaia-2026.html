@@ -383,7 +383,7 @@ p:last-child { margin-bottom: 0; }
   flex-wrap: wrap;
   justify-content: flex-end;
   align-items: center;
-  gap: 0.35rem 1.5rem;
+  gap: 0.35rem 1.2rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -398,11 +398,30 @@ p:last-child { margin-bottom: 0; }
 }
 .header__link:hover,
 .header__link[aria-current="true"] { color: var(--red); }
-.header__actions { flex: none; display: flex; align-items: center; gap: 0.6rem; }
+.header__actions { flex: none; display: flex; align-items: center; gap: 0.5rem; }
 
-/* El Login de la cabecera: enlace, no botón. Comparte la letra de los enlaces
-   del menú —misma familia, mismo tamaño, mismas mayúsculas— para que lea como
-   uno más y deje el rojo macizo al alta, que es la acción que buscamos. */
+/* La cabecera va más justa que el resto de la página, y por una razón que solo
+   se ve el día que abre la plataforma: ese día el Login deja de ser un enlace
+   y pasa a ser una pastilla, y dos pastillas ocupan unos 45px más que una
+   pastilla y un enlace. A 1280px —una anchura de portátil de las más
+   corrientes— el menú se quedaba sin sitio y se partía en dos filas.
+   Aquí se recupera ese espacio: un poco menos de hueco entre las entradas del
+   menú, un poco menos de relleno en los dos botones. No se nota mirando la
+   web, y evita tener que plegar el menú 70px antes para todo el mundo. */
+.header__actions .btn { padding-inline: 1.05rem; }
+
+/* `.header__enter` no pinta nada: marca cuál de los dos botones de la cabecera
+   es el de entrar, para poder esconderlo en pantalla estrecha sin tener que
+   saber qué aspecto tiene ese día. Y cambia de aspecto: hasta que abre la
+   plataforma es `.header__login` —un enlace— y a partir de ese día es un botón
+   rojo. Sin esta marca, la regla de más abajo dejaría de encontrarlo justo el
+   día que abre, y el 29 por la mañana la cabecera se saldría de ancho en el
+   móvil sin que nadie hubiera tocado nada. */
+
+/* El Login de la cabecera mientras la plataforma está cerrada: enlace, no
+   botón. Comparte la letra de los enlaces del menú —misma familia, mismo
+   tamaño, mismas mayúsculas— para que lea como uno más y deje el rojo macizo
+   al alta, que es la acción que buscamos hasta que se pueda entrar. */
 .header__login {
   font-size: 0.86rem;
   letter-spacing: 0.05em;
@@ -703,6 +722,12 @@ p:last-child { margin-bottom: 0; }
   gap: 1rem;
   margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
 }
+
+/* Los dos botones de calendario del programa: el desplegable —guardar las
+   fechas del evento— y el que se descarga el programa entero. Van juntos y en
+   ese orden, y en pantalla estrecha se ponen uno debajo del otro en vez de
+   encogerse hasta partir sus textos. */
+.prog__cals { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
 
 /* A bordered pair reads unmistakably as two states of one thing, which a row
    of plain text buttons does not. */
@@ -1018,15 +1043,20 @@ p:last-child { margin-bottom: 0; }
   padding-top: 0.5rem;
 }
 
+/* Los tres bloques de la portada, entre la entrada y las cifras.
+   La retícula se ajusta a cuantos haya —hoy tres— en vez de fijar cuatro
+   columnas: con cuatro fijas y tres bloques quedaba una columna vacía a la
+   derecha y el conjunto se leía descentrado. Es la misma regla que usan las
+   cifras que van justo debajo, así que los dos bloques se alinean. */
 .pillars {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: clamp(1.25rem, 3vw, 2.5rem);
   margin-top: clamp(2.5rem, 5vw, 4rem);
   padding-top: clamp(2rem, 4vw, 3rem);
   border-top: 1px solid var(--line);
 }
-.pillar h3 { font-size: 1.1rem; margin: 0 0 0.4rem; }
+.pillar h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
 .pillar p { margin: 0; font-size: 0.92rem; }
 
 /* 10. VIDEOS =============================================================== */
@@ -1738,8 +1768,20 @@ p:last-child { margin-bottom: 0; }
    a ese punto. Pliega SOLO la cabecera: la retícula de la página (portada a
    dos columnas, folletos, expositores) sigue cambiando a 900px, que es donde
    le toca. Antes las dos cosas compartían la misma regla, y mover una habría
-   arrastrado a la otra. */
-@media (max-width: 1250px) {
+   arrastrado a la otra.
+
+   EL NÚMERO ES 1275 Y NO 1250 desde que la cabecera puede llevar dos botones:
+   abierta la plataforma, el Login pasa de enlace a pastilla y la fila necesita
+   unos 30px más. Entre 1251 y 1275 el menú se partía en dos filas ese día y
+   solo ese día. Son anchuras en las que casi nadie tiene la ventana —1280 es
+   la de portátil corriente, y esa sigue con el menú entero—, así que se pliega
+   ahí en vez de apretar más la cabecera.
+
+   Si se toca este número hay que tocar también main.js, que lo repite para
+   saber cuándo cerrar el menú al cambiar el tamaño de la ventana. Y
+   tools/verify/site.js mide la cabecera a catorce anchuras, con la plataforma
+   abierta y cerrada: si el número se queda corto, lo dice antes de publicar. */
+@media (max-width: 1275px) {
   :root { --header-h: 68px; }
 
   .burger { display: flex; margin-left: auto; }
@@ -1792,8 +1834,10 @@ p:last-child { margin-bottom: 0; }
   .header__year { font-size: 0.78rem; }
   .header__actions { gap: 0.25rem; }
   .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
-  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú. */
-  .header__actions .header__login { display: none; }
+  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú.
+     Se busca por `.header__enter`, que lleva puesto tanto cuando es enlace
+     como cuando es botón rojo. */
+  .header__actions .header__enter { display: none; }
   .header__links-login { display: block; }
   .burger { width: 36px; padding: 8px; }
   /* The rail moves in; everything placed from it follows on its own. */
@@ -1905,12 +1949,15 @@ p:last-child { margin-bottom: 0; }
       <div class="shell" id="editions" data-mount="editions"></div>
     </section>
 
-    <!-- SECTION 3 — MATCH BILBAO BIZKAIA 2026 ==========================
-         3a · Introduction   3b · Event Programme                      -->
-    <!-- The introduction and the programme are one block: the programme is
-         the centre of gravity of the page and needs the weight. -->
-    <section class="section section--soft" id="event" aria-label="Match Bilbao Bizkaia 2026">
-      <div class="shell" data-mount="event"></div>
+    <!-- SECTION 3 — EVENT PROGRAMME ====================================
+         Aquí había además una introducción que repetía lo que ya dice la
+         portada. Se quitó: sus tres bloques destacados subieron a la portada
+         y su botón de calendario está ahora en la barra del programa.
+
+         El id sigue siendo "event" a propósito. Es el destino de una entrada
+         del menú y de los enlaces del pie, y cambiarlo rompería cualquier
+         dirección con #event que alguien tenga guardada o haya compartido. -->
+    <section class="section section--soft" id="event" aria-label="Event Programme">
       <div class="shell" id="programme" data-mount="programme"></div>
     </section>
 
@@ -3156,7 +3203,8 @@ window.MBB = window.MBB || {};
     // aviso no hace nada: cambia la dirección y la pantalla se queda igual.
     // Ahí sobra, y el alta se queda sola. Abierta la plataforma el Login ya
     // lleva a Meetmaps, así que vuelve a la cabecera por su cuenta.
-    var conLogin = !(opts.aviso && !MBB.platformOpen(site));
+    var abierta = MBB.platformOpen(site);
+    var conLogin = !(opts.aviso && !abierta);
 
     var loginEnMenu = conLogin ? loginLink(site, 'header__link', base) : '';
     if (loginEnMenu) links += '<li class="header__links-login">' + loginEnMenu + '</li>';
@@ -3172,13 +3220,26 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          // Dos puertas, y se distinguen a simple vista: entrar es para quien
-          // ya está dentro, y darse de alta es lo que queremos que haga quien
-          // llega por primera vez. Por eso el alta va en rojo macizo y el
-          // Login queda como enlace: si los dos fueran botones rojos, el
-          // visitante nuevo tendría que leerlos para saber cuál es el suyo.
-          (conLogin ? loginLink(site, 'header__login', base) : '') +
-          registerLink(site, 'btn btn--sm', true) +
+          // DOS PUERTAS, Y LA QUE MANDA CAMBIA EL DÍA QUE ABRE LA PLATAFORMA.
+          //
+          // Hasta que abre, entrar no es posible: quien llega solo puede darse
+          // de alta, así que el alta se lleva el rojo macizo y el Login se
+          // queda como enlace. Si los dos fueran botones rojos, el visitante
+          // nuevo tendría que leerlos para saber cuál es el suyo.
+          //
+          // Abierta la plataforma se cambian los papeles. La mayoría de quien
+          // llega entonces ya tiene su perfil hecho y viene a entrar, no a
+          // apuntarse: el Login pasa a rojo macizo y el alta se queda en
+          // blanco con el borde rojo —sigue a la vista, para quien llegue
+          // tarde, pero deja de ser lo primero que pide que lo pulsen.
+          //
+          // Es automático: lo decide la misma fecha que ya decide a dónde
+          // lleva el Login, `login.opensAt` en site.js. No hay que acordarse
+          // de venir a cambiarlo ese día.
+          (conLogin
+            ? loginLink(site, 'header__enter ' + (abierta ? 'btn btn--sm' : 'header__login'), base)
+            : '') +
+          registerLink(site, 'btn btn--sm' + (abierta ? ' btn--outline' : ''), true) +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -3189,7 +3250,19 @@ window.MBB = window.MBB || {};
   };
 
   /* --- Hero -------------------------------------------------------------- */
-  MBB.Hero = function (site) {
+  /**
+   * La portada.
+   *
+   * @param {object} site   window.MBB.site
+   * @param {object} intro  window.MBB.eventIntro — de aquí salen los tres
+   *                        bloques ("Structured B2B meetings", …). Vivían en
+   *                        una sección aparte, debajo, que repetía casi palabra
+   *                        por palabra lo que ya dice la entrada de la portada.
+   *                        Se quitó la sección y los bloques subieron aquí, que
+   *                        es donde sirven: los lee quien acaba de llegar,
+   *                        antes de decidir si sigue bajando.
+   */
+  MBB.Hero = function (site, intro) {
     var h = site.hero;
 
     var media = h.media && h.media.image
@@ -3230,6 +3303,17 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Los tres bloques, entre la entrada y las cifras. Van en <h2> y no en
+    // <h3>: aquí encima solo está el <h1> de la portada, y saltar de h1 a h3
+    // deja un hueco en el esquema por el que un lector de pantalla recorre la
+    // página. El tamaño lo pone la hoja de estilos, así que se ven igual.
+    var pilares = ((intro && intro.highlights) || [])
+      .map(function (p) {
+        return '<div class="pillar"><h2>' + esc(p.title) + '</h2><p>' +
+          esc(p.text) + '</p></div>';
+      })
+      .join('');
+
     return (
       '<div class="shell">' +
         '<div class="hero__inner">' +
@@ -3243,28 +3327,29 @@ window.MBB = window.MBB || {};
           '</div>' +
           '<div class="hero__media" data-reveal style="--d:100ms">' + media + '</div>' +
         '</div>' +
+        (pilares ? '<div class="pillars" data-reveal>' + pilares + '</div>' : '') +
         '<div class="hero__facts" data-reveal>' + facts + '</div>' +
       '</div>'
     );
   };
 
-  /* --- Section 2: event intro + programme -------------------------------- */
-  MBB.EventIntro = function (intro, site) {
-    var items = intro.highlights
-      .map(function (h) {
-        return '<div class="pillar"><h3>' + esc(h.title) + '</h3><p>' + esc(h.text) + '</p></div>';
-      })
-      .join('');
-
-    return (
-      '<div class="section-head" data-reveal>' +
-        '<h2 class="h-1">' + esc(intro.title) + '</h2>' +
-        '<p class="lead measure">' + esc(intro.lead) + '</p>' +
-        '<p style="margin-top:1.5rem">' + MBB.CalendarButton(site.event.calendar) + '</p>' +
-      '</div>' +
-      '<div class="pillars" data-reveal style="--d:100ms">' + items + '</div>'
-    );
-  };
+  /* --- AQUÍ HABÍA UNA SECCIÓN, Y SE QUITÓ --------------------------------
+   *
+   * Se llamaba "Match Bilbao Bizkaia 2026" y llevaba un titular, un párrafo de
+   * entrada, el botón de añadir al calendario y los tres bloques destacados.
+   *
+   * El párrafo decía casi lo mismo que la entrada de la portada, tres pantallas
+   * más arriba, y el titular repetía el nombre del evento que ya está en el
+   * logotipo, en la portada y en la pestaña del navegador. Quien bajaba se
+   * encontraba leyendo dos veces lo mismo y concluía que se había perdido.
+   *
+   * No se tiró nada de lo que servía, se repartió:
+   *   · los tres bloques → MBB.Hero, entre la entrada y las cifras;
+   *   · el botón de añadir al calendario → MBB.Programme, en su barra.
+   *
+   * El texto sigue en data/content.js, sin dibujarse. No estorba y es lo que
+   * hay que recuperar si algún día se quiere volver atrás.
+   */
 
 
   /* --- "Add to calendar": one date, four destinations --------------------- */
@@ -3560,7 +3645,12 @@ window.MBB = window.MBB || {};
    * of their own, the split lives inside that day, because it is a property of
    * the day and not a way of reading the programme.
    */
-  MBB.Programme = function (programme) {
+  /**
+   * @param {object} programme  window.MBB.programme
+   * @param {object} site       window.MBB.site — solo para la fecha del evento
+   *                            que necesita el botón de añadir al calendario.
+   */
+  MBB.Programme = function (programme, site) {
     var days = programme.days;
 
     /* --- shared pieces -------------------------------------------------- */
@@ -3765,9 +3855,23 @@ window.MBB = window.MBB || {};
             '<button class="prog__view" type="button" data-view="overview" aria-pressed="true">Overview</button>' +
             '<button class="prog__view" type="button" data-view="detail" aria-pressed="false">Day by day</button>' +
           '</div>' +
-          '<button class="btn btn--sm" type="button" data-ics="all">' +
-            ICONS.calendar + 'Add the full programme' +
-          '</button>' +
+          // DOS BOTONES DE CALENDARIO, Y NO SON LO MISMO.
+          //
+          // El desplegable guarda EL EVENTO: una sola cita con las fechas, y
+          // la guarda en Google, en Outlook, en Yahoo o en un archivo. Es lo
+          // que quiere quien todavía está decidiendo si viene, y por eso va
+          // delante, en rojo. Vivía en la sección que se quitó, y bajó aquí.
+          //
+          // El otro guarda EL PROGRAMA ENTERO: una cita por cada sesión de
+          // cada día. Es mucho más y lo quiere mucha menos gente, así que se
+          // queda detrás y en blanco. Antes era el único y estaba en rojo:
+          // ahora el rojo es del que la mayoría va a pulsar.
+          '<div class="prog__cals">' +
+            (site ? MBB.CalendarButton(site.event.calendar) : '') +
+            '<button class="btn btn--sm btn--outline" type="button" data-ics="all">' +
+              ICONS.calendar + 'Add the full programme' +
+            '</button>' +
+          '</div>' +
         '</div>' +
 
         '<div class="prog__pane" data-pane="detail" hidden>' +
@@ -4398,9 +4502,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
         aviso: esAviso
       });
     });
-    into('hero', function () { return MBB.Hero(MBB.site); });
-    into('event', function () { return MBB.EventIntro(MBB.eventIntro, MBB.site); });
-    into('programme', function () { return MBB.Programme(MBB.programme); });
+    into('hero', function () { return MBB.Hero(MBB.site, MBB.eventIntro); });
+    into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });
     into('presentation', function () { return MBB.Presentation(MBB.presentation); });
     into('editions', function () { return MBB.Editions(MBB.editions); });
     // El directorio se le pasa a Experts en vez de pegarlo detrás: así el
@@ -4470,10 +4573,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       if (e.key === 'Escape') closeMenu();
     });
     window.addEventListener('resize', function () {
-      // El mismo punto en el que el CSS despliega el menú (1250px). Si los dos
+      // El mismo punto en el que el CSS despliega el menú (1275px). Si los dos
       // números no coinciden, al ensanchar la ventana el menú se queda abierto
       // por detrás de una cabecera que ya no tiene botón para cerrarlo.
-      if (window.innerWidth > 1250) closeMenu();
+      if (window.innerWidth > 1275) closeMenu();
     });
 
     var sections = links
@@ -4844,6 +4947,43 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
      funciona sin nosotros. Lo único que falta es que se cierre al pulsar fuera
      o al darle a Escape, que es lo que cualquiera espera de un desplegable y
      lo que <details> no hace por su cuenta. */
+  /**
+   * Si el menú recién abierto se sale por debajo de la pantalla, se sube la
+   * página lo justo para que se vea entero.
+   *
+   * El menú se abre HACIA ABAJO, y desde que el botón vive en la barra del
+   * programa puede quedar a media pantalla de altura: se pulsa, se despliega
+   * por debajo del borde y parece que no ha pasado nada. Sigue estando ahí
+   * —basta con bajar— pero nadie baja para buscar algo que no sabe que se ha
+   * abierto.
+   *
+   * Se mueve lo mínimo, y solo cuando de verdad no cabe: si el menú entero ya
+   * se ve, la página no se mueve. El salto es seco y no animado a propósito:
+   * son unos pocos píxeles con un menú ya abierto delante, y deslizarlos poco
+   * a poco se lee como que la página se mueve sola.
+   */
+  function aLaVista(d) {
+    var menu = d.querySelector('.cal__menu');
+    if (!menu) return;
+    // Hasta el siguiente fotograma el menú todavía no tiene medidas.
+    requestAnimationFrame(function () {
+      var c = menu.getBoundingClientRect();
+      var sobra = c.bottom - (window.innerHeight - 16);
+      if (sobra <= 0) return;
+      // La hoja de estilos pide desplazamiento suave para toda la página, que
+      // es lo que se quiere al saltar de una sección a otra desde el menú. Aquí
+      // no: son unos pocos píxeles con el desplegable ya abierto delante, y
+      // verlos deslizarse se lee como que la página se mueve sola. `instant`
+      // se salta esa regla; si un navegador antiguo no lo entiende, se cae al
+      // desplazamiento de siempre, que también deja el menú a la vista.
+      try {
+        window.scrollBy({ top: sobra, behavior: 'instant' });
+      } catch (e) {
+        window.scrollBy(0, sobra);
+      }
+    });
+  }
+
   function initCalendarMenus() {
     // Los bloques que aún están entrando llevan un `transform`, y un elemento
     // transformado se dibuja por encima de uno que solo tiene z-index. Durante
@@ -4855,6 +4995,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       // `toggle` no burbujea, así que se escucha en cada uno.
       d.addEventListener('toggle', function () {
         bloque.classList.toggle('cal-encima', d.open);
+        if (d.open) aLaVista(d);
       });
     });
 
