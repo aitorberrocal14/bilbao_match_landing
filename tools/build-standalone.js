@@ -120,7 +120,7 @@ const router = `
 
     view.innerHTML = MBB.ExhibitorPage(x, MBB.exhibitorCategories, relatedTo(x), '');
     // Rewrite the links that point at the folder version of the site.
-    Array.prototype.forEach.call(view.querySelectorAll('a[href$="index.html#exhibitors"]'),
+    Array.prototype.forEach.call(view.querySelectorAll('a[href$="#exhibitors"]'),
       function (a) { a.setAttribute('href', '#exhibitors'); });
 
     main.hidden = true;

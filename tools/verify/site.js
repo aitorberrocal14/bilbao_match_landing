@@ -673,7 +673,7 @@ function check(etiqueta, ok, detalle) {
     (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);
   check('sin JavaScript, el alta y la vuelta siguen a mano',
     crudo.enlaces.some((h) => /registration/.test(h)) &&
-    crudo.enlaces.some((h) => /^index\.html$/.test(h)), crudo.enlaces.join(' '));
+    crudo.enlaces.some((h) => /^\.\/$/.test(h)), crudo.enlaces.join(' '));
 
   const p = await aviso.evaluate(() => {
     const internos = [...document.querySelectorAll('.header a, .footer a')]
@@ -690,7 +690,7 @@ function check(etiqueta, ok, detalle) {
           !/^#legal-/.test(a.h) &&
           !document.getElementById(a.h.slice(1))
       ),
-      aPortada: internos.filter((a) => /^index\.html#/.test(a.h)).length,
+      aPortada: internos.filter((a) => /^\.\/#/.test(a.h)).length,
       // Y el Login, estando ya en la página de aviso, no puede llevar aquí
       // mismo: sería pulsar y que no pase nada.
       loginACasa: [...document.querySelectorAll('a[data-login]')]
@@ -773,8 +773,12 @@ function check(etiqueta, ok, detalle) {
         saltos: saltos,
         // Lo que todavía no se puede escribir sin que lo diga la organización.
         huecos: (t.match(/\[Insert [^\]]+\]/g) || []),
+        // La portada se nombra como carpeta, «./», no como archivo. Si alguien
+        // vuelve a escribir «index.html» aquí, la dirección que la gente copia
+        // y pega vuelve a llevar el nombre del archivo, y el buscador vuelve a
+        // ver dos páginas donde hay una.
         vuelta: [...document.querySelectorAll('a')]
-          .some((a) => /^index\.html$/.test(a.getAttribute('href') || ''))
+          .some((a) => /^\.\/$/.test(a.getAttribute('href') || ''))
       };
     });
     await lp.close();

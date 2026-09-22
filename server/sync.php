@@ -868,10 +868,10 @@ function exhibitor_body(array $x, array $categories, array $related, string $bas
         . '<ul class="ex-contact">' . $rows . '</ul>'
         . '</div>'
         . '<div class="ex-body text-justify">' . $body . '</div>'
-        . '<p class="ex-more"><a class="link-red" href="' . esc($base) . 'index.html#exhibitors">See more exhibitors &gt; &gt;</a></p>'
+        . '<p class="ex-more"><a class="link-red" href="' . esc($base) . '#exhibitors">See more exhibitors &gt; &gt;</a></p>'
         . '</div>'
         . '<div class="shell shell--wide"><div class="ex-related">' . $tiles . '</div></div>'
-        . '<div class="ex-back"><a class="btn btn--outline btn--sm" href="' . esc($base) . 'index.html#exhibitors">Back to the directory</a></div>';
+        . '<div class="ex-back"><a class="btn btn--outline btn--sm" href="' . esc($base) . '#exhibitors">Back to the directory</a></div>';
 }
 
 function exhibitor_page(array $x, array $categories, array $related, array $c): string

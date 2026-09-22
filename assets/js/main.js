@@ -44,9 +44,20 @@
     // solo cambia la dirección del navegador y la pantalla se queda igual.
     var esPortada = !!$('[data-mount="hero"]');
     var esAviso = !!$('[data-gate]');
+
+    // LA PORTADA SE NOMBRA COMO CARPETA, NO COMO ARCHIVO.
+    //
+    // «./» y «index.html» llevan al mismo sitio, pero el primero deja la
+    // dirección limpia —matchbilbaobizkaia.eus/#discover— y el segundo la
+    // ensucia con el nombre del archivo. Es cosmético, sí, pero esa dirección
+    // es la que la gente copia y pega en un correo o en un mensaje.
+    //
+    // Y hay algo menos cosmético: dos direcciones distintas para la misma
+    // página —con y sin index.html— son dos páginas para un buscador.
+    var raiz = './';
     into('header', function () {
       return MBB.Header(MBB.site, {
-        home: esPortada ? '' : 'index.html',
+        home: esPortada ? '' : raiz,
         aviso: esAviso
       });
     });
@@ -68,7 +79,7 @@
     into('discover', function () { return MBB.Discover(MBB.discover); });
     into('contact', function () { return MBB.Contact(MBB.site); });
     into('footer', function () {
-      return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
+      return MBB.Footer(MBB.site, { home: esPortada ? '' : raiz, aviso: esAviso });
     });
     // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
     // Si la plataforma sigue cerrada no hay nada que hacer. El día que abra,

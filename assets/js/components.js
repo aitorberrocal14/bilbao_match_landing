@@ -159,7 +159,7 @@ window.MBB = window.MBB || {};
         '<p class="gate__actions">' +
           '<a class="btn btn--lg" href="' + esc(site.login.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(site.login.label) + '</a>' +
-          '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
+          '<a class="btn btn--lg btn--outline" href="./">Back to the site</a>' +
         '</p>' +
         (correo
           ? '<p class="gate__help">Questions about your registration? Write to ' +
@@ -228,7 +228,7 @@ window.MBB = window.MBB || {};
     // expositor, la de aviso de la plataforma— hay que nombrar la portada, o
     // el enlace solo cambia la dirección del navegador y no lleva a ninguna
     // parte: la pantalla se queda exactamente igual, sin decir por qué.
-    var portada = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    var portada = opts.home != null ? opts.home : base;
 
     var links = site.nav
       .map(function (n) {
@@ -1197,11 +1197,11 @@ window.MBB = window.MBB || {};
         '</div>' +
         '<div class="ex-body text-justify">' + body + '</div>' +
         '<p class="ex-more"><a class="link-red" href="' + esc(base) +
-          'index.html#exhibitors">See more exhibitors &gt; &gt;</a></p>' +
+          '#exhibitors">See more exhibitors &gt; &gt;</a></p>' +
       '</div>' +
       '<div class="shell shell--wide"><div class="ex-related">' + relatedTiles + '</div></div>' +
       '<div class="ex-back"><a class="btn btn--outline btn--sm" href="' + esc(base) +
-        'index.html#exhibitors">Back to the directory</a></div>'
+        '#exhibitors">Back to the directory</a></div>'
     );
   };
 
@@ -1336,7 +1336,7 @@ window.MBB = window.MBB || {};
     var base = opts.base || '';
     // Mismo asunto que en la cabecera: desde una página que no es la portada,
     // "#discover" no lleva a ninguna parte. Hay que nombrarla.
-    var home = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    var home = opts.home != null ? opts.home : base;
     // Y lo mismo que arriba: en la página de aviso, un Login que lleva a la
     // página de aviso es un enlace que no hace nada.
     var conLogin = !(opts.aviso && !MBB.platformOpen(site));

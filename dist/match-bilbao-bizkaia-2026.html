@@ -3068,7 +3068,7 @@ window.MBB = window.MBB || {};
         '<p class="gate__actions">' +
           '<a class="btn btn--lg" href="' + esc(site.login.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(site.login.label) + '</a>' +
-          '<a class="btn btn--lg btn--outline" href="index.html">Back to the site</a>' +
+          '<a class="btn btn--lg btn--outline" href="./">Back to the site</a>' +
         '</p>' +
         (correo
           ? '<p class="gate__help">Questions about your registration? Write to ' +
@@ -3137,7 +3137,7 @@ window.MBB = window.MBB || {};
     // expositor, la de aviso de la plataforma— hay que nombrar la portada, o
     // el enlace solo cambia la dirección del navegador y no lleva a ninguna
     // parte: la pantalla se queda exactamente igual, sin decir por qué.
-    var portada = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    var portada = opts.home != null ? opts.home : base;
 
     var links = site.nav
       .map(function (n) {
@@ -4106,11 +4106,11 @@ window.MBB = window.MBB || {};
         '</div>' +
         '<div class="ex-body text-justify">' + body + '</div>' +
         '<p class="ex-more"><a class="link-red" href="' + esc(base) +
-          'index.html#exhibitors">See more exhibitors &gt; &gt;</a></p>' +
+          '#exhibitors">See more exhibitors &gt; &gt;</a></p>' +
       '</div>' +
       '<div class="shell shell--wide"><div class="ex-related">' + relatedTiles + '</div></div>' +
       '<div class="ex-back"><a class="btn btn--outline btn--sm" href="' + esc(base) +
-        'index.html#exhibitors">Back to the directory</a></div>'
+        '#exhibitors">Back to the directory</a></div>'
     );
   };
 
@@ -4245,7 +4245,7 @@ window.MBB = window.MBB || {};
     var base = opts.base || '';
     // Mismo asunto que en la cabecera: desde una página que no es la portada,
     // "#discover" no lleva a ninguna parte. Hay que nombrarla.
-    var home = opts.home != null ? opts.home : (base ? base + 'index.html' : '');
+    var home = opts.home != null ? opts.home : base;
     // Y lo mismo que arriba: en la página de aviso, un Login que lleva a la
     // página de aviso es un enlace que no hace nada.
     var conLogin = !(opts.aviso && !MBB.platformOpen(site));
@@ -4381,9 +4381,20 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     // solo cambia la dirección del navegador y la pantalla se queda igual.
     var esPortada = !!$('[data-mount="hero"]');
     var esAviso = !!$('[data-gate]');
+
+    // LA PORTADA SE NOMBRA COMO CARPETA, NO COMO ARCHIVO.
+    //
+    // «./» y «index.html» llevan al mismo sitio, pero el primero deja la
+    // dirección limpia —matchbilbaobizkaia.eus/#discover— y el segundo la
+    // ensucia con el nombre del archivo. Es cosmético, sí, pero esa dirección
+    // es la que la gente copia y pega en un correo o en un mensaje.
+    //
+    // Y hay algo menos cosmético: dos direcciones distintas para la misma
+    // página —con y sin index.html— son dos páginas para un buscador.
+    var raiz = './';
     into('header', function () {
       return MBB.Header(MBB.site, {
-        home: esPortada ? '' : 'index.html',
+        home: esPortada ? '' : raiz,
         aviso: esAviso
       });
     });
@@ -4405,7 +4416,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
     into('discover', function () { return MBB.Discover(MBB.discover); });
     into('contact', function () { return MBB.Contact(MBB.site); });
     into('footer', function () {
-      return MBB.Footer(MBB.site, { home: esPortada ? '' : 'index.html', aviso: esAviso });
+      return MBB.Footer(MBB.site, { home: esPortada ? '' : raiz, aviso: esAviso });
     });
     // El aviso de platform.html viene escrito en el HTML y ya se está leyendo.
     // Si la plataforma sigue cerrada no hay nada que hacer. El día que abra,
@@ -4998,7 +5009,7 @@ window.MBB.site.login.opensAt = '';
 
     view.innerHTML = MBB.ExhibitorPage(x, MBB.exhibitorCategories, relatedTo(x), '');
     // Rewrite the links that point at the folder version of the site.
-    Array.prototype.forEach.call(view.querySelectorAll('a[href$="index.html#exhibitors"]'),
+    Array.prototype.forEach.call(view.querySelectorAll('a[href$="#exhibitors"]'),
       function (a) { a.setAttribute('href', '#exhibitors'); });
 
     main.hidden = true;

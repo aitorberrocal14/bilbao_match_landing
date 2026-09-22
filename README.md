@@ -13,6 +13,13 @@ open index.html          # works straight from the file system
 python3 -m http.server   # or serve the folder, if you prefer
 ```
 
+Links back to the front page name the **folder**, `./`, not `index.html`, so
+that the address people copy and paste stays clean. A web server turns `./`
+into the front page; opening the files directly from disk does not, so from
+`platform.html` or a legal page the *Back to the site* button lands on a folder
+listing. Serve the folder — or use the single-file copy in
+`dist/` — if you need to click around offline.
+
 Or open the repository in **GitHub Codespaces** (green *Code* button → *Codespaces*
 → *Create codespace*). The site starts on its own and the preview opens: no
 download, no install, and it works on a private repository. See
