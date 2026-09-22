@@ -402,9 +402,16 @@ p:last-child { margin-bottom: 0; }
 .header[data-menu="open"] .burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
 /* 7. HERO ================================================================== */
+/* ARRIBA MENOS QUE ABAJO, Y A PROPÓSITO.
+   Antes eran 112px por los dos lados. Los de abajo separan la portada de la
+   sección siguiente y hacen falta; los de arriba caían debajo de una cabecera
+   que ya mide 93px, así que lo primero que veía quien abría la web eran 205px
+   de blanco. Y ese blanco se pagaba al final: en un portátil corriente las
+   cifras —4 días, 1:1— se quedaban por debajo del borde de la pantalla.
+   Lo que se recorta aquí no se le quita a nada: se le quita al hueco. */
 .hero {
   position: relative;
-  padding-block: clamp(3.5rem, 8vw, 7rem);
+  padding-block: clamp(1.75rem, 3.5vw, 3rem) clamp(3.5rem, 8vw, 7rem);
   overflow: hidden;
 }
 .hero__inner {
@@ -448,8 +455,8 @@ p:last-child { margin-bottom: 0; }
   /* Adapts to however many figures are configured — three today, four before */
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 1rem;
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(1.75rem, 3vw, 2.5rem);
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
   border-top: 1px solid var(--line);
 }
 .hero__fact .v {
@@ -1002,8 +1009,12 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: clamp(1.25rem, 3vw, 2.5rem);
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(2rem, 4vw, 3rem);
+  /* La raya de separación ya dice dónde acaba un bloque y empieza el otro, así
+     que el hueco no tiene que decirlo otra vez. Eran 112px entre la entrada y
+     estos tres bloques, y otros 104 hasta las cifras: 216px de nada en la
+     parte de la web que más gente ve y menos gente baja. */
+  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
+  padding-top: clamp(1.5rem, 3vw, 2rem);
   border-top: 1px solid var(--line);
 }
 .pillar h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }

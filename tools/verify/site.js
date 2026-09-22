@@ -663,6 +663,41 @@ function check(etiqueta, ok, detalle) {
 
   await cab.close();
 
+  /* --- La portada, en una pantalla de portátil ----------------------------- */
+  // La portada empezaba con 205px de blanco —93 de cabecera y 112 de hueco— y
+  // ese blanco se pagaba al final: las cifras se quedaban por debajo del borde
+  // de la pantalla en un portátil corriente, y había que bajar para saber que
+  // estaban. Recortado el hueco, caben.
+  //
+  // La medida es a una altura concreta a propósito: 810px de alto es lo que
+  // deja un portátil de los normales con el navegador maximizado. Si algún día
+  // esto falla no es necesariamente un error —un bloque más o un texto más
+  // largo también lo harían fallar—, pero entonces conviene saberlo y decidir,
+  // en vez de enterarse por una captura.
+  console.log('\n--- la portada en una pantalla de portátil ---');
+
+  const port = await navegador.newContext({ viewport: { width: 1656, height: 810 } });
+  const pp = await port.newPage();
+  await pp.goto(PAGINA);
+  await pp.waitForTimeout(900);
+  const alto = await pp.evaluate(() => {
+    document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'));
+    const c = document.querySelector('.hero__facts').getBoundingClientRect();
+    const h = document.querySelector('.header').getBoundingClientRect();
+    const k = document.querySelector('.hero__dates').getBoundingClientRect();
+    return {
+      cifras: Math.round(c.bottom),
+      hueco: Math.round(k.top - h.bottom),
+      vh: window.innerHeight
+    };
+  });
+  await port.close();
+
+  check('las cifras se ven sin bajar', alto.cifras <= alto.vh,
+    alto.cifras + 'px de ' + alto.vh);
+  check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
+    alto.hueco + 'px entre la cabecera y la primera línea');
+
   /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
   // Entrar y darse de alta son dos acciones distintas, y la que interesa
   // cambia el día que abre la plataforma. Antes de abrir, entrar no se puede:
