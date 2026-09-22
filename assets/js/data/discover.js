@@ -168,6 +168,32 @@ window.MBB.discover = {
    Replace `youtubeId` with the real video IDs. The player is only loaded when
    the visitor clicks play, which keeps the page fast and avoids third-party
    cookies on first load.
+
+   CÓMO CAMBIAR EL FOTOGRAMA DE PORTADA
+   ------------------------------------
+   Con `thumbnail` vacío, la portada la elige YouTube. Para poner otra:
+
+     1. Consigue la imagen. Lo mejor es exportar el fotograma del vídeo
+        original. Si solo tienes YouTube: páusalo donde quieras, pulsa `f`
+        para pantalla completa, APARTA EL RATÓN y espera unos segundos a que
+        los mandos se desvanezcan, y entonces captura la pantalla. Si no
+        esperas, la barra de progreso sale en la imagen y se verá en la web.
+
+     2. Recórtala a 16:9 y guárdala a 1200 x 675 px. El marco se ve a unos
+        580px, así que 1200 es el doble y se ve nítida en pantallas de alta
+        densidad. Más grande solo pesa.
+
+     3. Déjala en assets/img/photos/ y escribe aquí su ruta, por ejemplo:
+          thumbnail: 'assets/img/photos/match-asia-2024.jpg'
+
+   OJO CON EL CENTRO: el botón de play se dibuja encima, centrado. Evita un
+   fotograma con una cara o un texto justo en medio.
+
+   Y OJO CON EL RECORTE: el marco rellena y recorta (object-fit: cover), así
+   que una imagen que no sea 16:9 perderá los bordes sin avisar.
+
+   Vaciar la línea devuelve la portada a YouTube. Es un interruptor, se puede
+   ir y volver.
    ========================================================================== */
 
 window.MBB.editions = [
@@ -185,13 +211,6 @@ window.MBB.editions = [
     caption:
       'The 2024 edition with the Asian travel trade: agendas, destination ' +
       'experiences and the professionals who welcome them.',
-    // El fotograma elegido por el equipo, guardado aquí en vez de dejar que lo
-    // elija YouTube. Dos razones: la imagen es nuestra y no cambia si alguien
-    // toca el vídeo en YouTube, y no hace falta llamar a i.ytimg.com para
-    // dibujar la portada, que es una conexión menos a un tercero antes de que
-    // nadie haya pedido ver nada.
-    //
-    // Vacía esta línea y vuelve a coger la de YouTube: es un interruptor.
-    thumbnail: 'assets/img/photos/match-asia-2024.jpg'
+    thumbnail: ''
   }
 ];
