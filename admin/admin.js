@@ -170,11 +170,18 @@
   };
 
   // Which globals belong in which file, in the order the file declares them.
+  //
+  // exhibitors.js NO está aquí. Esa lista la escribe server/sync.php con lo
+  // que llega de Meetmaps y la reescribe entera cada hora, así que un cambio
+  // hecho desde el panel duraría hasta el siguiente sondeo y desaparecería sin
+  // avisar. El servidor ya se niega a guardarla; esto evita además que el
+  // panel la ofrezca y luego falle al publicar.
+  //
+  // La pantalla de expositores sigue estando, para mirar y para buscar.
   var FILES = [
     { name: 'site.js', keys: ['site'] },
     { name: 'content.js', keys: ['eventIntro', 'presentation', 'experts'] },
     { name: 'programme.js', keys: ['programme'] },
-    { name: 'exhibitors.js', keys: ['exhibitorCategories', 'exhibitors'] },
     { name: 'discover.js', keys: ['discover', 'editions'] }
   ];
 

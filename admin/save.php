@@ -34,9 +34,23 @@ const ALLOWED = [
     'site.js',
     'content.js',
     'programme.js',
-    'exhibitors.js',
     'discover.js',
 ];
+
+/*
+ * exhibitors.js NO está en la lista, y es a propósito.
+ *
+ * Esa lista la escribe server/sync.php con lo que llega de Meetmaps, y la
+ * reescribe entera en cada vuelta. Si el panel pudiera guardarla, el trabajo
+ * duraría hasta el siguiente sondeo y desaparecería sin que nada avisara.
+ *
+ * El panel ya dice en su pantalla de expositores que se editen en la
+ * plataforma. Esto lo hace cumplir en vez de pedirlo: un aviso se ignora, una
+ * puerta cerrada no.
+ *
+ * Los logotipos y las fichas de expositor tampoco se tocan desde aquí por la
+ * misma razón.
+ */
 
 const MAX_BYTES = 4 * 1024 * 1024; // the largest data file is well under 1 MB
 

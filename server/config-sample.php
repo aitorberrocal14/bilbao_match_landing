@@ -132,4 +132,24 @@ return [
     // cuál de las dos cosas ha entendido.
     //
     // 'noindex' => false,   // true = no indexar · false = indexar
+
+    // ¿SIGUE MANDANDO EL REPOSITORIO SOBRE LOS TEXTOS?
+    // -------------------------------------------------------------------------
+    // Mientras se construye la web, sí: el servidor copia lo que hay en GitHub
+    // encima de la carpeta pública cada media hora. NO HAY QUE TOCAR ESTO.
+    //
+    // Llega un día —el del traspaso— en que la web se desvincula de GitHub y
+    // pasa a editarse aquí, desde el panel. A partir de ese momento deploy.php
+    // borraría ese trabajo en cada vuelta, así que se apaga:
+    //
+    //     'deploy' => false,
+    //
+    // Se apaga AQUÍ y no borrando la tarea programada, porque una tarea borrada
+    // se vuelve a crear sin pensarlo y el archivo sigue estando. Con esta línea,
+    // quien lo ejecute a mano encuentra una explicación en el registro.
+    //
+    // La sincronización con Meetmaps no se ve afectada: es otro archivo y no usa
+    // git. Los expositores siguen llegando.
+    //
+    // El procedimiento completo está en SERVIDOR-PASO-A-PASO.md, Parte 8.
 ];

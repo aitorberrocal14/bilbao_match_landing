@@ -277,9 +277,38 @@ if ($antes !== $ahora && !in_array('--reexec', $argv, true)) {
     }
 }
 
+/* --- 1c. ¿Sigue mandando el repositorio? ------------------------------------
+   Llega un día en que la web se desvincula de GitHub: el repositorio deja de
+   ser la fuente de los textos y pasa a serlo el servidor, editado desde el
+   panel. A partir de ese momento ESTE ARCHIVO ES UN PELIGRO — copia el
+   repositorio encima de la carpeta pública y se lleva por delante todo lo que
+   se haya editado, sin que nada dé error.
+
+   Se apaga escribiendo en config.php:
+
+       'deploy' => false,
+
+   Y se apaga AHÍ, y no borrando la tarea programada, porque una tarea borrada
+   se vuelve a crear sin pensarlo y este archivo sigue estando. Así, si alguien
+   lo ejecuta a mano dentro de dos años, se encuentra una explicación en vez de
+   un desastre.
+
+   La sincronización con Meetmaps NO se toca: sync.php es otro archivo, no usa
+   git, y los expositores tienen que seguir llegando. */
+
+$MBB_CONF = read_config();
+if (array_key_exists('deploy', $MBB_CONF) && !$MBB_CONF['deploy']) {
+    say('La publicación desde el repositorio está APAGADA en config.php.');
+    say('  Los textos de esta web se editan en el servidor, desde el panel.');
+    say('  Copiar el repositorio encima borraría ese trabajo, así que no se hace.');
+    say('  Para volver a encenderla: quita la línea \'deploy\' => false de config.php.');
+    flush_log();
+    exit(0);
+}
+
 /* --- 2. Comprobar antes de copiar ------------------------------------------- */
 
-$WEB = web_root(read_config(), $argv);
+$WEB = web_root($MBB_CONF, $argv);
 if ($WEB === '') {
     die_with('No se encuentra la carpeta pública junto a ' . dirname(MBB_REPO) . '.');
 }

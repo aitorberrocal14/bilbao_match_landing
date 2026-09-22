@@ -549,6 +549,143 @@ Y **Ctrl+F5** la primera vez, por si el navegador guarda algo de antes.
 
 ---
 
+# PARTE 8 · Cortar el cordón con GitHub
+
+Esto es el final del encargo: **la web deja de depender de GitHub y se queda
+viviendo en el servidor**, editable desde el panel por quien no sabe —ni tiene
+por qué saber— qué es un repositorio.
+
+**No lo hagas hasta que la web esté terminada.** Mientras haya cambios de
+diseño o de estructura pendientes, el repositorio sigue siendo mucho más
+cómodo.
+
+## Qué cambia
+
+Hasta ahora manda el repositorio: el servidor copia lo que hay en GitHub encima
+de la carpeta pública cada media hora. Después, manda el servidor.
+
+| | Antes | Después |
+|---|---|---|
+| Los textos | GitHub | El panel, en el servidor |
+| Los expositores | Meetmaps | Meetmaps (no cambia) |
+| Publicar | Solo, cada media hora | Al pulsar «Publicar» |
+
+## Lo que se pierde, dicho claro
+
+**El historial.** Hoy cualquier error se deshace en un clic: está todo
+guardado, versión por versión. Después no. Si alguien borra un párrafo y lo
+publica, se ha ido.
+
+Queda una red pequeña: al publicar, el panel guarda la versión anterior de cada
+archivo como `.bak` en la misma carpeta. Sirve para deshacer **el último**
+cambio, no para volver a como estaba en marzo.
+
+**Así que antes de cortar, hay que tener copias de seguridad del hosting
+activadas y saber cómo se restauran.** Es lo que sustituye al historial.
+
+## El orden importa
+
+Hacerlo en otro orden deja la web sin poder editarse, o el panel abierto a
+internet sin contraseña.
+
+### Paso 8.1 · Terminar la web
+
+Que no quede ningún `[Insert]`, que las suites pasen y que la web publicada sea
+la buena. Desde aquí en adelante, cada cambio cuesta más.
+
+### Paso 8.2 · Devolver el panel a la web
+
+En `server/deploy.php`: quitar `'admin'` de `$RETIRAR` y añadirlo a `$DIRS`.
+Subir el cambio y esperar a que el despliegue lo lleve.
+
+### Paso 8.3 · Ponerle contraseña a la carpeta — ANTES de seguir
+
+Panel del hosting → **Protección de directorios** (*Directory privacy*) →
+carpeta `www/admin` → crear usuario y contraseña.
+
+**Comprueba que funciona**: abre `.../admin/` en una ventana privada. Si no te
+pide usuario y contraseña, **para aquí**. El panel edita la web entera; sin esa
+puerta, cualquiera que escriba la dirección puede cambiar el programa del
+evento.
+
+### Paso 8.4 · Dar de alta la contraseña de publicación
+
+En el servidor, copiar `admin/admin-config-sample.php` a `admin/admin-config.php`
+y poner dentro una contraseña. Sin ese archivo, el panel no guarda en el
+servidor: descarga archivos, que ya no es lo que queremos.
+
+Son dos contraseñas distintas y las dos hacen falta: la de la carpeta impide
+llegar, la de publicación impide guardar.
+
+### Paso 8.5 · Probar que el panel guarda DE VERDAD
+
+Todavía con el despliegue encendido:
+
+1. Abre el panel, cambia un texto cualquiera y pulsa **Publicar**
+2. Recarga la web y compruébalo
+3. **Espera a que pase el despliegue** (media hora) y vuelve a mirar
+
+Si el cambio ha desaparecido, es que el despliegue lo ha pisado — que es
+exactamente lo que el paso siguiente evita. Si sigue ahí, es que ese archivo no
+le tocaba a esta vuelta; sigue igualmente.
+
+### Paso 8.6 · Apagar la publicación desde el repositorio
+
+En `/home/matchbilbaobizkaia/config.php`, añadir:
+
+```php
+'deploy' => false,
+```
+
+**Y ya está: no borres la tarea programada.** Apagarlo aquí es mejor que borrar
+el cron, porque un cron borrado se vuelve a crear sin pensarlo y `deploy.php`
+seguiría estando. Así, si alguien lo ejecuta a mano dentro de dos años, se
+encuentra esto en el registro en vez de un desastre:
+
+```
+La publicación desde el repositorio está APAGADA en config.php.
+  Los textos de esta web se editan en el servidor, desde el panel.
+  Copiar el repositorio encima borraría ese trabajo, así que no se hace.
+```
+
+**La tarea de `sync.php` NO se toca.** Los expositores tienen que seguir
+llegando de Meetmaps, y eso no usa git para nada.
+
+### Paso 8.7 · Repetir la prueba del 8.5
+
+Cambia otro texto, publica, y espera a que pase la hora del despliegue. Ahora
+el cambio tiene que seguir ahí. Si sigue, el cordón está cortado.
+
+### Paso 8.8 · Dejarles el repositorio guardado
+
+En GitHub: **Code → Download ZIP**. Ese archivo lleva la web entera, la
+documentación, las herramientas y el panel.
+
+Guárdalo donde lo vayan a encontrar dentro de tres años — la unidad compartida
+del departamento, no un correo. Y **escribe al lado qué es y para qué sirve**,
+porque un zip llamado `bilbao_match_landing-main.zip` no se lo dice a nadie:
+
+> Copia completa de la web de Match Bilbao Bizkaia a fecha de [FECHA].
+> La web funciona sola en el servidor; esto es el respaldo y la documentación.
+> Para entender cómo está montada, abrir SERVIDOR-PASO-A-PASO.md.
+> Para editar textos: panel en https://…/admin/ (contraseña en [DÓNDE]).
+
+### Paso 8.9 · Cerrar tus accesos
+
+Lo de `CIERRE-DEL-TRASPASO.md`: quitar tu correo de los contactos del panel del
+hosting, del dominio y de Meetmaps, y borrar los secretos que quedaran en
+GitHub.
+
+## Si algún día hay que volver atrás
+
+Se quita `'deploy' => false` de `config.php` y el repositorio vuelve a mandar.
+Pero **antes hay que llevar al repositorio los textos que se hayan editado en
+el servidor**, o el primer despliegue los borrará todos. Los archivos son los
+cuatro de `assets/js/data/`: `site.js`, `content.js`, `programme.js` y
+`discover.js`.
+
+---
+
 # Cómo queda al final
 
 **Dos tareas programadas**, y nada más:
