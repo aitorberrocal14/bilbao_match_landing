@@ -257,6 +257,21 @@ p:last-child { margin-bottom: 0; }
   transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
 }
 .cal__menu small { display: block; font-size: 0.75rem; color: var(--grey-light); }
+
+/* Los dos encabezados del menú: "las fechas" y "el programa entero". No se
+   pulsan, solo dicen de qué va cada mitad. */
+.cal__group {
+  padding: 0.5rem 0.8rem 0.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+.cal__group--sep {
+  margin-top: 0.35rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+}
 .cal__menu a:focus-visible,
 .cal__menu button:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 @media (hover: hover) {
@@ -649,12 +664,6 @@ p:last-child { margin-bottom: 0; }
   gap: 1rem;
   margin-bottom: clamp(1.75rem, 3vw, 2.5rem);
 }
-
-/* Los dos botones de calendario del programa: el desplegable —guardar las
-   fechas del evento— y el que se descarga el programa entero. Van juntos y en
-   ese orden, y en pantalla estrecha se ponen uno debajo del otro en vez de
-   encogerse hasta partir sus textos. */
-.prog__cals { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
 
 /* A bordered pair reads unmistakably as two states of one thing, which a row
    of plain text buttons does not. */

@@ -259,8 +259,12 @@
       btn.addEventListener('click', function () {
         var day = btn.dataset.ics;
         var text = MBB.ics(MBB.programme, { day: day, group: group });
+        // El del evento entero se llama «match-bilbao-bizkaia-2026.ics», y son
+        // dos archivos distintos que ahora se descargan del mismo menú. Con el
+        // mismo nombre, el segundo llega como «…(1).ics» y en la carpeta de
+        // descargas no hay manera de saber cuál lleva las sesiones.
         var name =
-          'match-bilbao-bizkaia-2026' + (day === 'all' ? '' : '-' + day) + '.ics';
+          'match-bilbao-bizkaia-2026-' + (day === 'all' ? 'programme' : day) + '.ics';
 
         // A Blob rather than a data: URI, so the file arrives with its own
         // name and the whole programme is not pushed through a URL.
@@ -273,6 +277,12 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+
+        // El del programa entero vive dentro del desplegable de calendario.
+        // Un menú que se queda abierto después de haber hecho lo que se le
+        // pidió invita a volver a pulsar, y a descargar el archivo dos veces.
+        var menu = btn.closest('details.cal');
+        if (menu) menu.open = false;
       });
     });
   }

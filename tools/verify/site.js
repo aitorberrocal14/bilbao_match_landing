@@ -225,6 +225,13 @@ function check(etiqueta, ok, detalle) {
           return e === encima || e.contains(encima);
         }).length,
         descarga: document.querySelectorAll('.cal__menu [data-ics-event]').length,
+        // El programa entero se descarga desde este mismo menú, debajo de su
+        // propio encabezado. Tuvo un botón aparte al lado del desplegable
+        // durante media tarde: dos botones con el mismo icono, casi del mismo
+        // tamaño, y había que leerlos los dos para saber cuál era cuál.
+        programa: document.querySelectorAll('.cal__menu [data-ics="all"]').length,
+        grupos: [...document.querySelectorAll('.cal__menu .cal__group')]
+          .map((e) => e.textContent.trim()),
         fuera: opciones.filter((e) => e.target === '_blank' && /noopener/.test(e.rel)).length,
         dentroDePantalla: opciones.every((e) => {
           const c = e.getBoundingClientRect();
@@ -240,6 +247,8 @@ function check(etiqueta, ok, detalle) {
         })(),
         // Las fechas de los tres enlaces salen de site.js, no están escritas
         // a mano: si alguien las cambia en el panel, tienen que seguirlas.
+        enLaBarra: document.querySelectorAll('.prog__bar .btn, .prog__bar .cal').length -
+          document.querySelectorAll('.prog__bar .cal .btn').length,
         googleSigueALosDatos: (() => {
           const a = document.querySelector('.cal__menu a');
           const c = window.MBB.site.event.calendar;
@@ -250,11 +259,18 @@ function check(etiqueta, ok, detalle) {
       };
     });
 
-    check('el calendario ofrece cuatro destinos', cal.destinos === 4, cal.destinos);
-    check('los cuatro se pueden pulsar', cal.pulsables === 4,
+    check('el calendario ofrece cinco opciones', cal.destinos === 5, cal.destinos);
+    check('las cinco se pueden pulsar', cal.pulsables === 5,
       cal.pulsables + ' de ' + cal.destinos);
-    check('tres abren fuera y uno descarga', cal.fuera === 3 && cal.descarga === 1,
-      cal.fuera + ' fuera, ' + cal.descarga + ' descarga');
+    check('tres abren fuera y dos descargan',
+      cal.fuera === 3 && cal.descarga === 1 && cal.programa === 1,
+      cal.fuera + ' fuera, ' + (cal.descarga + cal.programa) + ' descargan');
+    // Sin los encabezados, "Apple Calendar" y "el programa entero" parecen dos
+    // opciones de lo mismo, y no lo son: una guarda las fechas y la otra las
+    // cuatro jornadas hora a hora.
+    check('  y dice cuál guarda qué', cal.grupos.length === 2, cal.grupos.join(' · '));
+    // Un solo botón de calendario en la barra del programa, no dos.
+    check('  desde un solo botón', cal.enLaBarra === 1, cal.enLaBarra);
     check('las fechas salen de los datos, no a mano', cal.googleSigueALosDatos);
     check('el menú no se sale de la pantalla', cal.dentroDePantalla);
     check('  ni por debajo del borde', cal.seVeEntero);
@@ -283,6 +299,30 @@ function check(etiqueta, ok, detalle) {
       check('el .ics protege las comas del lugar',
         ics.indexOf('LOCATION:' + c.location.replace(/,/g, '\\,')) > -1);
     }
+
+    // Y el programa entero, desde ese mismo menú. Tenía botón propio al lado
+    // del desplegable y se juntó aquí dentro; lo que descarga no ha cambiado,
+    // así que se comprueba que sigue llegando y que trae las sesiones, no una
+    // sola cita con las fechas —que es el otro archivo, el de arriba—.
+    await pagina.click('details.cal > summary');
+    await pagina.waitForTimeout(150);
+    const descargaProg = pagina.waitForEvent('download', { timeout: 5000 });
+    await pagina.click('.cal__menu [data-ics="all"]');
+    try {
+      const d = await descargaProg;
+      const texto = require('fs').readFileSync(await d.path(), 'utf8');
+      const citas = (texto.match(/BEGIN:VEVENT/g) || []).length;
+      // Y con OTRO nombre que el archivo de las fechas. Con el mismo, el
+      // segundo llega como «…(1).ics» y en la carpeta de descargas ya no hay
+      // forma de saber cuál es cuál.
+      check('el programa entero se descarga desde ese mismo menú',
+        citas > 5 && d.suggestedFilename() === 'match-bilbao-bizkaia-2026-programme.ics',
+        d.suggestedFilename() + ' · ' + citas + ' citas');
+    } catch (e) {
+      check('el programa entero se descarga desde ese mismo menú', false, e.message);
+    }
+    check('  y al descargar, el menú se cierra',
+      !(await pagina.evaluate(() => !!document.querySelector('details.cal[open]'))));
 
     await pagina.click('details.cal > summary');
     await pagina.keyboard.press('Escape');

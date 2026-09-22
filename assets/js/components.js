@@ -523,7 +523,16 @@ window.MBB = window.MBB || {};
    * @param {object} cal   site.event.calendar
    * @param {object} opts  { base: prefijo para el archivo .ics }
    */
-  MBB.CalendarButton = function (cal) {
+  /**
+   * @param {object} cal    site.event.calendar
+   * @param {string} extra  `<li>`s que se añaden debajo, separados y con su
+   *                        propio encabezado. Es como el programa entero entra
+   *                        en este mismo menú en vez de tener un botón aparte:
+   *                        dos botones de calendario, uno al lado del otro y
+   *                        casi iguales, obligaban a leerlos los dos para
+   *                        averiguar en qué se diferencian.
+   */
+  MBB.CalendarButton = function (cal, extra) {
     var opciones = MBB.calendarLinks(cal);
     if (!opciones.length) return '';
 
@@ -542,10 +551,19 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    // Con un solo grupo los encabezados sobran: cuatro destinos y nada más que
+    // elegir. En cuanto hay dos cosas distintas —las fechas y el programa
+    // entero— hay que decir cuál es cuál, o "Apple Calendar" y "The full
+    // programme" parecen dos opciones de lo mismo.
+    var lista = extra
+      ? '<li class="cal__group">The dates of the event</li>' + items +
+        '<li class="cal__group cal__group--sep">The whole programme</li>' + extra
+      : items;
+
     return (
       '<details class="cal">' +
         '<summary class="btn">' + ICONS.calendar + 'Add to calendar</summary>' +
-        '<ul class="cal__menu">' + items + '</ul>' +
+        '<ul class="cal__menu">' + lista + '</ul>' +
       '</details>'
     );
   };
@@ -899,23 +917,28 @@ window.MBB = window.MBB || {};
             '<button class="prog__view" type="button" data-view="overview" aria-pressed="true">Overview</button>' +
             '<button class="prog__view" type="button" data-view="detail" aria-pressed="false">Day by day</button>' +
           '</div>' +
-          // DOS BOTONES DE CALENDARIO, Y NO SON LO MISMO.
+          // UN SOLO BOTÓN DE CALENDARIO, CON LAS DOS COSAS DENTRO.
           //
-          // El desplegable guarda EL EVENTO: una sola cita con las fechas, y
-          // la guarda en Google, en Outlook, en Yahoo o en un archivo. Es lo
-          // que quiere quien todavía está decidiendo si viene, y por eso va
-          // delante, en rojo. Vivía en la sección que se quitó, y bajó aquí.
+          // Aquí hubo un momento dos botones, y era un error: "Add to
+          // calendar" y "Add the full programme", uno al lado del otro, casi
+          // del mismo tamaño y con el mismo icono. Para saber en qué se
+          // diferencian había que leerlos los dos y pensarlo, que es justo lo
+          // que un botón no debería pedir.
           //
-          // El otro guarda EL PROGRAMA ENTERO: una cita por cada sesión de
-          // cada día. Es mucho más y lo quiere mucha menos gente, así que se
-          // queda detrás y en blanco. Antes era el único y estaba en rojo:
-          // ahora el rojo es del que la mayoría va a pulsar.
-          '<div class="prog__cals">' +
-            (site ? MBB.CalendarButton(site.event.calendar) : '') +
-            '<button class="btn btn--sm btn--outline" type="button" data-ics="all">' +
-              ICONS.calendar + 'Add the full programme' +
-            '</button>' +
-          '</div>' +
+          // Y se diferencian de verdad: uno guarda LAS FECHAS —una sola cita,
+          // para quien todavía está decidiendo si viene— y el otro EL PROGRAMA
+          // ENTERO, una cita por cada sesión de cada día. Así que se juntan en
+          // el desplegable, que es donde una diferencia se puede explicar en
+          // una línea en vez de en la cara de un botón.
+          (site
+            ? MBB.CalendarButton(
+                site.event.calendar,
+                '<li><button type="button" data-ics="all">' +
+                  '<span>Every session, as a file</span>' +
+                  '<small>The four days, hour by hour</small>' +
+                '</button></li>'
+              )
+            : '') +
         '</div>' +
 
         '<div class="prog__pane" data-pane="detail" hidden>' +
