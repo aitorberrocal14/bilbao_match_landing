@@ -1315,7 +1315,14 @@ window.MBB.editions = [
     caption:
       'The 2024 edition with the Asian travel trade: agendas, destination ' +
       'experiences and the professionals who welcome them.',
-    thumbnail: ''
+    // El fotograma elegido por el equipo, guardado aquí en vez de dejar que lo
+    // elija YouTube. Dos razones: la imagen es nuestra y no cambia si alguien
+    // toca el vídeo en YouTube, y no hace falta llamar a i.ytimg.com para
+    // dibujar la portada, que es una conexión menos a un tercero antes de que
+    // nadie haya pedido ver nada.
+    //
+    // Vacía esta línea y vuelve a coger la de YouTube: es un interruptor.
+    thumbnail: 'assets/img/photos/match-asia-2024.jpg'
   }
 ];
 
