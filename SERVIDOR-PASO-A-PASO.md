@@ -676,6 +676,40 @@ Lo de `CIERRE-DEL-TRASPASO.md`: quitar tu correo de los contactos del panel del
 hosting, del dominio y de Meetmaps, y borrar los secretos que quedaran en
 GitHub.
 
+## Lo que el panel NO puede editar después del corte
+
+El panel edita cuatro archivos: los textos de la portada, el evento, el
+programa y los folletos. **Las cuatro páginas legales no están entre ellos**,
+porque no son datos: son HTML, escrito así a propósito para que se lean aunque
+falle el JavaScript.
+
+Eso significa que, una vez cortado el cordón, cambiar una coma del aviso legal
+o de la política de privacidad **ya no se hace desde el panel**. Se hace
+editando el archivo en el servidor:
+
+1. Panel del hosting → **Administrador de archivos**
+2. Entrar en la carpeta pública y abrir `privacy.html`, `cookies.html`,
+   `legal-notice.html` o `accessibility.html`
+3. Buscar el texto y cambiarlo. Es HTML: cada párrafo va entre `<p>` y `</p>`,
+   y lo único que no hay que tocar son esas etiquetas
+4. Guardar y recargar la web
+
+**Haz una copia del archivo antes de tocarlo.** No hay «deshacer».
+
+### Por eso conviene cortar DESPUÉS de la revisión jurídica
+
+Si el jurídico o el DPO devuelven cambios —y casi siempre devuelven alguno— es
+mucho más fácil aplicarlos con el repositorio todavía conectado: se cambia, se
+comprueba con las pruebas y se publica solo. Después del corte, cada corrección
+es edición manual de HTML en el servidor, sin red.
+
+Así que el orden sano es:
+
+1. Se mandan las políticas a revisar
+2. Vuelven, se aplican los cambios **con GitHub todavía conectado**
+3. Se lanza la web al dominio (Parte 7)
+4. Y entonces se corta (Parte 8)
+
 ## Si algún día hay que volver atrás
 
 Se quita `'deploy' => false` de `config.php` y el repositorio vuelve a mandar.
