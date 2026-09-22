@@ -595,6 +595,29 @@ function check(etiqueta, ok, detalle) {
   check('el paquete manual tampoco lleva el panel',
     !/admin/.test(dirsPaquete), dirsPaquete.trim());
 
+  // EL PANEL NO PUEDE ENSEÑAR A SUBIR POR FTP.
+  //
+  // El despliegue copia el repositorio encima de la carpeta pública cada media
+  // hora. Un archivo subido por FTP dura hasta el siguiente repaso y
+  // desaparece, y el registro dice «Copiados 1 archivos» como si todo hubiera
+  // ido bien. Comprobado a mano: se edita un dato en la carpeta pública, se
+  // lanza deploy.php y el cambio ya no está.
+  //
+  // Así que el panel tiene que mandar sus archivos AL REPOSITORIO. Si alguien
+  // devuelve las instrucciones antiguas, esto lo dice.
+  const panel = fs.readFileSync(path.join(ROOT, 'admin/admin.js'), 'utf8');
+  const instrucciones = (panel.match(/Conéctate por FTP[^']*/g) || [])
+    .concat(panel.match(/sube[^']*por FTP a <code>assets\/js/g) || []);
+
+  check('el panel no manda subir los datos por FTP',
+    instrucciones.length === 0, instrucciones.join(' · ') || 'ninguna instrucción de FTP');
+  check('el panel manda los cambios al repositorio',
+    /Upload files/.test(panel) && /repositorio/.test(panel));
+
+  // Y que no siga diciendo que Meetmaps está por conectar, que lo está.
+  check('el panel no dice que Meetmaps esté por conectar',
+    !/cuando se conecte Meetmaps/i.test(panel));
+
   /* --- La página de aviso, que no es la portada ---------------------------- */
   // Esto existe por un fallo que se veía perfecto y no funcionaba: en
   // platform.html el menú se dibujaba entero, pero sus enlaces eran "#discover"

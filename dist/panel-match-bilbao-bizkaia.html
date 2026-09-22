@@ -1372,9 +1372,18 @@ window.MBB.editions = [
 
    Publishing
    ----------
-   If admin/save.php answers, "Publicar" writes the files straight to the
-   server. Otherwise it downloads the ones that changed, to be uploaded by FTP
-   into assets/js/data/. Both paths produce the same files.
+   "Publicar" downloads the files that changed, and those files go into the
+   REPOSITORY — not onto the server by FTP, and not through admin/save.php.
+
+   The server publishes itself from the repository every half hour, copying
+   over whatever is in the public folder. Anything written straight there —
+   by FTP or by save.php — lasts until the next pass and then disappears,
+   with the deploy log reporting a perfectly normal run. Demonstrated: edit a
+   data file in the public folder, run deploy.php, and the edit is gone.
+
+   That is also why the panel is no longer published on the web: save.php
+   cannot run if nobody can reach it, which removes the one path that could
+   quietly lose somebody's afternoon.
    ========================================================================== */
 
 (function () {
@@ -1774,10 +1783,13 @@ window.MBB.editions = [
             '<ul class="muted">' +
               '<li><b>El diseño</b> — colores, tipografías y maquetación viven en la hoja de ' +
                 'estilos. Desde aquí no se pueden romper.</li>' +
-              '<li><b>Las imágenes</b> — se editan las rutas, no los archivos. Una foto o un ' +
-                'logo nuevo se sube por FTP a <code>assets/img/</code> y aquí se escribe su ruta.</li>' +
-              '<li><b>Los expositores, cuando se conecte Meetmaps</b> — pasarán a llegar solos ' +
-                'desde la plataforma. Hasta entonces se editan en su pantalla.</li>' +
+              '<li><b>Las imágenes</b> — se editan las rutas, no los archivos. Una foto ' +
+                'nueva se sube al repositorio, a <code>assets/img/</code>, y aquí se ' +
+                'escribe su ruta. Subida por FTP funcionaría hoy, pero no estaría en ' +
+                'el repositorio: se perdería en cuanto la web se reinstale o se mueva ' +
+                'de servidor.</li>' +
+              '<li><b>Los expositores</b> — llegan solos desde Meetmaps y se ' +
+                'reescriben cada hora. Se cambian allí, no aquí.</li>' +
             '</ul>' +
           '</div>';
       }
@@ -1863,7 +1875,7 @@ window.MBB.editions = [
           h2: 'Fondo',
           fields: [
             { t: 'image', k: 'site.hero.media.image', label: 'Fotografía',
-              hint: 'Ruta desde la raíz de la web. La imagen se sube antes por FTP a <code>assets/img/photos/</code>.' },
+              hint: 'Ruta desde la raíz de la web. La imagen se sube antes al repositorio, a <code>assets/img/photos/</code>.' },
             { t: 'text', k: 'site.hero.media.video', label: 'Vídeo (opcional)',
               hint: 'Si se rellena, sustituye a la fotografía. Ejemplo: <code>assets/video/hero.mp4</code>.' }
           ]
@@ -2130,8 +2142,11 @@ window.MBB.editions = [
               'Cambiar textos de una empresa que ya existe no lo necesita: basta con publicar. ' +
               'Pero una empresa nueva no tendrá su página hasta que alguien ejecute ' +
               '<code>node tools/build-exhibitors.js</code>. Avisa a quien lleve la parte técnica.</p>' +
-              '<p class="muted">Cuando se conecte Meetmaps, esta lista llegará sola desde la ' +
-              'plataforma y esta pantalla pasará a ser solo de consulta.</p>' }
+              '<p class="muted"><b>Meetmaps ya está conectado.</b> Esta lista la ' +
+              'reescribe la plataforma cada hora, así que lo que se edite aquí se ' +
+              'perderá en el siguiente repaso. Para cambiar los datos de una ' +
+              'empresa, se cambian EN MEETMAPS y llegan solos. Esta pantalla ' +
+              'queda para mirar.</p>' }
           ]
         },
         {
@@ -2153,7 +2168,7 @@ window.MBB.editions = [
                   hint: 'Es el nombre de su página: <code>exhibitors/&lt;identificador&gt;.html</code>. ' +
                     'Cambiarlo en una empresa que ya existe rompe el enlace publicado; no tocar sin motivo.' },
                 { t: 'image', k: 'logo', label: 'Logotipo',
-                  hint: 'Se sube antes por FTP a <code>assets/img/exhibitors/</code>.' },
+                  hint: 'Lo baja el sync desde la plataforma. No hace falta subirlo a mano.' },
                 { t: 'row', fields: [
                   { t: 'text', k: 'contactName', label: 'Persona de contacto' },
                   { t: 'text', k: 'contactRole', label: 'Cargo' }
@@ -2253,7 +2268,7 @@ window.MBB.editions = [
                 { t: 'text', k: 'subtitle', label: 'Subtítulo' },
                 { t: 'text', k: 'id', label: 'Identificador', width: 'mid' },
                 { t: 'image', k: 'cover', label: 'Portada',
-                  hint: 'Se sube por FTP a <code>assets/img/brochures/</code>.' },
+                  hint: 'Se sube antes al repositorio, a <code>assets/img/brochures/</code>.' },
                 { t: 'text', k: 'issuu', label: 'Enlace de Issuu', refresh: true,
                   hint: 'El enlace normal de Issuu. Se convierte solo en lector incrustado.' },
                 { t: 'text', k: 'pdf', label: 'Enlace al PDF', refresh: true,
@@ -2438,14 +2453,28 @@ window.MBB.editions = [
             '<p class="muted">Con eso resuelto, este panel guardará directamente en el ' +
             'servidor y no habrá que descargar ni subir nada.</p></div>'
           : '') +
-        '<p>De momento este panel no puede escribir en el servidor, así que se ' +
-          'descargan los archivos que han cambiado y se suben por FTP.</p>' +
+        '<div class="notice notice--warn">' +
+          '<p><b>NO subas estos archivos por FTP a la web.</b> El servidor se ' +
+          'publica solo desde el repositorio: cada media hora copia encima lo ' +
+          'que hay en GitHub. Un archivo subido por FTP dura hasta el siguiente ' +
+          'repaso y desaparece sin que nada avise — el registro dirá que todo ' +
+          'ha ido bien.</p>' +
+          '<p class="muted">Los cambios van al repositorio, y de ahí bajan solos ' +
+          'a la web. No hace falta saber usar git: se hace desde la página de ' +
+          'GitHub, arrastrando el archivo.</p>' +
+        '</div>' +
         '<ol>' +
           '<li>Pulsa <b>Descargar los cambios</b>. El navegador guardará uno o varios archivos ' +
             '<code>.js</code> en tu carpeta de descargas.</li>' +
-          '<li>Conéctate por FTP y entra en la carpeta <code>assets/js/data/</code> de la web.</li>' +
-          '<li>Sube ahí los archivos descargados, reemplazando los que hay.</li>' +
-          '<li>Recarga la web para comprobarlo.</li>' +
+          '<li>Abre el repositorio en GitHub y entra en la carpeta ' +
+            '<code>assets/js/data/</code>.</li>' +
+          '<li>Pulsa <b>Add file → Upload files</b> y arrastra ahí los archivos ' +
+            'descargados. GitHub reemplaza los que ya existen con el mismo nombre.</li>' +
+          '<li>Abajo, pulsa <b>Commit changes</b>. Basta con dejar el texto que ' +
+            'propone.</li>' +
+          '<li>Espera al siguiente repaso del servidor —como mucho media hora— y ' +
+            'recarga la web. Si tienes prisa, quien lleve la parte técnica puede ' +
+            'lanzarlo a mano.</li>' +
         '</ol>' +
         '<div class="actions">' +
           '<button type="button" class="btn btn--primary" data-act="download-all"' +

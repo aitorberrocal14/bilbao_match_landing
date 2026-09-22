@@ -920,6 +920,21 @@ function write_sitemap(array $exhibitors, $site)
         . "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n"
         . "  <url>\n    <loc>" . $site . "</loc>\n    <lastmod>" . $today . "</lastmod>\n"
         . "    <priority>1.0</priority>\n  </url>\n";
+
+    // Las páginas legales también se declaran. Son páginas de verdad que se
+    // publican, y hasta ahora el sitemap decía que la web tenía una sola. Van
+    // con prioridad baja —nadie llega a una web buscando su aviso legal— pero
+    // van, porque son las que alguien busca cuando hay una reclamación y no
+    // conviene que dependan solo de un enlace en el pie.
+    //
+    // platform.html NO está, y es a propósito: lleva noindex porque es un
+    // cartel de «todavía no», no contenido. Declararla en el sitemap y pedir a
+    // la vez que no se indexe es mandar dos órdenes opuestas.
+    foreach (['privacy.html', 'cookies.html', 'legal-notice.html', 'accessibility.html'] as $legal) {
+        $xml .= "  <url>\n    <loc>" . $site . $legal . "</loc>\n"
+            . "    <lastmod>" . $today . "</lastmod>\n    <priority>0.3</priority>\n  </url>\n";
+    }
+
     foreach ($exhibitors as $x) {
         $xml .= "  <url>\n    <loc>" . $site . 'exhibitors/' . rawurlencode($x['id']) . ".html</loc>\n"
             . "    <lastmod>" . $today . "</lastmod>\n    <priority>0.7</priority>\n  </url>\n";

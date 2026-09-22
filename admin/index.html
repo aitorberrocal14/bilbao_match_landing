@@ -15,9 +15,10 @@
 
   Cómo funciona: la página lee los mismos archivos de datos que lee la web,
   los presenta en formularios, y al publicar vuelve a escribirlos. Si el
-  hosting tiene PHP y está configurado (ver admin/README.md), el botón
-  "Publicar" guarda directamente en el servidor. Si no, descarga los
-  archivos que han cambiado para subirlos por FTP a assets/js/data/.
+  "Publicar" descarga los archivos que han cambiado, y esos archivos van al
+  REPOSITORIO, no al servidor por FTP: la web se publica sola desde el
+  repositorio cada media hora, y lo que se suba directamente a la carpeta
+  pública lo borra el siguiente repaso sin avisar.
 
   No hay build, no hay dependencias: se puede abrir con doble clic.
 -->
