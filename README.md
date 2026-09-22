@@ -89,12 +89,15 @@ The site is plain files, so any static host serves it. Everything on the page
 is linked relatively, which means it works just as well at the root of a
 domain as in a subdirectory.
 
-**GitHub Pages** is wired up in [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
-Enable it once — *Settings → Pages → Source: GitHub Actions* — and every push
-publishes. The workflow assembles only the site (the build scripts stay out),
-stamps the address it is being published at into the
-canonical link, the sharing card and the sitemap, and refuses to deploy if the
-stylesheet, the sharing image or any of the 39 exhibitor pages are missing.
+**The hosting publishes itself.** A scheduled task on the server runs
+`server/deploy.php`, which pulls the repository and copies across what is
+actually the site. A second one runs `server/sync.php`, which brings the
+exhibitors from the platform. Nobody uploads anything by hand, and there is no
+build step in between: see [`SERVIDOR-PASO-A-PASO.md`](SERVIDOR-PASO-A-PASO.md).
+
+To assemble the publishable folder for any other host — or to upload it by hand
+once — `node tools/build-site.js --dir _site` produces exactly what the server
+publishes and nothing else.
 
 GitHub Pages needs a paid plan on a **private** repository; on the free plan
 the repository has to be public. Hosts like Cloudflare Pages and Netlify

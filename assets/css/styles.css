@@ -595,13 +595,13 @@ p:last-child { margin-bottom: 0; }
    it was falling onto a line of its own. */
 .tl-item__to::before { content: '\2013\00a0'; }
 
-.tl-item__body h4 {
+.tl-item__body h3 {
   margin: 0 0 0.15rem;
   font-size: 1rem;
   line-height: 1.35;
   color: var(--grey-dark);
 }
-.tl-item--brief .tl-item__body h4 { margin: 0; }
+.tl-item--brief .tl-item__body h3 { margin: 0; }
 .tl-item__body p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 .tl-item__venue {
   display: inline-block;
@@ -1440,7 +1440,12 @@ p:last-child { margin-bottom: 0; }
   filter: brightness(0) invert(1);
 }
 .footer__statement { font-size: 0.88rem; max-width: 40ch; }
-.footer h4 {
+/* Los títulos de las columnas del pie son h2, no h3 ni h4. El pie aparece en
+   TODAS las páginas, y en platform.html no hay ningún h2 por encima: con h3
+   saltaba de h1 a h3 y rompía el esquema de títulos que usa un lector de
+   pantalla para recorrer la página. Con h2 encaja en todas, porque bajar de
+   nivel nunca es un salto; solo lo es subir más de uno de golpe. */
+.footer h2 {
   font-family: var(--font-body);
   font-size: 0.76rem;
   letter-spacing: 0.14em;

@@ -72,16 +72,20 @@ donde está.
 
 ## 3. La publicación automática
 
-Si se llega a configurar el despliegue por FTP desde GitHub
-([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)), las
-credenciales del FTP se guardan en los *Secrets* del repositorio.
+La publicación la hace **el propio servidor**, con dos tareas programadas que
+llaman a `server/deploy.php` y a `server/sync.php`. No hay credenciales de FTP
+en ninguna parte, ni nada que configurar en GitHub.
 
-**Esos secretos tienen que vivir en el repositorio de la organización, no en el
-personal.** Si se configuran antes de la transferencia, hay que volver a
-crearlos después: los secretos no viajan con el repositorio.
+Hubo un camino anterior que publicaba por FTP desde GitHub Actions, y se ha
+retirado. No por gusto: fallaba en cada push —más de ciento veinte ejecuciones
+en rojo— y, peor, si alguien le hubiera puesto las credenciales habría subido
+la lista de expositores VACÍA del repositorio encima de la que escribe la
+plataforma. Dos sistemas publicando en la misma carpeta es el fallo que ya
+tuvimos una vez, y no conviene dejarlo armado esperando.
 
-Conviene además que el FTP que se use ahí sea **un usuario creado para esto**,
-no el usuario principal de la cuenta. Así se puede revocar sin tocar nada más.
+Si algún día se guardaron secretos `FTP_*` o `MBB_API_KEY` en el repositorio,
+**hay que borrarlos**: ya no se usan, y una credencial olvidada en un sitio que
+nadie mira es una credencial filtrada esperando su turno.
 
 - [ ] Usuario de FTP específico para la publicación
 - [ ] Secretos creados en el repositorio de la organización

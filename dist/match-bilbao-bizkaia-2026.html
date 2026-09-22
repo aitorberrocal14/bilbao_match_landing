@@ -668,13 +668,13 @@ p:last-child { margin-bottom: 0; }
    it was falling onto a line of its own. */
 .tl-item__to::before { content: '\2013\00a0'; }
 
-.tl-item__body h4 {
+.tl-item__body h3 {
   margin: 0 0 0.15rem;
   font-size: 1rem;
   line-height: 1.35;
   color: var(--grey-dark);
 }
-.tl-item--brief .tl-item__body h4 { margin: 0; }
+.tl-item--brief .tl-item__body h3 { margin: 0; }
 .tl-item__body p { margin: 0; font-size: 0.9rem; line-height: 1.5; }
 .tl-item__venue {
   display: inline-block;
@@ -1513,7 +1513,12 @@ p:last-child { margin-bottom: 0; }
   filter: brightness(0) invert(1);
 }
 .footer__statement { font-size: 0.88rem; max-width: 40ch; }
-.footer h4 {
+/* Los títulos de las columnas del pie son h2, no h3 ni h4. El pie aparece en
+   TODAS las páginas, y en platform.html no hay ningún h2 por encima: con h3
+   saltaba de h1 a h3 y rompía el esquema de títulos que usa un lector de
+   pantalla para recorrer la página. Con h2 encaja en todas, porque bajar de
+   nivel nunca es un salto; solo lo es subir más de uno de golpe. */
+.footer h2 {
   font-family: var(--font-body);
   font-size: 0.76rem;
   letter-spacing: 0.14em;
@@ -1821,6 +1826,63 @@ p:last-child { margin-bottom: 0; }
   <header class="header" id="header" data-menu="closed" data-mount="header"></header>
 
   <main id="main">
+
+    <!-- SI NO HAY JAVASCRIPT, ESTO ES LO QUE SE LEE.
+         =====================================================================
+         La portada se dibuja entera desde los archivos de datos, que es lo que
+         permite editarla sin tocar el código. El precio es que, sin
+         JavaScript, esta página se queda vacía: quince caracteres, «Skip to
+         content» y nada más.
+
+         Las páginas legales y la de aviso no tienen ese problema —su texto va
+         escrito en el HTML— pero la portada sí, y dejarla en blanco no vale ni
+         para un buscador viejo, ni para una red corporativa que bloquea
+         scripts, ni para quien navega con ellos desactivados.
+
+         Esto no intenta reproducir la portada: da lo imprescindible —qué es,
+         cuándo, dónde, cómo inscribirse y a quién escribir— y se aparta en
+         cuanto el navegador ejecuta una sola línea de JavaScript. -->
+    <noscript>
+      <section class="section">
+        <div class="shell legal">
+          <p class="kicker">6 – 10 October 2026 · Bilbao, Basque Country</p>
+          <h1 class="h-1">Match Bilbao Bizkaia 2026</h1>
+          <p class="lead measure">
+            The official professional meeting point of the Bilbao Bizkaia
+            destination: four days of pre-scheduled B2B meetings between the
+            international travel trade and the basque companies that design,
+            host and deliver the Bilbao Bizkaia experience.
+          </p>
+          <p class="measure">
+            <strong>This page needs JavaScript to show the full programme, the
+            exhibitor directory and the brochures.</strong> Everything you need
+            in order to take part is below.
+          </p>
+          <ul>
+            <li>
+              <strong>Register:</strong>
+              <a class="link-red" href="https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration" target="_blank" rel="noopener">create your profile on the event platform</a>
+            </li>
+            <li>
+              <strong>Already registered?</strong>
+              <a class="link-red" href="platform.html">when the platform opens</a>
+            </li>
+            <li>
+              <strong>Email:</strong>
+              <a class="link-red" href="mailto:welcome@matchbilbaobizkaia.eus">welcome@matchbilbaobizkaia.eus</a>
+            </li>
+            <li><strong>Telephone:</strong> +34 944 205 377 (Monday to Friday, 9:00 – 17:00 CET)</li>
+          </ul>
+          <p class="measure">
+            <a class="link-red" href="privacy.html">Privacy policy</a> ·
+            <a class="link-red" href="cookies.html">Cookie policy</a> ·
+            <a class="link-red" href="legal-notice.html">Legal notice</a> ·
+            <a class="link-red" href="accessibility.html">Accessibility</a>
+          </p>
+        </div>
+      </section>
+    </noscript>
+
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
@@ -3505,7 +3567,11 @@ window.MBB = window.MBB || {};
           (brief ? ' tl-item--brief' : '') + '">' +
           '<span class="tl-item__time">' + time + '</span>' +
           '<div class="tl-item__body">' +
-            '<h4>' + esc(s.title) + '</h4>' +
+            // h3 y no h4: el titular de la sección es «Event Programme», un h2,
+            // y entre medias no hay ningún h3. Saltar de h2 a h4 rompe el
+            // esquema con el que un lector de pantalla recorre la página, y
+            // además contradecía lo que la declaración de accesibilidad afirma.
+            '<h3>' + esc(s.title) + '</h3>' +
             (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
             (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
           '</div>' +
@@ -4066,7 +4132,7 @@ window.MBB = window.MBB || {};
       '<div class="preview">' +
         '<div class="preview__cover">' + cover + '</div>' +
         '<div class="preview__copy">' +
-          '<h4>' + esc(b.title) + '</h4>' +
+          '<h3>' + esc(b.title) + '</h3>' +
           '<p>' + esc(b.subtitle) + '</p>' +
           '<p class="preview__note">Published by Visit Biscay. The document opens ' +
           'on the official tourism website, where you can read it online or ' +
@@ -4198,17 +4264,17 @@ window.MBB = window.MBB || {};
               'alt="Match Bilbao Bizkaia">' +
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
-          '<div><h4>Navigate</h4><ul>' + navLinks +
+          '<div><h2>Navigate</h2><ul>' + navLinks +
             (conLogin && loginHref(site, base)
               ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
-          '<div><h4>Event</h4><ul>' +
+          '<div><h2>Event</h2><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +
             '<li><a href="' + esc(home) + '#presentation">Presentation of Bilbao</a></li>' +
             '<li><a href="' + esc(home) + '#exhibitors">Exhibitors</a></li>' +
             '<li><a href="' + esc(home) + '#discover">Brochures</a></li>' +
           '</ul></div>' +
-          '<div><h4>Follow the destination</h4>' + social + '</div>' +
+          '<div><h2>Follow the destination</h2>' + social + '</div>' +
         '</div>' +
         '<div class="footer__bar">' +
           '<p style="margin:0">© ' + new Date().getFullYear() + ' ' + esc(f.copyright) +

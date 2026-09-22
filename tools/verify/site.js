@@ -145,6 +145,29 @@ function check(etiqueta, ok, detalle) {
       };
     });
 
+    /* --- El esquema de títulos ---------------------------------------------- */
+    // Un lector de pantalla recorre la página saltando de título en título, y
+    // para eso los niveles tienen que ir seguidos. Saltar de h2 a h4 deja un
+    // hueco en ese esquema: el programa entero colgaba de la nada.
+    //
+    // Esto además es una afirmación de la declaración de accesibilidad, que es
+    // un documento formal. Comprobarla vale más que escribirla.
+    const titulos = await pagina.evaluate(() => {
+      const h = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+      const saltos = [];
+      for (let i = 1; i < h.length; i++) {
+        if (+h[i].tagName[1] - +h[i - 1].tagName[1] > 1) {
+          saltos.push(h[i - 1].tagName + '→' + h[i].tagName +
+            ' (' + h[i].textContent.trim().slice(0, 30) + ')');
+        }
+      }
+      return { saltos: saltos, h1: document.querySelectorAll('h1').length };
+    });
+
+    check('un solo h1 en la página', titulos.h1 === 1, titulos.h1);
+    check('los títulos van por orden, sin saltos de nivel',
+      titulos.saltos.length === 0, titulos.saltos.join(' · ') || 'sin saltos');
+
     check('los cinco días, cada uno en su tarjeta', conj.n === 5, conj.n);
     check('el programa cabe en poco más de una pantalla',
       conj.pantallas <= 1.25, conj.pantallas + ' pantallas');
@@ -655,6 +678,31 @@ function check(etiqueta, ok, detalle) {
     ['accessibility.html', 'Accessibility statement']
   ];
 
+  // La portada se dibuja entera desde los datos, así que sin JavaScript se
+  // queda en blanco —quince caracteres— salvo por el bloque de reserva. Ese
+  // bloque es la única información que le llega a un buscador viejo, a una red
+  // corporativa que bloquea scripts o a quien navega sin ellos.
+  const sinJsPortada = await navegador.newContext({ javaScriptEnabled: false });
+  const portadaMuda = await sinJsPortada.newPage();
+  await portadaMuda.goto(PAGINA);
+  const reserva = await portadaMuda.evaluate(() => {
+    const t = document.body.innerText.replace(/\s+/g, ' ').trim();
+    return {
+      largo: t.length,
+      fecha: /October 2026/.test(t),
+      alta: [...document.querySelectorAll('noscript a')]
+        .some((a) => /registration/.test(a.getAttribute('href') || '')),
+      correo: /welcome@matchbilbaobizkaia\.eus/.test(t)
+    };
+  });
+  await sinJsPortada.close();
+
+  check('sin JavaScript la portada no se queda en blanco',
+    reserva.largo > 500, reserva.largo + ' caracteres');
+  check('  y dice las fechas, el alta y el contacto',
+    reserva.fecha && reserva.alta && reserva.correo,
+    'fechas ' + reserva.fecha + ' · alta ' + reserva.alta + ' · correo ' + reserva.correo);
+
   const mudas = await navegador.newContext({ javaScriptEnabled: false });
   const pendientes = [];
 
@@ -663,9 +711,20 @@ function check(etiqueta, ok, detalle) {
     await lp.goto('file://' + path.join(ROOT, archivo));
     const r = await lp.evaluate(() => {
       const t = document.body.textContent.replace(/\s+/g, ' ').trim();
+      // El pie va en todas las páginas, así que un nivel mal puesto ahí rompe
+      // el esquema en las cuatro a la vez. Se mira en cada una.
+      const hs = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')];
+      const saltos = [];
+      for (let i = 1; i < hs.length; i++) {
+        if (+hs[i].tagName[1] - +hs[i - 1].tagName[1] > 1) {
+          saltos.push(hs[i - 1].tagName + '→' + hs[i].tagName);
+        }
+      }
+
       return {
         h1: (document.querySelector('h1') || {}).textContent || '',
         largo: t.length,
+        saltos: saltos,
         // Lo que todavía no se puede escribir sin que lo diga la organización.
         huecos: (t.match(/\[Insert [^\]]+\]/g) || []),
         vuelta: [...document.querySelectorAll('a')]
@@ -677,6 +736,8 @@ function check(etiqueta, ok, detalle) {
     check(archivo + ' se lee sin JavaScript',
       r.h1.trim() === titulo && r.largo > 1200, r.h1.trim() + ' · ' + r.largo + ' caracteres');
     check('  y se puede volver a la web', r.vuelta);
+    check('  y sus títulos van por orden', r.saltos.length === 0,
+      r.saltos.join(' · ') || 'sin saltos');
     r.huecos.forEach((h) => pendientes.push(archivo + ': ' + h));
   }
   await mudas.close();

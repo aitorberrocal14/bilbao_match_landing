@@ -79,6 +79,63 @@
   <header class="header" id="header" data-menu="closed" data-mount="header"></header>
 
   <main id="main">
+
+    <!-- SI NO HAY JAVASCRIPT, ESTO ES LO QUE SE LEE.
+         =====================================================================
+         La portada se dibuja entera desde los archivos de datos, que es lo que
+         permite editarla sin tocar el código. El precio es que, sin
+         JavaScript, esta página se queda vacía: quince caracteres, «Skip to
+         content» y nada más.
+
+         Las páginas legales y la de aviso no tienen ese problema —su texto va
+         escrito en el HTML— pero la portada sí, y dejarla en blanco no vale ni
+         para un buscador viejo, ni para una red corporativa que bloquea
+         scripts, ni para quien navega con ellos desactivados.
+
+         Esto no intenta reproducir la portada: da lo imprescindible —qué es,
+         cuándo, dónde, cómo inscribirse y a quién escribir— y se aparta en
+         cuanto el navegador ejecuta una sola línea de JavaScript. -->
+    <noscript>
+      <section class="section">
+        <div class="shell legal">
+          <p class="kicker">6 – 10 October 2026 · Bilbao, Basque Country</p>
+          <h1 class="h-1">Match Bilbao Bizkaia 2026</h1>
+          <p class="lead measure">
+            The official professional meeting point of the Bilbao Bizkaia
+            destination: four days of pre-scheduled B2B meetings between the
+            international travel trade and the basque companies that design,
+            host and deliver the Bilbao Bizkaia experience.
+          </p>
+          <p class="measure">
+            <strong>This page needs JavaScript to show the full programme, the
+            exhibitor directory and the brochures.</strong> Everything you need
+            in order to take part is below.
+          </p>
+          <ul>
+            <li>
+              <strong>Register:</strong>
+              <a class="link-red" href="https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration" target="_blank" rel="noopener">create your profile on the event platform</a>
+            </li>
+            <li>
+              <strong>Already registered?</strong>
+              <a class="link-red" href="platform.html">when the platform opens</a>
+            </li>
+            <li>
+              <strong>Email:</strong>
+              <a class="link-red" href="mailto:welcome@matchbilbaobizkaia.eus">welcome@matchbilbaobizkaia.eus</a>
+            </li>
+            <li><strong>Telephone:</strong> +34 944 205 377 (Monday to Friday, 9:00 – 17:00 CET)</li>
+          </ul>
+          <p class="measure">
+            <a class="link-red" href="privacy.html">Privacy policy</a> ·
+            <a class="link-red" href="cookies.html">Cookie policy</a> ·
+            <a class="link-red" href="legal-notice.html">Legal notice</a> ·
+            <a class="link-red" href="accessibility.html">Accessibility</a>
+          </p>
+        </div>
+      </section>
+    </noscript>
+
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 

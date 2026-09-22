@@ -687,7 +687,11 @@ window.MBB = window.MBB || {};
           (brief ? ' tl-item--brief' : '') + '">' +
           '<span class="tl-item__time">' + time + '</span>' +
           '<div class="tl-item__body">' +
-            '<h4>' + esc(s.title) + '</h4>' +
+            // h3 y no h4: el titular de la sección es «Event Programme», un h2,
+            // y entre medias no hay ningún h3. Saltar de h2 a h4 rompe el
+            // esquema con el que un lector de pantalla recorre la página, y
+            // además contradecía lo que la declaración de accesibilidad afirma.
+            '<h3>' + esc(s.title) + '</h3>' +
             (s.text ? '<p>' + esc(s.text) + '</p>' : '') +
             (s.venue ? '<span class="tl-item__venue">' + esc(s.venue) + '</span>' : '') +
           '</div>' +
@@ -1248,7 +1252,7 @@ window.MBB = window.MBB || {};
       '<div class="preview">' +
         '<div class="preview__cover">' + cover + '</div>' +
         '<div class="preview__copy">' +
-          '<h4>' + esc(b.title) + '</h4>' +
+          '<h3>' + esc(b.title) + '</h3>' +
           '<p>' + esc(b.subtitle) + '</p>' +
           '<p class="preview__note">Published by Visit Biscay. The document opens ' +
           'on the official tourism website, where you can read it online or ' +
@@ -1380,17 +1384,17 @@ window.MBB = window.MBB || {};
               'alt="Match Bilbao Bizkaia">' +
             '<p class="footer__statement">' + esc(f.statement) + '</p>' +
           '</div>' +
-          '<div><h4>Navigate</h4><ul>' + navLinks +
+          '<div><h2>Navigate</h2><ul>' + navLinks +
             (conLogin && loginHref(site, base)
               ? '<li>' + loginLink(site, '', base) + '</li>' : '') +
           '</ul></div>' +
-          '<div><h4>Event</h4><ul>' +
+          '<div><h2>Event</h2><ul>' +
             '<li><a href="' + esc(home) + '#event">Programme</a></li>' +
             '<li><a href="' + esc(home) + '#presentation">Presentation of Bilbao</a></li>' +
             '<li><a href="' + esc(home) + '#exhibitors">Exhibitors</a></li>' +
             '<li><a href="' + esc(home) + '#discover">Brochures</a></li>' +
           '</ul></div>' +
-          '<div><h4>Follow the destination</h4>' + social + '</div>' +
+          '<div><h2>Follow the destination</h2>' + social + '</div>' +
         '</div>' +
         '<div class="footer__bar">' +
           '<p style="margin:0">© ' + new Date().getFullYear() + ' ' + esc(f.copyright) +
