@@ -44,7 +44,7 @@ window.MBB.eventIntro = {
 /* --- Presentation of Bilbao ---------------------------------------------- */
 window.MBB.presentation = {
   eyebrow: 'The destination',
-  title: 'Presentation of Bilbao',
+  title: 'Bilbao Bizkaia',
   paragraphs: [
     'Bilbao is a city that reinvented itself, and did so without losing its ' +
     'character. In one generation it turned an industrial estuary into an ' +

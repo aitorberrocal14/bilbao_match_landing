@@ -188,6 +188,19 @@ function check(etiqueta, ok, detalle) {
       return { saltos: saltos, h1: document.querySelectorAll('h1').length };
     });
 
+    // Cada entrada del menú tiene que encontrar su sección EN ESTA página. Un
+    // ancla que no la encuentra no avisa de nada: cambia la dirección del
+    // navegador y la pantalla se queda exactamente igual, y quien lo pulsa
+    // piensa que la web está rota, no que el enlace lo está.
+    const menu = await pagina.evaluate(() =>
+      window.MBB.site.nav
+        .filter((n) => /^#/.test(n.href))
+        .filter((n) => !document.getElementById(n.href.slice(1)))
+        .map((n) => n.label + ' → ' + n.href));
+
+    check('cada entrada del menú encuentra su sección', menu.length === 0,
+      menu.join(' · ') || 'todas');
+
     check('un solo h1 en la página', titulos.h1 === 1, titulos.h1);
     check('los títulos van por orden, sin saltos de nivel',
       titulos.saltos.length === 0, titulos.saltos.join(' · ') || 'sin saltos');

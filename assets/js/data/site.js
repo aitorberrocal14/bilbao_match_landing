@@ -34,9 +34,20 @@ window.MBB.site = {
   },
 
   /* --- Primary navigation ------------------------------------------------ */
+  // EL MENÚ VA EN EL ORDEN EN QUE ESTÁ LA PÁGINA, y cada entrada nombra lo que
+  // se encuentra al llegar. Hubo una que decía "Match Bilbao Bizkaia 2026" y
+  // llevaba al programa: repetía el nombre que ya está en el logotipo y no
+  // avisaba de a dónde iba. Ahora son dos, y cada una dice lo suyo.
   nav: [
     { label: 'Home', href: '#home' },
-    { label: 'Match Bilbao Bizkaia 2026', href: '#event' },
+    { label: 'Destination', href: '#presentation' },
+    // "Programme" y no "Event Programme", y no es capricho: con la etiqueta
+    // larga la fila mide 12px más de los que hay a 1280px —la anchura de
+    // portátil más corriente— desde el día que el Login pasa a ser una pastilla
+    // y ocupa 33px más. El menú se partía en dos filas. La sección se titula
+    // "Event Programme" en grande dos pantallas más abajo, así que la palabra
+    // no se pierde: solo no se repite donde no cabe.
+    { label: 'Programme', href: '#event' },
     { label: "Meet BB's Experts", href: '#experts' },
     { label: 'Discover', href: '#discover' },
     { label: 'Contact', href: '#contact' }
