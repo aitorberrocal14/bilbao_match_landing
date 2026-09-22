@@ -853,6 +853,30 @@ window.MBB = window.MBB || {};
       .join('');
 
     /* --- overview view --------------------------------------------------- */
+
+    /**
+     * Adónde va cada grupo, en un día que se parte en dos.
+     *
+     * El rótulo ("Group 1") no está escrito en el texto de la ruta: se busca
+     * en `programme.groups`, que es lo mismo que rotula el selector de la
+     * vista detallada. Así, el día que alguien renombre los grupos —"Route A"
+     * y "Route B", pongamos— cambian los dos sitios a la vez y no queda una
+     * tarjeta hablando de un grupo que ya no se llama así.
+     */
+    function rutas(d) {
+      var lineas = (d.routes || [])
+        .map(function (r) {
+          var g = (programme.groups || []).filter(function (x) {
+            return x.id === r.group;
+          })[0];
+          return '<li><b>' + esc((g ? g.label : r.group) + ':') + '</b> ' +
+            esc(r.text) + '</li>';
+        })
+        .join('');
+
+      return lineas ? '<ul class="ov-day__routes">' + lineas + '</ul>' : '';
+    }
+
     // Three moments per day: the ones marked as the highlights of that day,
     // falling back to the first slots when a day has none.
     var overview = days
@@ -899,6 +923,7 @@ window.MBB = window.MBB || {};
             '<h3 class="ov-day__theme">' + esc(d.theme) + '</h3>' +
             (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
             '<p class="ov-day__text">' + esc(d.summary) + '</p>' +
+            rutas(d) +
             '<ul class="ov-day__list">' + lines + '</ul>' +
           '</li>'
         );

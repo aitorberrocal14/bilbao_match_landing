@@ -807,6 +807,20 @@ p:last-child { margin-bottom: 0; }
   line-height: 1.55;
   color: var(--grey);
 }
+/* Adónde va cada grupo el día que el programa se parte en dos. Van con punto
+   —son dos opciones, no un texto seguido— y el nombre del grupo en negrita,
+   que es lo que se busca al leerlas en diagonal. */
+.ov-day__routes {
+  margin: 0.55rem 0 0;
+  list-style: disc;
+  padding-left: 1.05rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--grey);
+}
+.ov-day__routes li { margin: 0.2rem 0 0; }
+.ov-day__routes b { color: var(--grey-dark); font-weight: 500; }
+
 /* Los momentos del día, uno bajo otro con la hora delante. En una tarjeta
    estrecha una fila corrida se partiría por cualquier sitio y dejaría las
    horas huérfanas de su actividad. */

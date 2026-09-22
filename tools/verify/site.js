@@ -193,6 +193,37 @@ function check(etiqueta, ok, detalle) {
       titulos.saltos.length === 0, titulos.saltos.join(' · ') || 'sin saltos');
 
     check('los cinco días, cada uno en su tarjeta', conj.n === 5, conj.n);
+
+    // El día que se parte en dos dice adónde va cada grupo. El nombre del
+    // grupo sale de `programme.groups`, que es lo que también rotula el
+    // selector de la vista detallada: si alguien escribe "Group 1" a mano en
+    // el texto de la ruta, un cambio de nombre deja los dos sitios diciendo
+    // cosas distintas y nadie lo ve hasta que lo lee un participante.
+    const parte = await pagina.evaluate(() => {
+      const dia = window.MBB.programme.days.filter((d) => d.routes && d.routes.length)[0];
+      if (!dia) return null;
+      const i = window.MBB.programme.days.indexOf(dia);
+      const tarjeta = document.querySelectorAll('.ov-day')[i];
+      const lis = [...tarjeta.querySelectorAll('.ov-day__routes li')];
+      return {
+        rutas: dia.routes.length,
+        pintadas: lis.length,
+        // Cada línea empieza por el nombre del grupo y sigue con su texto.
+        cuadran: dia.routes.every((r, n) => {
+          const g = window.MBB.programme.groups.filter((x) => x.id === r.group)[0];
+          const t = (lis[n] || {}).textContent || '';
+          return g && t.indexOf(g.label) === 0 && t.indexOf(r.text) > -1;
+        }),
+        parteEnDos: !!dia.split && !!tarjeta.querySelector('.ov-day__split')
+      };
+    });
+
+    if (parte) {
+      check('el día que se parte dice adónde va cada grupo',
+        parte.pintadas === parte.rutas && parte.cuadran,
+        parte.pintadas + ' de ' + parte.rutas);
+      check('  y avisa de que son dos itinerarios', parte.parteEnDos);
+    }
     check('el programa cabe en poco más de una pantalla',
       conj.pantallas <= 1.25, conj.pantallas + ' pantallas');
     check('ninguna tarjeta queda estrujada', conj.cabenEnAncho);

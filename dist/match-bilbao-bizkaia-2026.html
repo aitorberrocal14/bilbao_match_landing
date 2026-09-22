@@ -880,6 +880,20 @@ p:last-child { margin-bottom: 0; }
   line-height: 1.55;
   color: var(--grey);
 }
+/* Adónde va cada grupo el día que el programa se parte en dos. Van con punto
+   —son dos opciones, no un texto seguido— y el nombre del grupo en negrita,
+   que es lo que se busca al leerlas en diagonal. */
+.ov-day__routes {
+  margin: 0.55rem 0 0;
+  list-style: disc;
+  padding-left: 1.05rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--grey);
+}
+.ov-day__routes li { margin: 0.2rem 0 0; }
+.ov-day__routes b { color: var(--grey-dark); font-weight: 500; }
+
 /* Los momentos del día, uno bajo otro con la hora delante. En una tarjeta
    estrecha una fila corrida se partiría por cualquier sitio y dejaría las
    horas huérfanas de su actividad. */
@@ -2396,6 +2410,13 @@ window.MBB.experts = {
      feature — true to give the slot a highlighted card
      open    — true when the time is not fixed yet (arrivals, departures); the
                slot is shown without a time and left out of the calendar file.
+
+   Day fields worth knowing about:
+     split   — true when the day runs in two groups. Turns on the group
+               switcher in the detailed view and the "Two itineraries" line.
+     routes  — on a day that splits, one line per group saying where it goes:
+               { group: 'g1', text: '…' }. Shown on the day's card. The group
+               name comes from `groups` below, not from this text.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -2487,11 +2508,24 @@ window.MBB.programme = {
       label: 'Day 2',
       date: 'Wednesday 7 October',
       dateISO: '2026-10-07',
-      theme: 'Bizkaia',
+      theme: 'Coast of Bizkaia',
       summary:
-        'A full day through Bizkaia, in two groups with different routes, ' +
-        'ending in lunch together at Bodega Berroja and dinner on a rooftop.',
+        'A full day through the coast of Bizkaia, in two groups with ' +
+        'different routes, ending in lunch together at Bodega Berroja ' +
+        '(located in the Urdaibai Biosphere Reserve) and dinner on a rooftop.',
       split: true,
+      // Adónde va cada grupo, en una línea. El detalle hora a hora está abajo,
+      // en los slots, pero para eso hay que abrir "Day by day" y elegir grupo:
+      // quien solo mira la tarjeta del día quiere saber si le toca el bosque
+      // de Oma o Urkiola, no a qué hora sale el minibús.
+      //
+      // El nombre del grupo no se escribe aquí: sale de `groups`, arriba, que
+      // es lo que también rotula el selector de la vista detallada. Escrito
+      // dos veces, un día dirían cosas distintas.
+      routes: [
+        { group: 'g1', text: 'Oma Forest, Gernika & Gaztelugatxe.' },
+        { group: 'g2', text: 'Gaztelugatxe, Bermeo & Urkiola Natural Park.' }
+      ],
       slots: [
         /* Group 1 — Oma Forest, Gernika */
         { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
@@ -3818,6 +3852,30 @@ window.MBB = window.MBB || {};
       .join('');
 
     /* --- overview view --------------------------------------------------- */
+
+    /**
+     * Adónde va cada grupo, en un día que se parte en dos.
+     *
+     * El rótulo ("Group 1") no está escrito en el texto de la ruta: se busca
+     * en `programme.groups`, que es lo mismo que rotula el selector de la
+     * vista detallada. Así, el día que alguien renombre los grupos —"Route A"
+     * y "Route B", pongamos— cambian los dos sitios a la vez y no queda una
+     * tarjeta hablando de un grupo que ya no se llama así.
+     */
+    function rutas(d) {
+      var lineas = (d.routes || [])
+        .map(function (r) {
+          var g = (programme.groups || []).filter(function (x) {
+            return x.id === r.group;
+          })[0];
+          return '<li><b>' + esc((g ? g.label : r.group) + ':') + '</b> ' +
+            esc(r.text) + '</li>';
+        })
+        .join('');
+
+      return lineas ? '<ul class="ov-day__routes">' + lineas + '</ul>' : '';
+    }
+
     // Three moments per day: the ones marked as the highlights of that day,
     // falling back to the first slots when a day has none.
     var overview = days
@@ -3864,6 +3922,7 @@ window.MBB = window.MBB || {};
             '<h3 class="ov-day__theme">' + esc(d.theme) + '</h3>' +
             (d.split ? '<p class="ov-day__split">Two itineraries</p>' : '') +
             '<p class="ov-day__text">' + esc(d.summary) + '</p>' +
+            rutas(d) +
             '<ul class="ov-day__list">' + lines + '</ul>' +
           '</li>'
         );

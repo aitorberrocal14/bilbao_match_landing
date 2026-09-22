@@ -20,6 +20,13 @@
      feature — true to give the slot a highlighted card
      open    — true when the time is not fixed yet (arrivals, departures); the
                slot is shown without a time and left out of the calendar file.
+
+   Day fields worth knowing about:
+     split   — true when the day runs in two groups. Turns on the group
+               switcher in the detailed view and the "Two itineraries" line.
+     routes  — on a day that splits, one line per group saying where it goes:
+               { group: 'g1', text: '…' }. Shown on the day's card. The group
+               name comes from `groups` below, not from this text.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -111,11 +118,24 @@ window.MBB.programme = {
       label: 'Day 2',
       date: 'Wednesday 7 October',
       dateISO: '2026-10-07',
-      theme: 'Bizkaia',
+      theme: 'Coast of Bizkaia',
       summary:
-        'A full day through Bizkaia, in two groups with different routes, ' +
-        'ending in lunch together at Bodega Berroja and dinner on a rooftop.',
+        'A full day through the coast of Bizkaia, in two groups with ' +
+        'different routes, ending in lunch together at Bodega Berroja ' +
+        '(located in the Urdaibai Biosphere Reserve) and dinner on a rooftop.',
       split: true,
+      // Adónde va cada grupo, en una línea. El detalle hora a hora está abajo,
+      // en los slots, pero para eso hay que abrir "Day by day" y elegir grupo:
+      // quien solo mira la tarjeta del día quiere saber si le toca el bosque
+      // de Oma o Urkiola, no a qué hora sale el minibús.
+      //
+      // El nombre del grupo no se escribe aquí: sale de `groups`, arriba, que
+      // es lo que también rotula el selector de la vista detallada. Escrito
+      // dos veces, un día dirían cosas distintas.
+      routes: [
+        { group: 'g1', text: 'Oma Forest, Gernika & Gaztelugatxe.' },
+        { group: 'g2', text: 'Gaztelugatxe, Bermeo & Urkiola Natural Park.' }
+      ],
       slots: [
         /* Group 1 — Oma Forest, Gernika */
         { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
