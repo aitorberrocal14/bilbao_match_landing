@@ -108,5 +108,28 @@ return [
     'status' => [],
 
     // La dirección pública del sitio, para el sitemap. Con barra final.
+    //
+    // Ya apunta a la dirección DEFINITIVA aunque la web esté todavía en la
+    // carpeta de pruebas. Es a propósito: es la dirección que se declara en el
+    // enlace canónico, en la tarjeta para compartir y en el sitemap, y tiene
+    // que ser la buena desde el primer día para no repartir la autoridad de la
+    // web entre dos direcciones.
     'site_url' => 'https://www.matchbilbaobizkaia.eus/',
+
+    // ¿SALE ESTA COPIA EN GOOGLE?
+    // -------------------------------------------------------------------------
+    // Normalmente NO HAY QUE TOCAR ESTO. Si se deja fuera, el despliegue lo
+    // decide solo: publicando en la carpeta pública de la cuenta entiende que
+    // es la web de verdad y la deja visible; publicando en cualquier otro sitio
+    // —una subcarpeta de pruebas— la marca como «no indexar».
+    //
+    // Se decide solo a propósito. Puesto a mano habría que acordarse de
+    // quitarlo el día del lanzamiento, y ese olvido es mucho peor que el
+    // problema que evita: la web buena, invisible en Google, sin que nada avise.
+    //
+    // Solo hace falta escribirlo si el hosting coloca la carpeta pública en un
+    // sitio que el despliegue no reconoce. Cada ejecución dice en el registro
+    // cuál de las dos cosas ha entendido.
+    //
+    // 'noindex' => false,   // true = no indexar · false = indexar
 ];

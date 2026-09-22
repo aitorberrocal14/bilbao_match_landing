@@ -353,12 +353,86 @@ function copiar(string $desde, string $hasta, bool $dry, string $rel = '')
     }
 }
 
+/* --- 4b. ¿Es esta la web de verdad, o una copia de pruebas? -----------------
+   Mientras se prueba, la web vive en una subcarpeta —www/pruebasbilbaoekintza26—
+   y esa copia NO debe salir en Google. Si sale, el buscador acaba enseñando una
+   versión a medias de la web oficial de turismo de Bilbao, con el agravante de
+   que todas sus páginas dicen ser www.matchbilbaobizkaia.eus.
+
+   Podría ponerse a mano, pero entonces habría que acordarse de QUITARLO el día
+   del lanzamiento, y ese olvido es mucho peor que el problema que evita: la web
+   buena, invisible en Google, sin que nada avise y sin que nadie lo note en
+   meses.
+
+   Así que se decide solo: si se publica en la carpeta pública de la cuenta, es
+   la web de verdad y se indexa; si se publica en cualquier otro sitio, es una
+   copia y se marca «no me indexes». El día que se cambie `web_dir` para apuntar
+   a la raíz —que hay que cambiarlo de todas formas— el cambio ocurre con él.
+
+   Y se puede forzar desde config.php con 'noindex' => true o false, por si el
+   hosting coloca la carpeta pública en un sitio que esto no reconoce. Cada
+   ejecución lo dice en el registro, para que no haya que adivinarlo. */
+
+define('MBB_NOINDEX', implode("\n", [
+    '',
+    '# --- AÑADIDO POR deploy.php -------------------------------------------',
+    '# Esta copia de la web NO es la definitiva: vive fuera de la carpeta',
+    '# pública de la cuenta. Se le dice a los buscadores que no la indexen,',
+    '# para que no compita en Google con la web buena.',
+    '#',
+    '# Esta línea DESAPARECE SOLA en cuanto se publique en la raíz. No hay que',
+    '# acordarse de quitarla.',
+    '<IfModule mod_headers.c>',
+    '  Header set X-Robots-Tag "noindex, nofollow"',
+    '</IfModule>',
+    '',
+]));
+
+function es_copia_de_pruebas(string $web, array $conf): bool
+{
+    // Lo que diga config.php manda, si lo dice.
+    if (array_key_exists('noindex', $conf)) { return (bool) $conf['noindex']; }
+
+    $real = realpath($web);
+    $home = dirname(MBB_REPO);
+    foreach ([$home . '/www', $home . '/public_html', $home . '/htdocs'] as $raiz) {
+        $r = realpath($raiz);
+        if ($real !== false && $r !== false && $real === $r) {
+            return false;               // es la carpeta pública: la web de verdad
+        }
+    }
+    return true;
+}
+
+$PRUEBAS = es_copia_de_pruebas($WEB, read_config());
+
+say($PRUEBAS
+    ? 'Copia de pruebas: se publica con "no indexar" para que no salga en Google.'
+    : 'Web definitiva: se publica SIN "no indexar", visible para los buscadores.');
+
+/**
+ * El contenido con el que se publica un archivo, que no siempre es el del
+ * repositorio: al .htaccess de una copia de pruebas se le añade el bloque de
+ * arriba. Se compara el resultado FINAL contra lo que hay en la web, así que
+ * la copia no se repite en cada vuelta.
+ */
+function contenido_publicado(string $rel, string $origen, bool $pruebas): string
+{
+    $texto = (string) file_get_contents($origen);
+    if ($rel === '.htaccess' && $pruebas) { $texto .= MBB_NOINDEX; }
+    return $texto;
+}
+
 foreach ($FILES as $f) {
     $src = MBB_REPO . '/' . $f;
     $dst = $WEB . '/' . $f;
     if (manda_la_plataforma($f) && is_file($dst)) { $respetados++; continue; }
-    if (is_file($dst) && md5_file($dst) === md5_file($src)) { $saltados++; continue; }
-    if (!$DRY && !@copy($src, $dst)) { die_with('No se ha podido copiar ' . $f); }
+
+    $contenido = contenido_publicado($f, $src, $PRUEBAS);
+    if (is_file($dst) && md5_file($dst) === md5($contenido)) { $saltados++; continue; }
+    if (!$DRY && @file_put_contents($dst, $contenido) === false) {
+        die_with('No se ha podido escribir ' . $f);
+    }
     $copiados++;
 }
 

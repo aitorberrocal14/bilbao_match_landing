@@ -421,16 +421,108 @@ Pero es un seguro, no una excusa para ponerlas a la vez.
 
 ---
 
-# PARTE 6 · Cerrar el panel de edición
+# PARTE 6 · El panel de edición
 
-La web incluye su propio editor en `/admin/`. Ciérralo:
+**El panel ya no se publica en internet, y no hay que hacer nada.**
 
-1. Panel → busca **Protección de directorios** (o *Directory privacy*)
-2. Elige la carpeta `www/pruebasbilbaoekintza26/admin`
-3. Crea un usuario y una contraseña
+Antes vivía en `/admin/` y se confiaba en poner una contraseña de carpeta a
+mano. Mientras esa contraseña no estuviera puesta, cualquiera que escribiera la
+dirección podía cambiar los textos, el programa y los folletos del evento. Se
+publicaba esperando que alguien se acordara de protegerlo, que es al revés de
+como debe hacerse.
 
-Sin esto, quien encuentre la dirección ve los formularios. No puede guardar nada
-—el servidor lo rechaza— pero no tiene por qué verlos.
+Ahora `deploy.php` no solo deja de copiarlo: **lo borra de la web en cada
+vuelta**, por si quedó una copia de antes o alguien lo sube a mano con prisa.
+En el registro aparece así:
+
+```
+Retirado de la web: admin (N archivos). No debe estar publicado.
+```
+
+**El panel no se ha perdido.** Sigue en el repositorio, y hay una versión de un
+solo archivo que se abre desde el escritorio, sin servidor y sin estar al
+alcance de internet:
+
+```
+dist/panel-match-bilbao-bizkaia.html
+```
+
+Se descarga de GitHub y se abre con doble clic.
+
+Para volver a publicarlo algún día: en `server/deploy.php`, sacar `'admin'` de
+`$RETIRAR` y devolverlo a `$DIRS`. Pero **solo después** de haber puesto la
+contraseña de carpeta desde el panel del hosting (*Protección de directorios* /
+*Directory privacy*), no antes.
+
+---
+
+# PARTE 7 · El día del lanzamiento
+
+Mientras se prueba, la web vive en `www/pruebasbilbaoekintza26`. El día que pase
+a ser `https://www.matchbilbaobizkaia.eus` **solo hay que cambiar una línea.**
+
+## Paso 7.1 · Cambiar dónde se publica
+
+En `/home/matchbilbaobizkaia/config.php`, quitar la subcarpeta:
+
+```php
+'web_dir'  => '/home/matchbilbaobizkaia/www',
+```
+
+Eso es todo. `site_url` ya apunta a la dirección definitiva desde el principio,
+y las páginas ya la llevan escrita en el enlace canónico, en la tarjeta para
+compartir, en los datos estructurados, en el `sitemap.xml` y en el `robots.txt`.
+No hay nada más que tocar.
+
+## Paso 7.2 · Lanzar el despliegue y leer el registro
+
+Crear una tarea puntual con el comando de siempre y mirar el registro. Tiene que
+aparecer **esta línea**:
+
+```
+Web definitiva: se publica SIN "no indexar", visible para los buscadores.
+```
+
+Si en vez de esa aparece `Copia de pruebas: se publica con "no indexar"...`,
+**parar**: significa que `web_dir` no apunta a la carpeta pública de la cuenta,
+y la web quedaría invisible en Google. Revisar la ruta del paso anterior.
+
+### Por qué existe esa línea
+
+La copia de pruebas lleva una marca de «no me indexes», para que Google no
+enseñe una versión a medias de la web oficial de turismo de Bilbao —con el
+agravante de que todas sus páginas dicen ser `www.matchbilbaobizkaia.eus`—.
+
+Esa marca **se pone y se quita sola**, según dónde se publique. No hay que
+acordarse de nada: el día que se cambia `web_dir`, desaparece con él. Se hizo
+así a propósito, porque el olvido contrario —dejar puesto el «no indexar» en la
+web buena— es mucho peor: la web no aparecería en Google, nada avisaría, y
+podrían pasar meses hasta que alguien lo notara.
+
+Si el hosting pusiera la carpeta pública en un sitio que esto no reconoce, se
+puede forzar desde `config.php`:
+
+```php
+'noindex' => false,   // true = no indexar · false = indexar
+```
+
+## Paso 7.3 · Retirar la web de pruebas
+
+La carpeta `www/pruebasbilbaoekintza26` **sigue estando ahí y sigue
+respondiendo**. Dos direcciones distintas con la misma web es justo lo que
+confunde a Google y a la gente que guardó el enlace.
+
+Desde el gestor de archivos del hosting, borrar esa carpeta entera. El
+despliegue ya no la toca, así que no se va a rellenar sola.
+
+## Paso 7.4 · Comprobar
+
+1. `https://www.matchbilbaobizkaia.eus` → la portada
+2. `https://www.matchbilbaobizkaia.eus/privacy.html` → la política de privacidad
+3. `https://www.matchbilbaobizkaia.eus/admin/` → **tiene que dar error**
+4. `https://www.matchbilbaobizkaia.eus/pruebasbilbaoekintza26/` → **tiene que dar error**
+
+Y **Ctrl+F5** la primera vez, por si el navegador guarda algo de antes.
 
 ---
 
