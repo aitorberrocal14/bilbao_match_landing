@@ -494,18 +494,23 @@ window.MBB.site = {
       { label: 'Explore the event', href: '#event', variant: 'primary' },
       { label: "Meet BB's Experts", href: '#experts', variant: 'ghost' }
     ],
-    // Quick facts shown under the hero.
-    facts: [
-      // Counted from the directory, so it follows the platform rather than
-      // being a number to keep in step by hand.
-      { value: 'count:exhibitors', label: 'Local exhibitors' },
-      // Cuatro, no cinco. El programa tiene cinco pestañas porque la estancia
-      // dura cinco días, pero el día 5 es solo check-out y traslados al
-      // aeropuerto: no hay programa ese día. Contarlo inflaba la cifra y además
-      // contradecía al texto de arriba, que siempre ha dicho "Four days".
-      { value: '4', label: 'Days of programme' },
-      { value: '1:1', label: 'Pre-scheduled meetings' }
-    ],
+    // LAS CIFRAS DE DEBAJO DE LA PORTADA. VACÍAS A PROPÓSITO.
+    //
+    // Eran tres —expositores, días de programa y 1:1— y ocupaban el final de
+    // la primera pantalla. Ahí está ahora la banda roja de darse de alta o
+    // entrar, que es lo que se le pide a quien acaba de leer la entrada. Las
+    // cifras contaban el evento; la banda pide hacer algo, y en ese sitio lo
+    // segundo vale más.
+    //
+    // Escribiendo una aquí —o en el panel— vuelven a salir, encima de la
+    // banda. No hay que tocar código. Eran estas:
+    //
+    //   { value: 'count:exhibitors', label: 'Local exhibitors' }
+    //       ↑ se contaba sola desde el directorio, no había que mantenerla.
+    //   { value: '4',   label: 'Days of programme' }
+    //       ↑ cuatro y no cinco: el día 5 es solo check-out y traslados.
+    //   { value: '1:1', label: 'Pre-scheduled meetings' }
+    facts: [],
     // Drop the file at the path below and it is used automatically.
     media: {
       image: 'assets/img/photos/puppy.jpg',
@@ -712,11 +717,18 @@ window.MBB.presentation = {
 window.MBB.experts = {
   eyebrow: 'Networking',
   title: "Meet BB's Experts",
+  // La entrada de la sección. Es el texto que llevaba el directorio debajo de
+  // su propio titular: al quitarle ese titular —"Exhibitors", justo debajo de
+  // "Meet BB's Experts"— su texto sube a ser el de la sección, que es lo que
+  // siempre describió.
+  //
+  // El que había decía: "Behind every itinerary there is someone local who
+  // makes it work. Meet BB's Experts is the meeting space of Match Bilbao
+  // Bizkaia: it connects international professionals with the hotels, DMCs,
+  // agencies, experience providers and institutions of the destination."
   lead:
-    'Behind every itinerary there is someone local who makes it work. Meet ' +
-    "BB's Experts is the meeting space of Match Bilbao Bizkaia: it connects " +
-    'international professionals with the hotels, DMCs, agencies, experience ' +
-    'providers and institutions of the destination.',
+    'The professionals of the Bilbao Bizkaia destination taking part in the ' +
+    'event. Filter by category, or search by name or web address.',
   body:
     'Create your profile, browse the exhibitor directory, request the ' +
     'appointments that matter to you and manage your confirmed meetings from a ' +
@@ -759,11 +771,12 @@ window.MBB.experts = {
       'agenda on the Match Bilbao Bizkaia platform.',
     help: 'Need help signing in? Write to welcome@matchbilbaobizkaia.eus'
   },
+  // El directorio ya no lleva titular ni texto propios: los dice la sección,
+  // arriba. Se queda el bloque por si algún día vuelve a hacer falta, y para
+  // que el panel no se quede con un campo apuntando a la nada.
   directory: {
-    title: 'Exhibitors',
-    text:
-      'The professionals of the Bilbao Bizkaia destination taking part in the ' +
-      'event. Filter by category, or search by name or web address.'
+    title: '',
+    text: ''
   }
 };
 
@@ -1913,7 +1926,10 @@ window.MBB.editions = [
           h2: 'Datos destacados',
           fields: [
             { t: 'rep', k: 'site.hero.facts', label: 'Cifras bajo el titular', itemLabel: 'Dato',
-              hint: 'Escribir <code>count:exhibitors</code> como valor hace que la cifra se cuente sola a partir de la lista de expositores.',
+              hint: 'Ahora mismo NO HAY NINGUNA, a propósito: en su sitio está la banda ' +
+                'roja de alta y Login. Añadiendo una aquí vuelven a salir, encima de la banda. ' +
+                'Escribir <code>count:exhibitors</code> como valor hace que la cifra se cuente ' +
+                'sola a partir de la lista de expositores.',
               title: function (o) { return (o.value || '—') + ' · ' + (o.label || ''); },
               fields: [
                 { t: 'row', fields: [
@@ -2084,6 +2100,10 @@ window.MBB.editions = [
         {
           h2: 'Encabezado del directorio',
           fields: [
+            { t: 'note', html: '<p>Los dos campos están <strong>vacíos a propósito</strong>. ' +
+              'El directorio llevaba su propio título, «Exhibitors», justo debajo del de la ' +
+              'sección: dos títulos seguidos del mismo tamaño para una sola cosa. Su texto es ' +
+              'ahora el de la sección, arriba. Escribiendo algo aquí vuelve a salir.</p>' },
             { t: 'text', k: 'experts.directory.title', label: 'Título' },
             { t: 'textarea', k: 'experts.directory.text', label: 'Texto', rows: 3 }
           ]

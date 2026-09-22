@@ -61,7 +61,16 @@
         aviso: esAviso
       });
     });
-    into('hero', function () { return MBB.Hero(MBB.site, MBB.eventIntro); });
+    // La banda de alta y Login se arma aquí y se le pasa a la portada, igual
+    // que el directorio se le pasa a "Meet BB's Experts": los datos los junta
+    // este archivo y el orden lo decide el componente.
+    into('hero', function () {
+      return MBB.Hero(MBB.site, MBB.eventIntro, {
+        banda: MBB.loginHref(MBB.site)
+          ? MBB.LoginBand(MBB.site, MBB.experts, { slim: true })
+          : ''
+      });
+    });
     into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });
     into('presentation', function () { return MBB.Presentation(MBB.presentation); });
     into('editions', function () { return MBB.Editions(MBB.editions); });

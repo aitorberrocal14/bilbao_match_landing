@@ -1090,8 +1090,8 @@ p:last-child { margin-bottom: 0; }
      que el hueco no tiene que decirlo otra vez. Eran 112px entre la entrada y
      estos tres bloques, y otros 104 hasta las cifras: 216px de nada en la
      parte de la web que más gente ve y menos gente baja. */
-  margin-top: clamp(1.75rem, 3.5vw, 2.5rem);
-  padding-top: clamp(1.5rem, 3vw, 2rem);
+  margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
   border-top: 1px solid var(--line);
 }
 .pillar h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
@@ -1216,6 +1216,42 @@ p:last-child { margin-bottom: 0; }
   gap: clamp(1.75rem, 4vw, 3rem);
   align-items: start;
 }
+/* La versión de la portada. Ahí la banda cierra la primera pantalla, así que
+   tiene que medir poco: sin los dos párrafos explicativos, con menos relleno y
+   con los titulares más pequeños. Lo que queda es lo que hace falta para
+   decidir —qué eres y el botón—, que es para lo que está. */
+.login-band--slim {
+  margin-top: clamp(1.25rem, 2.5vw, 1.5rem);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.5rem, 3vw, 2.25rem);
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: center;
+}
+/* Cada mitad, en una fila en vez de en columna: el titular y el botón uno al
+   lado del otro. Apilados, la banda medía 199px y sus botones —que son para lo
+   que está— caían por debajo del borde de la pantalla. En fila mide la mitad. */
+.login-band--slim .login-band__half {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+}
+.login-band--slim h2 { font-size: 1.05rem; margin: 0; color: #fff; }
+.login-band--slim .btn { margin-top: 0; }
+/* El aviso de la fecha va en la misma fila, detrás del botón: así la banda se
+   queda en una sola línea de alto y sus botones entran en la primera pantalla,
+   que es de lo que se trata. */
+.login-band--slim .login-band__note {
+  order: 3;
+  margin-top: 0 !important;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.78rem;
+}
+@media (min-width: 880px) {
+  .login-band--slim .login-band__half + .login-band__half {
+    padding-left: clamp(1rem, 2.5vw, 2rem);
+  }
+}
+
 .login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
 /* La línea va entre las dos, nunca antes de la primera ni cuando se apilan. */
 @media (min-width: 880px) {
@@ -1224,6 +1260,11 @@ p:last-child { margin-bottom: 0; }
     border-left: 1px solid rgba(255, 255, 255, 0.25);
   }
 }
+/* El blanco va por el titular, sea del nivel que sea. La portada usa <h2>
+   —ahí la banda cuelga del <h1> de la página— y la sección usa <h3>, porque
+   cuelga del <h2> de la sección. Nombrando solo uno, el otro salía en rojo
+   sobre rojo: escrito, ocupando su sitio, y sin verse. */
+.login-band h2,
 .login-band h3 { color: #fff; margin: 0 0 0.35rem; font-size: 1.5rem; }
 .login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 46ch; }
 .login-band .btn { margin-top: 1.25rem; }
@@ -1250,7 +1291,11 @@ p:last-child { margin-bottom: 0; }
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
 /* The directory opens a subject of its own inside "Meet BB's Experts", right
    under the red login band. Without this it starts flush against the band. */
-.directory { margin-top: clamp(3.5rem, 7vw, 6rem); }
+/* El directorio va pegado a la entrada de la sección. Llevaba 96px de hueco
+   encima, que era lo que lo separaba de la banda roja cuando la banda estaba
+   aquí; ahora lo único que tiene encima es el texto que lo describe, y entre
+   una cosa y lo que la describe no hace falta un palmo. */
+.directory { margin-top: clamp(1.25rem, 2.5vw, 1.75rem); }
 
 /* Category buttons and the name search sit on one line, and stack on narrow
    screens. The search keeps the plain, ruled look of the rest of the page. */

@@ -306,7 +306,8 @@ window.MBB = window.MBB || {};
    *                        es donde sirven: los lee quien acaba de llegar,
    *                        antes de decidir si sigue bajando.
    */
-  MBB.Hero = function (site, intro) {
+  MBB.Hero = function (site, intro, opts) {
+    opts = opts || {};
     var h = site.hero;
 
     var media = h.media && h.media.image
@@ -372,7 +373,19 @@ window.MBB = window.MBB || {};
           '<div class="hero__media" data-reveal style="--d:100ms">' + media + '</div>' +
         '</div>' +
         (pilares ? '<div class="pillars" data-reveal>' + pilares + '</div>' : '') +
-        '<div class="hero__facts" data-reveal>' + facts + '</div>' +
+        // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y ahora está la
+        // banda roja de darse de alta o entrar.
+        //
+        // Las cifras contaban el evento; la banda pide hacer algo. En el sitio
+        // donde se acaba la primera pantalla, lo segundo vale más: quien ha
+        // leído la entrada y los tres bloques ya sabe qué es esto, y lo único
+        // que falta es decirle por dónde se entra. Antes eso estaba tres
+        // pantallas más abajo, dentro de "Meet BB's Experts".
+        //
+        // Las cifras siguen en site.js, sin dibujarse. Basta con volver a
+        // escribir una para que vuelvan.
+        (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
+        (opts.banda || '') +
       '</div>'
     );
   };
@@ -1138,16 +1151,19 @@ window.MBB = window.MBB || {};
         '<h2 class="h-1">' + esc(e.title) + '</h2>' +
         '<p class="lead">' + esc(e.lead) + '</p>' +
       '</div>' +
-      (loginHref(site) ? MBB.LoginBand(site, e) : '') +
-      // La banda roja llena la pantalla al llegar aquí, y el directorio se
-      // queda justo debajo del borde. Esta línea es lo único que dice que
-      // está ahí.
-      MBB.ScrollCue('#exhibitors', 'See the companies taking part') +
-      // Y justo debajo, los expositores. Van AQUÍ y no al final para que
-      // asomen por el borde de la pantalla al llegar a la sección: quien entra
-      // ve las dos puertas y, sin leer nada, entiende que más abajo hay
-      // empresas de verdad. El directorio lo arma main.js, que es quien tiene
-      // los datos; esta función solo decide en qué orden va todo.
+      // Y debajo del titular, los expositores. Sin nada en medio.
+      //
+      // Aquí estaba la banda roja de alta y Login, y se ha subido a la
+      // portada: llenaba la pantalla entera y dejaba el directorio —que es a
+      // lo que viene mucha gente— por debajo del borde, con un pie que
+      // avisaba de que estaba ahí. Quitada la banda, el aviso sobra: el
+      // directorio empieza donde acaba el titular.
+      //
+      // El directorio ya no trae su propio titular. Tenía uno, "Exhibitors",
+      // justo debajo de "Meet BB's Experts": dos titulares seguidos, del mismo
+      // tamaño, para una sola cosa. El texto que llevaba debajo es ahora la
+      // entrada de la sección. El directorio lo arma main.js, que es quien
+      // tiene los datos; esta función solo decide en qué orden va todo.
       (opts.directorio || '') +
       // El párrafo explicativo y los cuatro pasos cuentan CÓMO funciona, que es
       // la segunda pregunta, no la primera. Bajan al final.
@@ -1166,38 +1182,70 @@ window.MBB = window.MBB || {};
    * @param {object} e     window.MBB.experts
    * @param {object} opts  { base } cuando se dibuja fuera de la portada
    */
+  /**
+   * @param {object} opts  { base, slim }
+   *
+   * `slim` es la versión de la portada. La banda vive ahora ahí, debajo de los
+   * tres bloques, en el sitio donde estaban las cifras. Y en la portada no
+   * caben los dos párrafos explicativos: entre la entrada, los bloques y esto,
+   * la primera pantalla se pasaba de largo y había que bajar para ver el botón
+   * —justo lo contrario de para lo que está ahí—.
+   *
+   * Así que la versión de la portada se queda con lo que hace falta para
+   * decidir: qué eres —nuevo o de vuelta— y el botón. Lo que explican los
+   * párrafos lo cuenta la propia plataforma en cuanto se entra, y no hace
+   * falta leerlo antes para saber cuál de los dos botones es el tuyo.
+   *
+   * El aviso de la fecha SÍ se queda: enterarse de que la plataforma no ha
+   * abierto después de pulsar es enterarse tarde.
+   */
   MBB.LoginBand = function (site, e, opts) {
     opts = opts || {};
     var base = opts.base || '';
+    var slim = !!opts.slim;
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
 
     // Mientras no esté abierta se dice la fecha, y se dice en el botón mismo:
     // enterarse después de pulsar es enterarse tarde.
+    // En la portada el aviso va en la misma fila que el botón, así que se dice
+    // en tres palabras: al lado de un botón que pone "Login", debajo de
+    // "Already registered?", no hace falta explicar de qué abre.
     var aviso = abierta
       ? ''
-      : '<p class="login-band__note">Access to the platform opens on ' +
+      : '<p class="login-band__note">' +
+          (slim ? 'Opens on ' : 'Access to the platform opens on ') +
           esc(MBB.platformOpensOn(site)) + '.</p>';
+
+    // En la portada los titulares de la banda cuelgan del <h1> de la página, y
+    // ahí un <h3> dejaría un hueco en el esquema de títulos. Dentro de "Meet
+    // BB's Experts" cuelgan del <h2> de la sección, y ahí <h3> es lo que toca.
+    var t = slim ? 'h2' : 'h3';
+    var titular = function (texto) {
+      return '<' + t + '>' + esc(texto) + '</' + t + '>';
+    };
+    var boton = slim ? 'btn btn--light' : 'btn btn--lg btn--light';
 
     var alta = reg.url
       ? '<div class="login-band__half">' +
-          '<h3>' + esc(e.registerPanel.title) + '</h3>' +
-          '<p>' + esc(e.registerPanel.text) + '</p>' +
-          '<a class="btn btn--lg btn--light" href="' + esc(reg.url) + '" ' +
+          titular(e.registerPanel.title) +
+          (slim ? '' : '<p>' + esc(e.registerPanel.text) + '</p>') +
+          '<a class="' + boton + '" href="' + esc(reg.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
         '</div>'
       : '';
 
     var entrar =
       '<div class="login-band__half">' +
-        '<h3>' + esc(e.loginPanel.title) + '</h3>' +
-        '<p>' + esc(e.loginPanel.text) + '</p>' +
+        titular(e.loginPanel.title) +
+        (slim ? '' : '<p>' + esc(e.loginPanel.text) + '</p>') +
         aviso +
-        loginLink(site, 'btn btn--lg btn--light', base) +
-        '<small>' + esc(e.loginPanel.help) + '</small>' +
+        loginLink(site, boton, base) +
+        (slim ? '' : '<small>' + esc(e.loginPanel.help) + '</small>') +
       '</div>';
 
-    return '<div class="login-band" data-reveal>' + alta + entrar + '</div>';
+    return '<div class="login-band' + (slim ? ' login-band--slim' : '') +
+      '" data-reveal>' + alta + entrar + '</div>';
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */
@@ -1243,12 +1291,10 @@ window.MBB = window.MBB || {};
     if (!exhibitors.length) {
       return (
         '<div class="directory" id="exhibitors">' +
-          // The standing introduction offers to filter and to search. With no
-          // tools on screen it would be describing something that is not there,
-          // so the heading stands on its own until the directory opens.
-          '<div class="section-head section-head--center" data-reveal>' +
-            '<h2 class="h-1">' + esc(copy.title) + '</h2>' +
-          '</div>' +
+          // Sin titular, igual que cuando hay empresas. La entrada de la
+          // sección habla de filtrar y buscar, y aquí todavía no hay ni
+          // filtros ni buscador: lo aclaran estas dos líneas, que es mejor
+          // que callarse y dejar una sección que promete algo que no está.
           '<div class="dir-waiting" data-reveal>' +
             '<p class="lead">The exhibitor directory opens as companies register.</p>' +
             '<p>Every participating company of the Bilbao Bizkaia destination will ' +
@@ -1260,10 +1306,10 @@ window.MBB = window.MBB || {};
 
     return (
       '<div class="directory" id="exhibitors">' +
-        '<div class="section-head section-head--center" data-reveal>' +
-          '<h2 class="h-1">' + esc(copy.title) + '</h2>' +
-          '<p>' + esc(copy.text) + '</p>' +
-        '</div>' +
+        // SIN TITULAR PROPIO. El de la sección, "Meet BB's Experts", está dos
+        // líneas más arriba, y debajo va el texto que antes llevaba este
+        // bloque. Dos titulares seguidos del mismo tamaño no separaban dos
+        // temas: partían uno en dos.
         '<div class="dir-tools">' +
           '<div class="filters" role="group" aria-label="Filter exhibitors by category">' +
             filters +

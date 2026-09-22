@@ -515,7 +515,10 @@
           h2: 'Datos destacados',
           fields: [
             { t: 'rep', k: 'site.hero.facts', label: 'Cifras bajo el titular', itemLabel: 'Dato',
-              hint: 'Escribir <code>count:exhibitors</code> como valor hace que la cifra se cuente sola a partir de la lista de expositores.',
+              hint: 'Ahora mismo NO HAY NINGUNA, a propósito: en su sitio está la banda ' +
+                'roja de alta y Login. Añadiendo una aquí vuelven a salir, encima de la banda. ' +
+                'Escribir <code>count:exhibitors</code> como valor hace que la cifra se cuente ' +
+                'sola a partir de la lista de expositores.',
               title: function (o) { return (o.value || '—') + ' · ' + (o.label || ''); },
               fields: [
                 { t: 'row', fields: [
@@ -686,6 +689,10 @@
         {
           h2: 'Encabezado del directorio',
           fields: [
+            { t: 'note', html: '<p>Los dos campos están <strong>vacíos a propósito</strong>. ' +
+              'El directorio llevaba su propio título, «Exhibitors», justo debajo del de la ' +
+              'sección: dos títulos seguidos del mismo tamaño para una sola cosa. Su texto es ' +
+              'ahora el de la sección, arriba. Escribiendo algo aquí vuelve a salir.</p>' },
             { t: 'text', k: 'experts.directory.title', label: 'Título' },
             { t: 'textarea', k: 'experts.directory.text', label: 'Texto', rows: 3 }
           ]

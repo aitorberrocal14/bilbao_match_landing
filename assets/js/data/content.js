@@ -82,11 +82,18 @@ window.MBB.presentation = {
 window.MBB.experts = {
   eyebrow: 'Networking',
   title: "Meet BB's Experts",
+  // La entrada de la sección. Es el texto que llevaba el directorio debajo de
+  // su propio titular: al quitarle ese titular —"Exhibitors", justo debajo de
+  // "Meet BB's Experts"— su texto sube a ser el de la sección, que es lo que
+  // siempre describió.
+  //
+  // El que había decía: "Behind every itinerary there is someone local who
+  // makes it work. Meet BB's Experts is the meeting space of Match Bilbao
+  // Bizkaia: it connects international professionals with the hotels, DMCs,
+  // agencies, experience providers and institutions of the destination."
   lead:
-    'Behind every itinerary there is someone local who makes it work. Meet ' +
-    "BB's Experts is the meeting space of Match Bilbao Bizkaia: it connects " +
-    'international professionals with the hotels, DMCs, agencies, experience ' +
-    'providers and institutions of the destination.',
+    'The professionals of the Bilbao Bizkaia destination taking part in the ' +
+    'event. Filter by category, or search by name or web address.',
   body:
     'Create your profile, browse the exhibitor directory, request the ' +
     'appointments that matter to you and manage your confirmed meetings from a ' +
@@ -129,10 +136,11 @@ window.MBB.experts = {
       'agenda on the Match Bilbao Bizkaia platform.',
     help: 'Need help signing in? Write to welcome@matchbilbaobizkaia.eus'
   },
+  // El directorio ya no lleva titular ni texto propios: los dice la sección,
+  // arriba. Se queda el bloque por si algún día vuelve a hacer falta, y para
+  // que el panel no se quede con un campo apuntando a la nada.
   directory: {
-    title: 'Exhibitors',
-    text:
-      'The professionals of the Bilbao Bizkaia destination taking part in the ' +
-      'event. Filter by category, or search by name or web address.'
+    title: '',
+    text: ''
   }
 };

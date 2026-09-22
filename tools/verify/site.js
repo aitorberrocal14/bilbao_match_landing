@@ -503,26 +503,43 @@ function check(etiqueta, ok, detalle) {
     check('el Login está una vez y solo una', barra.loginUno === 1, barra.loginUno);
     check('la barra no se sale de ancho', barra.loginDentro);
 
-    /* --- El orden de "Meet BB's Experts" ------------------------------------ */
-    // Lo que se viene a hacer va primero. Antes las dos puertas estaban al
-    // final, detrás de un párrafo largo y de los cuatro pasos, y quien pulsaba
-    // la entrada del menú aterrizaba en una pared de texto con los botones
-    // fuera de la pantalla. El orden es: titular, puertas, expositores y, por
-    // último, cómo funciona.
+    /* --- Dónde está cada cosa ----------------------------------------------- */
+    // LAS DOS PUERTAS ESTÁN EN LA PORTADA, una sola vez.
+    //
+    // Han estado en tres sitios. Al final de "Meet BB's Experts", detrás de un
+    // párrafo largo y de los cuatro pasos, donde quien pulsaba la entrada del
+    // menú aterrizaba en una pared de texto con los botones fuera de la
+    // pantalla. Luego al principio de esa sección, donde llenaban la pantalla
+    // y dejaban el directorio —que es a lo que viene mucha gente— por debajo
+    // del borde. Y ahora en la portada, cerrando la primera pantalla, que es
+    // donde se le pide algo a quien acaba de leer de qué va esto.
+    //
+    // Se comprueba que esté en la portada y que no haya dos: dos bandas rojas
+    // iguales no dan dos oportunidades de entrar, dan la sensación de que la
+    // web insiste.
     const orden = await pagina.evaluate(() => {
       const y = (s) => { const e = document.querySelector(s);
         return e ? e.getBoundingClientRect().top + window.scrollY : null; };
       // El directorio, por su contenedor y no por la rejilla: antes de la
       // primera empresa no hay rejilla, solo el aviso de que se irá llenando.
-      return { banda: y('.login-band'), directorio: y('.directory'), pasos: y('.steps') };
+      return {
+        bandas: document.querySelectorAll('.login-band').length,
+        enPortada: !!document.querySelector('#home .login-band'),
+        directorio: y('.directory'),
+        pasos: y('.steps'),
+        // Y el directorio, pegado a la entrada de la sección: sin titular
+        // propio en medio, que era otro <h2> del mismo tamaño para lo mismo.
+        titularPropio: document.querySelectorAll('.directory h2').length
+      };
     });
 
-    check('las dos puertas van antes que el directorio',
-      orden.banda !== null && orden.directorio !== null && orden.banda < orden.directorio,
-      'banda ' + orden.banda + ' · directorio ' + orden.directorio);
+    check('las dos puertas están en la portada, y una sola vez',
+      orden.bandas === 1 && orden.enPortada, orden.bandas + ' banda(s)');
+    check('el directorio no repite titular', orden.titularPropio === 0,
+      orden.titularPropio + ' titular(es)');
     check('"cómo funciona" queda para el final',
-      orden.pasos !== null && orden.banda < orden.pasos,
-      'banda ' + orden.banda + ' · pasos ' + orden.pasos);
+      orden.pasos !== null && orden.directorio < orden.pasos,
+      'directorio ' + orden.directorio + ' · pasos ' + orden.pasos);
 
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
     check('las dos ediciones tienen vídeo',
@@ -741,19 +758,22 @@ function check(etiqueta, ok, detalle) {
   await pp.waitForTimeout(900);
   const alto = await pp.evaluate(() => {
     document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'));
-    const c = document.querySelector('.hero__facts').getBoundingClientRect();
+    // La banda de alta y Login cierra la portada. Sus BOTONES son para lo que
+    // está ahí, así que lo que tiene que caber no es el principio de la banda:
+    // es la banda entera.
+    const c = document.querySelector('.hero .login-band').getBoundingClientRect();
     const h = document.querySelector('.header').getBoundingClientRect();
     const k = document.querySelector('.hero__dates').getBoundingClientRect();
     return {
-      cifras: Math.round(c.bottom),
+      banda: Math.round(c.bottom),
       hueco: Math.round(k.top - h.bottom),
       vh: window.innerHeight
     };
   });
   await port.close();
 
-  check('las cifras se ven sin bajar', alto.cifras <= alto.vh,
-    alto.cifras + 'px de ' + alto.vh);
+  check('la banda de alta y Login se ve entera sin bajar', alto.banda <= alto.vh,
+    alto.banda + 'px de ' + alto.vh);
   check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
     alto.hueco + 'px entre la cabecera y la primera línea');
 
@@ -787,8 +807,8 @@ function check(etiqueta, ok, detalle) {
 
   for (const [etiqueta, entrada, medir] of [
     ['al pulsar Destination se ve la sección entera', 'Destination', '#presentation'],
-    ['al pulsar Meet BB\'s Experts asoma el aviso de que hay más', "Meet BB's Experts",
-      '#experts .cue']
+    ['al pulsar Meet BB\'s Experts se llega al directorio', "Meet BB's Experts",
+      '#exhibitors']
   ]) {
     await pc.evaluate(() => window.scrollTo(0, 0));
     await pc.waitForTimeout(250);
@@ -811,8 +831,8 @@ function check(etiqueta, ok, detalle) {
     })));
   await clic.close();
 
-  check('los avisos de "hay más abajo" llevan a alguna parte',
-    cues.length >= 2 && cues.every((c) => c.existe),
+  check('el aviso de "hay más abajo" lleva a alguna parte',
+    cues.length === 1 && cues.every((c) => c.existe),
     cues.map((c) => c.href).join(' ') || 'ninguno');
 
   /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */

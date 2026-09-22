@@ -103,18 +103,23 @@ window.MBB.site = {
       { label: 'Explore the event', href: '#event', variant: 'primary' },
       { label: "Meet BB's Experts", href: '#experts', variant: 'ghost' }
     ],
-    // Quick facts shown under the hero.
-    facts: [
-      // Counted from the directory, so it follows the platform rather than
-      // being a number to keep in step by hand.
-      { value: 'count:exhibitors', label: 'Local exhibitors' },
-      // Cuatro, no cinco. El programa tiene cinco pestañas porque la estancia
-      // dura cinco días, pero el día 5 es solo check-out y traslados al
-      // aeropuerto: no hay programa ese día. Contarlo inflaba la cifra y además
-      // contradecía al texto de arriba, que siempre ha dicho "Four days".
-      { value: '4', label: 'Days of programme' },
-      { value: '1:1', label: 'Pre-scheduled meetings' }
-    ],
+    // LAS CIFRAS DE DEBAJO DE LA PORTADA. VACÍAS A PROPÓSITO.
+    //
+    // Eran tres —expositores, días de programa y 1:1— y ocupaban el final de
+    // la primera pantalla. Ahí está ahora la banda roja de darse de alta o
+    // entrar, que es lo que se le pide a quien acaba de leer la entrada. Las
+    // cifras contaban el evento; la banda pide hacer algo, y en ese sitio lo
+    // segundo vale más.
+    //
+    // Escribiendo una aquí —o en el panel— vuelven a salir, encima de la
+    // banda. No hay que tocar código. Eran estas:
+    //
+    //   { value: 'count:exhibitors', label: 'Local exhibitors' }
+    //       ↑ se contaba sola desde el directorio, no había que mantenerla.
+    //   { value: '4',   label: 'Days of programme' }
+    //       ↑ cuatro y no cinco: el día 5 es solo check-out y traslados.
+    //   { value: '1:1', label: 'Pre-scheduled meetings' }
+    facts: [],
     // Drop the file at the path below and it is used automatically.
     media: {
       image: 'assets/img/photos/puppy.jpg',
