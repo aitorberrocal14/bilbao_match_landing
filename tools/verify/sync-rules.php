@@ -275,10 +275,55 @@ if (!$abre) {
     if (!$bien) { $fallos++; }
 }
 
+/* 7. QUITAR EL LOGOTIPO EN LA PLATAFORMA TIENE QUE QUITARLO DE LA WEB, y un
+      fallo de red NO. Son dos situaciones que desde el servidor se parecen y
+      que hay que separar, porque durante un tiempo se trataron igual: se
+      conservaba siempre el logotipo viejo, así que una empresa podía borrar el
+      suyo y seguir publicado indefinidamente.
+
+      Se prueban las dos, con un logotipo puesto a mano en el sitio donde el
+      sync los guarda. */
+echo "\n· Quitar el logotipo en la plataforma lo quita de la web\n";
+
+$logos = $destino . '/assets/img/exhibitors';
+@mkdir($logos, 0777, true);
+$fl = $TMP . '/fixture-logo.json';
+
+$correr = function (array $inscritos) use ($ROOT, $fl) {
+    file_put_contents($fl, json_encode(['results' => $inscritos], JSON_UNESCAPED_UNICODE));
+    shell_exec(
+        'php ' . escapeshellarg($ROOT . '/server/sync.php') .
+        ' --fixture ' . escapeshellarg($fl) . ' 2>&1'
+    );
+};
+
+// A. La plataforma ya no trae logotipo: la empresa lo ha borrado.
+file_put_contents($logos . '/turismo-uno.png', 'PNG-DE-MENTIRA');
+$correr([inscrito(1, 'Turismo Uno', '210824', '213999')]);
+$datos = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+$bien = strpos($datos, "logo: ''") !== false && !is_file($logos . '/turismo-uno.png');
+echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  borrado en la plataforma, desaparece de la web\n";
+if (!$bien) { $fallos++; }
+
+// B. La plataforma SÍ trae logotipo pero no se puede bajar —aquí porque falta
+//    `img_base` en el config, que es el caso real de una dirección que no se
+//    puede componer—. El que ya estaba se conserva: un fallo de red no puede
+//    dejar el directorio sin logotipos.
+file_put_contents($logos . '/turismo-uno.png', 'PNG-DE-MENTIRA');
+$conLogo = inscrito(1, 'Turismo Uno', '210824', '213999');
+$conLogo['fields'][] = ['id' => '372389', 'value' => 'turismo-uno.png'];
+$correr([$conLogo]);
+$datos = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+$bien = is_file($logos . '/turismo-uno.png') &&
+    strpos($datos, "logo: 'assets/img/exhibitors/turismo-uno.png'") !== false;
+echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  pero un fallo al bajarlo no lo borra\n";
+if (!$bien) { $fallos++; }
+
 // Lo escrito se borra: esta prueba no deja web montada en ningún sitio.
 foreach (['/assets/js/data/exhibitors.js', '/assets/js/data/exhibitors-local.json',
           '/sitemap.xml'] as $x) { @unlink($destino . $x); }
 array_map('unlink', glob($destino . '/exhibitors/*') ?: []);
+array_map('unlink', glob($logos . '/*') ?: []);
 
 echo "\n" . ($fallos ? $fallos . ' comprobaciones fallan' : 'Todas las comprobaciones pasan') . "\n";
 exit($fallos ? 1 : 0);

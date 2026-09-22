@@ -1506,7 +1506,24 @@ foreach ($visible as $entry) {
     if ($url_logo === '' && $archivo_logo !== '') {
         $sin_base[] = $name;
     }
-    $logo = fetch_logo($url_logo, $id, $DRY) ?? existing_logo($id);
+    // QUITAR EL LOGOTIPO EN LA PLATAFORMA TIENE QUE NOTARSE EN LA WEB.
+    //
+    // Aquí había una sola línea: baja el logotipo y, si no puedes, quédate con
+    // el que ya estaba. La segunda mitad es necesaria —un fallo de red no
+    // puede vaciar el directorio de golpe— pero se comía también el caso
+    // contrario: una empresa borraba su logotipo de la plataforma, el sync
+    // corría, no había nada que bajar, se recuperaba el viejo y el logotipo
+    // seguía publicado para siempre. Y sin decir nada, porque desde fuera las
+    // dos situaciones se parecen.
+    //
+    // No se parecen, y la plataforma las distingue: si el campo viene VACÍO es
+    // que lo han quitado, y si viene CON NOMBRE y la descarga falla es un
+    // problema de red. Lo primero se obedece; lo segundo se aguanta.
+    if ($archivo_logo === '') {
+        $logo = null;
+    } else {
+        $logo = fetch_logo($url_logo, $id, $DRY) ?? existing_logo($id);
+    }
 
     // Lo escrito a mano manda; si no hay nada, lo dice el formulario.
     $category = in_array($rec['category'] ?? '', $known, true) ? $rec['category'] : '';
@@ -1642,6 +1659,28 @@ foreach (scandir(MBB_PAGES) ?: [] as $f) {
     }
 }
 if ($removed) { say('  ' . $removed . ' páginas retiradas.'); }
+
+// Y los logotipos que ya no usa nadie: los de empresas que se han ido y los de
+// quien ha borrado el suyo. No es solo orden en el disco — es la imagen de una
+// empresa que ya no está en el evento, siguiendo en un servidor público al que
+// cualquiera puede pedirla por su dirección.
+//
+// Se borra solo lo que sobra, comparando con lo que se acaba de publicar. Y
+// esto va DESPUÉS del aviso de caída: si la plataforma hubiera contestado con
+// media lista, el sync ya se habría parado sin escribir ni borrar nada.
+$logos_usados = [];
+foreach ($exhibitors as $x) {
+    if ($x['logo']) { $logos_usados[basename($x['logo'])] = true; }
+}
+$logos_fuera = 0;
+foreach (scandir(MBB_LOGOS) ?: [] as $f) {
+    if ($f === '.' || $f === '..' || !is_file(MBB_LOGOS . '/' . $f)) { continue; }
+    if (!isset($logos_usados[$f])) {
+        @unlink(MBB_LOGOS . '/' . $f);
+        $logos_fuera++;
+    }
+}
+if ($logos_fuera) { say('  ' . $logos_fuera . ' logotipos retirados.'); }
 
 write_sitemap($exhibitors, (string) ($conf['site_url'] ?? 'https://www.matchbilbaobizkaia.eus/'));
 
