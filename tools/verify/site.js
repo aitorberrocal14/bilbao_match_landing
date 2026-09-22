@@ -476,7 +476,8 @@ function check(etiqueta, ok, detalle) {
   await cab.goto(PAGINA);
   await cab.waitForTimeout(700);
 
-  for (const w of [1600, 1440, 1366, 1280, 1250, 1200, 1100, 1024, 950, 820, 620, 390]) {
+  // Hasta los 320px, que es el móvil más estrecho que sigue en circulación.
+  for (const w of [1600, 1440, 1366, 1280, 1250, 1200, 1100, 1024, 950, 820, 620, 390, 360, 320]) {
     await cab.setViewportSize({ width: w, height: 700 });
     await cab.waitForTimeout(160);
     const r = await cab.evaluate(() => {

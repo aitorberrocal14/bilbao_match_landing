@@ -1724,3 +1724,17 @@ p:last-child { margin-bottom: 0; }
   .preview { grid-template-columns: 1fr; }
   .preview__cover { max-width: 180px; }
 }
+
+/* --- Pantallas muy estrechas (iPhone SE y parecidos) -----------------------
+   A 320px la cabecera se salía 6px: el logotipo, el botón de alta y el botón
+   del menú no caben juntos. No es un ancho común hoy, pero 6px de barra
+   horizontal se ven, y se ven en TODA la página, no solo en la cabecera.
+
+   Se le quita tamaño a lo que puede perderlo sin dejar de entenderse: el
+   logotipo y el relleno del botón. El botón del menú no se toca, porque
+   achicarlo empeora la zona de pulsación, que es lo último que conviene
+   estrechar en la pantalla más pequeña. */
+@media (max-width: 380px) {
+  .header__brand img { width: min(130px, 34vw); }
+  .header__actions .btn { padding: 0.4rem 0.7rem; font-size: 0.66rem; }
+}
