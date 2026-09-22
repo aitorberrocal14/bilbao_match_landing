@@ -506,7 +506,30 @@ puede forzar desde `config.php`:
 'noindex' => false,   // true = no indexar · false = indexar
 ```
 
-## Paso 7.3 · Retirar la web de pruebas
+## Paso 7.3 · Borrar las empresas de prueba de Meetmaps
+
+**Este es el paso que se olvida**, y se nota mucho: veinte empresas inventadas
+—Hotel Artxanda Bilbao, Txakoli Route Experiences, Bizkaia Incoming DMC…— en el
+directorio de la web oficial el día del estreno.
+
+No están en la web: están **en Meetmaps**, y la web solo las refleja. Así que
+borrarlas de la web no sirve de nada — el siguiente sondeo las devuelve. Hay
+que borrarlas en la plataforma.
+
+Se reconocen porque **todos sus correos acaban en `@example.com`**, que es un
+dominio reservado y no existe en la vida real. Ninguna empresa de verdad lo
+usa, así que filtrando por ahí salen las veinte y ninguna más.
+
+Después, lanza el sondeo a mano y comprueba el recuento:
+
+```
+php /home/matchbilbaobizkaia/repo/server/sync.php
+```
+
+El registro tiene que decir un número que cuadre con las empresas reales
+inscritas. Si sigue diciendo veintitantos, es que quedan de prueba.
+
+## Paso 7.4 · Retirar la web de pruebas
 
 La carpeta `www/pruebasbilbaoekintza26` **sigue estando ahí y sigue
 respondiendo**. Dos direcciones distintas con la misma web es justo lo que
@@ -515,7 +538,7 @@ confunde a Google y a la gente que guardó el enlace.
 Desde el gestor de archivos del hosting, borrar esa carpeta entera. El
 despliegue ya no la toca, así que no se va a rellenar sola.
 
-## Paso 7.4 · Comprobar
+## Paso 7.5 · Comprobar
 
 1. `https://www.matchbilbaobizkaia.eus` → la portada
 2. `https://www.matchbilbaobizkaia.eus/privacy.html` → la política de privacidad
