@@ -884,17 +884,31 @@ window.MBB = window.MBB || {};
         // Start from the moments marked as the highlights of the day, then top
         // up with the earliest slots that have a time — a day whose highlight
         // is the evening should not be summarised by its transfers.
+        //
+        // UN MOMENTO PUEDE PEDIR NO SALIR AQUÍ, con `card: false`. Y cuando lo
+        // pide, la tarjeta se queda con una línea MENOS: no entra otra en su
+        // lugar. Si entrara, quitar algo de la tarjeta sería imposible —se
+        // cambiaría una línea por otra— y además subiría al resumen del día
+        // cosas que no resumen nada, como la hora de recoger a los guías.
+        // El momento sigue en el programa hora a hora y en el calendario:
+        // `card: false` habla de la tarjeta, no del día.
+        var fuera = d.slots.filter(function (s) { return s.card === false; });
+        var tope = Math.max(1, 3 - fuera.filter(function (s) { return s.feature; }).length);
+
+        var visible = function (s) { return s.card !== false; };
         var chosen = [];
-        d.slots.forEach(function (s, i) { if (s.feature) chosen.push(i); });
+        d.slots.forEach(function (s, i) { if (s.feature && visible(s)) chosen.push(i); });
         d.slots.forEach(function (s, i) {
-          if (chosen.length < 3 && !s.feature && !s.open) chosen.push(i);
+          if (chosen.length < tope && !s.feature && !s.open && visible(s)) chosen.push(i);
         });
-        if (!chosen.length) d.slots.forEach(function (s, i) { chosen.push(i); });
+        if (!chosen.length) {
+          d.slots.forEach(function (s, i) { if (visible(s)) chosen.push(i); });
+        }
 
         var seen = {};
         var lines = chosen
           .sort(function (a, b) { return a - b; })
-          .slice(0, 3)
+          .slice(0, tope)
           .map(function (i) { return d.slots[i]; })
           .filter(function (s) {
             if (seen[s.title]) return false;
@@ -975,7 +989,16 @@ window.MBB = window.MBB || {};
           '<ol class="prog__overview">' + overview + '</ol>' +
         '</div>' +
 
-        '<p class="prog__note">' + esc(programme.note) + '</p>' +
+        // La nota al pie sale solo si hay nota. Estuvo puesta y se quitó por
+        // larga: tres frases de letra pequeña debajo del programa, que casi
+        // nadie leía y que alargaban la sección. Lo que decía —que las horas
+        // son las de aquí y que el programa definitivo se confirma por
+        // correo— sigue diciéndose donde toca: en el correo mismo.
+        //
+        // El campo sigue existiendo en data/programme.js y en el panel: se
+        // escribe algo ahí y vuelve a salir. Por eso esto es una condición y
+        // no una línea borrada.
+        (programme.note ? '<p class="prog__note">' + esc(programme.note) + '</p>' : '') +
       '</div>'
     );
   };
@@ -1039,17 +1062,49 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    // Los vídeos cuelgan de "Presentation of Bilbao", así que su titular va un
-    // escalón por debajo: es un apartado de esa sección, no otra sección. Con
-    // dos titulares del mismo tamaño seguidos, quien baja no sabe si ha
-    // cambiado de tema o sigue en el mismo.
+    // El titular es un <h2> desde que esto es una sección suya y no un
+    // apartado de la presentación del destino. Mientras colgaba de ella iba un
+    // escalón por debajo, que es lo que hay que hacer cuando algo está dentro
+    // de otra cosa; ahora ya no lo está.
     return (
       '<div class="section-head section-head--center videos__head" data-reveal>' +
-        '<h3 class="h-2">Latest editions</h3>' +
+        '<h2 class="h-2">Latest editions</h2>' +
         '<p>A look back at how the event brings the destination and the ' +
         'international travel trade together.</p>' +
       '</div>' +
-      '<div class="videos">' + cards + '</div>'
+      '<div class="videos">' + cards + '</div>' +
+      // Dos carátulas grandes llenan la pantalla, y quien llega aquí no tiene
+      // por qué saber que debajo está el destino.
+      MBB.ScrollCue('#presentation', 'Discover Bilbao Bizkaia')
+    );
+  };
+
+  /**
+   * UN PIE QUE DICE QUE HAY MÁS ABAJO.
+   *
+   * Existe por un problema que solo se ve midiendo dónde acaba la pantalla.
+   * Al pulsar "Meet BB's Experts" se aterriza en el titular, el párrafo y la
+   * banda roja de Login: la pantalla se llena, parece que la sección es eso, y
+   * el directorio de expositores —que es a lo que viene mucha gente— queda por
+   * debajo del borde sin nada que avise de que está ahí. Lo mismo con los
+   * vídeos: dos carátulas grandes llenan la pantalla y el destino se queda
+   * detrás.
+   *
+   * Es un enlace de verdad, no un adorno: se pulsa y baja. Y lleva flecha
+   * porque el texto solo no se lee como algo que se pueda pulsar.
+   *
+   * @param {string} destino  '#exhibitors'
+   * @param {string} texto    lo que se lee
+   */
+  MBB.ScrollCue = function (destino, texto) {
+    if (!destino || !texto) return '';
+    return (
+      '<p class="cue" data-reveal>' +
+        '<a class="cue__link" href="' + esc(destino) + '">' +
+          '<span>' + esc(texto) + '</span>' +
+          '<span class="cue__arrow" aria-hidden="true"></span>' +
+        '</a>' +
+      '</p>'
     );
   };
 
@@ -1084,6 +1139,10 @@ window.MBB = window.MBB || {};
         '<p class="lead">' + esc(e.lead) + '</p>' +
       '</div>' +
       (loginHref(site) ? MBB.LoginBand(site, e) : '') +
+      // La banda roja llena la pantalla al llegar aquí, y el directorio se
+      // queda justo debajo del borde. Esta línea es lo único que dice que
+      // está ahí.
+      MBB.ScrollCue('#exhibitors', 'See the companies taking part') +
       // Y justo debajo, los expositores. Van AQUÍ y no al final para que
       // asomen por el borde de la pantalla al llegar a la sección: quien entra
       // ve las dos puertas y, sin leer nada, entiende que más abajo hay

@@ -132,6 +132,27 @@ button { font: inherit; color: inherit; }
 /* Less air at the foot of a section whose column already ends short */
 .section--tight { padding-bottom: clamp(1.5rem, 3.5vw, 3rem); }
 
+/* El destino se lee como UNA PANTALLA: se llega a él desde el menú y lo que
+   se ve al llegar tiene que ser la sección entera, no la mitad. Por eso lleva
+   menos aire arriba que las demás secciones —las otras se encuentran bajando,
+   y ahí el aire separa; aquí solo ocupa sitio. */
+#presentation { padding-top: clamp(2rem, 4vw, 3.5rem); }
+
+/* Y lo mismo, por la misma razón, en "Meet BB's Experts": al llegar desde el
+   menú se ven el titular, el párrafo y la banda roja, y la pantalla se acaba
+   justo ahí. El pie que avisa de que debajo están los expositores caía dos
+   dedos por debajo del borde, o sea que no avisaba a nadie. Recortando el aire
+   de arriba y el del titular, entra. */
+/* Los vídeos son una pantalla: dos carátulas, sus títulos y el pie que invita
+   a seguir. Con el aire de una sección normal no cabía. */
+#editions { padding-block: clamp(2rem, 4vw, 3rem) clamp(2rem, 4vw, 3.5rem); }
+#editions .section-head { margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem); }
+
+#experts { padding-top: clamp(1.5rem, 3vw, 2rem); }
+#experts > .shell > .section-head:first-child {
+  margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-head);
   font-weight: 700;
@@ -986,6 +1007,17 @@ p:last-child { margin-bottom: 0; }
 }
 
 /* 9. PRESENTATION OF BILBAO ================================================ */
+/* EL DESTINO TIENE QUE CABER EN UNA PANTALLA.
+   Las dos fotos se apilaban con su proporción natural —4:3 cada una— y entre
+   las dos medían más que el texto de al lado: se pulsaba "Destination" en el
+   menú y la segunda foto quedaba cortada por el borde de abajo, así que la
+   sección no se veía entera nunca.
+
+   Ahora la columna de fotos MIDE LO QUE MIDA EL TEXTO y las fotos se reparten
+   esa altura a partes iguales, recortando por los lados lo que sobre. Es lo
+   que se hace con una foto de acompañamiento: importa que llene su hueco, no
+   que se vea completa. Y como la altura la manda el texto, la sección entera
+   ocupa lo que ocupe el texto, que es una pantalla. */
 .present {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
@@ -994,13 +1026,55 @@ p:last-child { margin-bottom: 0; }
 }
 .present__media { display: grid; gap: 1rem; }
 .present__media figure { margin: 0; }
-.present__media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+/* 2:1 y no 4:3. Es el recorte que hace que las dos fotos juntas midan
+   aproximadamente lo que mide el texto de al lado, y por tanto que la sección
+   entera quepa en una pantalla. Con 4:3 medían 300px más que el texto: se
+   pulsaba "Destination" y la segunda foto salía cortada por el borde de
+   abajo, así que la sección no se veía entera nunca. `cover` recorta por los
+   lados, que en una foto de acompañamiento es lo que toca. */
+.present__media img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
 .present__cap {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--grey-light);
   padding-top: 0.5rem;
+}
+
+/* EL PIE QUE DICE QUE HAY MÁS ABAJO.
+   La flecha es un cuadrado girado 45° con dos lados pintados: no hace falta
+   traer un icono ni una tipografía más para dibujar una punta de flecha.
+   Se mueve despacio, lo justo para que el ojo la encuentre, y se queda quieta
+   para quien ha pedido menos movimiento en su sistema. */
+.cue { margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0; text-align: center; }
+.cue__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-dark);
+  text-decoration: none;
+  transition: color 0.25s var(--ease);
+}
+.cue__link:hover { color: var(--red); }
+.cue__arrow {
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  animation: cue-baja 2.4s var(--ease) infinite;
+}
+@keyframes cue-baja {
+  0%, 60%, 100% { transform: rotate(45deg) translate(0, 0); }
+  30%           { transform: rotate(45deg) translate(3px, 3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cue__arrow { animation: none; }
 }
 
 /* Los tres bloques de la portada, entre la entrada y las cifras.
@@ -1029,13 +1103,23 @@ p:last-child { margin-bottom: 0; }
    fotos. Necesitan aire por arriba y una línea que los separe, o se leerían
    pegados al último párrafo como si fueran parte de él; pero no tanto aire
    como para parecer otra sección distinta, que es justo lo que eran antes. */
-.videos__head {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(2rem, 4vw, 3rem);
-  border-top: 1px solid var(--line);
-}
+/* Este titular llevaba encima una raya y 112px de hueco, que era lo que lo
+   separaba del texto del destino cuando colgaba de él. Ya no cuelga de nada:
+   es una sección, y una sección no necesita una raya para separarse de la
+   anterior, que además es de otro color. */
+.videos__head { margin-top: 0; padding-top: 0; border-top: 0; }
 
-.videos { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 2.5rem); }
+/* La rejilla no llega al ancho completo. Con los vídeos a 581px de ancho la
+   sección medía 979px y no cabía en una pantalla de portátil: el pie que
+   invita a seguir bajando quedaba fuera, o sea que no invitaba a nadie. A
+   1040px caben los dos vídeos, sus títulos y el pie, todo a la vez. */
+.videos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  max-width: 1040px;
+  margin-inline: auto;
+}
 .video__frame {
   position: relative;
   aspect-ratio: 16 / 9;

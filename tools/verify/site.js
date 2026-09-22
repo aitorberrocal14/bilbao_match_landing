@@ -237,6 +237,41 @@ function check(etiqueta, ok, detalle) {
         parte.pintadas + ' de ' + parte.rutas);
       check('  y avisa de que son dos itinerarios', parte.parteEnDos);
     }
+
+    // Un momento marcado con `card: false` no sale en la tarjeta, Y NO LO
+    // SUSTITUYE OTRO. Si lo sustituyera, quitar algo de la tarjeta sería
+    // imposible —se cambiaría una línea por otra— y subirían al resumen del
+    // día cosas que no lo resumen, como la hora de recoger a los guías.
+    const tapado = await pagina.evaluate(() => {
+      const p = window.MBB.programme;
+      const i = p.days.findIndex((d) => d.slots.some((s) => s.card === false));
+      if (i < 0) return null;
+      const fuera = p.days[i].slots.filter((s) => s.card === false);
+      const t = document.querySelectorAll('.ov-day')[i].textContent;
+      return {
+        titulos: fuera.map((s) => s.title),
+        asoma: fuera.filter((s) => t.indexOf(s.title) > -1).map((s) => s.title),
+        // Y sigue en el programa hora a hora: se quitó de la tarjeta, no del día.
+        enElDia: fuera.every((s) =>
+          [...document.querySelectorAll('.tl-item h3')].some((h) => h.textContent === s.title))
+      };
+    });
+
+    if (tapado) {
+      check('lo apartado de la tarjeta no asoma en ella',
+        tapado.asoma.length === 0, tapado.asoma.join(' · ') || tapado.titulos.join(' · '));
+      check('  pero sigue en el programa hora a hora', tapado.enElDia);
+    }
+
+    // La nota al pie del programa está vacía, así que no debe dibujarse un
+    // párrafo vacío: media línea de aire de la nada, que es peor que el texto.
+    const nota = await pagina.evaluate(() => ({
+      dato: (window.MBB.programme.note || '').length,
+      pintada: document.querySelectorAll('.prog__note').length
+    }));
+    check('sin nota al pie no se dibuja un hueco',
+      nota.dato ? nota.pintada === 1 : nota.pintada === 0,
+      nota.dato + ' caracteres · ' + nota.pintada + ' párrafo(s)');
     check('el programa cabe en poco más de una pantalla',
       conj.pantallas <= 1.25, conj.pantallas + ' pantallas');
     check('ninguna tarjeta queda estrujada', conj.cabenEnAncho);
@@ -494,29 +529,40 @@ function check(etiqueta, ok, detalle) {
       resto.videos === 2 && resto.videosSinId === 0,
       resto.videos + ' vídeos, ' + resto.videosSinId + ' sin identificador');
 
-    /* --- Los vídeos, con la presentación ------------------------------------ */
-    // Los vídeos cuentan el destino en imágenes, así que van dentro de
-    // "Presentation of Bilbao" y no en una sección aparte con su propio
-    // titular. En escritorio van uno al lado del otro; en el móvil, uno debajo
+    /* --- Los vídeos, justo debajo de la portada ------------------------------ */
+    // Estuvieron colgando de la presentación del destino, como un apartado
+    // suyo. Son otra cosa —el evento contado en imágenes— y son lo que hace
+    // bajar, así que van en su propia sección pegada a la portada, delante del
+    // destino. En escritorio van uno al lado del otro; en el móvil, uno debajo
     // del otro y sin salirse, que es donde se rompía.
     const vid = await pagina.evaluate(() => {
-      const sec = document.querySelector('#presentation');
+      const sec = document.querySelector('#editions');
       const rejilla = document.querySelector('.videos');
-      const marcos = [...document.querySelectorAll('.video__frame')]
-        .map((f) => f.getBoundingClientRect());
+      const secciones = [...document.querySelectorAll('main > section')].map((s) => s.id);
       return {
         dentro: !!(sec && rejilla && sec.contains(rejilla)),
+        // Entre la portada y el destino, en ese orden y no en otro.
+        orden: secciones.indexOf('home') + 1 === secciones.indexOf('editions') &&
+          secciones.indexOf('editions') + 1 === secciones.indexOf('presentation'),
+        secciones: secciones.join(' › '),
         columnas: rejilla ? getComputedStyle(rejilla).gridTemplateColumns.split(' ').length : 0,
         // 16:9 con un margen de holgura: lo que no vale es un marco aplastado.
-        proporcion: marcos.every((r) => r.width > 0 && Math.abs(r.width / r.height - 16 / 9) < 0.1),
-        anchos: marcos.map((r) => Math.round(r.width) + '×' + Math.round(r.height)),
-        cabe: marcos.every((r) => r.right <= document.documentElement.clientWidth + 1),
-        // Un solo titular de sección: los vídeos son un apartado, no otro tema.
+        proporcion: [...document.querySelectorAll('.video__frame')]
+          .map((f) => f.getBoundingClientRect())
+          .every((r) => r.width > 0 && Math.abs(r.width / r.height - 16 / 9) < 0.1),
+        anchos: [...document.querySelectorAll('.video__frame')]
+          .map((f) => f.getBoundingClientRect())
+          .map((r) => Math.round(r.width) + '×' + Math.round(r.height)),
+        cabe: [...document.querySelectorAll('.video__frame')]
+          .map((f) => f.getBoundingClientRect())
+          .every((r) => r.right <= document.documentElement.clientWidth + 1),
+        // Su propio titular de sección, ahora que es una sección.
         h2: sec ? sec.querySelectorAll('h2').length : -1
       };
     });
 
-    check('los vídeos van con la presentación', vid.dentro);
+    check('los vídeos tienen su propia sección', vid.dentro);
+    check('  y van entre la portada y el destino', vid.orden, vid.secciones);
     check('un solo titular de sección', vid.h2 === 1, vid.h2 + ' h2');
     check('los vídeos se colocan según la pantalla',
       vid.columnas === (ancho < 900 ? 1 : 2), vid.columnas + ' columna(s)');
@@ -710,6 +756,64 @@ function check(etiqueta, ok, detalle) {
     alto.cifras + 'px de ' + alto.vh);
   check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
     alto.hueco + 'px entre la cabecera y la primera línea');
+
+  // LO QUE SE VE AL PULSAR UNA ENTRADA DEL MENÚ.
+  //
+  // Dos sitios donde lo que se veía al llegar no era lo que había:
+  //
+  //   · "Destination" aterrizaba en el texto y la primera foto, con la segunda
+  //     cortada por el borde de abajo. La sección no se veía entera nunca.
+  //   · "Meet BB's Experts" aterrizaba en el titular y la banda roja, y ahí se
+  //     acababa la pantalla: el directorio de expositores quedaba debajo sin
+  //     nada que dijera que estaba ahí.
+  //
+  // Las dos cosas se arreglaron quitando aire, y las dos se vuelven a romper
+  // en cuanto alguien añada un párrafo. Así que se miden.
+  const clic = await navegador.newContext({ viewport: { width: 1656, height: 810 } });
+  const pc = await clic.newPage();
+  await pc.goto(PAGINA);
+  await pc.waitForTimeout(900);
+  await pc.evaluate(() =>
+    document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in')));
+
+  // Los vídeos son una pantalla suya, debajo de la portada. Si no caben, el
+  // pie que invita a seguir bajando se queda fuera y no invita a nadie.
+  const altoVid = await pc.evaluate(() => ({
+    sec: Math.round(document.querySelector('#editions').getBoundingClientRect().height),
+    hueco: window.innerHeight - 93
+  }));
+  check('los vídeos caben en una pantalla', altoVid.sec <= altoVid.hueco,
+    altoVid.sec + 'px de ' + altoVid.hueco);
+
+  for (const [etiqueta, entrada, medir] of [
+    ['al pulsar Destination se ve la sección entera', 'Destination', '#presentation'],
+    ['al pulsar Meet BB\'s Experts asoma el aviso de que hay más', "Meet BB's Experts",
+      '#experts .cue']
+  ]) {
+    await pc.evaluate(() => window.scrollTo(0, 0));
+    await pc.waitForTimeout(250);
+    await pc.click(`.header__links a:text-is("${entrada}")`);
+    await pc.waitForTimeout(1200);
+    const r = await pc.evaluate((sel) => {
+      const c = document.querySelector(sel).getBoundingClientRect();
+      return { top: Math.round(c.top), bottom: Math.round(c.bottom), vh: window.innerHeight };
+    }, medir);
+    check(etiqueta, r.top >= -1 && r.bottom <= r.vh + 1,
+      'de ' + r.top + ' a ' + r.bottom + ' en ' + r.vh + 'px');
+  }
+
+  // Y el aviso lleva a alguna parte: un pie que invita a bajar y no baja es
+  // peor que no ponerlo.
+  const cues = await pc.evaluate(() =>
+    [...document.querySelectorAll('.cue__link')].map((a) => ({
+      href: a.getAttribute('href'),
+      existe: !!document.getElementById((a.getAttribute('href') || '').slice(1))
+    })));
+  await clic.close();
+
+  check('los avisos de "hay más abajo" llevan a alguna parte',
+    cues.length >= 2 && cues.every((c) => c.existe),
+    cues.map((c) => c.href).join(' ') || 'ninguno');
 
   /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
   // Entrar y darse de alta son dos acciones distintas, y la que interesa

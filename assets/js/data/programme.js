@@ -20,6 +20,10 @@
      feature — true to give the slot a highlighted card
      open    — true when the time is not fixed yet (arrivals, departures); the
                slot is shown without a time and left out of the calendar file.
+     card    — false keeps the slot off the day's card in the overview, and
+               nothing takes its place: the card simply shows one line fewer.
+               Use it for something the card already says in other words. The
+               slot stays in the detailed view and in the calendar file.
 
    Day fields worth knowing about:
      split   — true when the day runs in two groups. Turns on the group
@@ -35,11 +39,16 @@ window.MBB.programme = {
   // Used by the calendar export. Bilbao is on Central European Time.
   timezone: 'Europe/Madrid',
 
-  note:
-    'All times are shown in Central European Time. Arrival and departure ' +
-    'times follow each participant’s flights and are confirmed ' +
-    'individually. The final programme is confirmed to registered ' +
-    'participants by email.',
+  // La nota al pie del programa. VACÍA A PROPÓSITO: eran tres frases de letra
+  // pequeña debajo de las tarjetas, alargaban la sección y decían cosas que ya
+  // se dicen en el correo de confirmación. Escribiendo algo aquí —o en el
+  // panel— vuelve a salir sola; no hay que tocar código.
+  //
+  // Decía esto, por si hiciera falta recuperarla:
+  //   "All times are shown in Central European Time. Arrival and departure
+  //    times follow each participant's flights and are confirmed individually.
+  //    The final programme is confirmed to registered participants by email."
+  note: '',
 
   // The two itineraries of Wednesday 7. Both groups stay in the same hotel.
   groups: [
@@ -147,7 +156,12 @@ window.MBB.programme = {
           title: 'Guided visit to the Oma Forest by 4x4',
           text: 'The painted forest of Agustín Ibarrola, inside the Urdaibai Biosphere Reserve.',
           tag: 'destination',
-          feature: true
+          feature: true,
+          // Fuera de la tarjeta del día, no del programa. La tarjeta ya dice
+          // "Group 1: Oma Forest, Gernika & Gaztelugatxe" dos líneas más
+          // arriba, y repetirlo justo debajo hacía que el día pareciera tener
+          // una sola cosa. Sigue entero en "Day by day" y en el calendario.
+          card: false
         },
         { group: 'g1', time: '11:45', title: 'Coffee break', venue: 'Lezika', tag: 'social' },
         { group: 'g1', time: '12:15', title: 'Transfer to Gernika', tag: 'destination' },

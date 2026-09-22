@@ -425,9 +425,20 @@ window.MBB.site = {
   },
 
   /* --- Primary navigation ------------------------------------------------ */
+  // EL MENÚ VA EN EL ORDEN EN QUE ESTÁ LA PÁGINA, y cada entrada nombra lo que
+  // se encuentra al llegar. Hubo una que decía "Match Bilbao Bizkaia 2026" y
+  // llevaba al programa: repetía el nombre que ya está en el logotipo y no
+  // avisaba de a dónde iba. Ahora son dos, y cada una dice lo suyo.
   nav: [
     { label: 'Home', href: '#home' },
-    { label: 'Match Bilbao Bizkaia 2026', href: '#event' },
+    { label: 'Destination', href: '#presentation' },
+    // "Programme" y no "Event Programme", y no es capricho: con la etiqueta
+    // larga la fila mide 12px más de los que hay a 1280px —la anchura de
+    // portátil más corriente— desde el día que el Login pasa a ser una pastilla
+    // y ocupa 33px más. El menú se partía en dos filas. La sección se titula
+    // "Event Programme" en grande dos pantallas más abajo, así que la palabra
+    // no se pierde: solo no se repite donde no cabe.
+    { label: 'Programme', href: '#event' },
     { label: "Meet BB's Experts", href: '#experts' },
     { label: 'Discover', href: '#discover' },
     { label: 'Contact', href: '#contact' }
@@ -663,7 +674,7 @@ window.MBB.eventIntro = {
 /* --- Presentation of Bilbao ---------------------------------------------- */
 window.MBB.presentation = {
   eyebrow: 'The destination',
-  title: 'Presentation of Bilbao',
+  title: 'Bilbao Bizkaia',
   paragraphs: [
     'Bilbao is a city that reinvented itself, and did so without losing its ' +
     'character. In one generation it turned an industrial estuary into an ' +
@@ -780,6 +791,17 @@ window.MBB.experts = {
      feature — true to give the slot a highlighted card
      open    — true when the time is not fixed yet (arrivals, departures); the
                slot is shown without a time and left out of the calendar file.
+     card    — false keeps the slot off the day's card in the overview, and
+               nothing takes its place: the card simply shows one line fewer.
+               Use it for something the card already says in other words. The
+               slot stays in the detailed view and in the calendar file.
+
+   Day fields worth knowing about:
+     split   — true when the day runs in two groups. Turns on the group
+               switcher in the detailed view and the "Two itineraries" line.
+     routes  — on a day that splits, one line per group saying where it goes:
+               { group: 'g1', text: '…' }. Shown on the day's card. The group
+               name comes from `groups` below, not from this text.
    ========================================================================== */
 
 window.MBB = window.MBB || {};
@@ -788,11 +810,16 @@ window.MBB.programme = {
   // Used by the calendar export. Bilbao is on Central European Time.
   timezone: 'Europe/Madrid',
 
-  note:
-    'All times are shown in Central European Time. Arrival and departure ' +
-    'times follow each participant’s flights and are confirmed ' +
-    'individually. The final programme is confirmed to registered ' +
-    'participants by email.',
+  // La nota al pie del programa. VACÍA A PROPÓSITO: eran tres frases de letra
+  // pequeña debajo de las tarjetas, alargaban la sección y decían cosas que ya
+  // se dicen en el correo de confirmación. Escribiendo algo aquí —o en el
+  // panel— vuelve a salir sola; no hay que tocar código.
+  //
+  // Decía esto, por si hiciera falta recuperarla:
+  //   "All times are shown in Central European Time. Arrival and departure
+  //    times follow each participant's flights and are confirmed individually.
+  //    The final programme is confirmed to registered participants by email."
+  note: '',
 
   // The two itineraries of Wednesday 7. Both groups stay in the same hotel.
   groups: [
@@ -871,11 +898,24 @@ window.MBB.programme = {
       label: 'Day 2',
       date: 'Wednesday 7 October',
       dateISO: '2026-10-07',
-      theme: 'Bizkaia',
+      theme: 'Coast of Bizkaia',
       summary:
-        'A full day through Bizkaia, in two groups with different routes, ' +
-        'ending in lunch together at Bodega Berroja and dinner on a rooftop.',
+        'A full day through the coast of Bizkaia, in two groups with ' +
+        'different routes, ending in lunch together at Bodega Berroja ' +
+        '(located in the Urdaibai Biosphere Reserve) and dinner on a rooftop.',
       split: true,
+      // Adónde va cada grupo, en una línea. El detalle hora a hora está abajo,
+      // en los slots, pero para eso hay que abrir "Day by day" y elegir grupo:
+      // quien solo mira la tarjeta del día quiere saber si le toca el bosque
+      // de Oma o Urkiola, no a qué hora sale el minibús.
+      //
+      // El nombre del grupo no se escribe aquí: sale de `groups`, arriba, que
+      // es lo que también rotula el selector de la vista detallada. Escrito
+      // dos veces, un día dirían cosas distintas.
+      routes: [
+        { group: 'g1', text: 'Oma Forest, Gernika & Gaztelugatxe.' },
+        { group: 'g2', text: 'Gaztelugatxe, Bermeo & Urkiola Natural Park.' }
+      ],
       slots: [
         /* Group 1 — Oma Forest, Gernika */
         { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
@@ -887,7 +927,12 @@ window.MBB.programme = {
           title: 'Guided visit to the Oma Forest by 4x4',
           text: 'The painted forest of Agustín Ibarrola, inside the Urdaibai Biosphere Reserve.',
           tag: 'destination',
-          feature: true
+          feature: true,
+          // Fuera de la tarjeta del día, no del programa. La tarjeta ya dice
+          // "Group 1: Oma Forest, Gernika & Gaztelugatxe" dos líneas más
+          // arriba, y repetirlo justo debajo hacía que el día pareciera tener
+          // una sola cosa. Sigue entero en "Day by day" y en el calendario.
+          card: false
         },
         { group: 'g1', time: '11:45', title: 'Coffee break', venue: 'Lezika', tag: 'social' },
         { group: 'g1', time: '12:15', title: 'Transfer to Gernika', tag: 'destination' },
@@ -2068,7 +2113,10 @@ window.MBB.editions = [
         var general =
           '<div class="card"><h2>Ajustes generales</h2>' +
             fieldsHtml([
-              { t: 'textarea', k: 'programme.note', label: 'Aviso bajo el programa', rows: 4 },
+              { t: 'textarea', k: 'programme.note', label: 'Aviso bajo el programa', rows: 4,
+                hint: 'Está vacío a propósito: el aviso que había se quitó por largo. ' +
+                  'Si se escribe algo aquí vuelve a salir debajo del programa, y si se ' +
+                  'deja en blanco no sale nada.' },
               { t: 'text', k: 'programme.timezone', label: 'Zona horaria', width: 'mid',
                 hint: 'La usa la exportación al calendario. Para Bilbao, <code>Europe/Madrid</code>.' },
               { t: 'rep', k: 'programme.groups', label: 'Grupos', itemLabel: 'Grupo',

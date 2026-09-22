@@ -715,7 +715,10 @@
         var general =
           '<div class="card"><h2>Ajustes generales</h2>' +
             fieldsHtml([
-              { t: 'textarea', k: 'programme.note', label: 'Aviso bajo el programa', rows: 4 },
+              { t: 'textarea', k: 'programme.note', label: 'Aviso bajo el programa', rows: 4,
+                hint: 'Está vacío a propósito: el aviso que había se quitó por largo. ' +
+                  'Si se escribe algo aquí vuelve a salir debajo del programa, y si se ' +
+                  'deja en blanco no sale nada.' },
               { t: 'text', k: 'programme.timezone', label: 'Zona horaria', width: 'mid',
                 hint: 'La usa la exportación al calendario. Para Bilbao, <code>Europe/Madrid</code>.' },
               { t: 'rep', k: 'programme.groups', label: 'Grupos', itemLabel: 'Grupo',

@@ -205,6 +205,27 @@ button { font: inherit; color: inherit; }
 /* Less air at the foot of a section whose column already ends short */
 .section--tight { padding-bottom: clamp(1.5rem, 3.5vw, 3rem); }
 
+/* El destino se lee como UNA PANTALLA: se llega a él desde el menú y lo que
+   se ve al llegar tiene que ser la sección entera, no la mitad. Por eso lleva
+   menos aire arriba que las demás secciones —las otras se encuentran bajando,
+   y ahí el aire separa; aquí solo ocupa sitio. */
+#presentation { padding-top: clamp(2rem, 4vw, 3.5rem); }
+
+/* Y lo mismo, por la misma razón, en "Meet BB's Experts": al llegar desde el
+   menú se ven el titular, el párrafo y la banda roja, y la pantalla se acaba
+   justo ahí. El pie que avisa de que debajo están los expositores caía dos
+   dedos por debajo del borde, o sea que no avisaba a nadie. Recortando el aire
+   de arriba y el del titular, entra. */
+/* Los vídeos son una pantalla: dos carátulas, sus títulos y el pie que invita
+   a seguir. Con el aire de una sección normal no cabía. */
+#editions { padding-block: clamp(2rem, 4vw, 3rem) clamp(2rem, 4vw, 3.5rem); }
+#editions .section-head { margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem); }
+
+#experts { padding-top: clamp(1.5rem, 3vw, 2rem); }
+#experts > .shell > .section-head:first-child {
+  margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem);
+}
+
 h1, h2, h3, h4 {
   font-family: var(--font-head);
   font-weight: 700;
@@ -1059,6 +1080,17 @@ p:last-child { margin-bottom: 0; }
 }
 
 /* 9. PRESENTATION OF BILBAO ================================================ */
+/* EL DESTINO TIENE QUE CABER EN UNA PANTALLA.
+   Las dos fotos se apilaban con su proporción natural —4:3 cada una— y entre
+   las dos medían más que el texto de al lado: se pulsaba "Destination" en el
+   menú y la segunda foto quedaba cortada por el borde de abajo, así que la
+   sección no se veía entera nunca.
+
+   Ahora la columna de fotos MIDE LO QUE MIDA EL TEXTO y las fotos se reparten
+   esa altura a partes iguales, recortando por los lados lo que sobre. Es lo
+   que se hace con una foto de acompañamiento: importa que llene su hueco, no
+   que se vea completa. Y como la altura la manda el texto, la sección entera
+   ocupa lo que ocupe el texto, que es una pantalla. */
 .present {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
@@ -1067,13 +1099,55 @@ p:last-child { margin-bottom: 0; }
 }
 .present__media { display: grid; gap: 1rem; }
 .present__media figure { margin: 0; }
-.present__media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+/* 2:1 y no 4:3. Es el recorte que hace que las dos fotos juntas midan
+   aproximadamente lo que mide el texto de al lado, y por tanto que la sección
+   entera quepa en una pantalla. Con 4:3 medían 300px más que el texto: se
+   pulsaba "Destination" y la segunda foto salía cortada por el borde de
+   abajo, así que la sección no se veía entera nunca. `cover` recorta por los
+   lados, que en una foto de acompañamiento es lo que toca. */
+.present__media img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
 .present__cap {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--grey-light);
   padding-top: 0.5rem;
+}
+
+/* EL PIE QUE DICE QUE HAY MÁS ABAJO.
+   La flecha es un cuadrado girado 45° con dos lados pintados: no hace falta
+   traer un icono ni una tipografía más para dibujar una punta de flecha.
+   Se mueve despacio, lo justo para que el ojo la encuentre, y se queda quieta
+   para quien ha pedido menos movimiento en su sistema. */
+.cue { margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0; text-align: center; }
+.cue__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-dark);
+  text-decoration: none;
+  transition: color 0.25s var(--ease);
+}
+.cue__link:hover { color: var(--red); }
+.cue__arrow {
+  width: 11px;
+  height: 11px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  animation: cue-baja 2.4s var(--ease) infinite;
+}
+@keyframes cue-baja {
+  0%, 60%, 100% { transform: rotate(45deg) translate(0, 0); }
+  30%           { transform: rotate(45deg) translate(3px, 3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cue__arrow { animation: none; }
 }
 
 /* Los tres bloques de la portada, entre la entrada y las cifras.
@@ -1102,13 +1176,23 @@ p:last-child { margin-bottom: 0; }
    fotos. Necesitan aire por arriba y una línea que los separe, o se leerían
    pegados al último párrafo como si fueran parte de él; pero no tanto aire
    como para parecer otra sección distinta, que es justo lo que eran antes. */
-.videos__head {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(2rem, 4vw, 3rem);
-  border-top: 1px solid var(--line);
-}
+/* Este titular llevaba encima una raya y 112px de hueco, que era lo que lo
+   separaba del texto del destino cuando colgaba de él. Ya no cuelga de nada:
+   es una sección, y una sección no necesita una raya para separarse de la
+   anterior, que además es de otro color. */
+.videos__head { margin-top: 0; padding-top: 0; border-top: 0; }
 
-.videos { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.5rem, 3vw, 2.5rem); }
+/* La rejilla no llega al ancho completo. Con los vídeos a 581px de ancho la
+   sección medía 979px y no cabía en una pantalla de portátil: el pie que
+   invita a seguir bajando quedaba fuera, o sea que no invitaba a nadie. A
+   1040px caben los dos vídeos, sus títulos y el pie, todo a la vez. */
+.videos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  max-width: 1040px;
+  margin-inline: auto;
+}
 .video__frame {
   position: relative;
   aspect-ratio: 16 / 9;
@@ -1967,23 +2051,29 @@ p:last-child { margin-bottom: 0; }
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
-    <!-- SECTION 2 — EL DESTINO, ANTES QUE EL EVENTO =====================
-         La presentación de Bilbao y los vídeos van aquí, pegados a la portada
-         y POR DELANTE de la agenda. Estaban detrás, dentro del bloque del
-         evento, y eso los convertía en un apéndice suyo: parecían material de
-         apoyo del programa en vez de lo que son.
+    <!-- SECTION 2 — LOS VÍDEOS, PEGADOS A LA PORTADA ====================
+         Estaban colgando de la presentación del destino, como un apartado
+         suyo. Son otra cosa: el evento contado en imágenes, y lo que mejor
+         explica de qué va esto a quien no ha estado nunca.
+
+         Van justo debajo de la portada porque es lo primero que alguien quiere
+         ver, y porque un vídeo es lo que hace bajar. La portada termina en las
+         cifras; aquí hay dos carátulas grandes y un pie que invita a seguir. -->
+    <section class="section section--soft" id="editions" aria-label="Latest editions">
+      <div class="shell" data-mount="editions"></div>
+    </section>
+
+    <!-- SECTION 3 — EL DESTINO, ANTES QUE EL EVENTO =====================
+         La presentación de Bilbao va POR DELANTE de la agenda. Estaba detrás,
+         dentro del bloque del evento, y eso la convertía en un apéndice suyo:
+         parecía material de apoyo del programa en vez de lo que es.
 
          El orden importa porque cuenta otra historia. Quien llega quiere saber
          primero A DÓNDE va a ir —la ciudad, la costa, el destino— y solo
          después qué se hace allí cada día. Con la agenda delante, el destino
-         quedaba como una nota al pie de un horario.
-
-         Los vídeos van con la presentación: son el destino contado en imágenes
-         en vez de en párrafos. El ancla #editions se conserva por si hay
-         enlaces antiguos apuntando ahí. -->
+         quedaba como una nota al pie de un horario. -->
     <section class="section section--tight" id="presentation" aria-label="Bilbao Bizkaia">
       <div class="shell" data-mount="presentation"></div>
-      <div class="shell" id="editions" data-mount="editions"></div>
     </section>
 
     <!-- SECTION 3 — EVENT PROGRAMME ====================================
@@ -2435,6 +2525,10 @@ window.MBB.experts = {
      feature — true to give the slot a highlighted card
      open    — true when the time is not fixed yet (arrivals, departures); the
                slot is shown without a time and left out of the calendar file.
+     card    — false keeps the slot off the day's card in the overview, and
+               nothing takes its place: the card simply shows one line fewer.
+               Use it for something the card already says in other words. The
+               slot stays in the detailed view and in the calendar file.
 
    Day fields worth knowing about:
      split   — true when the day runs in two groups. Turns on the group
@@ -2450,11 +2544,16 @@ window.MBB.programme = {
   // Used by the calendar export. Bilbao is on Central European Time.
   timezone: 'Europe/Madrid',
 
-  note:
-    'All times are shown in Central European Time. Arrival and departure ' +
-    'times follow each participant’s flights and are confirmed ' +
-    'individually. The final programme is confirmed to registered ' +
-    'participants by email.',
+  // La nota al pie del programa. VACÍA A PROPÓSITO: eran tres frases de letra
+  // pequeña debajo de las tarjetas, alargaban la sección y decían cosas que ya
+  // se dicen en el correo de confirmación. Escribiendo algo aquí —o en el
+  // panel— vuelve a salir sola; no hay que tocar código.
+  //
+  // Decía esto, por si hiciera falta recuperarla:
+  //   "All times are shown in Central European Time. Arrival and departure
+  //    times follow each participant's flights and are confirmed individually.
+  //    The final programme is confirmed to registered participants by email."
+  note: '',
 
   // The two itineraries of Wednesday 7. Both groups stay in the same hotel.
   groups: [
@@ -2562,7 +2661,12 @@ window.MBB.programme = {
           title: 'Guided visit to the Oma Forest by 4x4',
           text: 'The painted forest of Agustín Ibarrola, inside the Urdaibai Biosphere Reserve.',
           tag: 'destination',
-          feature: true
+          feature: true,
+          // Fuera de la tarjeta del día, no del programa. La tarjeta ya dice
+          // "Group 1: Oma Forest, Gernika & Gaztelugatxe" dos líneas más
+          // arriba, y repetirlo justo debajo hacía que el día pareciera tener
+          // una sola cosa. Sigue entero en "Day by day" y en el calendario.
+          card: false
         },
         { group: 'g1', time: '11:45', title: 'Coffee break', venue: 'Lezika', tag: 'social' },
         { group: 'g1', time: '12:15', title: 'Transfer to Gernika', tag: 'destination' },
@@ -3908,17 +4012,31 @@ window.MBB = window.MBB || {};
         // Start from the moments marked as the highlights of the day, then top
         // up with the earliest slots that have a time — a day whose highlight
         // is the evening should not be summarised by its transfers.
+        //
+        // UN MOMENTO PUEDE PEDIR NO SALIR AQUÍ, con `card: false`. Y cuando lo
+        // pide, la tarjeta se queda con una línea MENOS: no entra otra en su
+        // lugar. Si entrara, quitar algo de la tarjeta sería imposible —se
+        // cambiaría una línea por otra— y además subiría al resumen del día
+        // cosas que no resumen nada, como la hora de recoger a los guías.
+        // El momento sigue en el programa hora a hora y en el calendario:
+        // `card: false` habla de la tarjeta, no del día.
+        var fuera = d.slots.filter(function (s) { return s.card === false; });
+        var tope = Math.max(1, 3 - fuera.filter(function (s) { return s.feature; }).length);
+
+        var visible = function (s) { return s.card !== false; };
         var chosen = [];
-        d.slots.forEach(function (s, i) { if (s.feature) chosen.push(i); });
+        d.slots.forEach(function (s, i) { if (s.feature && visible(s)) chosen.push(i); });
         d.slots.forEach(function (s, i) {
-          if (chosen.length < 3 && !s.feature && !s.open) chosen.push(i);
+          if (chosen.length < tope && !s.feature && !s.open && visible(s)) chosen.push(i);
         });
-        if (!chosen.length) d.slots.forEach(function (s, i) { chosen.push(i); });
+        if (!chosen.length) {
+          d.slots.forEach(function (s, i) { if (visible(s)) chosen.push(i); });
+        }
 
         var seen = {};
         var lines = chosen
           .sort(function (a, b) { return a - b; })
-          .slice(0, 3)
+          .slice(0, tope)
           .map(function (i) { return d.slots[i]; })
           .filter(function (s) {
             if (seen[s.title]) return false;
@@ -3999,7 +4117,16 @@ window.MBB = window.MBB || {};
           '<ol class="prog__overview">' + overview + '</ol>' +
         '</div>' +
 
-        '<p class="prog__note">' + esc(programme.note) + '</p>' +
+        // La nota al pie sale solo si hay nota. Estuvo puesta y se quitó por
+        // larga: tres frases de letra pequeña debajo del programa, que casi
+        // nadie leía y que alargaban la sección. Lo que decía —que las horas
+        // son las de aquí y que el programa definitivo se confirma por
+        // correo— sigue diciéndose donde toca: en el correo mismo.
+        //
+        // El campo sigue existiendo en data/programme.js y en el panel: se
+        // escribe algo ahí y vuelve a salir. Por eso esto es una condición y
+        // no una línea borrada.
+        (programme.note ? '<p class="prog__note">' + esc(programme.note) + '</p>' : '') +
       '</div>'
     );
   };
@@ -4063,17 +4190,49 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    // Los vídeos cuelgan de "Presentation of Bilbao", así que su titular va un
-    // escalón por debajo: es un apartado de esa sección, no otra sección. Con
-    // dos titulares del mismo tamaño seguidos, quien baja no sabe si ha
-    // cambiado de tema o sigue en el mismo.
+    // El titular es un <h2> desde que esto es una sección suya y no un
+    // apartado de la presentación del destino. Mientras colgaba de ella iba un
+    // escalón por debajo, que es lo que hay que hacer cuando algo está dentro
+    // de otra cosa; ahora ya no lo está.
     return (
       '<div class="section-head section-head--center videos__head" data-reveal>' +
-        '<h3 class="h-2">Latest editions</h3>' +
+        '<h2 class="h-2">Latest editions</h2>' +
         '<p>A look back at how the event brings the destination and the ' +
         'international travel trade together.</p>' +
       '</div>' +
-      '<div class="videos">' + cards + '</div>'
+      '<div class="videos">' + cards + '</div>' +
+      // Dos carátulas grandes llenan la pantalla, y quien llega aquí no tiene
+      // por qué saber que debajo está el destino.
+      MBB.ScrollCue('#presentation', 'Discover Bilbao Bizkaia')
+    );
+  };
+
+  /**
+   * UN PIE QUE DICE QUE HAY MÁS ABAJO.
+   *
+   * Existe por un problema que solo se ve midiendo dónde acaba la pantalla.
+   * Al pulsar "Meet BB's Experts" se aterriza en el titular, el párrafo y la
+   * banda roja de Login: la pantalla se llena, parece que la sección es eso, y
+   * el directorio de expositores —que es a lo que viene mucha gente— queda por
+   * debajo del borde sin nada que avise de que está ahí. Lo mismo con los
+   * vídeos: dos carátulas grandes llenan la pantalla y el destino se queda
+   * detrás.
+   *
+   * Es un enlace de verdad, no un adorno: se pulsa y baja. Y lleva flecha
+   * porque el texto solo no se lee como algo que se pueda pulsar.
+   *
+   * @param {string} destino  '#exhibitors'
+   * @param {string} texto    lo que se lee
+   */
+  MBB.ScrollCue = function (destino, texto) {
+    if (!destino || !texto) return '';
+    return (
+      '<p class="cue" data-reveal>' +
+        '<a class="cue__link" href="' + esc(destino) + '">' +
+          '<span>' + esc(texto) + '</span>' +
+          '<span class="cue__arrow" aria-hidden="true"></span>' +
+        '</a>' +
+      '</p>'
     );
   };
 
@@ -4108,6 +4267,10 @@ window.MBB = window.MBB || {};
         '<p class="lead">' + esc(e.lead) + '</p>' +
       '</div>' +
       (loginHref(site) ? MBB.LoginBand(site, e) : '') +
+      // La banda roja llena la pantalla al llegar aquí, y el directorio se
+      // queda justo debajo del borde. Esta línea es lo único que dice que
+      // está ahí.
+      MBB.ScrollCue('#exhibitors', 'See the companies taking part') +
       // Y justo debajo, los expositores. Van AQUÍ y no al final para que
       // asomen por el borde de la pantalla al llegar a la sección: quien entra
       // ve las dos puertas y, sin leer nada, entiende que más abajo hay
