@@ -3921,9 +3921,25 @@ window.MBB = window.MBB || {};
     var counts = {};
     exhibitors.forEach(function (x) { counts[x.category] = (counts[x.category] || 0) + 1; });
 
+    // LAS TRES CATEGORÍAS SE ENSEÑAN SIEMPRE, tengan empresas o no.
+    //
+    // Antes se escondía la que estuviera vacía, para que nadie pulsara un
+    // filtro y se encontrara una rejilla en blanco. Suena razonable y es peor,
+    // porque los filtros no son solo una herramienta para buscar: son el índice
+    // de qué clase de empresas hay en este destino. Escondiendo una, la web
+    // dice que el evento tiene dos categorías cuando tiene tres.
+    //
+    // Y el efecto es más raro cuanto más vacío está el directorio, que es
+    // justo cuando más se mira: los filtros aparecen y desaparecen solos según
+    // quién se haya inscrito esa mañana. Un alojamiento que entra a ver si le
+    // interesa el evento no encuentra su categoría, y concluye que no es para
+    // él.
+    //
+    // Una categoría sin empresas todavía no es un error: es un evento que se
+    // está llenando. Se dice con esas palabras al pulsarla —lo hace apply() en
+    // main.js— en vez de esconder la pregunta.
     var filters = categories
       .map(function (c, i) {
-        if (c.id !== 'all' && !counts[c.id]) return '';
         return (
           '<button class="filter" type="button" data-filter="' + esc(c.id) + '" ' +
             'aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + esc(c.label) + '</button>'
@@ -4592,7 +4608,24 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
         if (show) shown++;
       });
 
-      if (empty) empty.hidden = shown !== 0;
+      // El aviso de «no hay nada» tiene que decir POR QUÉ no hay nada, porque
+      // ahora hay dos motivos distintos y se arreglan de forma distinta: una
+      // búsqueda sin resultados se corrige escribiendo otra cosa; una categoría
+      // sin empresas no se corrige, simplemente todavía no se ha inscrito
+      // nadie. Un solo texto para las dos deja al visitante pensando que ha
+      // hecho algo mal.
+      if (empty) {
+        empty.hidden = shown !== 0;
+        if (shown === 0) {
+          var cat = (MBB.exhibitorCategories || []).filter(function (c) {
+            return c.id === category;
+          })[0];
+          empty.textContent = query
+            ? 'No exhibitors match your search.'
+            : 'No exhibitors in ' + (cat ? '“' + cat.label + '”' : 'this category') +
+              ' yet. The directory fills up as companies register.';
+        }
+      }
       if (count) {
         count.textContent =
           shown === tiles.length

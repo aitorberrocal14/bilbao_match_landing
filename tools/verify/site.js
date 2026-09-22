@@ -429,10 +429,15 @@ function check(etiqueta, ok, detalle) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'mbb-'));
   const pagina_tmp = path.join(tmp, 'index.html');
 
+  // DOS categorías con empresas y UNA VACÍA a propósito: así se comprueba a la
+  // vez que los filtros filtran y que la categoría sin nadie sigue apareciendo.
+  // Antes se escondía, y entonces la web decía que el evento tiene dos
+  // categorías cuando tiene tres — precisamente cuando el directorio está más
+  // vacío, que es cuando más se mira.
   const MUESTRA = [
-    ['berrocal', 'Berrocal', 'dmc'],
-    ['xxx', 'xxx', 'activities'],
-    ['hotel-prueba', 'Hotel Prueba', 'accommodation']
+    ['berrocal', 'Berrocal', 'accommodation'],
+    ['hotel-prueba', 'Hotel Prueba', 'accommodation'],
+    ['xxx', 'xxx', 'activities']
   ];
 
   fs.writeFileSync(
@@ -466,8 +471,14 @@ function check(etiqueta, ok, detalle) {
 
   check('se dibujan las tres empresas', (await visibles()) === 3, await visibles());
 
+  // Las cuatro pestañas están siempre, incluida la de la categoría vacía.
+  const pestanas = await dir.evaluate(() =>
+    [...document.querySelectorAll('.filter')].map((f) => f.textContent.trim()));
+  check('están las cuatro pestañas, también la vacía',
+    pestanas.length === 4 && pestanas.indexOf('Basque DMC') > -1, pestanas.join(' · '));
+
   for (const [etiqueta, esperadas] of [
-    ['Accommodation', 1], ['Basque DMC', 1],
+    ['Accommodation', 2], ['Basque DMC', 0],
     ['Boutique Experience in Bilbao Bizkaia', 1], ['All', 3]
   ]) {
     await dir.evaluate((t) => {
@@ -479,6 +490,18 @@ function check(etiqueta, ok, detalle) {
     // Lo que se mide es cuántas tarjetas OCUPAN SITIO, no cuántas llevan el
     // atributo: el fallo era precisamente que lo llevaban y se veían igual.
     check('filtro "' + etiqueta + '"', n === esperadas, n + ' visibles, se esperaban ' + esperadas);
+
+    // Y si no hay nada, el aviso tiene que decir POR QUÉ: una categoría vacía
+    // y una búsqueda sin resultados se arreglan de forma distinta, y un solo
+    // texto para las dos deja al visitante pensando que ha hecho algo mal.
+    if (esperadas === 0) {
+      const aviso = await dir.evaluate(() => {
+        const e = document.querySelector('#ex-empty');
+        return e && !e.hidden ? e.textContent.trim() : '';
+      });
+      check('  y explica que esa categoría está vacía',
+        /yet/.test(aviso) && aviso.indexOf(etiqueta) > -1 && !/search/.test(aviso), aviso);
+    }
   }
 
   await dir.close();

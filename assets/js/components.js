@@ -1041,9 +1041,25 @@ window.MBB = window.MBB || {};
     var counts = {};
     exhibitors.forEach(function (x) { counts[x.category] = (counts[x.category] || 0) + 1; });
 
+    // LAS TRES CATEGORÍAS SE ENSEÑAN SIEMPRE, tengan empresas o no.
+    //
+    // Antes se escondía la que estuviera vacía, para que nadie pulsara un
+    // filtro y se encontrara una rejilla en blanco. Suena razonable y es peor,
+    // porque los filtros no son solo una herramienta para buscar: son el índice
+    // de qué clase de empresas hay en este destino. Escondiendo una, la web
+    // dice que el evento tiene dos categorías cuando tiene tres.
+    //
+    // Y el efecto es más raro cuanto más vacío está el directorio, que es
+    // justo cuando más se mira: los filtros aparecen y desaparecen solos según
+    // quién se haya inscrito esa mañana. Un alojamiento que entra a ver si le
+    // interesa el evento no encuentra su categoría, y concluye que no es para
+    // él.
+    //
+    // Una categoría sin empresas todavía no es un error: es un evento que se
+    // está llenando. Se dice con esas palabras al pulsarla —lo hace apply() en
+    // main.js— en vez de esconder la pregunta.
     var filters = categories
       .map(function (c, i) {
-        if (c.id !== 'all' && !counts[c.id]) return '';
         return (
           '<button class="filter" type="button" data-filter="' + esc(c.id) + '" ' +
             'aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' + esc(c.label) + '</button>'

@@ -300,7 +300,24 @@
         if (show) shown++;
       });
 
-      if (empty) empty.hidden = shown !== 0;
+      // El aviso de «no hay nada» tiene que decir POR QUÉ no hay nada, porque
+      // ahora hay dos motivos distintos y se arreglan de forma distinta: una
+      // búsqueda sin resultados se corrige escribiendo otra cosa; una categoría
+      // sin empresas no se corrige, simplemente todavía no se ha inscrito
+      // nadie. Un solo texto para las dos deja al visitante pensando que ha
+      // hecho algo mal.
+      if (empty) {
+        empty.hidden = shown !== 0;
+        if (shown === 0) {
+          var cat = (MBB.exhibitorCategories || []).filter(function (c) {
+            return c.id === category;
+          })[0];
+          empty.textContent = query
+            ? 'No exhibitors match your search.'
+            : 'No exhibitors in ' + (cat ? '“' + cat.label + '”' : 'this category') +
+              ' yet. The directory fills up as companies register.';
+        }
+      }
       if (count) {
         count.textContent =
           shown === tiles.length
