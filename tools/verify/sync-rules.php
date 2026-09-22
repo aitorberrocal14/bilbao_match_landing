@@ -48,9 +48,18 @@ file_put_contents($CONFIG, "<?php\nreturn " . var_export([
 
 register_shutdown_function(function () use ($CONFIG, $TMP) {
     @unlink($CONFIG);
-    // La carpeta temporal se queda vacía: todo va en modo ensayo.
-    @rmdir($TMP . '/web');
-    @rmdir($TMP);
+
+    // Se recoge TODO lo que haya quedado. Uno de los casos escribe de verdad
+    // —es la única forma de leer el archivo que acaba en el navegador— y una
+    // prueba que deja restos en /tmp acaba siendo una prueba que nadie ejecuta.
+    $limpiar = function ($dir) use (&$limpiar) {
+        foreach (glob($dir . '/{,.}*', GLOB_BRACE) ?: [] as $x) {
+            if (basename($x) === '.' || basename($x) === '..') { continue; }
+            is_dir($x) ? $limpiar($x) : @unlink($x);
+        }
+        @rmdir($dir);
+    };
+    $limpiar($TMP);
 });
 
 /** Un inscrito de mentira. $perfil: 210824 expositor · 210823 comprador. */
@@ -151,10 +160,10 @@ caso(
 /* 4. Sin regla de expositor no se publica a NADIE. Fallar del lado seguro es
       lo que impide que un descuido de configuración saque a la web los datos
       de todos los inscritos. */
-$sinRegla = $ROOT . '/server/config.php';
-$conf = require $sinRegla;
+$entero = require $CONFIG;                 // se guarda para devolverlo después
+$conf = $entero;
 unset($conf['exhibitors_from']);
-file_put_contents($sinRegla, "<?php\nreturn " . var_export($conf, true) . ";\n");
+file_put_contents($CONFIG, "<?php\nreturn " . var_export($conf, true) . ";\n");
 
 caso(
     'Sin regla de expositor no se publica a nadie',
@@ -167,6 +176,63 @@ caso(
         'no' => 'Hotel Uno',
     ]
 );
+
+// Se devuelve la regla: los casos que vienen después necesitan publicar algo,
+// y un caso que estropea el terreno para el siguiente da fallos que no son.
+file_put_contents($CONFIG, "<?php\nreturn " . var_export($entero, true) . ";\n");
+
+/* 5. La dirección web de una empresa tiene que quedar ABSOLUTA.
+      Una empresa escribió «www.bilbaoturismo.net» sin https:// y el enlace de
+      su ficha llevaba a …/exhibitors/www.bilbaoturismo.net, una ruta dentro de
+      la propia web. Esta vez se escribe de verdad —sin --dry-run— y se lee el
+      archivo que queda, que es lo que acaba en el navegador. */
+echo "\n· La web de una empresa se guarda absoluta, con su esquema\n";
+
+$destino = $TMP . '/web';
+@mkdir($destino . '/assets/js/data', 0777, true);
+@mkdir($destino . '/exhibitors', 0777, true);
+
+$f = $TMP . '/fixture-web.json';
+$conWeb = inscrito(1, 'Turismo Uno', '210824', '213999');
+$conWeb['web'] = 'www.bilbaoturismo.net';          // tal cual lo escribió ella
+$conEsquema = inscrito(2, 'Turismo Dos', '210824', '214000');
+$conEsquema['web'] = 'https://www.visitbiscay.eus/';
+file_put_contents($f, json_encode(['results' => [$conWeb, $conEsquema]], JSON_UNESCAPED_UNICODE));
+
+shell_exec(
+    'php ' . escapeshellarg($ROOT . '/server/sync.php') .
+    ' --fixture ' . escapeshellarg($f) . ' 2>&1'
+);
+
+$datos = @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+foreach ([
+    "website: 'https://www.bilbaoturismo.net'" => 'le pone el esquema que faltaba',
+    "website: 'https://www.visitbiscay.eus/'"  => 'respeta el que ya lo traía',
+    "websiteLabel: 'www.bilbaoturismo.net'"    => 'y lo enseña sin el esquema',
+] as $texto => $titulo) {
+    $bien = $datos !== false && strpos($datos, $texto) !== false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . '  ' . $titulo . "\n";
+    if (!$bien) { $fallos++; }
+}
+
+// La ficha dibujada es donde se vio el fallo: el enlace llevaba a una ruta
+// dentro de la propia web en vez de salir fuera.
+$ficha = @file_get_contents($destino . '/exhibitors/turismo-uno.html');
+$bienFicha = $ficha !== false &&
+    strpos($ficha, 'href="https://www.bilbaoturismo.net"') !== false &&
+    strpos($ficha, 'href="www.bilbaoturismo.net"') === false;
+echo '  ' . ($bienFicha ? 'OK   ' : 'FALLA') . "  y en la ficha el enlace sale fuera\n";
+if (!$bienFicha) { $fallos++; }
+
+// Y que no quede ninguna dirección relativa, que es el fallo original.
+$relativa = $datos !== false && preg_match("/website: '(?!https?:)(?!')/", $datos);
+echo '  ' . ($relativa ? 'FALLA' : 'OK   ') . "  ninguna dirección queda relativa\n";
+if ($relativa) { $fallos++; }
+
+// Lo escrito se borra: esta prueba no deja web montada en ningún sitio.
+foreach (['/assets/js/data/exhibitors.js', '/assets/js/data/exhibitors-local.json',
+          '/sitemap.xml'] as $x) { @unlink($destino . $x); }
+array_map('unlink', glob($destino . '/exhibitors/*') ?: []);
 
 echo "\n" . ($fallos ? $fallos . ' comprobaciones fallan' : 'Todas las comprobaciones pasan') . "\n";
 exit($fallos ? 1 : 0);

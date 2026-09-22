@@ -1112,6 +1112,45 @@ function mbb_logo_de(array $entry, array $conf)
  * callarse: un logotipo que no aparece y no se queja es un directorio que se ve
  * a medias durante meses sin que nadie sepa por qué.
  */
+/**
+ * LA DIRECCIÓN WEB DE UNA EMPRESA, SIEMPRE ABSOLUTA.
+ *
+ * Una empresa escribió «www.bilbaoturismo.net» en la casilla de su web, sin el
+ * https:// delante. Un navegador no adivina: sin esquema eso no es una
+ * dirección de internet, es una RUTA DENTRO de la página que lo enseña. El
+ * enlace llevaba a
+ *   …/pruebasbilbaoekintza26/exhibitors/www.bilbaoturismo.net
+ * que no existe. Y de paso perdía el target="_blank", porque el enlace solo se
+ * abre en otra pestaña cuando empieza por http.
+ *
+ * La casilla del formulario no obliga a escribir el esquema y nadie va a
+ * enseñar a rellenarla a cada empresa que se inscriba, así que se arregla aquí:
+ * si falta, se pone.
+ *
+ * Y si lo que hay no parece una dirección —un correo, un teléfono, una frase—
+ * se devuelve vacío. Mejor una ficha sin enlace que una ficha con un enlace que
+ * no lleva a ninguna parte: lo primero se nota y se corrige, lo segundo se
+ * queda ahí.
+ */
+function mbb_web_absoluta($valor)
+{
+    $url = trim((string) $valor);
+    if ($url === '') { return ''; }
+
+    // Ya trae esquema: se respeta tal cual, sea http, https u otro.
+    if (preg_match('#^[a-z][a-z0-9+.-]*://#i', $url)) { return $url; }
+
+    // «//ejemplo.com» hereda el esquema de la página; aquí se fija.
+    if (strpos($url, '//') === 0) { return 'https:' . $url; }
+
+    // Tiene que parecer un dominio: algo, un punto y una extensión.
+    if (preg_match('#^[\w.-]+\.[a-z]{2,}(/|$|\?|\#)#i', $url)) {
+        return 'https://' . $url;
+    }
+
+    return '';
+}
+
 function mbb_url_logo($valor, array $conf)
 {
     $valor = trim((string) $valor);
@@ -1418,7 +1457,7 @@ foreach ($visible as $entry) {
     }
     if ($category === '') { $uncategorised[] = $name; }
 
-    $web = trim((string) ($entry['web'] ?? ''));
+    $web = mbb_web_absoluta($entry['web'] ?? '');
     $social = [];
     foreach (['linkedin', 'twitter', 'facebook', 'instagram'] as $k) {
         $v = trim((string) ($entry[$k] ?? ''));
