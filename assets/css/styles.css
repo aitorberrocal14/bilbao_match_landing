@@ -1037,11 +1037,31 @@ p:last-child { margin-bottom: 0; }
    ocupa lo que ocupe el texto, que es una pantalla. */
 .present {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
   gap: clamp(2rem, 5vw, 4rem);
-  align-items: start;
+  /* `stretch` y no `start`: puestas en fila, las fotos miden bastante menos de
+     alto que la columna de texto, y arrimadas arriba dejaban un palmo de
+     blanco debajo que se leía como que faltaba algo. Estirando la columna y
+     centrando lo que lleva dentro, ese aire se reparte arriba y abajo y las
+     fotos quedan a la altura del texto. */
+  align-items: stretch;
 }
-.present__media { display: grid; gap: 1rem; }
+/* LAS DOS FOTOS, UNA AL LADO DE LA OTRA Y NO UNA ENCIMA DE OTRA.
+   Apiladas medían 944px de alto y la sección no entraba en ninguna pantalla:
+   se llegaba a ella desde el menú y lo que se veía era el texto y media foto.
+   Se probó recortarlas a 2:1 para ganar ese alto y salían aplastadas, así que
+   la proporción no se toca: lo que cambia es que van en fila.
+
+   Dos fotos 4:3 en fila miden la mitad de alto que dos en columna, y la
+   sección pasa de 944 a 674px —cabe entera, con sitio de sobra—. Y como el
+   alto ya no lo mandan las fotos, la columna de la derecha puede ser la más
+   ancha de las dos: así se ven a 300px en vez de a 253. */
+.present__media {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-content: center;
+}
 .present__media figure { margin: 0; }
 /* 4:3, la proporción de siempre. Estuvieron a 2:1 para que la sección del
    destino cupiera entera en una pantalla, y el precio era que las fotos se
@@ -1277,12 +1297,80 @@ p:last-child { margin-bottom: 0; }
   }
 }
 
-/* La página que explica cuándo abre la plataforma (platform.html). Es una
-   página de una sola idea, así que no lleva nada más que esa idea. */
-.gate { max-width: 44rem; padding-block: clamp(1rem, 4vw, 3rem); }
-.gate .lead { margin-top: 1.2rem; }
-.gate__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 2rem; }
-.gate__help { margin-top: 2.5rem; font-size: 0.9rem; color: var(--grey-light); }
+/* La página que explica cuándo abre la plataforma (platform.html).
+   =========================================================================
+   Aquí pasan dos cosas: el aviso de que la plataforma todavía no abre y, justo
+   debajo, los cuatro pasos de "cómo funciona". No son dos temas: el segundo es
+   la respuesta al primero —«si no puedo entrar, ¿para qué me doy de alta
+   ahora?»—, y la página tiene que leerse así, de un tirón.
+
+   Lo que había antes lo contaba al revés. El aviso iba alineado a la izquierda
+   en una columna estrecha y los pasos centrados de lado a lado, sobre una
+   banda gris que empezaba de golpe: dos ejes, dos anchos y un corte de color
+   en medio. Tres maneras distintas de decir «esto de abajo es otra cosa».
+
+   Ahora es una sola página: mismo eje, misma medida, un solo fondo y una raya
+   fina donde antes empezaba el gris. La raya separa lo justo para que se vea
+   que empieza otro asunto, sin cortar la página en dos.
+
+   Y el bloque de arriba ocupa lo que tiene que ocupar. Con el titular y el
+   aire de una portada se comía la pantalla entera él solo, y los pasos —que
+   son la mitad útil— quedaban siempre por debajo del borde. Aquí el titular
+   es un aviso, no una portada: más pequeño, y el aire justo. */
+.gate {
+  max-width: 54rem;
+  margin-inline: auto;
+  text-align: center;
+}
+/* Más pequeño que un `h-1` de portada: esto es un cartel de "todavía no", y a
+   tamaño de portada empujaba los cuatro pasos fuera de la pantalla. */
+.gate h1 { font-size: clamp(1.5rem, 2.7vw, 2.05rem); }
+.gate .lead { margin-top: 0.85rem; font-size: 1.02rem; line-height: 1.65; }
+/* Dos cosas sobre `.measure` aquí. Centrada la caja, hay que centrar también
+   la columna que lleva dentro, o el texto queda descolgado bajo un titular
+   centrado. Y su corte a 68 caracteres sobra: la caja ya mide 54rem, que es
+   una línea cómoda, y encima de eso el párrafo salía a tres líneas en vez de
+   dos y empujaba los cuatro pasos fuera de la pantalla. */
+.gate .measure { max-width: 100%; margin-inline: auto; }
+.gate__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: clamp(1.1rem, min(2.5vw, 2.5vh), 1.6rem);
+}
+.gate__help {
+  margin: clamp(1.1rem, min(2.5vw, 2.5vh), 1.6rem) 0 0;
+  font-size: 0.9rem;
+  color: var(--grey-light);
+}
+
+/* Los cuatro pasos, al mismo ancho y bajo la misma raya. Iban a lo ancho de
+   la página entera y cada paso quedaba como una isla —cuatro columnas
+   estrechas separadas por un palmo—; a esta medida se leen como cuatro partes
+   de una misma respuesta. */
+/* La raya de arriba sustituye a la banda gris. Va dentro del contenido y no
+   de lado a lado a propósito: una línea de borde a borde vuelve a ser un
+   corte, y lo que se quiere aquí es una costura. */
+#how > .shell {
+  max-width: 54rem;
+  border-top: 1px solid var(--line);
+  padding-top: clamp(1.1rem, min(2.5vw, 2.6vh), 1.9rem);
+}
+#how .steps { gap: clamp(1rem, 2vw, 1.75rem); }
+#how .step h3 { font-size: 0.95rem; }
+#how .step p { font-size: 0.86rem; }
+#how .step__n { width: 38px; height: 38px; margin-bottom: 0.65rem; }
+#how .steps__head { margin-bottom: clamp(1rem, min(2.5vw, 2.5vh), 1.6rem); }
+#how .steps__head p { max-width: 100%; font-size: 0.95rem; }
+
+/* El aire de la página. El relleno corriente de sección es el de una web de
+   ocho bloques; aquí hay dos, y con él el aviso arrancaba a 134px de la
+   cabecera, descolgado, y los pasos no llegaban nunca a verse sin bajar.
+   Del alto de la ventana además del ancho, para que en un portátil bajo la
+   página entera —aviso y pasos— siga entrando de una vez. */
+[data-gate] { padding-block: clamp(1.5rem, min(4vw, 4vh), 2.75rem) 0; }
+#how { padding-block: clamp(0.9rem, min(2.2vw, 2.2vh), 1.6rem) clamp(2rem, 5vw, 4rem); }
 
 /* 12. EXHIBITORS — full-bleed logo grid ==================================== */
 /* The directory opens a subject of its own inside "Meet BB's Experts", right
@@ -1929,9 +2017,22 @@ p:last-child { margin-bottom: 0; }
 /* La retícula de la página, que se pliega más tarde y por su cuenta. */
 @media (max-width: 900px) {
   .hero__inner, .present, .videos, .newsletter { grid-template-columns: 1fr; }
+  /* Plegada la sección a una columna, las fotos tienen la página entera de
+     ancho y siguen bien en fila. Más abajo, en el móvil, ya no: ver 560px. */
   .hero__facts { grid-template-columns: 1fr 1fr; gap: 1.5rem 1rem; }
   .logo-grid, .ex-related { grid-template-columns: repeat(3, 1fr); }
   .ex-head { grid-template-columns: 1fr; max-width: 480px; margin-inline: auto; }
+}
+
+/* Y en el móvil las fotos del destino vuelven a apilarse. En fila aguantan
+   mientras les quede ancho de sobra; a 390px salen a 167, que para la foto de
+   una ciudad es un sello de correos. Aquí el alto ya no es el problema que era
+   en el escritorio —esto se lee bajando de todas formas—, así que grandes.
+
+   Va después de la regla de arriba y no en el bloque de 560px que hay más
+   arriba en la hoja: a igualdad de peso manda la última, y allí no ganaba. */
+@media (max-width: 560px) {
+  .present__media { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 620px) {

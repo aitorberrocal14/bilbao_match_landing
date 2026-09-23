@@ -617,6 +617,34 @@ function check(etiqueta, ok, detalle) {
     check('los vídeos guardan la proporción y caben',
       vid.proporcion && vid.cabe, vid.anchos.join(' · '));
 
+    /* --- Las fotos del destino, a 4:3 y en fila ------------------------------ */
+    // Esto está aquí porque ya se rompió una vez. Para que la sección del
+    // destino cupiera en una pantalla se recortaron las fotos a 2:1, y una
+    // panorámica forzada de una ciudad ya no es la foto: es un trozo. La
+    // sección cabe ahora por otro camino —las dos en fila en vez de apiladas—,
+    // y esto es el seguro de que no se vuelva por el primero.
+    const fotos = await pagina.evaluate(() => {
+      const ims = [...document.querySelectorAll('.present__media img')];
+      const cajas = ims.map((i) => i.getBoundingClientRect());
+      const med = document.querySelector('.present__media');
+      return {
+        cuantas: ims.length,
+        // 4:3 con holgura para el redondeo del navegador.
+        proporcion: cajas.every((r) => r.width > 0 && Math.abs(r.width / r.height - 4 / 3) < 0.05),
+        medidas: cajas.map((r) => Math.round(r.width) + '×' + Math.round(r.height)),
+        // En fila: las dos arrancan a la misma altura. Apiladas, no.
+        enFila: cajas.length === 2 && Math.abs(cajas[0].top - cajas[1].top) < 2,
+        columnas: med ? getComputedStyle(med).gridTemplateColumns.split(' ').length : 0
+      };
+    });
+    check('las fotos del destino siguen a 4:3', fotos.proporcion,
+      fotos.medidas.join(' · '));
+    // En el móvil se apilan a propósito: en fila saldrían a 167px, que para la
+    // foto de una ciudad es un sello. Allí el alto da igual, se lee bajando.
+    check(ancho < 560 ? '  y en el móvil se apilan' : '  y van una al lado de la otra',
+      ancho < 560 ? fotos.columnas === 1 : fotos.enFila,
+      fotos.columnas + ' columna(s)');
+
     /* --- Nada roto por el camino -------------------------------------------- */
     check('sin errores de JavaScript', errores.length === 0, errores.join(' | '));
 
@@ -843,13 +871,14 @@ function check(etiqueta, ok, detalle) {
     altoVid.sec + 'px de ' + altoVid.hueco);
 
   for (const [etiqueta, entrada, medir] of [
-    // Destination NO cabe entera en una pantalla, y es a propósito: sus dos
-    // fotos son 4:3 porque en 2:1 salían aplastadas, y dos fotos 4:3 más el
-    // texto miden más que cualquier portátil. Lo que sí tiene que caber es el
-    // TEXTO —titular y los cuatro párrafos—, que es a lo que se viene; las
-    // fotos pueden asomar por abajo, que para eso se baja.
-    ['al pulsar Destination se lee el texto sin bajar', 'Destination',
-      '#presentation .text-justify'],
+    // Destination cabe entera, y costó dos intentos fallidos llegar ahí. Las
+    // fotos estuvieron recortadas a 2:1 para ganar alto y salían aplastadas;
+    // luego a 4:3 y apiladas, y entonces la sección medía 944px y no entraba
+    // en ninguna pantalla. Ahora van a 4:3 y EN FILA: dos fotos una al lado
+    // de la otra miden la mitad de alto que dos en columna, y la sección se
+    // queda en 674px sin tocarle la proporción a ninguna.
+    ['al pulsar Destination se ve la sección entera', 'Destination',
+      '#presentation'],
     // El programa es a lo que se llega desde el menú, y lo que se ve al llegar
     // tiene que ser el programa: los cinco días, no los tres de arriba. Entre
     // el relleno de la sección, el de la tarjeta y el hueco bajo el titular se
