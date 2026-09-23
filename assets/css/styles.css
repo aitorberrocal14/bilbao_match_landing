@@ -1853,52 +1853,21 @@ p:last-child { margin-bottom: 0; }
   .brochures { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* --- PANTALLAS ANCHAS PERO BAJAS -------------------------------------------
-   Un portátil de 1366×768 tiene ancho de sobra y alto justo: descontando las
-   pestañas, la barra de direcciones y la de tareas, al navegador le quedan
-   unos 630px. Con ese alto, la portada —titular, foto, los tres bloques y la
-   banda— se pasaba 190px, y para verla entera había que bajar el zoom al 75%.
+/* --- AQUÍ HUBO UNA REGLA PARA PANTALLAS ANCHAS PERO BAJAS, Y SE QUITÓ ------
+   Encogía el titular, la foto y la letra de los tres bloques cuando la ventana
+   medía menos de 740px de alto y más de 900 de ancho, para que la portada
+   entera cupiera en un portátil de 1366×768.
 
-   LAS DOS CONDICIONES SON NECESARIAS, y la de ancho no está de adorno. Un
-   móvil también es bajo, y en un móvil esto no tiene que pasar: ahí la altura
-   del navegador cambia sola al girar el teléfono o al aparecer y desaparecer
-   la barra de direcciones, y una regla que dependiera del alto haría saltar
-   la página a mitad de lectura. Pidiendo 900px de ancho, esta regla no
-   alcanza a ningún teléfono.
+   Se quitó a petición: hacía que la misma web se viera con dos tamaños de
+   letra distintos según la ventana, y eso —aunque resuelva lo de que quepa—
+   es raro de explicar y raro de mantener.
 
-   Y no se toca nada por debajo de la portada: es lo primero que se ve y lo
-   único que tiene que entrar de una vez.
+   Lo que SÍ se queda es que los HUECOS miren el alto de la ventana: los
+   `min(3.5vw, 4vh)` que hay repartidos por la hoja. Esos no cambian el tamaño
+   de nada, solo aprietan el aire, así que la letra se ve igual en todas las
+   pantallas y en las bajas entra algo más.
 
-   Si en una pantalla normal el titular se ve más pequeño de lo que debería,
-   es que esta regla se ha encendido donde no tocaba: se sube el 740. */
-@media (max-height: 740px) and (min-width: 900px) {
-  /* La foto es lo que manda en la altura de la fila: mide 375px, más que el
-     texto de al lado. Recortándola, la fila pasa a medirla el texto. */
-  .hero__media { aspect-ratio: auto; }
-
-  .h-hero { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
-  .hero__dates { margin-bottom: 0.5rem; }
-  .hero__title { margin-bottom: 0.3rem; }
-  .hero__subtitle { font-size: clamp(1.05rem, 1.7vw, 1.25rem); margin-bottom: 0.6rem; }
-  .hero__lead { margin-bottom: 1rem; }
-  .hero__inner { gap: clamp(1.5rem, 3vw, 2.5rem); }
-
-  .pillar h2 { font-size: 1rem; margin-bottom: 0.2rem; }
-  .pillar p { font-size: 0.86rem; line-height: 1.45; }
-
-  .hero__media { height: clamp(150px, 28vh, 240px); }
-  .hero__dates { font-size: 0.85rem; margin-bottom: 0.35rem; }
-  .take-part { padding-block: 0.6rem; }
-  .take-part h2 { font-size: 0.9rem; margin-bottom: 0.2rem; }
-  .take-part p { font-size: 0.72rem; line-height: 1.4; }
-  .take-part .btn { margin-top: 0.5rem; }
-  .pillar p { font-size: 0.8rem; line-height: 1.4; }
-  /* Y el último palmo: en una pantalla baja, el aviso de que hay más abajo
-     tiene que entrar en la primera pantalla o no avisa de nada. */
-  .hero .pillars { margin-top: 0.5rem; padding-top: 0.5rem; }
-  .hero .cue { margin-top: 0.35rem; }
-  .hero .cue__link { padding-block: 0.25rem; }
-}
+   Si algún día se quiere de vuelta, estaba en el commit que la quitó. */
 
 /* --- Cuándo se pliega el menú ----------------------------------------------
    El menú necesita unos 1275px para caber en una sola fila: son cinco
