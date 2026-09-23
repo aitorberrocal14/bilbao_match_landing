@@ -170,6 +170,11 @@ window.MBB.site = {
     institutions: [
       { name: 'Bilbao Bizkaia', file: 'assets/img/brand/bilbao-bizkaia-be-basque.png', href: 'https://www.bilbaoturismo.net/', plain: true },
       { name: 'In cooperation with Spain', file: 'assets/img/brand/spain.png', href: 'https://www.spain.info/en/' },
+      // La dirección va sin idioma —wizzair.com a secas y no /es-es— porque
+      // esta web la lee gente de toda Europa: así Wizz Air le enseña a cada
+      // uno el suyo, en vez de mandar a un comprador alemán a la versión
+      // española. Si algún día interesa forzar el castellano, se añade /es-es.
+      { name: 'Wizz Air', file: 'assets/img/brand/wizzair.png', href: 'https://www.wizzair.com/' },
       { name: 'Euskadi Basque Country', file: 'assets/img/brand/euskadi-basque-country.png', href: 'http://www.euskaditurismo.eus/' },
       { name: 'Gobierno Vasco — Departamento de Turismo', file: 'assets/img/brand/dpto-turismo.png', href: 'https://www.visitbiscay.eus/' }
     ],
