@@ -56,32 +56,43 @@
 
         <h1 class="h-1">The platform opens on 29 September</h1>
 
-        <p class="lead measure">
-          Access to your profile, your availability and your meeting agenda
-          opens on <strong>Tuesday 29 September 2026</strong>. Until then the
-          platform is being prepared, and signing in is not yet possible.
-        </p>
-
-        <p class="measure">
-          You do not have to wait to take part. Create your profile now — tell
-          us about your company, your markets and who you would like to meet —
-          and you will be ready to schedule your meetings the moment the
-          platform opens.
-        </p>
-
         <p class="gate__actions">
-          <a class="btn btn--lg"
+          <a class="btn"
              href="https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/registration"
              target="_blank" rel="noopener">Create your profile</a>
-          <a class="btn btn--lg btn--outline" href="./">Back to the site</a>
-        </p>
-
-        <p class="gate__help">
-          Questions about your registration? Write to
-          <a class="link-red" href="mailto:welcome@matchbilbaobizkaia.eus">welcome@matchbilbaobizkaia.eus</a>.
+          <a class="btn btn--outline" href="./">Back to the site</a>
         </p>
       </div>
     </section>
+
+    <!-- AQUÍ HABÍA DOS PÁRRAFOS Y UNA LÍNEA DE CONTACTO, Y SE QUITARON.
+         ====================================================================
+         Uno explicaba con más palabras lo que ya dice el titular —que se abre
+         el 29 y que hasta entonces no se puede entrar—, y el otro invitaba a
+         darse de alta sin esperar, que es lo que dice el botón que hay debajo.
+         La línea de contacto repetía el correo que está en el pie.
+
+         El titular, los dos botones y los cuatro pasos dicen lo mismo en un
+         tercio del sitio, y así los pasos —que son lo único que esta página
+         cuenta y no cuenta ninguna otra— entran en la primera pantalla en vez
+         de asomar por abajo. -->
+
+    <!-- Y SOBRE EL 29 DE SEPTIEMBRE: NO HAY QUE EDITAR NADA.
+         ====================================================================
+         El texto de arriba dice una fecha, así que parece que ese día habrá
+         que venir a cambiarlo. No: ese día esta página deja de verse. Se
+         aparta sola hacia la plataforma —apartaElAviso() en main.js— y el
+         botón de Login de la cabecera pasa a ir directo a Meetmaps, así que
+         nadie vuelve a pasar por aquí.
+
+         Y si por lo que sea el navegador no ejecutara ese salto, tampoco se
+         leería esto: MBB.PlatformGate reemplaza el contenido de [data-gate]
+         por "The platform is open" en cuanto la fecha ha pasado. Dos redes,
+         y ninguna necesita que nadie se acuerde de nada.
+
+         Lo único que hay que mantener a mano es que la fecha escrita aquí y
+         `login.opensAt` en assets/js/data/site.js digan el mismo día. Las
+         pruebas no pasan si no coinciden. -->
 
     <!-- CÓMO FUNCIONA EL EMPAREJAMIENTO ==================================
          Los cuatro pasos —crear el perfil, elegir con quién, confirmar la

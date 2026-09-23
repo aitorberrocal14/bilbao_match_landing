@@ -1193,19 +1193,30 @@ function check(etiqueta, ok, detalle) {
   const dia = await aviso.evaluate(() => window.MBB.platformOpensOn(window.MBB.site));
   const completa = await aviso.evaluate(() => window.MBB.platformOpensFull(window.MBB.site));
 
-  check('el aviso se lee sin JavaScript', crudo.texto.length > 200,
+  // El aviso llegó a ser dos párrafos largos y se midió por su longitud: más
+  // de 200 caracteres significaba que el texto estaba escrito en el HTML y no
+  // lo dibujaba el script. Ahora son un titular y dos botones —lo demás
+  // repetía lo que ya decían ellos—, así que contar letras ya no dice nada.
+  // Se comprueba lo que de verdad importa: que sin JavaScript se lea QUÉ pasa
+  // y CUÁNDO, que es a lo que viene quien pulsa Login y aterriza aquí.
+  check('el aviso se lee sin JavaScript',
+    /platform opens/i.test(crudo.texto) && crudo.texto.indexOf(dia) > -1,
     crudo.texto.slice(0, 70) + '…');
-  // Las dos formas en que la fecha aparece escrita —"29 September" en el
-  // titular y "Tuesday 29 September 2026" en el párrafo— tienen que salir de
-  // la misma fecha que usan los botones. Si alguien cambia `opensAt` y se
-  // olvida del texto, esto falla aquí y no el día 29 delante de la gente.
+  // Y esa fecha tiene que salir de la misma que usan los botones. Si alguien
+  // cambia `opensAt` y se olvida del texto —o al revés— la web diría un día y
+  // se abriría otro, y nadie se enteraría hasta ese día. Esto falla aquí, en
+  // el banco de pruebas, y no el 29 por la mañana delante de la gente.
+  //
+  // Se mira solo "29 September", la forma corta del titular. La larga
+  // —"Tuesday 29 September 2026"— estaba en un párrafo que ya no existe;
+  // `platformOpensFull` sigue ahí para quien la necesite.
   //
   // La hora no se comprueba porque no se escribe: la página dice el día y
   // nada más, aunque `opensAt` lleve las 00:01 para saber cuándo cambiar.
-  const faltan = [dia, completa.fecha].filter((t) => crudo.texto.indexOf(t) === -1);
   check('el texto escrito dice la misma fecha que site.js',
-    faltan.length === 0,
-    faltan.length ? 'falta en platform.html: ' + faltan.join(', ') : completa.fecha);
+    crudo.texto.indexOf(dia) > -1,
+    crudo.texto.indexOf(dia) > -1 ? dia + ' (de ' + completa.fecha + ')'
+      : 'falta en platform.html: ' + dia);
 
   check('el aviso no anuncia una hora', !/\d{1,2}:\d{2}/.test(crudo.texto),
     (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);

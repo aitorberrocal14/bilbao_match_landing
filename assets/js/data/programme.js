@@ -307,11 +307,12 @@ window.MBB.programme = {
         'The working morning at the Iberdrola Tower, pintxos in the Old Town, ' +
         'and a private visit to the Guggenheim before the farewell dinner.',
       slots: [
-        { time: '08:15', title: 'Meeting point in the lobby', tag: 'destination' },
-        { time: '08:30', title: 'Departure for the Iberdrola Tower', tag: 'destination' },
-        { time: '08:45', title: 'Accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
+        { time: '08:00', title: 'Meeting point in the lobby', text: 'For the transfer to the Iberdrola Tower.', tag: 'destination' },
+        { time: '08:15', title: 'Departure for the Iberdrola Tower', tag: 'destination' },
+        { time: '08:30', title: 'Arrival, accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
+        { time: '08:45', title: 'Institutional intervention', venue: 'Iberdrola Tower', tag: 'meetings' },
         {
-          time: '09:00',
+          time: '09:10',
           end: '13:00',
           title: 'B2B workshop',
           text:
@@ -325,7 +326,7 @@ window.MBB.programme = {
         {
           time: '13:15',
           end: '15:30',
-          title: 'Pintxos route through the Old Town',
+          title: 'Walk and pintxos tour of the Old Town',
           tag: 'social',
           feature: true
         },

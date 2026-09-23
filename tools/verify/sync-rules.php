@@ -267,11 +267,18 @@ if (!$abre) {
         if (!$bien) { $fallos++; }
     }
 
-    // Y el color: abierta, el Login es el botón y el alta se queda en blanco.
+    // Y el botón, que es UNO y no cambia. Aquí se miraba que el Login pasara a
+    // botón rojo y el alta a blanco con borde, porque la cabecera llevaba dos
+    // y se cambiaban los papeles ese día. Ahora lleva uno, el Login, igual los
+    // dos días: lo que se comprueba es que siga siendo el mismo botón y que el
+    // alta no haya vuelto a colarse en la cabecera de las fichas.
     $cab = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
-    $bien = strpos($cab, 'class="header__enter btn btn--sm"') !== false &&
-        strpos($cab, 'class="btn btn--sm btn--outline"') !== false;
-    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y con ella cambian los dos botones\n";
+    preg_match('~<header\b.*?</header>~s', $cab, $m);
+    $soloCab = $m[0] ?? '';
+    $bien = $soloCab !== '' &&
+        strpos($soloCab, 'class="header__enter btn btn--sm"') !== false &&
+        strpos($soloCab, 'data-register') === false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y el Login sigue siendo el único botón\n";
     if (!$bien) { $fallos++; }
 }
 

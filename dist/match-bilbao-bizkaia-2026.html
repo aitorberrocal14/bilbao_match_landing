@@ -1410,28 +1410,27 @@ p:last-child { margin-bottom: 0; }
   margin-inline: auto;
   text-align: center;
 }
-/* Más pequeño que un `h-1` de portada: esto es un cartel de "todavía no", y a
-   tamaño de portada empujaba los cuatro pasos fuera de la pantalla. */
-.gate h1 { font-size: clamp(1.5rem, 2.7vw, 2.05rem); }
-.gate .lead { margin-top: 0.85rem; font-size: 1.02rem; line-height: 1.65; }
-/* Dos cosas sobre `.measure` aquí. Centrada la caja, hay que centrar también
-   la columna que lleva dentro, o el texto queda descolgado bajo un titular
-   centrado. Y su corte a 68 caracteres sobra: la caja ya mide 54rem, que es
-   una línea cómoda, y encima de eso el párrafo salía a tres líneas en vez de
-   dos y empujaba los cuatro pasos fuera de la pantalla. */
+/* EL AVISO PESA MENOS QUE LO QUE VIENE DEBAJO, Y ES A PROPÓSITO.
+   El titular es un cartel de "todavía no": dice una cosa, se lee de un
+   vistazo y no da para más. Los cuatro pasos de abajo son lo único que esta
+   página cuenta y no cuenta ninguna otra, así que el peso de la página está
+   ahí. Por eso este titular va por debajo de un `h-1` de portada y el de
+   "cómo funciona" va por encima. */
+.gate h1 { font-size: clamp(1.25rem, 2.1vw, 1.6rem); }
+/* Centrada la caja, hay que centrar también cualquier columna que lleve
+   dentro, o lo que haya queda descolgado bajo un titular centrado. */
 .gate .measure { max-width: 100%; margin-inline: auto; }
 .gate__actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.8rem;
-  margin-top: clamp(1.1rem, min(2.5vw, 2.5vh), 1.6rem);
+  gap: 0.7rem;
+  margin: clamp(1rem, min(2.2vw, 2.2vh), 1.4rem) 0 0;
 }
-.gate__help {
-  margin: clamp(1.1rem, min(2.5vw, 2.5vh), 1.6rem) 0 0;
-  font-size: 0.9rem;
-  color: var(--grey-light);
-}
+/* Botones de tamaño corriente y no `--lg`: son el segundo camino de esta
+   página —el primero es esperar al 29— y a tamaño grande pesaban más que el
+   titular que tienen encima. */
+.gate__actions .btn { padding: 0.6rem 1.5rem; font-size: 0.78rem; }
 
 /* Los cuatro pasos, al mismo ancho y bajo la misma raya. Iban a lo ancho de
    la página entera y cada paso quedaba como una isla —cuatro columnas
@@ -1445,10 +1444,16 @@ p:last-child { margin-bottom: 0; }
   border-top: 1px solid var(--line);
   padding-top: clamp(1.1rem, min(2.5vw, 2.6vh), 1.9rem);
 }
+/* Y con el peso que le toca. Los cuatro pasos son el contenido de esta
+   página: el aviso de arriba se lee en dos segundos y no vuelve a hacer
+   falta, y esto es lo que alguien se lleva de aquí. Así que su titular va a
+   tamaño de portada —por encima del que tiene encima—, y los pasos a cuerpo
+   de lectura y no de pie de foto. */
+#how .steps__head h2 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); }
 #how .steps { gap: clamp(1rem, 2vw, 1.75rem); }
-#how .step h3 { font-size: 0.95rem; }
-#how .step p { font-size: 0.86rem; }
-#how .step__n { width: 38px; height: 38px; margin-bottom: 0.65rem; }
+#how .step h3 { font-size: 1rem; }
+#how .step p { font-size: 0.9rem; }
+#how .step__n { width: 44px; height: 44px; margin-bottom: 0.7rem; font-size: 0.95rem; }
 #how .steps__head { margin-bottom: clamp(1rem, min(2.5vw, 2.5vh), 1.6rem); }
 #how .steps__head p { max-width: 100%; font-size: 0.95rem; }
 
@@ -3027,11 +3032,12 @@ window.MBB.programme = {
         'The working morning at the Iberdrola Tower, pintxos in the Old Town, ' +
         'and a private visit to the Guggenheim before the farewell dinner.',
       slots: [
-        { time: '08:15', title: 'Meeting point in the lobby', tag: 'destination' },
-        { time: '08:30', title: 'Departure for the Iberdrola Tower', tag: 'destination' },
-        { time: '08:45', title: 'Accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
+        { time: '08:00', title: 'Meeting point in the lobby', text: 'For the transfer to the Iberdrola Tower.', tag: 'destination' },
+        { time: '08:15', title: 'Departure for the Iberdrola Tower', tag: 'destination' },
+        { time: '08:30', title: 'Arrival, accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
+        { time: '08:45', title: 'Institutional intervention', venue: 'Iberdrola Tower', tag: 'meetings' },
         {
-          time: '09:00',
+          time: '09:10',
           end: '13:00',
           title: 'B2B workshop',
           text:
@@ -3045,7 +3051,7 @@ window.MBB.programme = {
         {
           time: '13:15',
           end: '15:30',
-          title: 'Pintxos route through the Old Town',
+          title: 'Walk and pintxos tour of the Old Town',
           tag: 'social',
           feature: true
         },
