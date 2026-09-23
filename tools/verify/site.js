@@ -647,7 +647,7 @@ function check(etiqueta, ok, detalle) {
     // El tope solo rige en escritorio. En el móvil la sección se lee bajando
     // de todas formas, así que allí aprovechan el ancho que haya.
     if (ancho > 900) {
-      check('  y no han vuelto a crecer', fotos.ancha <= 365, fotos.ancha + 'px de ancho');
+      check('  y no han vuelto a crecer', fotos.ancha <= 335, fotos.ancha + 'px de ancho');
     }
 
     /* --- Nada roto por el camino -------------------------------------------- */
@@ -954,9 +954,47 @@ function check(etiqueta, ok, detalle) {
       z.abajo <= z.vh && z.letra >= 14 && !z.desborde, detalle);
   }
 
-  check('los avisos de "hay más abajo" llevan a alguna parte',
-    cues.length === 2 && cues.every((c) => c.existe),
-    cues.map((c) => c.href).join(' ') || 'ninguno');
+  // LA CADENA DE FLECHAS. Cada sección termina diciendo qué hay debajo, y la
+  // siguiente empieza donde apunta la anterior: portada → vídeos → destino →
+  // programa → expositores → folletos → contacto. Seis flechas, una menos que
+  // secciones, porque la última no tiene debajo más que el pie.
+  //
+  // Se comprueban las seis y se comprueba que lleven a alguna parte. Un ancla
+  // que no encuentra su sección no avisa de nada: cambia la dirección del
+  // navegador y la pantalla se queda igual.
+  const CADENA = ['#editions', '#presentation', '#event', '#experts', '#discover', '#contact'];
+  check('las flechas encadenan la página entera',
+    cues.length === CADENA.length &&
+    cues.every((c, i) => c.existe && c.href === CADENA[i]),
+    cues.map((c) => c.href).join(' ') || 'ninguna');
+
+  // Y las de las secciones que caben en una pantalla se ven sin bajar. En esas
+  // la flecha es lo que dice que la página sigue, así que por debajo del borde
+  // no sirve de nada.
+  //
+  // El programa y los folletos NO están en esta lista, y no es un olvido: uno
+  // mide 907px y el otro 2554 —cinco días de agenda, doce folletos—, o sea más
+  // de una pantalla por mucho que se recorte. Ahí la flecha va donde tiene que
+  // ir, al final, y aparece cuando se termina de leer la sección, que es
+  // justo cuando hace falta.
+  const mira = await navegador.newContext({ viewport: { width: 1656, height: 810 } });
+  const pm = await mira.newPage();
+  await pm.goto(PAGINA);
+  await pm.waitForTimeout(900);
+  await pm.evaluate(() =>
+    document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in')));
+  for (const sec of ['#home', '#editions', '#presentation', '#experts']) {
+    await pm.evaluate((s) => { window.location.hash = s; }, sec);
+    await pm.waitForTimeout(800);
+    const v = await pm.evaluate((s) => {
+      const c = document.querySelector(s + ' .cue');
+      return c ? { abajo: Math.round(c.getBoundingClientRect().bottom), vh: window.innerHeight }
+        : null;
+    }, sec);
+    check('  la flecha de ' + sec + ' se ve al llegar', v && v.abajo <= v.vh,
+      v ? v.abajo + 'px de ' + v.vh : 'no hay flecha');
+  }
+  await mira.close();
 
   /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
   // Entrar y darse de alta son dos acciones distintas, y la que interesa

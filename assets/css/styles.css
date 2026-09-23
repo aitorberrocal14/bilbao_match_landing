@@ -134,9 +134,17 @@ button { font: inherit; color: inherit; }
 
 /* El destino se lee como UNA PANTALLA: se llega a él desde el menú y lo que
    se ve al llegar tiene que ser la sección entera, no la mitad. Por eso lleva
-   menos aire arriba que las demás secciones —las otras se encuentran bajando,
-   y ahí el aire separa; aquí solo ocupa sitio. */
-#presentation { padding-top: clamp(1.25rem, min(4vw, 4.5vh), 3.5rem); }
+   menos aire que las demás secciones —las otras se encuentran bajando, y ahí
+   el aire separa; aquí solo ocupa sitio—, arriba y también abajo, que es lo
+   que hizo falta el día que la sección ganó la flecha hacia el programa. */
+#presentation {
+  padding-top: clamp(1rem, min(3vw, 3.7vh), 2.5rem);
+  padding-bottom: clamp(1rem, min(3.5vw, 4.2vh), 2.75rem);
+}
+/* Y su flecha, pegada a lo que cierra la sección. En las demás el hueco de
+   siempre separa bien; aquí cada píxel de más la echa por debajo del borde,
+   que es justo donde una flecha que dice "hay más abajo" no sirve de nada. */
+#presentation .cue { margin-top: clamp(0.25rem, min(1vw, 0.8vh), 0.75rem); }
 
 /* Y lo mismo, por la misma razón, en "Meet BB's Experts": al llegar desde el
    menú se ven el titular, el párrafo y la banda roja, y la pantalla se acaba
@@ -1054,14 +1062,16 @@ p:last-child { margin-bottom: 0; }
    que rompía la composición—. Lo que hacía falta era más simple: las mismas
    fotos, en el mismo sitio, un poco más pequeñas.
 
-   A 360px la sección se queda en 700 y entra entera. El tope va en la columna
+   A 330px la sección se queda en 699 y entra entera —con la flecha que lleva
+   al programa incluida, que es lo último que hay y lo que de verdad tiene que
+   verse—. El tope va en la columna
    y no en la retícula a propósito: así la columna de texto conserva sus 653px
    de ancho, que es la medida de línea con la que está compuesta. Y centradas,
    para que el hueco que sobra a su lado se reparta y no quede todo a un lado. */
 .present__media {
   display: grid;
   gap: 1rem;
-  max-width: 360px;
+  max-width: 330px;
   margin-inline: auto;
   align-content: center;
 }
@@ -1091,10 +1101,18 @@ p:last-child { margin-bottom: 0; }
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
+  /* DESTACADAS SIN SER MÁS GRANDES.
+     El cuerpo se queda en 0.82rem: estas flechas van al pie de cada sección y
+     a tamaño de titular competirían con el titular de la siguiente, que es
+     justo lo que no tienen que hacer. Lo que cambia es el peso y el tono —de
+     regular a negrita, y del gris del cuerpo al del pie, que es más oscuro—,
+     y el grosor del trazo de la punta. Ocupan lo mismo y se ven bastante más;
+     es lo que pasa con una palabra en negrita dentro de un párrafo. */
   font-size: 0.82rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--grey-dark);
+  color: var(--charcoal);
   text-decoration: none;
   transition: color 0.25s var(--ease);
 }
@@ -1102,8 +1120,10 @@ p:last-child { margin-bottom: 0; }
 .cue__arrow {
   width: 11px;
   height: 11px;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  /* 3px y no 2: la punta tiene que pesar lo mismo que el texto que lleva
+     encima, o con el texto en negrita se queda en un hilo al lado. */
+  border-right: 3px solid currentColor;
+  border-bottom: 3px solid currentColor;
   transform: rotate(45deg);
   animation: cue-baja 2.4s var(--ease) infinite;
 }

@@ -1034,7 +1034,8 @@ window.MBB = window.MBB || {};
         // escribe algo ahí y vuelve a salir. Por eso esto es una condición y
         // no una línea borrada.
         (programme.note ? '<p class="prog__note">' + esc(programme.note) + '</p>' : '') +
-      '</div>'
+      '</div>' +
+      MBB.ScrollCue('#experts', "Meet BB's Experts")
     );
   };
 
@@ -1064,7 +1065,14 @@ window.MBB = window.MBB || {};
           '<div class="text-justify">' + paras + '</div>' +
         '</div>' +
         '<div class="present__media" data-reveal style="--d:100ms">' + media + '</div>' +
-      '</div>'
+      '</div>' +
+      // Y el aviso de que debajo está el programa. Es el tercero de la página
+      // —portada → vídeos → destino → programa— y cierra la cadena: desde la
+      // primera pantalla se baja hasta la agenda sin tocar el menú ni una vez.
+      // Aquí hacía falta más que en los otros dos: al destino se llega desde
+      // el menú, se lee entero de una pantalla y no hay nada que diga que la
+      // página sigue.
+      MBB.ScrollCue('#event', 'Event Programme')
     );
   };
 
@@ -1112,7 +1120,12 @@ window.MBB = window.MBB || {};
       '<div class="videos">' + cards + '</div>' +
       // Dos carátulas grandes llenan la pantalla, y quien llega aquí no tiene
       // por qué saber que debajo está el destino.
-      MBB.ScrollCue('#presentation', 'Discover Bilbao Bizkaia')
+      //
+      // Dice "Bilbao Bizkaia" y no "Discover Bilbao Bizkaia" porque ese es el
+      // titular de la sección a la que lleva, y porque "Discover Bilbao
+      // Bizkaia" es el titular de OTRA —la de los folletos—: dos flechas con
+      // el mismo texto llevando a sitios distintos no avisan, confunden.
+      MBB.ScrollCue('#presentation', 'Bilbao Bizkaia')
     );
   };
 
@@ -1182,7 +1195,8 @@ window.MBB = window.MBB || {};
       // debajo, detrás del directorio, y han subido a la portada: cuentan cómo
       // funciona esto, que es la segunda pregunta de quien acaba de llegar, no
       // la última de quien ya ha recorrido la lista de empresas.
-      (opts.directorio || '')
+      (opts.directorio || '') +
+      MBB.ScrollCue('#discover', 'Discover Bilbao Bizkaia')
     );
   };
 
@@ -1507,7 +1521,8 @@ window.MBB = window.MBB || {};
         '<p>' + esc(d.intro) + '</p>' +
       '</div>' +
       '<div class="brochures">' + cards + '</div>' +
-      profile
+      profile +
+      MBB.ScrollCue('#contact', 'Contact')
     );
   };
 
