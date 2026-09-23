@@ -99,10 +99,16 @@ window.MBB.site = {
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
-    ctas: [
-      { label: 'Explore the event', href: '#event', variant: 'primary' },
-      { label: "Meet BB's Experts", href: '#experts', variant: 'ghost' }
-    ],
+    // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
+    //
+    // Eran "Explore the event" y "Meet BB's Experts", y llevaban a secciones
+    // de esta misma página a las que también se llega por el menú. Ocupaban el
+    // sitio con más valor de la web —justo debajo de la entrada— para ofrecer
+    // bajar un poco. Ahí está ahora la banda roja: darse de alta o entrar, que
+    // es lo único que de verdad hay que pedirle a quien llega.
+    //
+    // Añadiendo uno aquí —o en el panel— vuelven a salir, encima de la banda.
+    ctas: [],
     // LAS CIFRAS DE DEBAJO DE LA PORTADA. VACÍAS A PROPÓSITO.
     //
     // Eran tres —expositores, días de programa y 1:1— y ocupaban el final de

@@ -209,7 +209,7 @@ button { font: inherit; color: inherit; }
    se ve al llegar tiene que ser la sección entera, no la mitad. Por eso lleva
    menos aire arriba que las demás secciones —las otras se encuentran bajando,
    y ahí el aire separa; aquí solo ocupa sitio. */
-#presentation { padding-top: clamp(2rem, 4vw, 3.5rem); }
+#presentation { padding-top: clamp(1.25rem, min(4vw, 4.5vh), 3.5rem); }
 
 /* Y lo mismo, por la misma razón, en "Meet BB's Experts": al llegar desde el
    menú se ven el titular, el párrafo y la banda roja, y la pantalla se acaba
@@ -218,7 +218,7 @@ button { font: inherit; color: inherit; }
    de arriba y el del titular, entra. */
 /* Los vídeos son una pantalla: dos carátulas, sus títulos y el pie que invita
    a seguir. Con el aire de una sección normal no cabía. */
-#editions { padding-block: clamp(2rem, 4vw, 3rem) clamp(2rem, 4vw, 3.5rem); }
+#editions { padding-block: clamp(1.25rem, min(4vw, 4.5vh), 3rem) clamp(1.25rem, min(4vw, 4.5vh), 3.5rem); }
 #editions .section-head { margin-bottom: clamp(1.25rem, 2.5vw, 1.75rem); }
 
 #experts { padding-top: clamp(1.5rem, 3vw, 2rem); }
@@ -505,10 +505,17 @@ p:last-child { margin-bottom: 0; }
    que ya mide 93px, así que lo primero que veía quien abría la web eran 205px
    de blanco. Y ese blanco se pagaba al final: en un portátil corriente las
    cifras —4 días, 1:1— se quedaban por debajo del borde de la pantalla.
-   Lo que se recorta aquí no se le quita a nada: se le quita al hueco. */
+   Lo que se recorta aquí no se le quita a nada: se le quita al hueco.
+
+   Y EL HUECO MIRA TAMBIÉN EL ALTO DE LA VENTANA, no solo el ancho.
+   `min(3.5vw, 4vh)` se queda con el menor de los dos, así que en una pantalla
+   ancha y baja —un portátil de 1366×768, que descontando pestañas y barra de
+   tareas le deja al navegador unos 630px— el aire se encoge solo. Con vw a
+   secas, esa pantalla recibía el mismo hueco que un monitor grande: el ancho
+   le sobraba y el alto no lo tenía. */
 .hero {
   position: relative;
-  padding-block: clamp(1.75rem, 3.5vw, 3rem) clamp(3.5rem, 8vw, 7rem);
+  padding-block: clamp(1rem, min(3.5vw, 4vh), 3rem) clamp(2rem, min(8vw, 9vh), 7rem);
   overflow: hidden;
 }
 .hero__inner {
@@ -1163,8 +1170,8 @@ p:last-child { margin-bottom: 0; }
      que el hueco no tiene que decirlo otra vez. Eran 112px entre la entrada y
      estos tres bloques, y otros 104 hasta las cifras: 216px de nada en la
      parte de la web que más gente ve y menos gente baja. */
-  margin-top: clamp(1.25rem, 2.5vw, 1.75rem);
-  padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
+  margin-top: clamp(0.75rem, min(2.5vw, 3vh), 1.75rem);
+  padding-top: clamp(0.75rem, min(2.5vw, 3vh), 1.75rem);
   border-top: 1px solid var(--line);
 }
 .pillar h2 { font-size: 1.1rem; margin: 0 0 0.4rem; }
@@ -1247,9 +1254,11 @@ p:last-child { margin-bottom: 0; }
 /* "How it works" va DESPUÉS de las dos puertas, así que necesita separarse de
    ellas con una línea: si no, los cuatro pasos parecen letra pequeña de la
    banda roja en vez de un apartado propio. */
+/* Los cuatro pasos cierran la portada. El hueco mira también el alto de la
+   ventana: en una pantalla ancha y baja se encoge solo, como el resto. */
 .steps__head {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding-top: clamp(2rem, 4vw, 3rem);
+  margin-top: clamp(1rem, min(5vw, 3.5vh), 2.5rem);
+  padding-top: clamp(1rem, min(4vw, 3vh), 2.25rem);
   border-top: 1px solid var(--line);
 }
 
@@ -1257,7 +1266,7 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: clamp(1.5rem, 3vw, 2.5rem);
-  margin-top: clamp(2rem, 3.5vw, 3rem);
+  margin-top: clamp(1rem, min(3.5vw, 3vh), 2.25rem);
   text-align: center;
 }
 .step__n {
@@ -1294,8 +1303,8 @@ p:last-child { margin-bottom: 0; }
    con los titulares más pequeños. Lo que queda es lo que hace falta para
    decidir —qué eres y el botón—, que es para lo que está. */
 .login-band--slim {
-  margin-top: clamp(1.25rem, 2.5vw, 1.5rem);
-  padding: clamp(1.25rem, 2.5vw, 1.75rem) clamp(1.5rem, 3vw, 2.25rem);
+  margin-top: clamp(0.75rem, min(2.5vw, 3vh), 1.5rem);
+  padding: clamp(0.85rem, min(2.5vw, 3vh), 1.75rem) clamp(1.5rem, 3vw, 2.25rem);
   gap: clamp(1rem, 2.5vw, 2rem);
   align-items: center;
 }
@@ -1323,6 +1332,26 @@ p:last-child { margin-bottom: 0; }
   .login-band--slim .login-band__half + .login-band__half {
     padding-left: clamp(1rem, 2.5vw, 2rem);
   }
+}
+
+/* LA BANDA DENTRO DE LA COLUMNA DE LA PORTADA.
+   Antes ocupaba el ancho entero y sus dos mitades iban una al lado de la otra.
+   Ahora vive en la columna del texto —la mitad de ancho—, donde no caben: se
+   apilan, una fila por puerta, con una raya horizontal entre las dos. La raya
+   vertical y el sangrado que las separaban en horizontal se quitan aquí, o
+   quedaba una línea suelta a la izquierda de la segunda. */
+.hero__inner .login-band--slim {
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-top: clamp(0.9rem, min(2.5vw, 2.5vh), 1.4rem);
+  padding: clamp(0.8rem, min(2vw, 2.4vh), 1.15rem) clamp(1rem, 2vw, 1.5rem);
+}
+.hero__inner .login-band--slim .login-band__half + .login-band__half {
+  margin-top: 0.6rem;
+  padding-top: 0.6rem;
+  padding-left: 0;
+  border-left: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
@@ -1922,6 +1951,43 @@ p:last-child { margin-bottom: 0; }
   .brochures { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* --- PANTALLAS ANCHAS PERO BAJAS -------------------------------------------
+   Un portátil de 1366×768 tiene ancho de sobra y alto justo: descontando las
+   pestañas, la barra de direcciones y la de tareas, al navegador le quedan
+   unos 630px. Con ese alto, la portada —titular, foto, los tres bloques y la
+   banda— se pasaba 190px, y para verla entera había que bajar el zoom al 75%.
+
+   LAS DOS CONDICIONES SON NECESARIAS, y la de ancho no está de adorno. Un
+   móvil también es bajo, y en un móvil esto no tiene que pasar: ahí la altura
+   del navegador cambia sola al girar el teléfono o al aparecer y desaparecer
+   la barra de direcciones, y una regla que dependiera del alto haría saltar
+   la página a mitad de lectura. Pidiendo 900px de ancho, esta regla no
+   alcanza a ningún teléfono.
+
+   Y no se toca nada por debajo de la portada: es lo primero que se ve y lo
+   único que tiene que entrar de una vez.
+
+   Si en una pantalla normal el titular se ve más pequeño de lo que debería,
+   es que esta regla se ha encendido donde no tocaba: se sube el 740. */
+@media (max-height: 740px) and (min-width: 900px) {
+  /* La foto es lo que manda en la altura de la fila: mide 375px, más que el
+     texto de al lado. Recortándola, la fila pasa a medirla el texto. */
+  .hero__media { aspect-ratio: auto; height: clamp(180px, 34vh, 260px); }
+
+  .h-hero { font-size: clamp(1.9rem, 3.4vw, 2.6rem); }
+  .hero__dates { margin-bottom: 0.5rem; }
+  .hero__title { margin-bottom: 0.3rem; }
+  .hero__subtitle { font-size: clamp(1.05rem, 1.7vw, 1.25rem); margin-bottom: 0.6rem; }
+  .hero__lead { margin-bottom: 1rem; }
+  .hero__inner { gap: clamp(1.5rem, 3vw, 2.5rem); }
+
+  .pillar h2 { font-size: 1rem; margin-bottom: 0.2rem; }
+  .pillar p { font-size: 0.86rem; line-height: 1.45; }
+
+  .login-band--slim { padding-block: 0.75rem; }
+  .login-band--slim h2 { font-size: 1rem; }
+}
+
 /* --- Cuándo se pliega el menú ----------------------------------------------
    El menú necesita unos 1275px para caber en una sola fila: son cinco
    entradas y una de ellas es "Match Bilbao Bizkaia 2026", que es larga de por
@@ -2271,10 +2337,16 @@ window.MBB.site = {
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
-    ctas: [
-      { label: 'Explore the event', href: '#event', variant: 'primary' },
-      { label: "Meet BB's Experts", href: '#experts', variant: 'ghost' }
-    ],
+    // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
+    //
+    // Eran "Explore the event" y "Meet BB's Experts", y llevaban a secciones
+    // de esta misma página a las que también se llega por el menú. Ocupaban el
+    // sitio con más valor de la web —justo debajo de la entrada— para ofrecer
+    // bajar un poco. Ahí está ahora la banda roja: darse de alta o entrar, que
+    // es lo único que de verdad hay que pedirle a quien llega.
+    //
+    // Añadiendo uno aquí —o en el panel— vuelven a salir, encima de la banda.
+    ctas: [],
     // LAS CIFRAS DE DEBAJO DE LA PORTADA. VACÍAS A PROPÓSITO.
     //
     // Eran tres —expositores, días de programa y 1:1— y ocupaban el final de
@@ -2518,10 +2590,12 @@ window.MBB.experts = {
   lead:
     'Behind every itinerary there is someone local who makes it work. Search ' +
     'Bilbao Bizkaia\'s experts by category or by name.',
+  // El titular de los cuatro pasos y su párrafo. Cierran la portada.
+  howTitle: 'How the matchmaking works',
   body:
     'Create your profile, browse the exhibitor directory, request the ' +
-    'appointments that matter to you and manage your confirmed meetings from a ' +
-    'single agenda — before, during and after the event.',
+    'appointments that matter to you and manage your confirmed meetings from ' +
+    'a single agenda.',
   steps: [
     {
       n: '01',
@@ -3529,11 +3603,16 @@ window.MBB = window.MBB || {};
         'data-label="[Insert hero image]">'
       : '<div class="ph">[Insert hero image]</div>';
 
-    // Aquí había un tercer botón de Login. Sobraba desde que Login y el alta
-    // están en la barra de arriba, a la vista en todo momento y en todas las
-    // páginas: repetirlo aquí no añadía nada y rompía la fila —los dos
-    // primeros cabían juntos y el Login se caía solo a una segunda línea,
-    // dejando la portada descuadrada.
+    // LOS BOTONES DE LA PORTADA YA NO ESTÁN, y en su sitio está la banda roja.
+    //
+    // Eran "Explore the event" y "Meet BB's Experts": dos enlaces a secciones
+    // de esta misma página, a las que también se llega por el menú. Ocupaban
+    // el sitio con más valor de toda la web —justo debajo de la entrada, donde
+    // mira todo el mundo— para ofrecer bajar un poco.
+    //
+    // Ahí está ahora lo único que de verdad hay que pedirle a quien llega:
+    // darse de alta o entrar. Sigue habiendo datos por si alguien los quiere
+    // de vuelta; simplemente no se dibujan.
     var ctas = h.ctas
       .map(function (c) {
         return '<a class="btn btn--lg' + (c.variant === 'ghost' ? ' btn--outline' : '') +
@@ -3582,24 +3661,22 @@ window.MBB = window.MBB || {};
               ' <span class="yr">' + esc(h.titleYear) + '</span></h1>' +
             '<p class="hero__subtitle">' + esc(h.subtitle) + '</p>' +
             '<p class="hero__lead lead">' + esc(h.lead) + '</p>' +
-            '<div class="hero__ctas">' + ctas + '</div>' +
+            (ctas ? '<div class="hero__ctas">' + ctas + '</div>' : '') +
+            (opts.banda || '') +
           '</div>' +
           '<div class="hero__media" data-reveal style="--d:100ms">' + media + '</div>' +
         '</div>' +
         (pilares ? '<div class="pillars" data-reveal>' + pilares + '</div>' : '') +
-        // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y ahora está la
-        // banda roja de darse de alta o entrar.
+        // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y luego la banda
+        // roja. Las cifras siguen en site.js sin dibujarse, y la banda ha
+        // subido al hueco que dejaron los dos botones, arriba.
         //
-        // Las cifras contaban el evento; la banda pide hacer algo. En el sitio
-        // donde se acaba la primera pantalla, lo segundo vale más: quien ha
-        // leído la entrada y los tres bloques ya sabe qué es esto, y lo único
-        // que falta es decirle por dónde se entra. Antes eso estaba tres
-        // pantallas más abajo, dentro de "Meet BB's Experts".
-        //
-        // Las cifras siguen en site.js, sin dibujarse. Basta con volver a
-        // escribir una para que vuelvan.
+        // Lo que cierra la portada ahora es CÓMO FUNCIONA: los cuatro pasos,
+        // de crear el perfil a reunirse. Estaban al final de "Meet BB's
+        // Experts", después del directorio, donde casi nadie llegaba. Aquí
+        // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
-        (opts.banda || '') +
+        (opts.pasos || '') +
       '</div>'
     );
   };
@@ -4340,16 +4417,6 @@ window.MBB = window.MBB || {};
   /* --- Meet BB's Experts -------------------------------------------------- */
   MBB.Experts = function (e, site, opts) {
     opts = opts || {};
-    var steps = e.steps
-      .map(function (s) {
-        return (
-          '<div class="step">' +
-            '<span class="step__n">' + esc(s.n) + '</span>' +
-            '<h3>' + esc(s.title) + '</h3><p>' + esc(s.text) + '</p>' +
-          '</div>'
-        );
-      })
-      .join('');
 
     // ORDEN DE LA SECCIÓN. Las dos puertas —darse de alta y entrar— van
     // ARRIBA, pegadas al titular.
@@ -4380,11 +4447,37 @@ window.MBB = window.MBB || {};
       // tamaño, para una sola cosa. El texto que llevaba debajo es ahora la
       // entrada de la sección. El directorio lo arma main.js, que es quien
       // tiene los datos; esta función solo decide en qué orden va todo.
-      (opts.directorio || '') +
-      // El párrafo explicativo y los cuatro pasos cuentan CÓMO funciona, que es
-      // la segunda pregunta, no la primera. Bajan al final.
+      // Y nada más. El párrafo explicativo y los cuatro pasos estaban aquí
+      // debajo, detrás del directorio, y han subido a la portada: cuentan cómo
+      // funciona esto, que es la segunda pregunta de quien acaba de llegar, no
+      // la última de quien ya ha recorrido la lista de empresas.
+      (opts.directorio || '')
+    );
+  };
+
+  /**
+   * CÓMO FUNCIONA: el párrafo y los cuatro pasos.
+   *
+   * Vivía dentro de "Meet BB's Experts" y ahora cierra la portada, así que se
+   * dibuja aparte y lo coloca quien lo pide. El titular es <h2> porque en la
+   * portada cuelga del <h1> de la página; dentro de una sección colgaría de su
+   * <h2> y tendría que ser <h3>.
+   */
+  MBB.HowItWorks = function (e) {
+    var steps = e.steps
+      .map(function (s) {
+        return (
+          '<div class="step">' +
+            '<span class="step__n">' + esc(s.n) + '</span>' +
+            '<h3>' + esc(s.title) + '</h3><p>' + esc(s.text) + '</p>' +
+          '</div>'
+        );
+      })
+      .join('');
+
+    return (
       '<div class="section-head section-head--center steps__head" data-reveal>' +
-        '<h3 class="h-2">How it works</h3>' +
+        '<h2 class="h-2">' + esc(e.howTitle || 'How it works') + '</h2>' +
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
       '<div class="steps" data-reveal>' + steps + '</div>'
@@ -4922,7 +5015,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
       return MBB.Hero(MBB.site, MBB.eventIntro, {
         banda: MBB.loginHref(MBB.site)
           ? MBB.LoginBand(MBB.site, MBB.experts, { slim: true })
-          : ''
+          : '',
+        pasos: MBB.HowItWorks(MBB.experts)
       });
     });
     into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });

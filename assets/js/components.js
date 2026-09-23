@@ -334,11 +334,16 @@ window.MBB = window.MBB || {};
         'data-label="[Insert hero image]">'
       : '<div class="ph">[Insert hero image]</div>';
 
-    // Aquí había un tercer botón de Login. Sobraba desde que Login y el alta
-    // están en la barra de arriba, a la vista en todo momento y en todas las
-    // páginas: repetirlo aquí no añadía nada y rompía la fila —los dos
-    // primeros cabían juntos y el Login se caía solo a una segunda línea,
-    // dejando la portada descuadrada.
+    // LOS BOTONES DE LA PORTADA YA NO ESTÁN, y en su sitio está la banda roja.
+    //
+    // Eran "Explore the event" y "Meet BB's Experts": dos enlaces a secciones
+    // de esta misma página, a las que también se llega por el menú. Ocupaban
+    // el sitio con más valor de toda la web —justo debajo de la entrada, donde
+    // mira todo el mundo— para ofrecer bajar un poco.
+    //
+    // Ahí está ahora lo único que de verdad hay que pedirle a quien llega:
+    // darse de alta o entrar. Sigue habiendo datos por si alguien los quiere
+    // de vuelta; simplemente no se dibujan.
     var ctas = h.ctas
       .map(function (c) {
         return '<a class="btn btn--lg' + (c.variant === 'ghost' ? ' btn--outline' : '') +
@@ -387,24 +392,22 @@ window.MBB = window.MBB || {};
               ' <span class="yr">' + esc(h.titleYear) + '</span></h1>' +
             '<p class="hero__subtitle">' + esc(h.subtitle) + '</p>' +
             '<p class="hero__lead lead">' + esc(h.lead) + '</p>' +
-            '<div class="hero__ctas">' + ctas + '</div>' +
+            (ctas ? '<div class="hero__ctas">' + ctas + '</div>' : '') +
+            (opts.banda || '') +
           '</div>' +
           '<div class="hero__media" data-reveal style="--d:100ms">' + media + '</div>' +
         '</div>' +
         (pilares ? '<div class="pillars" data-reveal>' + pilares + '</div>' : '') +
-        // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y ahora está la
-        // banda roja de darse de alta o entrar.
+        // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y luego la banda
+        // roja. Las cifras siguen en site.js sin dibujarse, y la banda ha
+        // subido al hueco que dejaron los dos botones, arriba.
         //
-        // Las cifras contaban el evento; la banda pide hacer algo. En el sitio
-        // donde se acaba la primera pantalla, lo segundo vale más: quien ha
-        // leído la entrada y los tres bloques ya sabe qué es esto, y lo único
-        // que falta es decirle por dónde se entra. Antes eso estaba tres
-        // pantallas más abajo, dentro de "Meet BB's Experts".
-        //
-        // Las cifras siguen en site.js, sin dibujarse. Basta con volver a
-        // escribir una para que vuelvan.
+        // Lo que cierra la portada ahora es CÓMO FUNCIONA: los cuatro pasos,
+        // de crear el perfil a reunirse. Estaban al final de "Meet BB's
+        // Experts", después del directorio, donde casi nadie llegaba. Aquí
+        // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
-        (opts.banda || '') +
+        (opts.pasos || '') +
       '</div>'
     );
   };
@@ -1145,16 +1148,6 @@ window.MBB = window.MBB || {};
   /* --- Meet BB's Experts -------------------------------------------------- */
   MBB.Experts = function (e, site, opts) {
     opts = opts || {};
-    var steps = e.steps
-      .map(function (s) {
-        return (
-          '<div class="step">' +
-            '<span class="step__n">' + esc(s.n) + '</span>' +
-            '<h3>' + esc(s.title) + '</h3><p>' + esc(s.text) + '</p>' +
-          '</div>'
-        );
-      })
-      .join('');
 
     // ORDEN DE LA SECCIÓN. Las dos puertas —darse de alta y entrar— van
     // ARRIBA, pegadas al titular.
@@ -1185,11 +1178,37 @@ window.MBB = window.MBB || {};
       // tamaño, para una sola cosa. El texto que llevaba debajo es ahora la
       // entrada de la sección. El directorio lo arma main.js, que es quien
       // tiene los datos; esta función solo decide en qué orden va todo.
-      (opts.directorio || '') +
-      // El párrafo explicativo y los cuatro pasos cuentan CÓMO funciona, que es
-      // la segunda pregunta, no la primera. Bajan al final.
+      // Y nada más. El párrafo explicativo y los cuatro pasos estaban aquí
+      // debajo, detrás del directorio, y han subido a la portada: cuentan cómo
+      // funciona esto, que es la segunda pregunta de quien acaba de llegar, no
+      // la última de quien ya ha recorrido la lista de empresas.
+      (opts.directorio || '')
+    );
+  };
+
+  /**
+   * CÓMO FUNCIONA: el párrafo y los cuatro pasos.
+   *
+   * Vivía dentro de "Meet BB's Experts" y ahora cierra la portada, así que se
+   * dibuja aparte y lo coloca quien lo pide. El titular es <h2> porque en la
+   * portada cuelga del <h1> de la página; dentro de una sección colgaría de su
+   * <h2> y tendría que ser <h3>.
+   */
+  MBB.HowItWorks = function (e) {
+    var steps = e.steps
+      .map(function (s) {
+        return (
+          '<div class="step">' +
+            '<span class="step__n">' + esc(s.n) + '</span>' +
+            '<h3>' + esc(s.title) + '</h3><p>' + esc(s.text) + '</p>' +
+          '</div>'
+        );
+      })
+      .join('');
+
+    return (
       '<div class="section-head section-head--center steps__head" data-reveal>' +
-        '<h3 class="h-2">How it works</h3>' +
+        '<h2 class="h-2">' + esc(e.howTitle || 'How it works') + '</h2>' +
         '<p>' + esc(e.body) + '</p>' +
       '</div>' +
       '<div class="steps" data-reveal>' + steps + '</div>'

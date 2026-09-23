@@ -103,10 +103,12 @@ window.MBB.experts = {
   lead:
     'Behind every itinerary there is someone local who makes it work. Search ' +
     'Bilbao Bizkaia\'s experts by category or by name.',
+  // El titular de los cuatro pasos y su párrafo. Cierran la portada.
+  howTitle: 'How the matchmaking works',
   body:
     'Create your profile, browse the exhibitor directory, request the ' +
-    'appointments that matter to you and manage your confirmed meetings from a ' +
-    'single agenda — before, during and after the event.',
+    'appointments that matter to you and manage your confirmed meetings from ' +
+    'a single agenda.',
   steps: [
     {
       n: '01',

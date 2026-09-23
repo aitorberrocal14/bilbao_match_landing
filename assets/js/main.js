@@ -68,7 +68,8 @@
       return MBB.Hero(MBB.site, MBB.eventIntro, {
         banda: MBB.loginHref(MBB.site)
           ? MBB.LoginBand(MBB.site, MBB.experts, { slim: true })
-          : ''
+          : '',
+        pasos: MBB.HowItWorks(MBB.experts)
       });
     });
     into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });

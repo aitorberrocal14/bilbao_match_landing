@@ -545,6 +545,8 @@ function check(etiqueta, ok, detalle) {
         enPortada: !!document.querySelector('#home .login-band'),
         directorio: y('.directory'),
         pasos: y('.steps'),
+        pasosEnPortada: !!document.querySelector('#home .steps'),
+        pasosSueltos: document.querySelectorAll('.steps').length,
         // Y el directorio, pegado a la entrada de la sección: sin titular
         // propio en medio, que era otro <h2> del mismo tamaño para lo mismo.
         titularPropio: document.querySelectorAll('.directory h2').length
@@ -555,9 +557,18 @@ function check(etiqueta, ok, detalle) {
       orden.bandas === 1 && orden.enPortada, orden.bandas + ' banda(s)');
     check('el directorio no repite titular', orden.titularPropio === 0,
       orden.titularPropio + ' titular(es)');
-    check('"cómo funciona" queda para el final',
-      orden.pasos !== null && orden.directorio < orden.pasos,
-      'directorio ' + orden.directorio + ' · pasos ' + orden.pasos);
+    // Y "cómo funciona" cierra la portada, no la sección de expositores.
+    //
+    // Los cuatro pasos —crear el perfil, marcar disponibilidad, pedir citas,
+    // reunirse— estaban al final de "Meet BB's Experts", detrás del
+    // directorio, donde casi nadie llegaba. Responden la SEGUNDA pregunta de
+    // quien acaba de llegar («¿y esto cómo va?»), no la última de quien ya ha
+    // recorrido la lista de empresas. Así que van en la portada, debajo de los
+    // tres bloques, y ya no están abajo.
+    check('"cómo funciona" cierra la portada', orden.pasosEnPortada,
+      'pasos ' + orden.pasos + ' · directorio ' + orden.directorio);
+    check('  y no se ha quedado también abajo', orden.pasosSueltos === 1,
+      orden.pasosSueltos + ' bloque(s) de pasos');
 
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
     check('las dos ediciones tienen vídeo',
