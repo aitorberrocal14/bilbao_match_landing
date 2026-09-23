@@ -386,31 +386,23 @@ p:last-child { margin-bottom: 0; }
    web, y evita tener que plegar el menú 70px antes para todo el mundo. */
 .header__actions .btn { padding-inline: 1.05rem; }
 
-/* `.header__enter` no pinta nada: marca cuál de los dos botones de la cabecera
-   es el de entrar, para poder esconderlo en pantalla estrecha sin tener que
-   saber qué aspecto tiene ese día. Y cambia de aspecto: hasta que abre la
-   plataforma es `.header__login` —un enlace— y a partir de ese día es un botón
-   rojo. Sin esta marca, la regla de más abajo dejaría de encontrarlo justo el
-   día que abre, y el 29 por la mañana la cabecera se saldría de ancho en el
-   móvil sin que nadie hubiera tocado nada. */
+/* AQUÍ HABÍA DOS BOTONES Y TRES REGLAS MÁS.
+   =========================================================================
+   La cabecera llevaba Login y alta. Hasta el día que abría la plataforma el
+   alta era el botón rojo y el Login un enlace de texto (`.header__login`); a
+   partir de ese día se cambiaban los papeles. Y como en un móvil estrecho no
+   caben logotipo, dos botones y el botón del menú, el Login se escondía de la
+   barra y aparecía dentro del desplegable (`.header__links-login`), con la
+   marca `.header__enter` para poder encontrarlo tuviera el aspecto que
+   tuviera ese día.
 
-/* El Login de la cabecera mientras la plataforma está cerrada: enlace, no
-   botón. Comparte la letra de los enlaces del menú —misma familia, mismo
-   tamaño, mismas mayúsculas— para que lea como uno más y deje el rojo macizo
-   al alta, que es la acción que buscamos hasta que se pueda entrar. */
-.header__login {
-  font-size: 0.86rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--grey-dark);
-  white-space: nowrap;
-  transition: color 0.25s var(--ease);
-}
-.header__login:hover { color: var(--red); }
+   Ahora en la cabecera hay un botón y es el Login, siempre igual. No hace
+   falta esconder nada en el móvil —logotipo, un botón y el menú caben hasta
+   en 320px— ni tener una copia en el desplegable, ni un estilo de enlace para
+   los días en que era enlace. Las tres reglas se fueron con los dos botones.
 
-/* El Login del menú desplegable solo sale en pantalla estrecha; su pareja de
-   la cabecera desaparece entonces, para que nunca estén los dos. */
-.header__links-login { display: none; }
+   `.header__enter` sigue puesto en el HTML, pero ya no lo lee ninguna regla:
+   se queda como agarradero por si algún día hay que volver a distinguirlo. */
 
 .burger {
   display: none;
@@ -2070,11 +2062,10 @@ p:last-child { margin-bottom: 0; }
   .header__year { font-size: 0.78rem; }
   .header__actions { gap: 0.25rem; }
   .header__actions .btn { padding: 0.45rem 0.9rem; font-size: 0.7rem; }
-  /* Aquí se hace el relevo: el Login deja la cabecera y aparece en el menú.
-     Se busca por `.header__enter`, que lleva puesto tanto cuando es enlace
-     como cuando es botón rojo. */
-  .header__actions .header__enter { display: none; }
-  .header__links-login { display: block; }
+  /* Aquí se hacía el relevo del Login entre la barra y el menú, cuando había
+     dos botones y no cabían. Con uno solo se queda en la barra a cualquier
+     ancho: es la única acción de la cabecera y esconderla sería esconder lo
+     que la gente viene a pulsar. */
   .burger { width: 36px; padding: 8px; }
   /* The rail moves in; everything placed from it follows on its own. */
   .tl { --rail: 58px; --clear: 0.9rem; }

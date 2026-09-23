@@ -256,21 +256,12 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    // En un móvil estrecho no caben a la vez el logotipo, el Login, el alta y
-    // el botón del menú: algo se sale por el lado. Así que en pantalla pequeña
-    // el Login baja al menú desplegable —donde tiene su sitio y una zona de
-    // pulsación decente— y arriba se queda el alta, que es la acción que
-    // buscamos de quien llega por primera vez. De 620px para arriba esta
-    // entrada no se dibuja y el Login vuelve a la cabecera.
     // Estando ya en la página de aviso, un Login que lleva a la página de
-    // aviso no hace nada: cambia la dirección y la pantalla se queda igual.
-    // Ahí sobra, y el alta se queda sola. Abierta la plataforma el Login ya
-    // lleva a Meetmaps, así que vuelve a la cabecera por su cuenta.
+    // aviso no hace nada: cambia la dirección del navegador y la pantalla se
+    // queda igual. Ahí no se dibuja. El día que abra la plataforma esa página
+    // se aparta sola hacia Meetmaps, así que el caso deja de existir.
     var abierta = MBB.platformOpen(site);
     var conLogin = !(opts.aviso && !abierta);
-
-    var loginEnMenu = conLogin ? loginLink(site, 'header__link', base) : '';
-    if (loginEnMenu) links += '<li class="header__links-login">' + loginEnMenu + '</li>';
 
     return (
       '<div class="shell shell--wide header__inner">' +
@@ -283,26 +274,25 @@ window.MBB = window.MBB || {};
           links +
         '</ul></nav>' +
         '<div class="header__actions">' +
-          // DOS PUERTAS, Y LA QUE MANDA CAMBIA EL DÍA QUE ABRE LA PLATAFORMA.
+          // UN SOLO BOTÓN EN LA CABECERA, Y ES EL LOGIN.
           //
-          // Hasta que abre, entrar no es posible: quien llega solo puede darse
-          // de alta, así que el alta se lleva el rojo macizo y el Login se
-          // queda como enlace. Si los dos fueran botones rojos, el visitante
-          // nuevo tendría que leerlos para saber cuál es el suyo.
+          // Aquí hubo dos, Login y alta, y se cambiaban los papeles el día que
+          // abría la plataforma: hasta ese día el alta se llevaba el rojo y el
+          // Login era un enlace; a partir de ese día, al revés. Funcionaba, y
+          // aun así dependía de que una fecha escrita en site.js fuera la
+          // correcta, y obligaba a leer dos botones para saber cuál es el tuyo
+          // en la esquina donde menos tiempo se pasa mirando.
           //
-          // Abierta la plataforma se cambian los papeles. La mayoría de quien
-          // llega entonces ya tiene su perfil hecho y viene a entrar, no a
-          // apuntarse: el Login pasa a rojo macizo y el alta se queda en
-          // blanco con el borde rojo —sigue a la vista, para quien llegue
-          // tarde, pero deja de ser lo primero que pide que lo pulsen.
+          // Ahora la cabecera dice una sola cosa —entrar— y no cambia nunca.
+          // Lo que cambia solo, y ya lo hacía, es A DÓNDE lleva: antes del 29
+          // a la página que explica cuándo abre, y desde el 29 a la
+          // plataforma. Eso lo decide `login.opensAt` en site.js.
           //
-          // Es automático: lo decide la misma fecha que ya decide a dónde
-          // lleva el Login, `login.opensAt` en site.js. No hay que acordarse
-          // de venir a cambiarlo ese día.
-          (conLogin
-            ? loginLink(site, 'header__enter ' + (abierta ? 'btn btn--sm' : 'header__login'), base)
-            : '') +
-          registerLink(site, 'btn btn--sm' + (abierta ? ' btn--outline' : ''), true) +
+          // Darse de alta no desaparece de la web: sigue en la tarjeta que
+          // cierra la portada, que es donde hay sitio para explicar cuál de
+          // las dos cosas quiere hacer cada uno, y en la propia página de
+          // aviso. Lo que se quita es el botón de la esquina.
+          (conLogin ? loginLink(site, 'header__enter btn btn--sm', base) : '') +
           '<button class="burger" type="button" aria-label="Open menu" ' +
             'aria-expanded="false" aria-controls="nav-links">' +
             '<span></span><span></span><span></span>' +
@@ -1287,8 +1277,13 @@ window.MBB = window.MBB || {};
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
           '<p>' + esc(e.registerPanel.text) + '</p>' +
-          '<a class="btn btn--sm" href="' + esc(reg.url) + '" ' +
-            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
+          // Por `registerLink` y no a mano: es el mismo enlace que había en la
+          // cabecera, y desde que la cabecera solo lleva Login esta tarjeta es
+          // el único sitio de la portada donde se puede uno dar de alta. Así
+          // conserva su marca `data-register`, que es por donde lo encuentran
+          // las pruebas, y sigue desapareciendo solo el día que se cierren las
+          // inscripciones —basta con vaciar `register.url` en site.js—.
+          registerLink(site, 'btn btn--sm', false) +
         '</div>'
       : '';
 

@@ -61,8 +61,9 @@ const RELOJ = (iso) => {
 };
 
 // El rojo de los botones, --red-btn, tal y como lo devuelve el navegador.
+// Junto a él vivía SIN_FONDO, para distinguir el botón macizo del enlace
+// cuando la cabecera tenía dos puertas. Ahora tiene una y siempre es maciza.
 const ROJO = 'rgb(201, 32, 44)';
-const SIN_FONDO = 'rgba(0, 0, 0, 0)';
 
 let fallos = 0;
 function check(etiqueta, ok, detalle) {
@@ -492,34 +493,38 @@ function check(etiqueta, ok, detalle) {
     check('hay un botón para darse de alta',
       /meetmaps\.com/.test(puerta.alta) && /registration/.test(puerta.alta), puerta.alta);
 
-    /* --- Las dos puertas de la barra de arriba ------------------------------ */
-    // Entrar y darse de alta conviven en la cabecera, y se distinguen sin leer:
-    // el alta en rojo macizo, el Login como enlace. En móvil no caben los dos
-    // al lado del logotipo y del botón del menú, así que el Login baja al menú
-    // desplegable. Lo que no puede pasar nunca es que se pierda por el camino.
+    /* --- La puerta de la barra de arriba ------------------------------------ */
+    // UN SOLO BOTÓN, Y ES EL LOGIN. En la cabecera hubo dos —Login y alta— que
+    // se cambiaban los papeles el día que abría la plataforma, y con dos hacía
+    // falta esconder uno en el móvil para que cupieran. Ahora es uno, es el
+    // mismo a cualquier ancho y no cambia nunca: lo único que cambia, y solo,
+    // es a dónde lleva.
+    //
+    // Lo que se comprueba es que esté, que sea el botón rojo, que esté una
+    // sola vez —una copia olvidada en el menú desplegable serían dos— y que el
+    // alta ya no ande por ahí arriba. El alta no desaparece de la web: baja a
+    // la tarjeta de la portada, y eso se mide unas líneas más abajo.
     const barra = await pagina.evaluate(() => {
       const visible = (e) => !!e && e.getBoundingClientRect().width > 0;
-      const loginArriba = document.querySelector('.header__actions a[data-login]');
-      const loginMenu = document.querySelector('.header__links-login a[data-login]');
-      const alta = document.querySelector('.header__actions a[data-register]');
+      const login = document.querySelector('.header__actions a[data-login]');
       return {
-        alta: visible(alta),
-        altaTexto: alta ? alta.textContent.trim() : '',
-        altaUrl: alta ? alta.getAttribute('href') : '',
-        altaRoja: alta ? getComputedStyle(alta).backgroundColor : '',
-        // Uno de los dos, nunca los dos ni ninguno.
-        loginUno: (visible(loginArriba) ? 1 : 0) + (visible(loginMenu) ? 1 : 0),
-        loginDentro: document.documentElement.scrollWidth <= document.documentElement.clientWidth
+        login: visible(login),
+        texto: login ? login.textContent.trim() : '',
+        rojo: login ? getComputedStyle(login).backgroundColor : '',
+        // Ni una segunda copia escondida en el menú.
+        cuantos: [...document.querySelectorAll('.header a[data-login]')].filter(visible).length,
+        alta: document.querySelectorAll('.header a[data-register]').length,
+        dentro: document.documentElement.scrollWidth <= document.documentElement.clientWidth
       };
     });
 
-    check('el alta está en la barra de arriba', barra.alta, barra.altaTexto);
-    check('el alta lleva al formulario de registro',
-      /registration/.test(barra.altaUrl || ''), barra.altaUrl);
-    check('el alta se ve en rojo, no como enlace',
-      /rgba?\(20[0-9], 3[0-9], 4[0-9]/.test(barra.altaRoja), barra.altaRoja);
-    check('el Login está una vez y solo una', barra.loginUno === 1, barra.loginUno);
-    check('la barra no se sale de ancho', barra.loginDentro);
+    check('el Login está en la barra de arriba', barra.login, barra.texto);
+    check('  y es el botón rojo',
+      /rgba?\(20[0-9], 3[0-9], 4[0-9]/.test(barra.rojo), barra.rojo);
+    check('  y está una vez y solo una', barra.cuantos === 1, barra.cuantos);
+    check('el alta ya no está en la cabecera', barra.alta === 0,
+      barra.alta + ' en la cabecera');
+    check('la barra no se sale de ancho', barra.dentro);
 
     /* --- Dónde está cada cosa ----------------------------------------------- */
     // LAS DOS PUERTAS ESTÁN EN LA PORTADA, una sola vez.
@@ -996,23 +1001,22 @@ function check(etiqueta, ok, detalle) {
   }
   await mira.close();
 
-  /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
-  // Entrar y darse de alta son dos acciones distintas, y la que interesa
-  // cambia el día que abre la plataforma. Antes de abrir, entrar no se puede:
-  // manda el alta, en rojo macizo, y el Login es un enlace. Abierta, manda el
-  // Login —la mayoría ya tiene perfil y viene a entrar— y el alta se queda en
-  // blanco con el borde rojo.
+  /* --- El botón de la cabecera, antes y después de abrir ------------------- */
+  // LO QUE TIENE QUE PASAR EL 29 ES NADA.
   //
-  // El cambio lo hace sola la fecha de site.js, así que aquí se comprueba
-  // adelantando el reloj: si algún día alguien reordena las clases, esto lo
-  // dice antes de que la cabecera amanezca con dos botones rojos iguales.
-  console.log('\n--- los dos botones de la cabecera ---');
+  // La cabecera llevaba dos botones que se cambiaban los papeles ese día: el
+  // alta dejaba de ser el rojo y lo pasaba a ser el Login. Funcionaba, pero
+  // era un cambio de aspecto disparado por una fecha, y un cambio que solo
+  // ocurre una vez es un cambio que nadie ha visto ocurrir.
+  //
+  // Ahora hay un botón, el Login, y es el mismo los dos días. Lo único que
+  // cambia es a dónde lleva: antes del 29 a la página que explica cuándo
+  // abre, desde el 29 a Meetmaps. Así que esto se comprueba con el reloj
+  // adelantado, y lo que se exige es justamente que NO cambie: mismo botón,
+  // mismo rojo, mismo sitio, y ningún alta que haya vuelto a aparecer.
+  console.log('\n--- el botón de la cabecera, antes y después del 29 ---');
 
   async function cabecera(cuando, ancho) {
-    // 900 de alto y no 800: por debajo de 800 la web se encoge entera —ver la
-    // escalera de `zoom` en la hoja de estilos— y lo que se mide aquí son
-    // colores y grosores, que en una página encogida se leen encogidos. La
-    // escalera se comprueba aparte, con sus propias medidas.
     const ctx = await navegador.newContext({ viewport: { width: ancho, height: 900 } });
     const pg = await ctx.newPage();
     if (cuando) await pg.addInitScript(RELOJ, cuando);
@@ -1036,8 +1040,10 @@ function check(etiqueta, ok, detalle) {
         .map((li) => Math.round(li.getBoundingClientRect().y));
       return {
         entrar: leer('.header__actions [data-login]'),
-        alta: leer('.header__actions [data-register]'),
-        enMenu: !!document.querySelector('.header__links [data-login]'),
+        alta: document.querySelectorAll('.header [data-register]').length,
+        destino: (document.querySelector('.header__actions [data-login]') || {})
+          .getAttribute ? document.querySelector('.header__actions [data-login]')
+            .getAttribute('href') : '',
         plegado: getComputedStyle(nav).position === 'absolute',
         boton: document.querySelector('.burger').getBoundingClientRect().width > 0,
         filas: new Set(ys).size,
@@ -1048,45 +1054,47 @@ function check(etiqueta, ok, detalle) {
     return r;
   }
 
-  const hoy = await cabecera(null, 1280);
-  check('cerrada, el alta es el botón rojo',
-    hoy.alta && hoy.alta.fondo === ROJO, hoy.alta && hoy.alta.fondo);
-  check('cerrada, el Login es un enlace, no un botón',
-    hoy.entrar && hoy.entrar.fondo === SIN_FONDO && parseFloat(hoy.entrar.borde) === 0,
-    hoy.entrar && hoy.entrar.fondo + ' · borde ' + hoy.entrar.borde);
-
   const ABRE = '2026-09-29T09:00:00+02:00';
+  const hoy = await cabecera(null, 1280);
   const luego = await cabecera(ABRE, 1280);
-  check('abierta, el Login pasa a rojo macizo',
-    luego.entrar && luego.entrar.fondo === ROJO && luego.entrar.tinta === 'rgb(255, 255, 255)',
-    luego.entrar && luego.entrar.fondo + ' · letra ' + luego.entrar.tinta);
-  check('abierta, el alta se queda en blanco con el borde rojo',
-    luego.alta && luego.alta.fondo === SIN_FONDO &&
-    luego.alta.borde === '2 ' + ROJO && luego.alta.tinta === ROJO,
-    luego.alta && luego.alta.fondo + ' · borde ' + luego.alta.borde);
-  check('abierta, los dos botones no son iguales',
-    luego.entrar && luego.alta && luego.entrar.fondo !== luego.alta.fondo);
 
-  // Y LO QUE DE VERDAD SE ROMPE SIN QUE NADIE LO VEA: con dos pastillas en vez
-  // de una pastilla y un enlace, la fila de la cabecera pesa unos 45px más. La
-  // primera versión de esto partía el menú en dos filas a 1280px —la anchura
-  // de portátil más corriente que hay— y solo a partir del día que abriera la
-  // plataforma. Nadie lo habría visto hasta el 29 por la mañana.
+  check('cerrada, el Login es el botón rojo',
+    hoy.entrar && hoy.entrar.fondo === ROJO && hoy.entrar.tinta === 'rgb(255, 255, 255)',
+    hoy.entrar && hoy.entrar.fondo + ' · letra ' + hoy.entrar.tinta);
+  check('abierta, el Login sigue siendo el mismo botón',
+    luego.entrar && luego.entrar.fondo === hoy.entrar.fondo &&
+    luego.entrar.tinta === hoy.entrar.tinta && luego.entrar.borde === hoy.entrar.borde,
+    luego.entrar && luego.entrar.fondo + ' · letra ' + luego.entrar.tinta);
+  check('el alta no está en la cabecera ninguno de los dos días',
+    hoy.alta === 0 && luego.alta === 0,
+    'antes ' + hoy.alta + ' · después ' + luego.alta);
+
+  // Lo único que cambia el 29 es a dónde lleva, y eso sí se exige que cambie:
+  // si el día 29 siguiera llevando al cartel de "abre el 29", el botón se
+  // estaría riendo de quien lo pulsa.
+  check('lo único que cambia el 29 es a dónde lleva',
+    /platform\.html$/.test(hoy.destino || '') && /^https?:/.test(luego.destino || ''),
+    (hoy.destino || '?') + '  →  ' + (luego.destino || '?'));
+
+  // Y LO QUE SE ROMPÍA SIN QUE NADIE LO VIERA: con dos pastillas en vez de
+  // una, la fila de la cabecera pesaba unos 45px más, y la primera versión de
+  // aquello partía el menú en dos filas a 1280px —la anchura de portátil más
+  // corriente que hay— pero solo a partir del día que abriera la plataforma.
+  // Nadie lo habría visto hasta el 29 por la mañana.
   //
-  // Así que la cabecera se mide a las mismas catorce anchuras que ya se miden
-  // con la plataforma cerrada, pero con el reloj adelantado. La regla es la
-  // misma: o el menú cabe en UNA fila, o está plegado tras su botón.
+  // Con un botón que no cambia, ese riesgo se acabó. La medida se queda igual
+  // —catorce anchuras con el reloj adelantado—, porque comprobar que algo
+  // sigue sin romperse cuesta lo mismo que comprobarlo la primera vez, y
+  // porque el menú sí puede volver a crecer: basta con añadirle una entrada.
   for (const w of [1600, 1440, 1366, 1280, 1276, 1275, 1200, 1100, 1024, 950, 820, 620, 390, 320]) {
     const est = await cabecera(ABRE, w);
-    // Por encima de 620px el Login vive en la barra; por debajo baja al
-    // desplegable y no puede estar en los dos sitios a la vez.
-    const login = w > 620 ? est.entrar.visible : (!est.entrar.visible && est.enMenu);
+    // El Login se queda en la barra a cualquier ancho. Siendo el único botón
+    // cabe hasta en 320px, y esconderlo sería esconder lo único que se pulsa.
     const menu = est.plegado ? est.boton : est.filas === 1;
     check('abierta, a ' + w + 'px la cabecera aguanta',
-      menu && login && !est.desborde,
+      menu && est.entrar.visible && !est.desborde,
       (est.plegado ? 'plegado tras el botón' : est.filas + ' fila(s)') +
-      ', Login ' + (est.entrar.visible ? 'en la barra' : 'en el menú') +
-      (est.desborde ? ' — SE SALE DE ANCHO' : ''));
+      ', Login en la barra' + (est.desborde ? ' — SE SALE DE ANCHO' : ''));
   }
 
   /* --- Lo que el servidor publica ------------------------------------------ */
@@ -1225,8 +1233,14 @@ function check(etiqueta, ok, detalle) {
       // mismo: sería pulsar y que no pase nada.
       loginACasa: [...document.querySelectorAll('a[data-login]')]
         .filter((a) => /platform\.html$/.test(a.getAttribute('href') || '')).length,
-      alta: [...document.querySelectorAll('.header a[data-register]')]
-        .map((a) => a.getAttribute('href')),
+      // El alta ya no está en la cabecera de ninguna página. Aquí lo que tiene
+      // que estar es el botón grande del cuerpo, "Create your profile", que
+      // es el motivo de que esta página exista: quien pulsa Login antes del 29
+      // llega aquí, no puede entrar todavía, y lo que puede hacer es darse de
+      // alta. Va escrito en el HTML, así que se lee sin JavaScript.
+      alta: [...document.querySelectorAll('[data-gate] a')]
+        .map((a) => a.getAttribute('href'))
+        .filter((h) => /registration/.test(h || '')),
       // Los cuatro pasos de "cómo funciona", que ahora viven aquí. Van
       // DESPUÉS del aviso: lo primero es que la plataforma todavía no abre,
       // y esto es la respuesta a la pregunta que deja esa frase.
@@ -1245,7 +1259,7 @@ function check(etiqueta, ok, detalle) {
     p.sinDestino.length === 0, JSON.stringify(p.sinDestino));
   check('el menú lleva de vuelta a la portada', p.aPortada > 0, p.aPortada + ' enlaces');
   check('el Login no se apunta a sí mismo', p.loginACasa === 0, p.loginACasa);
-  check('el alta sigue a mano desde el menú',
+  check('el alta sigue a mano en el cuerpo de la página',
     p.alta.length > 0 && /registration/.test(p.alta[0] || ''), p.alta.join(' '));
   // "CÓMO FUNCIONA" SE MUDÓ AQUÍ, y esta página solo cargaba site.js. Si
   // alguien quita el <script> de content.js, el bloque no revienta la página
