@@ -1853,6 +1853,39 @@ p:last-child { margin-bottom: 0; }
   .brochures { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* --- LA WEB ENTERA, UN POCO MÁS PEQUEÑA EN PANTALLAS BAJAS -----------------
+   Un portátil de 1366×768 le deja al navegador unos 540px de alto: descontadas
+   las pestañas, la barra de direcciones, la de marcadores y la de tareas. Con
+   eso, la tarjeta de alta y Login se quedaba fuera de la primera pantalla.
+
+   ESTO NO ES LO QUE HUBO ANTES. Antes se encogían cosas sueltas —el titular,
+   la foto, la letra de los bloques— y eso cambiaba las proporciones: la misma
+   web se veía distinta según la ventana. Aquí se encoge TODO a la vez, en el
+   mismo porcentaje, que es exactamente lo que hace el zoom del navegador. Las
+   proporciones no cambian: se ve igual, más pequeño.
+
+   Y por eso existe el SUELO del 85%. Sin él, para que en esos 540px entrara
+   todo lo que se ve en una pantalla de 810 habría que bajar al 66%, y ahí el
+   texto del cuerpo se queda en nueve píxeles: ilegible, y contrario a lo que
+   firma la declaración de accesibilidad. Al 85% el cuerpo mide 14,7px, que se
+   lee sin esfuerzo.
+
+   Las dos condiciones importan. `min-width: 1200px` deja fuera a los móviles
+   y a las tabletas: allí la altura de la ventana cambia sola al girar el
+   aparato o al aparecer la barra de direcciones, y encoger la página a mitad
+   de lectura sería peor que el problema. Y 1200 está muy por encima de los
+   1275 donde se pliega el menú, así que el plegado nunca ocurre con la página
+   encogida, que es donde las dos reglas podrían contradecirse.
+
+   `zoom` no lo entienden los Firefox anteriores al 126 (mayo de 2024). Ahí
+   simplemente no pasa nada: se ve como se veía. No rompe nada. */
+@media (min-width: 1200px) and (max-height: 800px) { body { zoom: 0.96; } }
+@media (min-width: 1200px) and (max-height: 760px) { body { zoom: 0.93; } }
+@media (min-width: 1200px) and (max-height: 710px) { body { zoom: 0.90; } }
+@media (min-width: 1200px) and (max-height: 660px) { body { zoom: 0.88; } }
+@media (min-width: 1200px) and (max-height: 620px) { body { zoom: 0.86; } }
+@media (min-width: 1200px) and (max-height: 580px) { body { zoom: 0.85; } }
+
 /* --- AQUÍ HUBO UNA REGLA PARA PANTALLAS ANCHAS PERO BAJAS, Y SE QUITÓ ------
    Encogía el titular, la foto y la letra de los tres bloques cuando la ventana
    medía menos de 740px de alto y más de 900 de ancho, para que la portada

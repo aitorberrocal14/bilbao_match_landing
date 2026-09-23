@@ -871,6 +871,32 @@ function check(etiqueta, ok, detalle) {
     })));
   await clic.close();
 
+  // LA ESCALERA DE ZOOM: la web entera se encoge en pantallas bajas para que
+  // la tarjeta de alta y Login entre en la primera pantalla. Se mide en las
+  // alturas que de verdad da un portátil de 1366×768 —con y sin las barras del
+  // navegador— y lo que se exige es lo importante: que la tarjeta entre, y que
+  // el texto del cuerpo no baje de 14px, que es donde deja de leerse a gusto.
+  for (const h of [538, 594, 627, 700, 760]) {
+    const zc = await navegador.newContext({ viewport: { width: 1345, height: h } });
+    const zp = await zc.newPage();
+    await zp.goto(PAGINA);
+    await zp.waitForTimeout(700);
+    const z = await zp.evaluate(() => {
+      document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'));
+      const c = document.querySelector('.hero .take-part').getBoundingClientRect();
+      const zoom = parseFloat(getComputedStyle(document.body).zoom) || 1;
+      const px = parseFloat(getComputedStyle(document.querySelector('.hero__lead')).fontSize);
+      return { abajo: Math.round(c.bottom), vh: window.innerHeight, zoom: zoom,
+        letra: +(px * zoom).toFixed(1),
+        desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth };
+    });
+    await zc.close();
+    check('a ' + h + 'px de alto la tarjeta entra',
+      z.abajo <= z.vh && z.letra >= 14 && !z.desborde,
+      'zoom ' + z.zoom + ' · ' + z.abajo + 'px de ' + z.vh + ' · letra ' + z.letra + 'px' +
+      (z.desborde ? ' — SE SALE DE ANCHO' : ''));
+  }
+
   check('los avisos de "hay más abajo" llevan a alguna parte',
     cues.length === 2 && cues.every((c) => c.existe),
     cues.map((c) => c.href).join(' ') || 'ninguno');
@@ -888,7 +914,11 @@ function check(etiqueta, ok, detalle) {
   console.log('\n--- los dos botones de la cabecera ---');
 
   async function cabecera(cuando, ancho) {
-    const ctx = await navegador.newContext({ viewport: { width: ancho, height: 800 } });
+    // 900 de alto y no 800: por debajo de 800 la web se encoge entera —ver la
+    // escalera de `zoom` en la hoja de estilos— y lo que se mide aquí son
+    // colores y grosores, que en una página encogida se leen encogidos. La
+    // escalera se comprueba aparte, con sus propias medidas.
+    const ctx = await navegador.newContext({ viewport: { width: ancho, height: 900 } });
     const pg = await ctx.newPage();
     if (cuando) await pg.addInitScript(RELOJ, cuando);
     await pg.goto(PAGINA);
