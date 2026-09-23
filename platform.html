@@ -83,11 +83,41 @@
       </div>
     </section>
 
+    <!-- CÓMO FUNCIONA EL EMPAREJAMIENTO ==================================
+         Los cuatro pasos —crear el perfil, elegir con quién, confirmar la
+         agenda, reunirse— estuvieron en la portada, cerrándola. Están aquí
+         porque aquí es donde se hace la pregunta: quien pulsa "Login" y se
+         encuentra con que todavía no abre quiere saber para qué sirve crear
+         el perfil ahora, y esa es exactamente la respuesta.
+
+         Va montado con JavaScript, a diferencia del aviso de arriba, que está
+         escrito a mano a propósito. Es deliberado: el aviso es el motivo de
+         esta página y tiene que leerse pase lo que pase; esto es un añadido,
+         como la cabecera y el pie. Si el script no llega, el aviso se lee
+         igual y aquí no queda un hueco, queda nada.
+
+         Y así se sigue editando desde el panel —el titular, el texto y los
+         cuatro pasos salen de assets/js/data/content.js—, que es lo que no
+         pasaría si lo copiara aquí a mano. Por eso esta página carga ahora
+         content.js, que antes no necesitaba.
+
+         OJO AL 29 DE SEPTIEMBRE: ese día esta página deja de verse. Se aparta
+         sola hacia la plataforma (ver apartaElAviso en main.js) y el botón de
+         Login pasa a ir directo a Meetmaps, así que a partir de entonces
+         estos cuatro pasos no los ve nadie. Si tienen que seguir viéndose
+         después, su sitio es la portada. -->
+    <section class="section section--soft" id="how" aria-label="How the matchmaking works">
+      <div class="shell" data-mount="how"></div>
+    </section>
+
   </main>
 
   <footer class="footer" id="footer" data-mount="footer"></footer>
 
   <script src="assets/js/data/site.js"></script>
+  <!-- content.js es de donde salen los cuatro pasos de "cómo funciona".
+       Si algún día ese bloque se va de esta página, esta línea sobra. -->
+  <script src="assets/js/data/content.js"></script>
   <script src="assets/js/components.js"></script>
   <script src="assets/js/main.js"></script>
 </body>

@@ -545,7 +545,6 @@ function check(etiqueta, ok, detalle) {
         enPortada: !!document.querySelector('#home .take-part'),
         directorio: y('.directory'),
         pasos: y('.steps'),
-        pasosEnBanda: !!document.querySelector('#how .steps'),
         pasosSueltos: document.querySelectorAll('.steps').length,
         // Y el directorio, pegado a la entrada de la sección: sin titular
         // propio en medio, que era otro <h2> del mismo tamaño para lo mismo.
@@ -557,17 +556,18 @@ function check(etiqueta, ok, detalle) {
       orden.bandas === 1 && orden.enPortada, orden.bandas + ' banda(s)');
     check('el directorio no repite titular', orden.titularPropio === 0,
       orden.titularPropio + ' titular(es)');
-    // Y "cómo funciona" cierra la portada, no la sección de expositores.
+    // "CÓMO FUNCIONA" YA NO ESTÁ EN LA PORTADA.
     //
-    // Los cuatro pasos —crear el perfil, marcar disponibilidad, pedir citas,
-    // reunirse— estaban al final de "Meet BB's Experts", detrás del
-    // directorio, donde casi nadie llegaba. Responden la SEGUNDA pregunta de
-    // quien acaba de llegar («¿y esto cómo va?»), no la última de quien ya ha
-    // recorrido la lista de empresas. Así que van en la portada, debajo de los
-    // tres bloques, y ya no están abajo.
-    check('"cómo funciona" tiene su propia banda', orden.pasosEnBanda,
-      'pasos ' + orden.pasos + ' · directorio ' + orden.directorio);
-    check('  y no se ha quedado también abajo', orden.pasosSueltos === 1,
+    // Los cuatro pasos han estado en tres sitios: al final de "Meet BB's
+    // Experts", detrás del directorio, donde casi nadie llegaba; luego en su
+    // propia banda gris debajo de la portada; y ahora en platform.html, que es
+    // donde va a parar quien pulsa Login antes de que abra la plataforma.
+    // Allí la pregunta se hace sola: «si todavía no puedo entrar, ¿para qué
+    // me doy de alta ahora?». Aquí abajo se comprueba que estén allí.
+    //
+    // Lo que se mira en la portada es que NO hayan quedado dos copias. Que no
+    // esté no es un fallo; que esté dos veces, sí.
+    check('"cómo funciona" ya no está en la portada', orden.pasosSueltos === 0,
       orden.pasosSueltos + ' bloque(s) de pasos');
 
     check('ningún Login sin dirección', resto.loginVacio === 0, resto.loginVacio);
@@ -587,8 +587,10 @@ function check(etiqueta, ok, detalle) {
       const secciones = [...document.querySelectorAll('main > section')].map((s) => s.id);
       return {
         dentro: !!(sec && rejilla && sec.contains(rejilla)),
-        // Entre la portada y el destino, en ese orden y no en otro.
-        orden: secciones.indexOf('how') + 1 === secciones.indexOf('editions') &&
+        // Entre la portada y el destino, en ese orden y no en otro. Pegados a
+        // la portada: es lo primero que hay al bajar, y es a donde lleva el
+        // aviso con la flecha que la cierra.
+        orden: secciones.indexOf('home') + 1 === secciones.indexOf('editions') &&
           secciones.indexOf('editions') + 1 === secciones.indexOf('presentation'),
         secciones: secciones.join(' › '),
         columnas: rejilla ? getComputedStyle(rejilla).gridTemplateColumns.split(' ').length : 0,
@@ -608,7 +610,7 @@ function check(etiqueta, ok, detalle) {
     });
 
     check('los vídeos tienen su propia sección', vid.dentro);
-    check('  y van entre "cómo funciona" y el destino', vid.orden, vid.secciones);
+    check('  y van entre la portada y el destino', vid.orden, vid.secciones);
     check('un solo titular de sección', vid.h2 === 1, vid.h2 + ' h2');
     check('los vídeos se colocan según la pantalla',
       vid.columnas === (ancho < 900 ? 1 : 2), vid.columnas + ' columna(s)');
@@ -804,10 +806,10 @@ function check(etiqueta, ok, detalle) {
 
   check('la tarjeta de alta y Login se ve entera sin bajar', alto.banda <= alto.vh,
     alto.banda + 'px de ' + alto.vh);
-  // Y el aviso de que debajo está "cómo funciona". Si cae por debajo del
-  // borde no avisa a nadie: la portada mide más de una pantalla, así que lo
-  // único que asomaría sería una franja gris que no dice de qué.
-  check('  y el aviso de "cómo funciona", también', alto.cue <= alto.vh,
+  // Y el aviso de que debajo están los vídeos. Si cae por debajo del borde no
+  // avisa a nadie: la portada mide más de una pantalla, así que lo único que
+  // asomaría sería el principio de una carátula, que no dice de qué.
+  check('  y el aviso de que hay más abajo, también', alto.cue <= alto.vh,
     alto.cue + 'px de ' + alto.vh);
   check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
     alto.hueco + 'px entre la cabecera y la primera línea');
@@ -1152,7 +1154,17 @@ function check(etiqueta, ok, detalle) {
       loginACasa: [...document.querySelectorAll('a[data-login]')]
         .filter((a) => /platform\.html$/.test(a.getAttribute('href') || '')).length,
       alta: [...document.querySelectorAll('.header a[data-register]')]
-        .map((a) => a.getAttribute('href'))
+        .map((a) => a.getAttribute('href')),
+      // Los cuatro pasos de "cómo funciona", que ahora viven aquí. Van
+      // DESPUÉS del aviso: lo primero es que la plataforma todavía no abre,
+      // y esto es la respuesta a la pregunta que deja esa frase.
+      pasos: document.querySelectorAll('#how .step').length,
+      pasosTitular: (document.querySelector('#how h2') || {}).textContent || '',
+      pasosDebajo: (() => {
+        const g = document.querySelector('[data-gate]');
+        const h = document.querySelector('#how');
+        return !!(g && h && g.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+      })()
     };
   });
 
@@ -1163,6 +1175,13 @@ function check(etiqueta, ok, detalle) {
   check('el Login no se apunta a sí mismo', p.loginACasa === 0, p.loginACasa);
   check('el alta sigue a mano desde el menú',
     p.alta.length > 0 && /registration/.test(p.alta[0] || ''), p.alta.join(' '));
+  // "CÓMO FUNCIONA" SE MUDÓ AQUÍ, y esta página solo cargaba site.js. Si
+  // alguien quita el <script> de content.js, el bloque no revienta la página
+  // —cada sección se dibuja en su try/catch— sino que desaparece en silencio,
+  // que es peor. Por eso se cuentan los pasos y se lee el titular.
+  check('los cuatro pasos de "cómo funciona" están aquí', p.pasos === 4,
+    p.pasos + ' paso(s) · «' + p.pasosTitular + '»');
+  check('  y van después del aviso, no delante', p.pasosDebajo);
   check('sin errores de JavaScript', erroresAviso.length === 0, erroresAviso.join(' | '));
 
   await aviso.close();

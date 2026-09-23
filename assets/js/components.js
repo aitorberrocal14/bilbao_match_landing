@@ -401,16 +401,13 @@ window.MBB = window.MBB || {};
         // AQUÍ ESTABAN LAS CIFRAS —2 expositores, 4 días, 1:1— y luego la banda
         // roja. Las cifras siguen en site.js sin dibujarse, y la banda ha
         // subido al hueco que dejaron los dos botones, arriba.
-        //
-        // Lo que cierra la portada ahora es CÓMO FUNCIONA: los cuatro pasos,
-        // de crear el perfil a reunirse. Estaban al final de "Meet BB's
-        // Experts", después del directorio, donde casi nadie llegaba. Aquí
-        // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
-        // Y al final, el aviso de que debajo está "cómo funciona". La portada
-        // mide más de una pantalla, así que sin esto lo único que asoma por el
-        // borde es una franja gris que no dice de qué.
-        MBB.ScrollCue('#how', 'How the matchmaking works') +
+        // Y al final, el aviso de que hay más abajo. Llevó un tiempo a "cómo
+        // funciona", que cerraba la portada; ese bloque está ahora en la página
+        // a la que va a parar quien pulsa Login, y lo primero que hay debajo de
+        // la portada son los vídeos. Sin este aviso, lo único que asoma por el
+        // borde es el principio de una carátula, que no dice de qué.
+        MBB.ScrollCue('#editions', 'Latest editions') +
       '</div>'
     );
   };
