@@ -842,6 +842,11 @@ function check(etiqueta, ok, detalle) {
 
   for (const [etiqueta, entrada, medir] of [
     ['al pulsar Destination se ve la sección entera', 'Destination', '#presentation'],
+    // El programa es a lo que se llega desde el menú, y lo que se ve al llegar
+    // tiene que ser el programa: los cinco días, no los tres de arriba. Entre
+    // el relleno de la sección, el de la tarjeta y el hueco bajo el titular se
+    // iban 330px antes de la primera palabra del primer día.
+    ['al pulsar Programme se ve la tarjeta entera', 'Programme', '.prog-card'],
     ['al pulsar Meet BB\'s Experts se llega al directorio', "Meet BB's Experts",
       '#exhibitors']
   ]) {
