@@ -1110,7 +1110,7 @@ p:last-child { margin-bottom: 0; }
    ocupa lo que ocupe el texto, que es una pantalla. */
 .present {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
   gap: clamp(2rem, 5vw, 4rem);
   /* `stretch` y no `start`: puestas en fila, las fotos miden bastante menos de
      alto que la columna de texto, y arrimadas arriba dejaban un palmo de
@@ -1119,20 +1119,23 @@ p:last-child { margin-bottom: 0; }
      fotos quedan a la altura del texto. */
   align-items: stretch;
 }
-/* LAS DOS FOTOS, UNA AL LADO DE LA OTRA Y NO UNA ENCIMA DE OTRA.
-   Apiladas medían 944px de alto y la sección no entraba en ninguna pantalla:
-   se llegaba a ella desde el menú y lo que se veía era el texto y media foto.
-   Se probó recortarlas a 2:1 para ganar ese alto y salían aplastadas, así que
-   la proporción no se toca: lo que cambia es que van en fila.
+/* LAS DOS FOTOS: APILADAS, COMO SIEMPRE, PERO MÁS PEQUEÑAS.
+   A 523px de ancho la sección medía 944 de alto y no entraba en ninguna
+   pantalla: se llegaba a ella desde el menú y lo que se veía era el texto y
+   media foto. Se probaron dos atajos y los dos cambiaban la sección en vez de
+   las fotos —recortarlas a 2:1, que las dejaba aplastadas, y ponerlas en fila,
+   que rompía la composición—. Lo que hacía falta era más simple: las mismas
+   fotos, en el mismo sitio, un poco más pequeñas.
 
-   Dos fotos 4:3 en fila miden la mitad de alto que dos en columna, y la
-   sección pasa de 944 a 674px —cabe entera, con sitio de sobra—. Y como el
-   alto ya no lo mandan las fotos, la columna de la derecha puede ser la más
-   ancha de las dos: así se ven a 300px en vez de a 253. */
+   A 360px la sección se queda en 700 y entra entera. El tope va en la columna
+   y no en la retícula a propósito: así la columna de texto conserva sus 653px
+   de ancho, que es la medida de línea con la que está compuesta. Y centradas,
+   para que el hueco que sobra a su lado se reparta y no quede todo a un lado. */
 .present__media {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  max-width: 360px;
+  margin-inline: auto;
   align-content: center;
 }
 .present__media figure { margin: 0; }
@@ -2097,15 +2100,14 @@ p:last-child { margin-bottom: 0; }
   .ex-head { grid-template-columns: 1fr; max-width: 480px; margin-inline: auto; }
 }
 
-/* Y en el móvil las fotos del destino vuelven a apilarse. En fila aguantan
-   mientras les quede ancho de sobra; a 390px salen a 167, que para la foto de
-   una ciudad es un sello de correos. Aquí el alto ya no es el problema que era
-   en el escritorio —esto se lee bajando de todas formas—, así que grandes.
+/* En el móvil las fotos del destino se sueltan del tope de 360px. Ahí el alto
+   ya no es el problema que era en el escritorio —esto se lee bajando de todas
+   formas— y el ancho es el que es, así que se aprovecha entero.
 
    Va después de la regla de arriba y no en el bloque de 560px que hay más
    arriba en la hoja: a igualdad de peso manda la última, y allí no ganaba. */
-@media (max-width: 560px) {
-  .present__media { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .present__media { max-width: none; }
 }
 
 @media (max-width: 620px) {

@@ -617,33 +617,38 @@ function check(etiqueta, ok, detalle) {
     check('los vídeos guardan la proporción y caben',
       vid.proporcion && vid.cabe, vid.anchos.join(' · '));
 
-    /* --- Las fotos del destino, a 4:3 y en fila ------------------------------ */
-    // Esto está aquí porque ya se rompió una vez. Para que la sección del
-    // destino cupiera en una pantalla se recortaron las fotos a 2:1, y una
-    // panorámica forzada de una ciudad ya no es la foto: es un trozo. La
-    // sección cabe ahora por otro camino —las dos en fila en vez de apiladas—,
-    // y esto es el seguro de que no se vuelva por el primero.
+    /* --- Las fotos del destino: apiladas, a 4:3 y del tamaño justo ----------- */
+    // Esto está aquí porque ya se rompió dos veces. La sección del destino no
+    // entraba en una pantalla —944px de alto— y las dos veces se arregló
+    // cambiando la sección en vez de las fotos: primero recortándolas a 2:1,
+    // que deja una panorámica forzada que ya no es la foto sino un trozo; y
+    // luego poniéndolas en fila, que rompía la composición de la página.
+    //
+    // Lo que funcionó fue lo simple: las mismas fotos, una encima de otra como
+    // siempre, más pequeñas. Así que aquí se comprueban las tres cosas —que
+    // sigan a 4:3, que sigan apiladas y que no vuelvan a crecer—, porque
+    // cualquiera de las tres es el atajo que alguien va a coger la próxima vez
+    // que algo tenga que caber.
     const fotos = await pagina.evaluate(() => {
-      const ims = [...document.querySelectorAll('.present__media img')];
-      const cajas = ims.map((i) => i.getBoundingClientRect());
-      const med = document.querySelector('.present__media');
+      const cajas = [...document.querySelectorAll('.present__media img')]
+        .map((i) => i.getBoundingClientRect());
       return {
-        cuantas: ims.length,
         // 4:3 con holgura para el redondeo del navegador.
         proporcion: cajas.every((r) => r.width > 0 && Math.abs(r.width / r.height - 4 / 3) < 0.05),
         medidas: cajas.map((r) => Math.round(r.width) + '×' + Math.round(r.height)),
-        // En fila: las dos arrancan a la misma altura. Apiladas, no.
-        enFila: cajas.length === 2 && Math.abs(cajas[0].top - cajas[1].top) < 2,
-        columnas: med ? getComputedStyle(med).gridTemplateColumns.split(' ').length : 0
+        // Apiladas: la segunda empieza por debajo de la primera, no a su lado.
+        apiladas: cajas.length === 2 && cajas[1].top >= cajas[0].bottom - 1,
+        ancha: Math.round(Math.max.apply(null, cajas.map((r) => r.width)))
       };
     });
     check('las fotos del destino siguen a 4:3', fotos.proporcion,
       fotos.medidas.join(' · '));
-    // En el móvil se apilan a propósito: en fila saldrían a 167px, que para la
-    // foto de una ciudad es un sello. Allí el alto da igual, se lee bajando.
-    check(ancho < 560 ? '  y en el móvil se apilan' : '  y van una al lado de la otra',
-      ancho < 560 ? fotos.columnas === 1 : fotos.enFila,
-      fotos.columnas + ' columna(s)');
+    check('  y siguen una encima de otra', fotos.apiladas);
+    // El tope solo rige en escritorio. En el móvil la sección se lee bajando
+    // de todas formas, así que allí aprovechan el ancho que haya.
+    if (ancho > 900) {
+      check('  y no han vuelto a crecer', fotos.ancha <= 365, fotos.ancha + 'px de ancho');
+    }
 
     /* --- Nada roto por el camino -------------------------------------------- */
     check('sin errores de JavaScript', errores.length === 0, errores.join(' | '));
