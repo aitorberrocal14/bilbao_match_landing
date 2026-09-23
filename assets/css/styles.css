@@ -1183,11 +1183,9 @@ p:last-child { margin-bottom: 0; }
    banda roja en vez de un apartado propio. */
 /* Los cuatro pasos cierran la portada. El hueco mira también el alto de la
    ventana: en una pantalla ancha y baja se encoge solo, como el resto. */
-.steps__head {
-  margin-top: clamp(1rem, min(5vw, 3.5vh), 2.5rem);
-  padding-top: clamp(1rem, min(4vw, 3vh), 2.25rem);
-  border-top: 1px solid var(--line);
-}
+/* Los cuatro pasos viven en su propia banda, y ahí el fondo gris ya los
+   separa de lo de arriba: la raya sobraba. */
+.steps__head { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .steps {
   display: grid;
@@ -1215,100 +1213,32 @@ p:last-child { margin-bottom: 0; }
 /* Dos mitades: darse de alta y entrar. Cada una con su título, su explicación
    y su botón, separadas por una línea fina — no por un hueco, que a esta
    anchura se lee como que sobra sitio y no como que son dos cosas. */
-.login-band {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding: clamp(2rem, 4vw, 3rem);
-  background: var(--red);
-  color: #fff;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
-  gap: clamp(1.75rem, 4vw, 3rem);
-  align-items: start;
-}
-/* La versión de la portada. Ahí la banda cierra la primera pantalla, así que
-   tiene que medir poco: sin los dos párrafos explicativos, con menos relleno y
-   con los titulares más pequeños. Lo que queda es lo que hace falta para
-   decidir —qué eres y el botón—, que es para lo que está. */
-.login-band--slim {
-  margin-top: clamp(0.75rem, min(2.5vw, 3vh), 1.5rem);
-  padding: clamp(0.85rem, min(2.5vw, 3vh), 1.75rem) clamp(1.5rem, 3vw, 2.25rem);
-  gap: clamp(1rem, 2.5vw, 2rem);
-  align-items: center;
-}
-/* Cada mitad, en una fila en vez de en columna: el titular y el botón uno al
-   lado del otro. Apilados, la banda medía 199px y sus botones —que son para lo
-   que está— caían por debajo del borde de la pantalla. En fila mide la mitad. */
-.login-band--slim .login-band__half {
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem 1rem;
-}
-.login-band--slim h2 { font-size: 1.05rem; margin: 0; color: #fff; }
-.login-band--slim .btn { margin-top: 0; }
-/* El aviso de la fecha va en la misma fila, detrás del botón: así la banda se
-   queda en una sola línea de alto y sus botones entran en la primera pantalla,
-   que es de lo que se trata. */
-.login-band--slim .login-band__note {
-  order: 3;
-  margin-top: 0 !important;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.78rem;
-}
-@media (min-width: 880px) {
-  .login-band--slim .login-band__half + .login-band__half {
-    padding-left: clamp(1rem, 2.5vw, 2rem);
-  }
-}
+/* LAS DOS PUERTAS, EN LA PORTADA.
+   Fue un bloque rojo macizo y era demasiado: la portada ya tiene el titular en
+   rojo, y dos manchas rojas grandes en la misma pantalla compiten en vez de
+   repartirse la atención. Además obligaba a invertir el lenguaje de los
+   botones de toda la web —aquí el rojo es la acción principal— y dejaba la
+   acción principal en blanco, que es la que menos pesa.
 
-/* LA BANDA DENTRO DE LA COLUMNA DE LA PORTADA.
-   Antes ocupaba el ancho entero y sus dos mitades iban una al lado de la otra.
-   Ahora vive en la columna del texto —la mitad de ancho—, donde no caben: se
-   apilan, una fila por puerta, con una raya horizontal entre las dos. La raya
-   vertical y el sangrado que las separaban en horizontal se quitan aquí, o
-   quedaba una línea suelta a la izquierda de la segunda. */
-.hero__inner .login-band--slim {
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin-top: clamp(0.9rem, min(2.5vw, 2.5vh), 1.4rem);
-  padding: clamp(0.8rem, min(2vw, 2.4vh), 1.15rem) clamp(1rem, 2vw, 1.5rem);
+   Tarjeta clara con el filo rojo arriba, como la del programa, y por dentro
+   los botones de siempre. */
+.take-part {
+  margin-top: clamp(1rem, min(2.5vw, 2.5vh), 1.5rem);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  padding: clamp(0.9rem, min(2vw, 2.4vh), 1.25rem) clamp(1rem, 2vw, 1.4rem);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
-.hero__inner .login-band--slim .login-band__half + .login-band__half {
-  margin-top: 0.6rem;
-  padding-top: 0.6rem;
-  padding-left: 0;
-  border-left: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+.take-part__k {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
 }
-
-.login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
-/* La línea va entre las dos, nunca antes de la primera ni cuando se apilan. */
-@media (min-width: 880px) {
-  .login-band__half + .login-band__half {
-    padding-left: clamp(1.75rem, 4vw, 3rem);
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
-  }
-}
-/* El blanco va por el titular, sea del nivel que sea. La portada usa <h2>
-   —ahí la banda cuelga del <h1> de la página— y la sección usa <h3>, porque
-   cuelga del <h2> de la sección. Nombrando solo uno, el otro salía en rojo
-   sobre rojo: escrito, ocupando su sitio, y sin verse. */
-.login-band h2,
-.login-band h3 { color: #fff; margin: 0 0 0.35rem; font-size: 1.5rem; }
-.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 46ch; }
-.login-band .btn { margin-top: 1.25rem; }
-.login-band small { display: block; margin-top: 0.7rem; color: rgba(255, 255, 255, 0.7); }
-
-/* El aviso de la fecha. Va antes del botón a propósito: enterarse después de
-   pulsar es enterarse tarde. */
-.login-band__note {
-  margin-top: 0.9rem !important;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 999px;
-  font-size: 0.86rem;
-  color: #fff !important;
-}
+.take-part__row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.take-part__note { margin: 0.75rem 0 0; font-size: 0.82rem; color: var(--grey-light); }
 
 /* La página que explica cuándo abre la plataforma (platform.html). Es una
    página de una sola idea, así que no lleva nada más que esa idea. */
@@ -1911,8 +1841,7 @@ p:last-child { margin-bottom: 0; }
   .pillar h2 { font-size: 1rem; margin-bottom: 0.2rem; }
   .pillar p { font-size: 0.86rem; line-height: 1.45; }
 
-  .login-band--slim { padding-block: 0.75rem; }
-  .login-band--slim h2 { font-size: 1rem; }
+  .take-part { padding-block: 0.7rem; }
 }
 
 /* --- Cuándo se pliega el menú ----------------------------------------------
@@ -1974,7 +1903,7 @@ p:last-child { margin-bottom: 0; }
 
 /* La retícula de la página, que se pliega más tarde y por su cuenta. */
 @media (max-width: 900px) {
-  .hero__inner, .present, .videos, .newsletter, .login-band { grid-template-columns: 1fr; }
+  .hero__inner, .present, .videos, .newsletter { grid-template-columns: 1fr; }
   .hero__facts { grid-template-columns: 1fr 1fr; gap: 1.5rem 1rem; }
   .logo-grid, .ex-related { grid-template-columns: repeat(3, 1fr); }
   .ex-head { grid-template-columns: 1fr; max-width: 480px; margin-inline: auto; }

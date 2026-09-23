@@ -139,7 +139,23 @@
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
-    <!-- SECTION 2 — LOS VÍDEOS, PEGADOS A LA PORTADA ====================
+    <!-- SECTION 2 — CÓMO FUNCIONA, EN SU PROPIA BANDA ===================
+         Los cuatro pasos estuvieron un rato DENTRO de la portada, y el
+         problema era dónde caía el borde de la pantalla: la portada mide más
+         de lo que cabe, así que el bloque asomaba partido por abajo —medio
+         titular y media frase— y eso no se lee como "hay más abajo", se lee
+         como algo roto.
+
+         En su propia banda, y con el fondo gris, el corte deja de ser un
+         accidente: lo que asoma es el principio de OTRA sección, que es lo
+         que de verdad hay. Y al bajar un poco, el bloque entero —titular,
+         texto y los cuatro pasos, unos 315px— cabe de sobra en cualquier
+         pantalla, incluso en un portátil bajo. -->
+    <section class="section section--soft" id="how" aria-label="How the matchmaking works">
+      <div class="shell" data-mount="how"></div>
+    </section>
+
+    <!-- SECTION 3 — LOS VÍDEOS =========================================
          Estaban colgando de la presentación del destino, como un apartado
          suyo. Son otra cosa: el evento contado en imágenes, y lo que mejor
          explica de qué va esto a quien no ha estado nunca.
@@ -147,7 +163,7 @@
          Van justo debajo de la portada porque es lo primero que alguien quiere
          ver, y porque un vídeo es lo que hace bajar. La portada termina en las
          cifras; aquí hay dos carátulas grandes y un pie que invita a seguir. -->
-    <section class="section section--soft" id="editions" aria-label="Latest editions">
+    <section class="section" id="editions" aria-label="Latest editions">
       <div class="shell" data-mount="editions"></div>
     </section>
 

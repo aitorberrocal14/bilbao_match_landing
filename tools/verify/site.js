@@ -466,7 +466,7 @@ function check(etiqueta, ok, detalle) {
         logins: logins.length,
         todosALaEspera: logins.every((a) => a.getAttribute('href') === site.login.waiting),
         todosAMeetmaps: logins.every((a) => /^https?:/.test(a.getAttribute('href'))),
-        aviso: (document.querySelector('.login-band__note') || {}).textContent || '',
+        aviso: (document.querySelector('.take-part__note') || {}).textContent || '',
         dia: window.MBB.platformOpensOn(site),
         // Y que el día que abra, los botones vuelvan solos a la plataforma.
         alAbrir: (() => {
@@ -474,8 +474,8 @@ function check(etiqueta, ok, detalle) {
           copia.login.opensAt = '2020-01-01T00:00:00+01:00';
           return window.MBB.loginHref(copia, '');
         })(),
-        alta: (document.querySelector('.login-band__half .btn') || {}).getAttribute
-          ? document.querySelector('.login-band__half .btn').getAttribute('href') : ''
+        alta: (document.querySelector('.take-part__row .btn') || {}).getAttribute
+          ? document.querySelector('.take-part__row .btn').getAttribute('href') : ''
       };
     });
 
@@ -541,11 +541,11 @@ function check(etiqueta, ok, detalle) {
       // El directorio, por su contenedor y no por la rejilla: antes de la
       // primera empresa no hay rejilla, solo el aviso de que se irá llenando.
       return {
-        bandas: document.querySelectorAll('.login-band').length,
-        enPortada: !!document.querySelector('#home .login-band'),
+        bandas: document.querySelectorAll('.take-part').length,
+        enPortada: !!document.querySelector('#home .take-part'),
         directorio: y('.directory'),
         pasos: y('.steps'),
-        pasosEnPortada: !!document.querySelector('#home .steps'),
+        pasosEnBanda: !!document.querySelector('#how .steps'),
         pasosSueltos: document.querySelectorAll('.steps').length,
         // Y el directorio, pegado a la entrada de la sección: sin titular
         // propio en medio, que era otro <h2> del mismo tamaño para lo mismo.
@@ -565,7 +565,7 @@ function check(etiqueta, ok, detalle) {
     // quien acaba de llegar («¿y esto cómo va?»), no la última de quien ya ha
     // recorrido la lista de empresas. Así que van en la portada, debajo de los
     // tres bloques, y ya no están abajo.
-    check('"cómo funciona" cierra la portada', orden.pasosEnPortada,
+    check('"cómo funciona" tiene su propia banda', orden.pasosEnBanda,
       'pasos ' + orden.pasos + ' · directorio ' + orden.directorio);
     check('  y no se ha quedado también abajo', orden.pasosSueltos === 1,
       orden.pasosSueltos + ' bloque(s) de pasos');
@@ -588,7 +588,7 @@ function check(etiqueta, ok, detalle) {
       return {
         dentro: !!(sec && rejilla && sec.contains(rejilla)),
         // Entre la portada y el destino, en ese orden y no en otro.
-        orden: secciones.indexOf('home') + 1 === secciones.indexOf('editions') &&
+        orden: secciones.indexOf('how') + 1 === secciones.indexOf('editions') &&
           secciones.indexOf('editions') + 1 === secciones.indexOf('presentation'),
         secciones: secciones.join(' › '),
         columnas: rejilla ? getComputedStyle(rejilla).gridTemplateColumns.split(' ').length : 0,
@@ -608,7 +608,7 @@ function check(etiqueta, ok, detalle) {
     });
 
     check('los vídeos tienen su propia sección', vid.dentro);
-    check('  y van entre la portada y el destino', vid.orden, vid.secciones);
+    check('  y van entre "cómo funciona" y el destino', vid.orden, vid.secciones);
     check('un solo titular de sección', vid.h2 === 1, vid.h2 + ' h2');
     check('los vídeos se colocan según la pantalla',
       vid.columnas === (ancho < 900 ? 1 : 2), vid.columnas + ' columna(s)');
@@ -790,7 +790,7 @@ function check(etiqueta, ok, detalle) {
     // La banda de alta y Login cierra la portada. Sus BOTONES son para lo que
     // está ahí, así que lo que tiene que caber no es el principio de la banda:
     // es la banda entera.
-    const c = document.querySelector('.hero .login-band').getBoundingClientRect();
+    const c = document.querySelector('.hero .take-part').getBoundingClientRect();
     const h = document.querySelector('.header').getBoundingClientRect();
     const k = document.querySelector('.hero__dates').getBoundingClientRect();
     return {
@@ -801,7 +801,7 @@ function check(etiqueta, ok, detalle) {
   });
   await port.close();
 
-  check('la banda de alta y Login se ve entera sin bajar', alto.banda <= alto.vh,
+  check('la tarjeta de alta y Login se ve entera sin bajar', alto.banda <= alto.vh,
     alto.banda + 'px de ' + alto.vh);
   check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
     alto.hueco + 'px entre la cabecera y la primera línea');

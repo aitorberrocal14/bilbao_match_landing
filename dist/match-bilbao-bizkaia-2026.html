@@ -1256,11 +1256,9 @@ p:last-child { margin-bottom: 0; }
    banda roja en vez de un apartado propio. */
 /* Los cuatro pasos cierran la portada. El hueco mira también el alto de la
    ventana: en una pantalla ancha y baja se encoge solo, como el resto. */
-.steps__head {
-  margin-top: clamp(1rem, min(5vw, 3.5vh), 2.5rem);
-  padding-top: clamp(1rem, min(4vw, 3vh), 2.25rem);
-  border-top: 1px solid var(--line);
-}
+/* Los cuatro pasos viven en su propia banda, y ahí el fondo gris ya los
+   separa de lo de arriba: la raya sobraba. */
+.steps__head { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .steps {
   display: grid;
@@ -1288,100 +1286,32 @@ p:last-child { margin-bottom: 0; }
 /* Dos mitades: darse de alta y entrar. Cada una con su título, su explicación
    y su botón, separadas por una línea fina — no por un hueco, que a esta
    anchura se lee como que sobra sitio y no como que son dos cosas. */
-.login-band {
-  margin-top: clamp(2.5rem, 5vw, 4rem);
-  padding: clamp(2rem, 4vw, 3rem);
-  background: var(--red);
-  color: #fff;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
-  gap: clamp(1.75rem, 4vw, 3rem);
-  align-items: start;
-}
-/* La versión de la portada. Ahí la banda cierra la primera pantalla, así que
-   tiene que medir poco: sin los dos párrafos explicativos, con menos relleno y
-   con los titulares más pequeños. Lo que queda es lo que hace falta para
-   decidir —qué eres y el botón—, que es para lo que está. */
-.login-band--slim {
-  margin-top: clamp(0.75rem, min(2.5vw, 3vh), 1.5rem);
-  padding: clamp(0.85rem, min(2.5vw, 3vh), 1.75rem) clamp(1.5rem, 3vw, 2.25rem);
-  gap: clamp(1rem, 2.5vw, 2rem);
-  align-items: center;
-}
-/* Cada mitad, en una fila en vez de en columna: el titular y el botón uno al
-   lado del otro. Apilados, la banda medía 199px y sus botones —que son para lo
-   que está— caían por debajo del borde de la pantalla. En fila mide la mitad. */
-.login-band--slim .login-band__half {
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.6rem 1rem;
-}
-.login-band--slim h2 { font-size: 1.05rem; margin: 0; color: #fff; }
-.login-band--slim .btn { margin-top: 0; }
-/* El aviso de la fecha va en la misma fila, detrás del botón: así la banda se
-   queda en una sola línea de alto y sus botones entran en la primera pantalla,
-   que es de lo que se trata. */
-.login-band--slim .login-band__note {
-  order: 3;
-  margin-top: 0 !important;
-  padding: 0.3rem 0.8rem;
-  font-size: 0.78rem;
-}
-@media (min-width: 880px) {
-  .login-band--slim .login-band__half + .login-band__half {
-    padding-left: clamp(1rem, 2.5vw, 2rem);
-  }
-}
+/* LAS DOS PUERTAS, EN LA PORTADA.
+   Fue un bloque rojo macizo y era demasiado: la portada ya tiene el titular en
+   rojo, y dos manchas rojas grandes en la misma pantalla compiten en vez de
+   repartirse la atención. Además obligaba a invertir el lenguaje de los
+   botones de toda la web —aquí el rojo es la acción principal— y dejaba la
+   acción principal en blanco, que es la que menos pesa.
 
-/* LA BANDA DENTRO DE LA COLUMNA DE LA PORTADA.
-   Antes ocupaba el ancho entero y sus dos mitades iban una al lado de la otra.
-   Ahora vive en la columna del texto —la mitad de ancho—, donde no caben: se
-   apilan, una fila por puerta, con una raya horizontal entre las dos. La raya
-   vertical y el sangrado que las separaban en horizontal se quitan aquí, o
-   quedaba una línea suelta a la izquierda de la segunda. */
-.hero__inner .login-band--slim {
-  grid-template-columns: 1fr;
-  gap: 0;
-  margin-top: clamp(0.9rem, min(2.5vw, 2.5vh), 1.4rem);
-  padding: clamp(0.8rem, min(2vw, 2.4vh), 1.15rem) clamp(1rem, 2vw, 1.5rem);
+   Tarjeta clara con el filo rojo arriba, como la del programa, y por dentro
+   los botones de siempre. */
+.take-part {
+  margin-top: clamp(1rem, min(2.5vw, 2.5vh), 1.5rem);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  padding: clamp(0.9rem, min(2vw, 2.4vh), 1.25rem) clamp(1rem, 2vw, 1.4rem);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
-.hero__inner .login-band--slim .login-band__half + .login-band__half {
-  margin-top: 0.6rem;
-  padding-top: 0.6rem;
-  padding-left: 0;
-  border-left: 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
+.take-part__k {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
 }
-
-.login-band__half { display: flex; flex-direction: column; align-items: flex-start; }
-/* La línea va entre las dos, nunca antes de la primera ni cuando se apilan. */
-@media (min-width: 880px) {
-  .login-band__half + .login-band__half {
-    padding-left: clamp(1.75rem, 4vw, 3rem);
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
-  }
-}
-/* El blanco va por el titular, sea del nivel que sea. La portada usa <h2>
-   —ahí la banda cuelga del <h1> de la página— y la sección usa <h3>, porque
-   cuelga del <h2> de la sección. Nombrando solo uno, el otro salía en rojo
-   sobre rojo: escrito, ocupando su sitio, y sin verse. */
-.login-band h2,
-.login-band h3 { color: #fff; margin: 0 0 0.35rem; font-size: 1.5rem; }
-.login-band p { margin: 0; color: rgba(255, 255, 255, 0.9); max-width: 46ch; }
-.login-band .btn { margin-top: 1.25rem; }
-.login-band small { display: block; margin-top: 0.7rem; color: rgba(255, 255, 255, 0.7); }
-
-/* El aviso de la fecha. Va antes del botón a propósito: enterarse después de
-   pulsar es enterarse tarde. */
-.login-band__note {
-  margin-top: 0.9rem !important;
-  padding: 0.5rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 999px;
-  font-size: 0.86rem;
-  color: #fff !important;
-}
+.take-part__row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.take-part__note { margin: 0.75rem 0 0; font-size: 0.82rem; color: var(--grey-light); }
 
 /* La página que explica cuándo abre la plataforma (platform.html). Es una
    página de una sola idea, así que no lleva nada más que esa idea. */
@@ -1984,8 +1914,7 @@ p:last-child { margin-bottom: 0; }
   .pillar h2 { font-size: 1rem; margin-bottom: 0.2rem; }
   .pillar p { font-size: 0.86rem; line-height: 1.45; }
 
-  .login-band--slim { padding-block: 0.75rem; }
-  .login-band--slim h2 { font-size: 1rem; }
+  .take-part { padding-block: 0.7rem; }
 }
 
 /* --- Cuándo se pliega el menú ----------------------------------------------
@@ -2047,7 +1976,7 @@ p:last-child { margin-bottom: 0; }
 
 /* La retícula de la página, que se pliega más tarde y por su cuenta. */
 @media (max-width: 900px) {
-  .hero__inner, .present, .videos, .newsletter, .login-band { grid-template-columns: 1fr; }
+  .hero__inner, .present, .videos, .newsletter { grid-template-columns: 1fr; }
   .hero__facts { grid-template-columns: 1fr 1fr; gap: 1.5rem 1rem; }
   .logo-grid, .ex-related { grid-template-columns: repeat(3, 1fr); }
   .ex-head { grid-template-columns: 1fr; max-width: 480px; margin-inline: auto; }
@@ -2162,7 +2091,23 @@ p:last-child { margin-bottom: 0; }
     <!-- SECTION 1 — HERO / HOME ========================================= -->
     <section class="hero" id="home" aria-label="Match Bilbao Bizkaia 2026" data-mount="hero"></section>
 
-    <!-- SECTION 2 — LOS VÍDEOS, PEGADOS A LA PORTADA ====================
+    <!-- SECTION 2 — CÓMO FUNCIONA, EN SU PROPIA BANDA ===================
+         Los cuatro pasos estuvieron un rato DENTRO de la portada, y el
+         problema era dónde caía el borde de la pantalla: la portada mide más
+         de lo que cabe, así que el bloque asomaba partido por abajo —medio
+         titular y media frase— y eso no se lee como "hay más abajo", se lee
+         como algo roto.
+
+         En su propia banda, y con el fondo gris, el corte deja de ser un
+         accidente: lo que asoma es el principio de OTRA sección, que es lo
+         que de verdad hay. Y al bajar un poco, el bloque entero —titular,
+         texto y los cuatro pasos, unos 315px— cabe de sobra en cualquier
+         pantalla, incluso en un portátil bajo. -->
+    <section class="section section--soft" id="how" aria-label="How the matchmaking works">
+      <div class="shell" data-mount="how"></div>
+    </section>
+
+    <!-- SECTION 3 — LOS VÍDEOS =========================================
          Estaban colgando de la presentación del destino, como un apartado
          suyo. Son otra cosa: el evento contado en imágenes, y lo que mejor
          explica de qué va esto a quien no ha estado nunca.
@@ -2170,7 +2115,7 @@ p:last-child { margin-bottom: 0; }
          Van justo debajo de la portada porque es lo primero que alguien quiere
          ver, y porque un vídeo es lo que hace bajar. La portada termina en las
          cifras; aquí hay dos carátulas grandes y un pie que invita a seguir. -->
-    <section class="section section--soft" id="editions" aria-label="Latest editions">
+    <section class="section" id="editions" aria-label="Latest editions">
       <div class="shell" data-mount="editions"></div>
     </section>
 
@@ -3676,7 +3621,6 @@ window.MBB = window.MBB || {};
         // Experts", después del directorio, donde casi nadie llegaba. Aquí
         // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
-        (opts.pasos || '') +
       '</div>'
     );
   };
@@ -4508,53 +4452,50 @@ window.MBB = window.MBB || {};
    * El aviso de la fecha SÍ se queda: enterarse de que la plataforma no ha
    * abierto después de pulsar es enterarse tarde.
    */
-  MBB.LoginBand = function (site, e, opts) {
+  /**
+   * LAS DOS PUERTAS: darse de alta o entrar.
+   *
+   * Fue un bloque rojo macizo, y era demasiado. La portada ya tiene el titular
+   * en rojo, y dos manchas rojas grandes en la misma pantalla no se reparten
+   * la atención: compiten. Además obligaba a invertir el lenguaje de los
+   * botones de toda la web —aquí el rojo es la acción principal— y dejaba la
+   * acción principal en blanco, que es la que menos pesa.
+   *
+   * Ahora es una tarjeta clara con el filo rojo arriba, como la del programa,
+   * y por dentro los botones de siempre: rojo macizo el alta, contorno el
+   * Login. Quien se ha recorrido el resto de la página los reconoce sin leer.
+   *
+   * @param {object} opts  { base } cuando se dibuja fuera de la portada
+   */
+  MBB.TakePart = function (site, e, opts) {
     opts = opts || {};
     var base = opts.base || '';
-    var slim = !!opts.slim;
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
+    var entrar = loginLink(site, 'btn btn--outline', base);
 
-    // Mientras no esté abierta se dice la fecha, y se dice en el botón mismo:
-    // enterarse después de pulsar es enterarse tarde.
-    // En la portada el aviso va en la misma fila que el botón, así que se dice
-    // en tres palabras: al lado de un botón que pone "Login", debajo de
-    // "Already registered?", no hace falta explicar de qué abre.
-    var aviso = abierta
-      ? ''
-      : '<p class="login-band__note">' +
-          (slim ? 'Opens on ' : 'Access to the platform opens on ') +
-          esc(MBB.platformOpensOn(site)) + '.</p>';
-
-    // En la portada los titulares de la banda cuelgan del <h1> de la página, y
-    // ahí un <h3> dejaría un hueco en el esquema de títulos. Dentro de "Meet
-    // BB's Experts" cuelgan del <h2> de la sección, y ahí <h3> es lo que toca.
-    var t = slim ? 'h2' : 'h3';
-    var titular = function (texto) {
-      return '<' + t + '>' + esc(texto) + '</' + t + '>';
-    };
-    var boton = slim ? 'btn btn--light' : 'btn btn--lg btn--light';
+    if (!reg.url && !entrar) return '';
 
     var alta = reg.url
-      ? '<div class="login-band__half">' +
-          titular(e.registerPanel.title) +
-          (slim ? '' : '<p>' + esc(e.registerPanel.text) + '</p>') +
-          '<a class="' + boton + '" href="' + esc(reg.url) + '" ' +
-            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
-        '</div>'
+      ? '<a class="btn" href="' + esc(reg.url) + '" target="_blank" rel="noopener">' +
+          esc(reg.label) + '</a>'
       : '';
 
-    var entrar =
-      '<div class="login-band__half">' +
-        titular(e.loginPanel.title) +
-        (slim ? '' : '<p>' + esc(e.loginPanel.text) + '</p>') +
-        aviso +
-        loginLink(site, boton, base) +
-        (slim ? '' : '<small>' + esc(e.loginPanel.help) + '</small>') +
-      '</div>';
+    // El aviso de la fecha va DEBAJO de los botones y no dentro del de Login:
+    // quien ya tiene perfil necesita saber que todavía no puede entrar, y
+    // enterarse después de pulsar es enterarse tarde.
+    var aviso = abierta
+      ? ''
+      : '<p class="take-part__note">The platform opens on ' +
+          esc(MBB.platformOpensOn(site)) + '.</p>';
 
-    return '<div class="login-band' + (slim ? ' login-band--slim' : '') +
-      '" data-reveal>' + alta + entrar + '</div>';
+    return (
+      '<div class="take-part" data-reveal>' +
+        '<p class="take-part__k">' + esc(e.takePart || 'Take part') + '</p>' +
+        '<div class="take-part__row">' + alta + entrar + '</div>' +
+        aviso +
+      '</div>'
+    );
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */
@@ -5008,17 +4949,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = window.MBB
         aviso: esAviso
       });
     });
-    // La banda de alta y Login se arma aquí y se le pasa a la portada, igual
+    // La tarjeta de alta y Login se arma aquí y se le pasa a la portada, igual
     // que el directorio se le pasa a "Meet BB's Experts": los datos los junta
     // este archivo y el orden lo decide el componente.
     into('hero', function () {
       return MBB.Hero(MBB.site, MBB.eventIntro, {
-        banda: MBB.loginHref(MBB.site)
-          ? MBB.LoginBand(MBB.site, MBB.experts, { slim: true })
-          : '',
-        pasos: MBB.HowItWorks(MBB.experts)
+        banda: MBB.TakePart(MBB.site, MBB.experts)
       });
     });
+    into('how', function () { return MBB.HowItWorks(MBB.experts); });
     into('programme', function () { return MBB.Programme(MBB.programme, MBB.site); });
     into('presentation', function () { return MBB.Presentation(MBB.presentation); });
     into('editions', function () { return MBB.Editions(MBB.editions); });

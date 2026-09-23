@@ -407,7 +407,6 @@ window.MBB = window.MBB || {};
         // Experts", después del directorio, donde casi nadie llegaba. Aquí
         // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
-        (opts.pasos || '') +
       '</div>'
     );
   };
@@ -1239,53 +1238,50 @@ window.MBB = window.MBB || {};
    * El aviso de la fecha SÍ se queda: enterarse de que la plataforma no ha
    * abierto después de pulsar es enterarse tarde.
    */
-  MBB.LoginBand = function (site, e, opts) {
+  /**
+   * LAS DOS PUERTAS: darse de alta o entrar.
+   *
+   * Fue un bloque rojo macizo, y era demasiado. La portada ya tiene el titular
+   * en rojo, y dos manchas rojas grandes en la misma pantalla no se reparten
+   * la atención: compiten. Además obligaba a invertir el lenguaje de los
+   * botones de toda la web —aquí el rojo es la acción principal— y dejaba la
+   * acción principal en blanco, que es la que menos pesa.
+   *
+   * Ahora es una tarjeta clara con el filo rojo arriba, como la del programa,
+   * y por dentro los botones de siempre: rojo macizo el alta, contorno el
+   * Login. Quien se ha recorrido el resto de la página los reconoce sin leer.
+   *
+   * @param {object} opts  { base } cuando se dibuja fuera de la portada
+   */
+  MBB.TakePart = function (site, e, opts) {
     opts = opts || {};
     var base = opts.base || '';
-    var slim = !!opts.slim;
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
+    var entrar = loginLink(site, 'btn btn--outline', base);
 
-    // Mientras no esté abierta se dice la fecha, y se dice en el botón mismo:
-    // enterarse después de pulsar es enterarse tarde.
-    // En la portada el aviso va en la misma fila que el botón, así que se dice
-    // en tres palabras: al lado de un botón que pone "Login", debajo de
-    // "Already registered?", no hace falta explicar de qué abre.
-    var aviso = abierta
-      ? ''
-      : '<p class="login-band__note">' +
-          (slim ? 'Opens on ' : 'Access to the platform opens on ') +
-          esc(MBB.platformOpensOn(site)) + '.</p>';
-
-    // En la portada los titulares de la banda cuelgan del <h1> de la página, y
-    // ahí un <h3> dejaría un hueco en el esquema de títulos. Dentro de "Meet
-    // BB's Experts" cuelgan del <h2> de la sección, y ahí <h3> es lo que toca.
-    var t = slim ? 'h2' : 'h3';
-    var titular = function (texto) {
-      return '<' + t + '>' + esc(texto) + '</' + t + '>';
-    };
-    var boton = slim ? 'btn btn--light' : 'btn btn--lg btn--light';
+    if (!reg.url && !entrar) return '';
 
     var alta = reg.url
-      ? '<div class="login-band__half">' +
-          titular(e.registerPanel.title) +
-          (slim ? '' : '<p>' + esc(e.registerPanel.text) + '</p>') +
-          '<a class="' + boton + '" href="' + esc(reg.url) + '" ' +
-            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
-        '</div>'
+      ? '<a class="btn" href="' + esc(reg.url) + '" target="_blank" rel="noopener">' +
+          esc(reg.label) + '</a>'
       : '';
 
-    var entrar =
-      '<div class="login-band__half">' +
-        titular(e.loginPanel.title) +
-        (slim ? '' : '<p>' + esc(e.loginPanel.text) + '</p>') +
-        aviso +
-        loginLink(site, boton, base) +
-        (slim ? '' : '<small>' + esc(e.loginPanel.help) + '</small>') +
-      '</div>';
+    // El aviso de la fecha va DEBAJO de los botones y no dentro del de Login:
+    // quien ya tiene perfil necesita saber que todavía no puede entrar, y
+    // enterarse después de pulsar es enterarse tarde.
+    var aviso = abierta
+      ? ''
+      : '<p class="take-part__note">The platform opens on ' +
+          esc(MBB.platformOpensOn(site)) + '.</p>';
 
-    return '<div class="login-band' + (slim ? ' login-band--slim' : '') +
-      '" data-reveal>' + alta + entrar + '</div>';
+    return (
+      '<div class="take-part" data-reveal>' +
+        '<p class="take-part__k">' + esc(e.takePart || 'Take part') + '</p>' +
+        '<div class="take-part__row">' + alta + entrar + '</div>' +
+        aviso +
+      '</div>'
+    );
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */
