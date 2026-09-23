@@ -541,7 +541,7 @@ window.MBB.site = {
       },
       {
         title: 'Telephone',
-        note: 'Monday to Friday, 9:00 – 17:00 CET',
+        note: 'Monday to Friday, 9:00 – 15:00 CET',
         value: '+34 944 205 377',
         href: 'tel:+34944205377',
         icon: 'phone'
@@ -929,10 +929,22 @@ window.MBB.programme = {
       date: 'Wednesday 7 October',
       dateISO: '2026-10-07',
       theme: 'Coast of Bizkaia',
+      // FALTAN CUATRO PALABRAS RESPECTO AL TEXTO ORIGINAL, y no es un descuido.
+      //
+      // Decía «…de Bizkaia, IN TWO GROUPS WITH DIFFERENT ROUTES, ending in
+      // lunch…», y eso ya lo dicen dos cosas que están justo debajo: el rótulo
+      // «Two itineraries» y las dos líneas que nombran adónde va cada grupo.
+      // Dicho tres veces seguidas en una tarjeta de 220px de ancho.
+      //
+      // Y se pagaba caro: esas cuatro palabras eran dos líneas más en la
+      // tarjeta más alta, y como todas las tarjetas se igualan a la más alta,
+      // eran 48px en las cinco. Con ellas, el programa no cabía en una
+      // pantalla de portátil; sin ellas, cabe. Si se quieren de vuelta, se
+      // escriben aquí y lo único que pasa es que hay que bajar un poco.
       summary:
-        'A full day through the coast of Bizkaia, in two groups with ' +
-        'different routes, ending in lunch together at Bodega Berroja ' +
-        '(located in the Urdaibai Biosphere Reserve) and dinner on a rooftop.',
+        'A full day through the coast of Bizkaia, ending in lunch together ' +
+        'at Bodega Berroja (located in the Urdaibai Biosphere Reserve) and ' +
+        'dinner on a rooftop.',
       split: true,
       // Adónde va cada grupo, en una línea. El detalle hora a hora está abajo,
       // en los slots, pero para eso hay que abrir "Day by day" y elegir grupo:

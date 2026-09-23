@@ -552,11 +552,6 @@ p:last-child { margin-bottom: 0; }
   border-radius: 4px;
   overflow: hidden;
   aspect-ratio: 4 / 3;
-  /* La foto es lo que manda en la altura de esta fila: a 4:3 mide más que el
-     texto de al lado, y esos píxeles de más se pagan al final de la portada,
-     donde vive el aviso de que hay más abajo. Con este tope la fila pasa a
-     medirla el texto, y la foto se recorta un poco por arriba y por abajo. */
-  max-height: 340px;
   background: var(--bg-soft);
 }
 .hero__media img { width: 100%; height: 100%; object-fit: cover; }
@@ -1121,13 +1116,11 @@ p:last-child { margin-bottom: 0; }
 }
 .present__media { display: grid; gap: 1rem; }
 .present__media figure { margin: 0; }
-/* 2:1 y no 4:3. Es el recorte que hace que las dos fotos juntas midan
-   aproximadamente lo que mide el texto de al lado, y por tanto que la sección
-   entera quepa en una pantalla. Con 4:3 medían 300px más que el texto: se
-   pulsaba "Destination" y la segunda foto salía cortada por el borde de
-   abajo, así que la sección no se veía entera nunca. `cover` recorta por los
-   lados, que en una foto de acompañamiento es lo que toca. */
-.present__media img { width: 100%; aspect-ratio: 2 / 1; object-fit: cover; }
+/* 4:3, la proporción de siempre. Estuvieron a 2:1 para que la sección del
+   destino cupiera entera en una pantalla, y el precio era que las fotos se
+   veían aplastadas: una panorámica forzada ya no es la foto. Cabe menos y se
+   ven bien, que es el orden correcto de prioridades para una foto. */
+.present__media img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
 .present__cap {
   font-size: 0.8rem;
   letter-spacing: 0.06em;
@@ -1302,17 +1295,17 @@ p:last-child { margin-bottom: 0; }
    y su botón, separadas por una línea fina — no por un hueco, que a esta
    anchura se lee como que sobra sitio y no como que son dos cosas. */
 /* LAS DOS PUERTAS, EN LA PORTADA.
-   La misma tarjeta roja de antes, con lo mismo dentro, pero en miniatura: vive
-   en la columna del texto —la mitad de ancha que la página— y tiene que caber
-   en la primera pantalla sin empujar nada fuera.
+   Caja gris y botones rojos, que es el lenguaje del resto de la web: el rojo
+   macizo es la acción principal en todas partes, y aquí también. Estuvo un
+   rato al revés —caja roja y botones blancos— y eso obligaba a invertirlo:
+   la acción principal acababa en blanco, que es la que menos pesa.
 
-   Las dos mitades van UNA AL LADO DE LA OTRA aunque el sitio sea poco: así la
-   tarjeta mide una altura en vez de dos. Apiladas medía 270px y las cifras de
-   abajo se caían de la pantalla en un portátil bajo. */
+   Lo demás no cambia: las dos mitades una al lado de la otra con una raya en
+   medio, y en miniatura, porque vive en la columna del texto de la portada. */
 .take-part {
   margin-top: clamp(0.9rem, min(2.5vw, 2.5vh), 1.4rem);
-  background: var(--red);
-  color: #fff;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
   padding: clamp(0.85rem, min(2vw, 2.2vh), 1.15rem) clamp(1rem, 2vw, 1.3rem);
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1323,10 +1316,9 @@ p:last-child { margin-bottom: 0; }
 /* La raya va entre las dos, nunca antes de la primera. */
 .take-part__half + .take-part__half {
   padding-left: clamp(0.85rem, 2vw, 1.4rem);
-  border-left: 1px solid rgba(255, 255, 255, 0.25);
+  border-left: 1px solid var(--line);
 }
 .take-part h2 {
-  color: #fff;
   font-size: 0.98rem;
   line-height: 1.25;
   margin: 0 0 0.3rem;
@@ -1335,15 +1327,15 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--grey);
 }
 .take-part .btn { margin-top: 0.7rem; }
-/* El aviso de la fecha: una línea, sin la pastilla con borde que llevaba en la
-   grande. A este tamaño, un borde más es ruido. */
+/* El aviso de la fecha: una línea, sin pastilla ni borde. A este tamaño, un
+   recuadro más es ruido. */
 .take-part__note {
   margin-top: 0.55rem !important;
   font-size: 0.74rem !important;
-  color: #fff !important;
+  color: var(--grey-light) !important;
 }
 
 /* En estrecho no caben dos columnas: se apilan, y la raya pasa a ir encima. */
@@ -1354,7 +1346,7 @@ p:last-child { margin-bottom: 0; }
     padding-top: 0.85rem;
     padding-left: 0;
     border-left: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 1px solid var(--line);
   }
 }
 
@@ -1926,54 +1918,29 @@ p:last-child { margin-bottom: 0; }
   .brochures { grid-template-columns: repeat(3, 1fr); }
 }
 
-/* --- LA WEB ENTERA, UN POCO MÁS PEQUEÑA EN PANTALLAS BAJAS -----------------
-   Un portátil de 1366×768 le deja al navegador unos 540px de alto: descontadas
-   las pestañas, la barra de direcciones, la de marcadores y la de tareas. Con
-   eso, la tarjeta de alta y Login se quedaba fuera de la primera pantalla.
+/* --- LO QUE SE PROBÓ PARA LAS PANTALLAS BAJAS, Y POR QUÉ NO ESTÁ ------------
+   Un portátil de 1366×768 le deja al navegador unos 540px de alto, frente a
+   los ~810 de un monitor. Cabe un tercio menos, y se probaron tres caminos:
 
-   ESTO NO ES LO QUE HUBO ANTES. Antes se encogían cosas sueltas —el titular,
-   la foto, la letra de los bloques— y eso cambiaba las proporciones: la misma
-   web se veía distinta según la ventana. Aquí se encoge TODO a la vez, en el
-   mismo porcentaje, que es exactamente lo que hace el zoom del navegador. Las
-   proporciones no cambian: se ve igual, más pequeño.
+     1. Encoger cosas sueltas —titular, foto, letra de los bloques— por debajo
+        de cierta altura. Cambiaba las proporciones: la misma web se veía
+        distinta según la ventana.
+     2. Recortar las fotos: las del destino a 2:1 y la de la portada con tope
+        de alto. Ganaba sitio, pero LAS FOTOS SE VEÍAN APLASTADAS, que es por
+        lo que se quitó todo esto.
+     3. Encoger la página entera con `zoom`, del 96% al 85% según la altura.
+        Ese no deformaba nada —es lo que hace el zoom del navegador— pero
+        añadía una escalera de seis escalones que mantener, y le deshacía
+        parte del trabajo a quien bajara el zoom a mano.
 
-   Y por eso existe el SUELO del 85%. Sin él, para que en esos 540px entrara
-   todo lo que se ve en una pantalla de 810 habría que bajar al 66%, y ahí el
-   texto del cuerpo se queda en nueve píxeles: ilegible, y contrario a lo que
-   firma la declaración de accesibilidad. Al 85% el cuerpo mide 14,7px, que se
-   lee sin esfuerzo.
+   Ninguno está puesto. La web se ve igual en todas las pantallas y en las
+   bajas entra menos, que es lo que hace cualquier web; quien quiera ver más
+   de una vez tiene el zoom de su navegador.
 
-   Las dos condiciones importan. `min-width: 1200px` deja fuera a los móviles
-   y a las tabletas: allí la altura de la ventana cambia sola al girar el
-   aparato o al aparecer la barra de direcciones, y encoger la página a mitad
-   de lectura sería peor que el problema. Y 1200 está muy por encima de los
-   1275 donde se pliega el menú, así que el plegado nunca ocurre con la página
-   encogida, que es donde las dos reglas podrían contradecirse.
-
-   `zoom` no lo entienden los Firefox anteriores al 126 (mayo de 2024). Ahí
-   simplemente no pasa nada: se ve como se veía. No rompe nada. */
-@media (min-width: 1200px) and (max-height: 800px) { body { zoom: 0.96; } }
-@media (min-width: 1200px) and (max-height: 760px) { body { zoom: 0.93; } }
-@media (min-width: 1200px) and (max-height: 710px) { body { zoom: 0.90; } }
-@media (min-width: 1200px) and (max-height: 660px) { body { zoom: 0.88; } }
-@media (min-width: 1200px) and (max-height: 620px) { body { zoom: 0.86; } }
-@media (min-width: 1200px) and (max-height: 580px) { body { zoom: 0.85; } }
-
-/* --- AQUÍ HUBO UNA REGLA PARA PANTALLAS ANCHAS PERO BAJAS, Y SE QUITÓ ------
-   Encogía el titular, la foto y la letra de los tres bloques cuando la ventana
-   medía menos de 740px de alto y más de 900 de ancho, para que la portada
-   entera cupiera en un portátil de 1366×768.
-
-   Se quitó a petición: hacía que la misma web se viera con dos tamaños de
-   letra distintos según la ventana, y eso —aunque resuelva lo de que quepa—
-   es raro de explicar y raro de mantener.
-
-   Lo que SÍ se queda es que los HUECOS miren el alto de la ventana: los
-   `min(3.5vw, 4vh)` que hay repartidos por la hoja. Esos no cambian el tamaño
-   de nada, solo aprietan el aire, así que la letra se ve igual en todas las
-   pantallas y en las bajas entra algo más.
-
-   Si algún día se quiere de vuelta, estaba en el commit que la quitó. */
+   Lo que SÍ se conserva son los huecos: siguen mirando el alto de la ventana
+   con `min(Xvw, Yvh)`. Eso no deforma nada ni cambia ningún tamaño de letra
+   —solo aprieta el aire en pantallas bajas— y es lo que hace que el programa
+   entero quepa en una pantalla, que se pidió aparte. */
 
 /* --- Cuándo se pliega el menú ----------------------------------------------
    El menú necesita unos 1275px para caber en una sola fila: son cinco
@@ -4545,7 +4512,7 @@ window.MBB = window.MBB || {};
     var base = opts.base || '';
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
-    var entrar = loginLink(site, 'btn btn--light btn--sm', base);
+    var entrar = loginLink(site, 'btn btn--outline btn--sm', base);
 
     if (!reg.url && !entrar) return '';
 
@@ -4560,7 +4527,7 @@ window.MBB = window.MBB || {};
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
           '<p>' + esc(e.registerPanel.text) + '</p>' +
-          '<a class="btn btn--light btn--sm" href="' + esc(reg.url) + '" ' +
+          '<a class="btn btn--sm" href="' + esc(reg.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
         '</div>'
       : '';

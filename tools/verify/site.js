@@ -841,7 +841,13 @@ function check(etiqueta, ok, detalle) {
     altoVid.sec + 'px de ' + altoVid.hueco);
 
   for (const [etiqueta, entrada, medir] of [
-    ['al pulsar Destination se ve la sección entera', 'Destination', '#presentation'],
+    // Destination NO cabe entera en una pantalla, y es a propósito: sus dos
+    // fotos son 4:3 porque en 2:1 salían aplastadas, y dos fotos 4:3 más el
+    // texto miden más que cualquier portátil. Lo que sí tiene que caber es el
+    // TEXTO —titular y los cuatro párrafos—, que es a lo que se viene; las
+    // fotos pueden asomar por abajo, que para eso se baja.
+    ['al pulsar Destination se lee el texto sin bajar', 'Destination',
+      '#presentation .text-justify'],
     // El programa es a lo que se llega desde el menú, y lo que se ve al llegar
     // tiene que ser el programa: los cinco días, no los tres de arriba. Entre
     // el relleno de la sección, el de la tarjeta y el hueco bajo el titular se
@@ -871,11 +877,22 @@ function check(etiqueta, ok, detalle) {
     })));
   await clic.close();
 
-  // LA ESCALERA DE ZOOM: la web entera se encoge en pantallas bajas para que
-  // la tarjeta de alta y Login entre en la primera pantalla. Se mide en las
-  // alturas que de verdad da un portátil de 1366×768 —con y sin las barras del
-  // navegador— y lo que se exige es lo importante: que la tarjeta entre, y que
-  // el texto del cuerpo no baje de 14px, que es donde deja de leerse a gusto.
+  // LA TARJETA DE ALTA Y LOGIN, EN LAS ALTURAS DE UN PORTÁTIL DE VERDAD.
+  //
+  // Un portátil de 1366×768 no da 768px de web: el navegador se lleva la barra
+  // de direcciones, las pestañas y a veces la de marcadores, y Windows la del
+  // sistema. Lo que queda son las alturas de abajo, de la peor a la mejor.
+  //
+  // Hubo una escalera de `zoom` que encogía la web entera para que la tarjeta
+  // entrase en todas. Está quitada —el porqué, en la hoja de estilos—, así que
+  // esto ya no mide ningún zoom: mide si la tarjeta cabe tal cual, con el
+  // cuerpo de texto a su tamaño y sin que la página se salga de ancho.
+  //
+  // 538px se mide pero NO se exige. Es el caso peor —navegador con marcadores
+  // y barra de tareas a la vez—, y hacerlo entrar costaba o aplastar las fotos
+  // o bajar el texto de 14px, que es donde deja de leerse a gusto. Ahí la
+  // tarjeta queda un poco por debajo del borde y se llega bajando, como al
+  // resto de la página. Si algún día sube por sí sola, mejor; se verá aquí.
   for (const h of [538, 594, 627, 700, 760]) {
     const zc = await navegador.newContext({ viewport: { width: 1345, height: h } });
     const zp = await zc.newPage();
@@ -884,17 +901,21 @@ function check(etiqueta, ok, detalle) {
     const z = await zp.evaluate(() => {
       document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'));
       const c = document.querySelector('.hero .take-part').getBoundingClientRect();
-      const zoom = parseFloat(getComputedStyle(document.body).zoom) || 1;
       const px = parseFloat(getComputedStyle(document.querySelector('.hero__lead')).fontSize);
-      return { abajo: Math.round(c.bottom), vh: window.innerHeight, zoom: zoom,
-        letra: +(px * zoom).toFixed(1),
+      return { abajo: Math.round(c.bottom), vh: window.innerHeight,
+        letra: +px.toFixed(1),
         desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth };
     });
     await zc.close();
+    const detalle = z.abajo + 'px de ' + z.vh + ' · letra ' + z.letra + 'px' +
+      (z.desborde ? ' — SE SALE DE ANCHO' : '');
+    if (h === 538) {
+      console.log('a 538px de alto la tarjeta NO entra'.padEnd(56) +
+        'SABIDO  (' + detalle + ')');
+      continue;
+    }
     check('a ' + h + 'px de alto la tarjeta entra',
-      z.abajo <= z.vh && z.letra >= 14 && !z.desborde,
-      'zoom ' + z.zoom + ' · ' + z.abajo + 'px de ' + z.vh + ' · letra ' + z.letra + 'px' +
-      (z.desborde ? ' — SE SALE DE ANCHO' : ''));
+      z.abajo <= z.vh && z.letra >= 14 && !z.desborde, detalle);
   }
 
   check('los avisos de "hay más abajo" llevan a alguna parte',

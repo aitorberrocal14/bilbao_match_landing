@@ -1261,7 +1261,7 @@ window.MBB = window.MBB || {};
     var base = opts.base || '';
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
-    var entrar = loginLink(site, 'btn btn--light btn--sm', base);
+    var entrar = loginLink(site, 'btn btn--outline btn--sm', base);
 
     if (!reg.url && !entrar) return '';
 
@@ -1276,7 +1276,7 @@ window.MBB = window.MBB || {};
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
           '<p>' + esc(e.registerPanel.text) + '</p>' +
-          '<a class="btn btn--light btn--sm" href="' + esc(reg.url) + '" ' +
+          '<a class="btn btn--sm" href="' + esc(reg.url) + '" ' +
             'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
         '</div>'
       : '';
