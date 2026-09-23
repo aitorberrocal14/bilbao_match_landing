@@ -229,6 +229,51 @@ $relativa = $datos !== false && preg_match("/website: '(?!https?:)(?!')/", $dato
 echo '  ' . ($relativa ? 'FALLA' : 'OK   ') . "  ninguna dirección queda relativa\n";
 if ($relativa) { $fallos++; }
 
+/* 5 bis. UNA DIRECCIÓN QUE NO SEA http NI https NO ES UNA WEB, Y NO ENTRA.
+      Este campo lo escribe la empresa en su ficha de Meetmaps y termina dentro
+      de un href de esta web. Se aceptaba cualquier esquema: `javascript:` a
+      secas no colaba —sin «//» no casaba con nada—, pero `javascript://x%0A…`
+      sí, y en un enlace eso se ejecuta al pulsarlo.
+
+      Para explotarlo hay que ser una empresa dada de alta, y en una web sin
+      sesiones no hay nada que robar. Pero es código corriendo en el dominio
+      oficial, que es suficiente para desfigurar la página o para montar encima
+      un formulario que parezca nuestro. Ahora solo pasan http y https. */
+echo "\n· Una web que no sea http ni https no se publica\n";
+
+$g = $TMP . '/fixture-esquemas.json';
+$malas = [
+    'javascript://x%0Aalert(1)',
+    'javascript:alert(1)',
+    'data://text/html;base64,PHNjcmlwdD4=',
+    'vbscript://x',
+];
+$fichas = [];
+foreach ($malas as $i => $mala) {
+    $e = inscrito($i + 1, 'Empresa ' . ($i + 1), '210824', '21400' . $i);
+    $e['web'] = $mala;
+    $fichas[] = $e;
+}
+file_put_contents($g, json_encode(['results' => $fichas], JSON_UNESCAPED_UNICODE));
+
+array_map('unlink', glob($destino . '/exhibitors/*') ?: []);
+shell_exec(
+    'php ' . escapeshellarg($ROOT . '/server/sync.php') .
+    ' --fixture ' . escapeshellarg($g) . ' --allow-shrink 2>&1'
+);
+
+$datosMal = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+$paginas = '';
+foreach (glob($destino . '/exhibitors/*.html') ?: [] as $pg) {
+    $paginas .= (string) file_get_contents($pg);
+}
+
+foreach (['javascript:', 'data:text/html', 'data://', 'vbscript:'] as $veneno) {
+    $bien = stripos($datosMal, $veneno) === false && stripos($paginas, $veneno) === false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . '  ni rastro de ' . $veneno . "\n";
+    if (!$bien) { $fallos++; }
+}
+
 /* 6. La cabecera de la ficha tiene que cambiar sola el día que abre la
       plataforma. Estas páginas llevan la cabecera escrita, no dibujada por el
       JavaScript, así que sin esto se quedarían con el Login apuntando al

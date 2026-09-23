@@ -1195,8 +1195,27 @@ function mbb_web_absoluta($valor)
     $url = trim((string) $valor);
     if ($url === '') { return ''; }
 
-    // Ya trae esquema: se respeta tal cual, sea http, https u otro.
-    if (preg_match('#^[a-z][a-z0-9+.-]*://#i', $url)) { return $url; }
+    // SOLO http y https. Aquí se respetaba «cualquier esquema», y eso era un
+    // agujero: este valor lo escribe la empresa en su ficha de Meetmaps y
+    // acaba tal cual dentro de un href en su página de esta web.
+    //
+    // `javascript:alert(1)` no pasaba —sin «//» no casaba con nada—, pero
+    // `javascript://x%0Aalert(1)` sí: lleva «//», así que el esquema colaba, y
+    // en un enlace eso se ejecuta al pulsarlo (las dos barras abren un
+    // comentario de JavaScript, el %0A lo cierra con un salto de línea y lo
+    // que sigue corre). Igual con `data:` y `vbscript:`.
+    //
+    // No es un ataque de cualquiera —hay que ser una empresa dada de alta en
+    // la plataforma—, y en una web sin sesiones ni datos no hay nada que
+    // robar. Pero es código ejecutándose en matchbilbaobizkaia.eus, que es
+    // dominio oficial, y eso vale para desfigurar la página o para montar
+    // encima algo que pida datos con toda la apariencia de ser nuestro.
+    //
+    // Una dirección que no sea http o https no es la web de una empresa, así
+    // que no se arregla: se descarta, igual que se descarta cualquier otra
+    // cosa que no parezca un dominio.
+    if (preg_match('#^https?://#i', $url)) { return $url; }
+    if (preg_match('#^[a-z][a-z0-9+.-]*:#i', $url)) { return ''; }
 
     // «//ejemplo.com» hereda el esquema de la página; aquí se fija.
     if (strpos($url, '//') === 0) { return 'https:' . $url; }
