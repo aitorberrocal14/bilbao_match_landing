@@ -150,7 +150,7 @@ window.MBB.site = {
       },
       {
         title: 'Telephone',
-        note: 'Monday to Friday, 9:00 – 17:00 CET',
+        note: 'Monday to Friday, 9:00 – 15:00 CET',
         value: '+34 944 205 377',
         href: 'tel:+34944205377',
         icon: 'phone'
