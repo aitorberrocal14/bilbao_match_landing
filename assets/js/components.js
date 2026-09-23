@@ -407,6 +407,10 @@ window.MBB = window.MBB || {};
         // Experts", después del directorio, donde casi nadie llegaba. Aquí
         // responden la segunda pregunta de quien acaba de leer la primera.
         (facts ? '<div class="hero__facts" data-reveal>' + facts + '</div>' : '') +
+        // Y al final, el aviso de que debajo está "cómo funciona". La portada
+        // mide más de una pantalla, así que sin esto lo único que asoma por el
+        // borde es una franja gris que no dice de qué.
+        MBB.ScrollCue('#how', 'How the matchmaking works') +
       '</div>'
     );
   };
@@ -1241,15 +1245,14 @@ window.MBB = window.MBB || {};
   /**
    * LAS DOS PUERTAS: darse de alta o entrar.
    *
-   * Fue un bloque rojo macizo, y era demasiado. La portada ya tiene el titular
-   * en rojo, y dos manchas rojas grandes en la misma pantalla no se reparten
-   * la atención: compiten. Además obligaba a invertir el lenguaje de los
-   * botones de toda la web —aquí el rojo es la acción principal— y dejaba la
-   * acción principal en blanco, que es la que menos pesa.
+   * Es la misma tarjeta roja que estuvo dentro de "Meet BB's Experts", con lo
+   * mismo dentro —titular, la frase que explica cada puerta y el botón— pero
+   * EN PEQUEÑO: vive en la columna del texto de la portada, que es la mitad de
+   * ancha, y tiene que caber en la primera pantalla sin empujar nada fuera.
    *
-   * Ahora es una tarjeta clara con el filo rojo arriba, como la del programa,
-   * y por dentro los botones de siempre: rojo macizo el alta, contorno el
-   * Login. Quien se ha recorrido el resto de la página los reconoce sin leer.
+   * Lo que cambia respecto a la grande es el tamaño, no el contenido: letra
+   * más pequeña, botones pequeños y las dos mitades una al lado de la otra en
+   * vez de separadas por un palmo.
    *
    * @param {object} opts  { base } cuando se dibuja fuera de la portada
    */
@@ -1258,30 +1261,36 @@ window.MBB = window.MBB || {};
     var base = opts.base || '';
     var reg = site.register || {};
     var abierta = MBB.platformOpen(site);
-    var entrar = loginLink(site, 'btn btn--outline', base);
+    var entrar = loginLink(site, 'btn btn--light btn--sm', base);
 
     if (!reg.url && !entrar) return '';
 
-    var alta = reg.url
-      ? '<a class="btn" href="' + esc(reg.url) + '" target="_blank" rel="noopener">' +
-          esc(reg.label) + '</a>'
-      : '';
-
-    // El aviso de la fecha va DEBAJO de los botones y no dentro del de Login:
-    // quien ya tiene perfil necesita saber que todavía no puede entrar, y
-    // enterarse después de pulsar es enterarse tarde.
+    // El aviso de la fecha, antes del botón: enterarse de que la plataforma no
+    // ha abierto DESPUÉS de pulsar es enterarse tarde.
     var aviso = abierta
       ? ''
-      : '<p class="take-part__note">The platform opens on ' +
+      : '<p class="take-part__note">Opens on ' +
           esc(MBB.platformOpensOn(site)) + '.</p>';
 
-    return (
-      '<div class="take-part" data-reveal>' +
-        '<p class="take-part__k">' + esc(e.takePart || 'Take part') + '</p>' +
-        '<div class="take-part__row">' + alta + entrar + '</div>' +
-        aviso +
-      '</div>'
-    );
+    var alta = reg.url
+      ? '<div class="take-part__half">' +
+          '<h2>' + esc(e.registerPanel.title) + '</h2>' +
+          '<p>' + esc(e.registerPanel.text) + '</p>' +
+          '<a class="btn btn--light btn--sm" href="' + esc(reg.url) + '" ' +
+            'target="_blank" rel="noopener">' + esc(reg.label) + '</a>' +
+        '</div>'
+      : '';
+
+    var puerta = entrar
+      ? '<div class="take-part__half">' +
+          '<h2>' + esc(e.loginPanel.title) + '</h2>' +
+          '<p>' + esc(e.loginPanel.text) + '</p>' +
+          aviso +
+          entrar +
+        '</div>'
+      : '';
+
+    return '<div class="take-part" data-reveal>' + alta + puerta + '</div>';
   };
 
   /* --- Exhibitors: filters + full-bleed logo grid ------------------------- */

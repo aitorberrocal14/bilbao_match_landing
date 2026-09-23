@@ -469,7 +469,7 @@ p:last-child { margin-bottom: 0; }
   margin: 0 0 1.1rem;
   line-height: 1.35;
 }
-.hero__lead { max-width: 56ch; margin-bottom: 2rem; }
+.hero__lead { max-width: 56ch; margin-bottom: 1.25rem; }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 
 .hero__media {
@@ -477,6 +477,11 @@ p:last-child { margin-bottom: 0; }
   border-radius: 4px;
   overflow: hidden;
   aspect-ratio: 4 / 3;
+  /* La foto es lo que manda en la altura de esta fila: a 4:3 mide más que el
+     texto de al lado, y esos píxeles de más se pagan al final de la portada,
+     donde vive el aviso de que hay más abajo. Con este tope la fila pasa a
+     medirla el texto, y la foto se recorta un poco por arriba y por abajo. */
+  max-height: 340px;
   background: var(--bg-soft);
 }
 .hero__media img { width: 100%; height: 100%; object-fit: cover; }
@@ -1053,7 +1058,7 @@ p:last-child { margin-bottom: 0; }
    traer un icono ni una tipografía más para dibujar una punta de flecha.
    Se mueve despacio, lo justo para que el ojo la encuentre, y se queda quieta
    para quien ha pedido menos movimiento en su sistema. */
-.cue { margin: clamp(1.25rem, 2.5vw, 1.75rem) 0 0; text-align: center; }
+.cue { margin: clamp(0.75rem, min(2vw, 2vh), 1.25rem) 0 0; text-align: center; }
 .cue__link {
   display: inline-flex;
   flex-direction: column;
@@ -1214,31 +1219,61 @@ p:last-child { margin-bottom: 0; }
    y su botón, separadas por una línea fina — no por un hueco, que a esta
    anchura se lee como que sobra sitio y no como que son dos cosas. */
 /* LAS DOS PUERTAS, EN LA PORTADA.
-   Fue un bloque rojo macizo y era demasiado: la portada ya tiene el titular en
-   rojo, y dos manchas rojas grandes en la misma pantalla compiten en vez de
-   repartirse la atención. Además obligaba a invertir el lenguaje de los
-   botones de toda la web —aquí el rojo es la acción principal— y dejaba la
-   acción principal en blanco, que es la que menos pesa.
+   La misma tarjeta roja de antes, con lo mismo dentro, pero en miniatura: vive
+   en la columna del texto —la mitad de ancha que la página— y tiene que caber
+   en la primera pantalla sin empujar nada fuera.
 
-   Tarjeta clara con el filo rojo arriba, como la del programa, y por dentro
-   los botones de siempre. */
+   Las dos mitades van UNA AL LADO DE LA OTRA aunque el sitio sea poco: así la
+   tarjeta mide una altura en vez de dos. Apiladas medía 270px y las cifras de
+   abajo se caían de la pantalla en un portátil bajo. */
 .take-part {
-  margin-top: clamp(1rem, min(2.5vw, 2.5vh), 1.5rem);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--red);
-  padding: clamp(0.9rem, min(2vw, 2.4vh), 1.25rem) clamp(1rem, 2vw, 1.4rem);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  margin-top: clamp(0.9rem, min(2.5vw, 2.5vh), 1.4rem);
+  background: var(--red);
+  color: #fff;
+  padding: clamp(0.85rem, min(2vw, 2.2vh), 1.15rem) clamp(1rem, 2vw, 1.3rem);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(0.85rem, 2vw, 1.4rem);
+  align-items: start;
 }
-.take-part__k {
-  margin: 0 0 0.7rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--grey-light);
+.take-part__half { display: flex; flex-direction: column; align-items: flex-start; }
+/* La raya va entre las dos, nunca antes de la primera. */
+.take-part__half + .take-part__half {
+  padding-left: clamp(0.85rem, 2vw, 1.4rem);
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
 }
-.take-part__row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
-.take-part__note { margin: 0.75rem 0 0; font-size: 0.82rem; color: var(--grey-light); }
+.take-part h2 {
+  color: #fff;
+  font-size: 0.98rem;
+  line-height: 1.25;
+  margin: 0 0 0.3rem;
+}
+.take-part p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.9);
+}
+.take-part .btn { margin-top: 0.7rem; }
+/* El aviso de la fecha: una línea, sin la pastilla con borde que llevaba en la
+   grande. A este tamaño, un borde más es ruido. */
+.take-part__note {
+  margin-top: 0.55rem !important;
+  font-size: 0.74rem !important;
+  color: #fff !important;
+}
+
+/* En estrecho no caben dos columnas: se apilan, y la raya pasa a ir encima. */
+@media (max-width: 900px) {
+  .take-part { grid-template-columns: 1fr; }
+  .take-part__half + .take-part__half {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+  }
+}
 
 /* La página que explica cuándo abre la plataforma (platform.html). Es una
    página de una sola idea, así que no lleva nada más que esa idea. */
@@ -1841,7 +1876,16 @@ p:last-child { margin-bottom: 0; }
   .pillar h2 { font-size: 1rem; margin-bottom: 0.2rem; }
   .pillar p { font-size: 0.86rem; line-height: 1.45; }
 
-  .take-part { padding-block: 0.7rem; }
+  .take-part { padding-block: 0.6rem; }
+  .take-part h2 { font-size: 0.9rem; margin-bottom: 0.2rem; }
+  .take-part p { font-size: 0.72rem; line-height: 1.4; }
+  .take-part .btn { margin-top: 0.5rem; }
+  .pillar p { font-size: 0.8rem; line-height: 1.4; }
+  /* Y el último palmo: en una pantalla baja, el aviso de que hay más abajo
+     tiene que entrar en la primera pantalla o no avisa de nada. */
+  .hero .pillars { margin-top: 0.5rem; padding-top: 0.5rem; }
+  .hero .cue { margin-top: 0.35rem; }
+  .hero .cue__link { padding-block: 0.25rem; }
 }
 
 /* --- Cuándo se pliega el menú ----------------------------------------------

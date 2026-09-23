@@ -474,8 +474,8 @@ function check(etiqueta, ok, detalle) {
           copia.login.opensAt = '2020-01-01T00:00:00+01:00';
           return window.MBB.loginHref(copia, '');
         })(),
-        alta: (document.querySelector('.take-part__row .btn') || {}).getAttribute
-          ? document.querySelector('.take-part__row .btn').getAttribute('href') : ''
+        alta: (document.querySelector('.take-part__half .btn') || {}).getAttribute
+          ? document.querySelector('.take-part__half .btn').getAttribute('href') : ''
       };
     });
 
@@ -795,6 +795,7 @@ function check(etiqueta, ok, detalle) {
     const k = document.querySelector('.hero__dates').getBoundingClientRect();
     return {
       banda: Math.round(c.bottom),
+      cue: Math.round(document.querySelector('#home .cue').getBoundingClientRect().bottom),
       hueco: Math.round(k.top - h.bottom),
       vh: window.innerHeight
     };
@@ -803,6 +804,11 @@ function check(etiqueta, ok, detalle) {
 
   check('la tarjeta de alta y Login se ve entera sin bajar', alto.banda <= alto.vh,
     alto.banda + 'px de ' + alto.vh);
+  // Y el aviso de que debajo está "cómo funciona". Si cae por debajo del
+  // borde no avisa a nadie: la portada mide más de una pantalla, así que lo
+  // único que asomaría sería una franja gris que no dice de qué.
+  check('  y el aviso de "cómo funciona", también', alto.cue <= alto.vh,
+    alto.cue + 'px de ' + alto.vh);
   check('  y encima no sobra medio palmo de blanco', alto.hueco <= 80,
     alto.hueco + 'px entre la cabecera y la primera línea');
 
@@ -860,8 +866,8 @@ function check(etiqueta, ok, detalle) {
     })));
   await clic.close();
 
-  check('el aviso de "hay más abajo" lleva a alguna parte',
-    cues.length === 1 && cues.every((c) => c.existe),
+  check('los avisos de "hay más abajo" llevan a alguna parte',
+    cues.length === 2 && cues.every((c) => c.existe),
     cues.map((c) => c.href).join(' ') || 'ninguno');
 
   /* --- Los dos botones de la cabecera, antes y después de abrir ------------ */
