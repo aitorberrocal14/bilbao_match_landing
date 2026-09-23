@@ -45,27 +45,38 @@ window.MBB.eventIntro = {
 window.MBB.presentation = {
   eyebrow: 'The destination',
   title: 'Bilbao Bizkaia',
+  // LO QUE VA ENTRE **DOS ASTERISCOS** SALE EN NEGRITA.
+  //
+  // No es Markdown ni nada parecido: es lo único que se entiende aquí, y a
+  // propósito. Estos textos se editan desde el panel, y un campo que aceptara
+  // HTML sería un campo por el que entra cualquier cosa. Todo lo que se
+  // escriba se escapa antes de dibujarse; de ahí solo se salvan los pares de
+  // asteriscos. Un asterisco suelto no hace nada y se ve tal cual.
+  //
+  // Los párrafos van justificados —los dos bordes rectos— por la clase
+  // `text-justify`, que se la pone el componente.
   paragraphs: [
     'Bilbao is a city that reinvented itself, and did so without losing its ' +
-    'character. In one generation it turned an industrial estuary into an ' +
-    'open, walkable capital of contemporary architecture, museums and design — ' +
-    'a transformation now studied worldwide and still visible on every ' +
-    'riverbank.',
+    'character. In one generation it turned an **industrial estuary** into an ' +
+    'open, walkable capital of contemporary **architecture, museums and ' +
+    'design** — a **transformation** now studied worldwide and still visible ' +
+    'on every riverbank.',
 
     'Around it, Bizkaia offers a rare concentration of experiences within a ' +
-    'short drive: a dramatic coastline of fishing villages, cliffs and surf ' +
-    'beaches; the Urdaibai Biosphere Reserve; green valleys, farmhouses and ' +
-    'txakoli vineyards; and a gastronomic culture of pintxo bars, markets and ' +
-    'Michelin-starred kitchens that has become part of the destination\'s ' +
-    'identity.',
+    'short drive: a **dramatic coastline of fishing villages, cliffs and surf ' +
+    'beaches**; the **Urdaibai Biosphere Reserve; green valleys, farmhouses ' +
+    'and txakoli vineyards**; and a **gastronomic culture of pintxo bars, ' +
+    'markets and Michelin-starred kitchens** that has become part of the ' +
+    'destination\'s identity.',
 
     'For the professional visitor, this compact geography is the real ' +
-    'advantage. Bilbao combines an international airport, a modern convention ' +
-    'centre, an efficient public transport network and a hospitality sector ' +
-    'used to hosting international audiences — with the sea, the mountains and ' +
-    'the old town all within reach of the same working day.',
+    'advantage. Bilbao combines an **international airport, a modern ' +
+    'convention centre, an efficient public transport network** and a ' +
+    'hospitality sector used to hosting international audiences — with the ' +
+    'sea, the mountains and the old town all within reach of the same working ' +
+    'day.',
 
-    'Above all, Bilbao Bizkaia is a welcoming place to do business. Match ' +
+    'Above all, Bilbao Bizkaia is a **welcoming place to do business**. Match ' +
     'Bilbao Bizkaia exists to open that network to you directly, and to make ' +
     'the destination easy to programme, easy to sell and easy to recommend.'
   ],
@@ -82,18 +93,16 @@ window.MBB.presentation = {
 window.MBB.experts = {
   eyebrow: 'Networking',
   title: "Meet BB's Experts",
-  // La entrada de la sección. Es el texto que llevaba el directorio debajo de
-  // su propio titular: al quitarle ese titular —"Exhibitors", justo debajo de
-  // "Meet BB's Experts"— su texto sube a ser el de la sección, que es lo que
-  // siempre describió.
+  // La entrada de la sección, y lo único que hay entre el titular y el
+  // directorio: dice de quién es la lista y qué se puede hacer con ella.
   //
-  // El que había decía: "Behind every itinerary there is someone local who
-  // makes it work. Meet BB's Experts is the meeting space of Match Bilbao
-  // Bizkaia: it connects international professionals with the hotels, DMCs,
-  // agencies, experience providers and institutions of the destination."
+  // El directorio tenía antes su propio titular, "Exhibitors", justo debajo de
+  // "Meet BB's Experts", con un texto propio debajo. Se quitaron los dos —dos
+  // titulares seguidos del mismo tamaño para una sola cosa— y lo que queda es
+  // esta línea.
   lead:
-    'The professionals of the Bilbao Bizkaia destination taking part in the ' +
-    'event. Filter by category, or search by name or web address.',
+    'Behind every itinerary there is someone local who makes it work. Search ' +
+    'Bilbao Bizkaia\'s experts by category or by name.',
   body:
     'Create your profile, browse the exhibitor directory, request the ' +
     'appointments that matter to you and manage your confirmed meetings from a ' +

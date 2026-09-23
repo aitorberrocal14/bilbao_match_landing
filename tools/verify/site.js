@@ -115,6 +115,24 @@ function check(etiqueta, ok, detalle) {
     check('sin marcadores [Insert ...] a la vista', base.huecos.length === 0,
       base.huecos.join(', '));
 
+    // LAS NEGRITAS SE ESCRIBEN CON **DOS ASTERISCOS** EN LOS DATOS, y lo que
+    // no puede pasar es que se vean. Si alguien escribe uno suelto, o los
+    // cierra mal desde el panel, el visitante lee asteriscos en mitad de una
+    // frase; y si el convertidor se rompiera, el texto se quedaría sin resaltar
+    // y nadie lo notaría hasta mirarlo con calma.
+    const negritas = await pagina.evaluate(() => ({
+      asteriscos: (document.body.textContent.match(/\*\*/g) || []).length,
+      resaltadas: document.querySelectorAll('.present strong').length,
+      // Y lo que se resalta es texto, no etiquetas: si algo se colara sin
+      // escapar, aquí aparecería un < o un > escrito.
+      limpio: !/[<>]/.test(
+        [...document.querySelectorAll('.present p')].map((e) => e.textContent).join(''))
+    }));
+
+    check('ningún asterisco a la vista', negritas.asteriscos === 0, negritas.asteriscos);
+    check('el destino lleva sus negritas', negritas.resaltadas >= 5, negritas.resaltadas);
+    check('  y no ha entrado ninguna etiqueta', negritas.limpio);
+
     /* --- El programa ------------------------------------------------------- */
     // Las pestañas de día sólo existen en la vista "Day by day". Sin este clic
     // se miden ocultas, dan 0 de alto y la comprobación pasa sin mirar nada.

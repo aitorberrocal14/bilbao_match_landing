@@ -20,6 +20,25 @@ window.MBB = window.MBB || {};
   };
 
   /**
+   * Lo mismo que `esc`, pero dejando poner NEGRITA con **dos asteriscos**.
+   *
+   * El texto del destino lleva resaltadas media docena de cosas —el estuario
+   * industrial, la costa, Urdaibai, el aeropuerto— y son cuatro párrafos
+   * largos: sin nada que destaque hay que leérselos enteros para saber si hay
+   * algo que interese.
+   *
+   * Lo que NO se hace es guardar `<strong>` en los datos y dibujarlo tal cual.
+   * Estos textos se editan desde el panel, y un campo que acepta HTML es un
+   * campo por el que entra cualquier cosa: un `<script>`, una etiqueta a
+   * medio cerrar que se come el resto de la página. Aquí se escapa PRIMERO
+   * —así todo lo que llegue es texto— y solo después se convierten los pares
+   * de asteriscos. Entra negrita y no entra nada más.
+   */
+  var fuerte = function (s) {
+    return esc(s).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  };
+
+  /**
    * Folds a name down to what a search should match: lower case, no accents,
    * so that typing "melia" or "aranzazu" finds "Meliá" and "Aránzazu". Exposed
    * because the tiles are built here and searched in main.js, and both sides
@@ -1018,7 +1037,9 @@ window.MBB = window.MBB || {};
 
   /* --- Presentation of Bilbao -------------------------------------------- */
   MBB.Presentation = function (p) {
-    var paras = p.paragraphs.map(function (t) { return '<p>' + esc(t) + '</p>'; }).join('');
+    // `fuerte` y no `esc`: estos párrafos llevan negritas escritas con dos
+    // asteriscos. Van justificados por la clase `text-justify` de abajo.
+    var paras = p.paragraphs.map(function (t) { return '<p>' + fuerte(t) + '</p>'; }).join('');
 
     var media = p.media
       .map(function (m) {
