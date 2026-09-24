@@ -371,6 +371,122 @@ $bien = is_file($logos . '/turismo-uno.png') &&
 echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  pero un fallo al bajarlo no lo borra\n";
 if (!$bien) { $fallos++; }
 
+/* 7 bis. UN LOGOTIPO QUE NO ES UN LOGOTIPO.
+      Una empresa subió su marca EN PDF a la plataforma. El sync lo bajaba, no
+      reconocía el tipo, le ponía `.jpg` por lo que fuera y la ficha quedaba con
+      el recuadro roto y el texto alternativo a la vista. En el registro no
+      había ni una palabra: descarga correcta, archivo escrito, todo en orden.
+
+      Se sirve un PDF de verdad por HTTP y se comprueba lo que tiene que pasar:
+      que no se guarde, que la ficha salga SIN logotipo —que se ve bien, hay un
+      hueco para eso— y que el registro lo diga con el nombre de la empresa,
+      para que alguien pueda pedirle un PNG.
+
+      Y detrás, un PNG legítimo por el mismo camino, porque una comprobación que
+      solo sabe rechazar acabaría rechazándolo todo sin que nadie se enterase. */
+echo "\n· Un logotipo que no es una imagen no se publica\n";
+
+$servido = $TMP . '/servido';
+@mkdir($servido, 0777, true);
+file_put_contents($servido . '/marca.pdf', "%PDF-1.4\n1 0 obj\n<< >>\nendobj\n");
+file_put_contents($servido . '/marca.png',
+    "\x89PNG\r\n\x1a\n" . str_repeat("\0", 64));
+
+/* EL PUERTO SE PIDE LIBRE, NO SE ELIGE A DEDO.
+   Estuvo fijo en el 8731 y se coló un fallo bonito: si una ejecución anterior
+   dejaba el servidor vivo, el nuevo no arrancaba, las descargas fallaban... y
+   las dos primeras comprobaciones PASABAN IGUAL, porque «no se ha guardado un
+   PDF» también es cierto cuando no se ha guardado nada. Una prueba que pasa
+   porque no ha probado nada es peor que una que falla.
+
+   Así que el puerto lo da el sistema —se abre un socket en el 0, se mira cuál
+   ha tocado y se suelta— y si el servidor no llega a escuchar, esto se cuenta
+   como fallo y lo dice, en vez de seguir como si nada. */
+$sonda = @stream_socket_server('tcp://127.0.0.1:0', $ne, $nm);
+$puerto = $sonda ? (int) explode(':', stream_socket_get_name($sonda, false))[1] : 0;
+if ($sonda) { fclose($sonda); }
+
+$servidor = $puerto ? proc_open(
+    'exec php -S 127.0.0.1:' . $puerto . ' -t ' . escapeshellarg($servido),
+    [1 => ['file', '/dev/null', 'w'], 2 => ['file', '/dev/null', 'w']],
+    $tuberias
+) : false;
+
+$escucha = false;
+for ($i = 0; $i < 50 && $servidor; $i++) {
+    $s = @fsockopen('127.0.0.1', $puerto, $e, $m, 0.1);
+    if ($s) { fclose($s); $escucha = true; break; }
+    usleep(100000);
+}
+
+// Pase lo que pase más abajo, el servidor se cierra: uno vivo bloquearía la
+// siguiente ejecución, que es justo el fallo que se acaba de arreglar.
+if ($servidor) {
+    register_shutdown_function(function () use ($servidor) {
+        // `is_resource` y no una arroba: en PHP 8 pasarle un proceso ya
+        // cerrado no es un aviso que se pueda callar, es un TypeError que
+        // tumba el script DESPUÉS de haber dicho que todo pasa. Lo normal es
+        // que aquí ya esté cerrado; esto es para cuando el script muere antes.
+        if (is_resource($servidor)) { proc_terminate($servidor, 9); }
+    });
+}
+
+$conImgBase = function (string $archivo) use ($ROOT, $TMP, $CONFIG, $puerto) {
+    $previo = file_get_contents($CONFIG);
+    file_put_contents($CONFIG, str_replace(
+        "'site_url' =>",
+        "'img_base' => 'http://127.0.0.1:" . $puerto . "',\n  'site_url' =>",
+        $previo
+    ));
+    $f = $TMP . '/fixture-tipo.json';
+    $e = inscrito(1, 'Turismo Uno', '210824', '213999');
+    $e['fields'][] = ['id' => '372389', 'value' => $archivo];
+    file_put_contents($f, json_encode(['results' => [$e]], JSON_UNESCAPED_UNICODE));
+    $salida = (string) shell_exec(
+        'php ' . escapeshellarg($ROOT . '/server/sync.php') .
+        ' --fixture ' . escapeshellarg($f) . ' 2>&1'
+    );
+    file_put_contents($CONFIG, $previo);
+    return $salida;
+};
+
+if (!$escucha) {
+    echo "  FALLA  no se ha podido levantar el servidor local: caso SIN PROBAR\n";
+    $fallos++;
+} else {
+    // A. El PDF.
+    array_map('unlink', glob($logos . '/*') ?: []);
+    $salida = $conImgBase('marca.pdf');
+    $datos  = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+    $ficha  = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
+    $sobra  = glob($logos . '/turismo-uno.*') ?: [];
+
+    $bien = $sobra === [] && strpos($datos, "logo: ''") !== false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  un PDF no se guarda como si fuera una imagen\n";
+    if (!$bien) { $fallos++; }
+
+    $bien = strpos($ficha, 'exhibitors/turismo-uno') === false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y la ficha no queda con el recuadro roto\n";
+    if (!$bien) { $fallos++; }
+
+    $bien = stripos($salida, 'no es una imagen') !== false
+        && stripos($salida, 'turismo-uno') !== false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y el registro dice de quién es y qué pasa\n";
+    if (!$bien) { $fallos++; }
+
+    // B. Y un PNG de verdad sí entra, por el mismo camino.
+    array_map('unlink', glob($logos . '/*') ?: []);
+    $conImgBase('marca.png');
+    $datos = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
+    $bien = is_file($logos . '/turismo-uno.png') &&
+        strpos($datos, "logo: 'assets/img/exhibitors/turismo-uno.png'") !== false;
+    echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y un PNG de verdad sigue entrando\n";
+    if (!$bien) { $fallos++; }
+
+    proc_terminate($servidor, 9);
+    proc_close($servidor);
+}
+
 // Lo escrito se borra: esta prueba no deja web montada en ningún sitio.
 foreach (['/assets/js/data/exhibitors.js', '/assets/js/data/exhibitors-local.json',
           '/sitemap.xml'] as $x) { @unlink($destino . $x); }

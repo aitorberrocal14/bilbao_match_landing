@@ -692,9 +692,58 @@ function fetch_logo($url, $slug, $dry)
         return null;
     }
 
-    $ext = str_contains($type, 'png') ? '.png'
-        : (str_contains($type, 'svg') ? '.svg'
-        : (str_contains($type, 'webp') ? '.webp' : '.jpg'));
+    /* SOLO IMÁGENES, Y SE COMPRUEBA DOS VECES.
+       ----------------------------------------------------------------------
+       Aquí se elegía la extensión así: png, svg, webp, y CUALQUIER OTRA COSA
+       pasaba a .jpg. O sea que lo que llegara se guardaba como si fuera una
+       imagen, y la ficha ponía un <img> apuntándolo.
+
+       Pasó: una empresa subió su logotipo EN PDF. El sync lo bajó, lo guardó
+       como .jpg, y su página quedó con el recuadro roto y el texto alternativo
+       a la vista. Nada en el registro decía por qué, porque desde el punto de
+       vista del código había ido todo bien: descarga 200, archivo escrito.
+
+       Ahora se mira el tipo que declara el servidor Y los primeros bytes del
+       archivo, que es lo que de verdad dice qué es. Las dos cosas, porque un
+       servidor puede declarar mal el tipo y porque un archivo puede tener la
+       extensión cambiada; un PDF empieza por %PDF diga lo que diga la
+       cabecera.
+
+       Lo que no es una imagen no se guarda: se dice en el registro, con el
+       nombre de la empresa y lo que ha subido, y la ficha se queda sin
+       logotipo. Sin logotipo se ve bien —hay un hueco pensado para eso—; con
+       un PDF disfrazado de imagen, no. */
+    $tipos = [
+        'png'  => '.png',
+        'svg'  => '.svg',
+        'webp' => '.webp',
+        'jpeg' => '.jpg',
+        'jpg'  => '.jpg',
+        'gif'  => '.gif',
+    ];
+
+    $ext = null;
+    foreach ($tipos as $aguja => $suya) {
+        if (str_contains($type, $aguja)) { $ext = $suya; break; }
+    }
+
+    // Y lo que dicen los propios bytes, que manda sobre la cabecera.
+    $firma = substr($data, 0, 8);
+    if (strncmp($firma, "\x89PNG", 4) === 0)            { $ext = '.png'; }
+    elseif (strncmp($firma, "\xFF\xD8\xFF", 3) === 0)   { $ext = '.jpg'; }
+    elseif (strncmp($firma, 'GIF8', 4) === 0)           { $ext = '.gif'; }
+    elseif (strncmp(substr($data, 8, 4), 'WEBP', 4) === 0
+        && strncmp($firma, 'RIFF', 4) === 0)            { $ext = '.webp'; }
+    elseif (strncmp($firma, '%PDF', 4) === 0)           { $ext = null; }
+    elseif ($ext === '.svg' && !str_contains(substr($data, 0, 512), '<svg')
+        && !str_contains(substr($data, 0, 512), '<?xml')) { $ext = null; }
+
+    if ($ext === null) {
+        say('  ! logotipo ' . $slug . ': no es una imagen (' .
+            (strncmp($firma, '%PDF', 4) === 0 ? 'es un PDF' : ($type ?: 'tipo desconocido')) .
+            '). Se publica sin logotipo; pídele a la empresa un PNG o un JPG.');
+        return null;
+    }
 
     $file = $slug . $ext;
     $full = MBB_LOGOS . '/' . $file;
@@ -703,8 +752,17 @@ function fetch_logo($url, $slug, $dry)
         return $file; // sin cambios
     }
     if (!$dry) {
-        if (!is_dir(MBB_LOGOS)) { @mkdir(MBB_LOGOS, 0755, true); }
-        file_put_contents($full, $data);
+        if (!is_dir(MBB_LOGOS) && !@mkdir(MBB_LOGOS, 0755, true)) {
+            say('  ! logotipo ' . $slug . ': no se puede crear ' . MBB_LOGOS);
+            return null;
+        }
+        // Sin esta comprobación, una carpeta sin permisos de escritura daba el
+        // mismo resultado que el PDF: la ficha con el logotipo puesto y el
+        // archivo sin escribir. Falló en silencio una vez; ya no.
+        if (@file_put_contents($full, $data) === false) {
+            say('  ! logotipo ' . $slug . ': no se ha podido escribir el archivo');
+            return null;
+        }
     }
     return $file;
 }
