@@ -954,7 +954,11 @@ function check(etiqueta, ok, detalle) {
     const z = await zp.evaluate(() => {
       document.querySelectorAll('[data-reveal]').forEach((e) => e.classList.add('is-in'));
       const c = document.querySelector('.hero .take-part').getBoundingClientRect();
-      const px = parseFloat(getComputedStyle(document.querySelector('.hero__lead')).fontSize);
+      // `.pillar p` y no `.hero__lead`: ese párrafo se quitó de la portada el
+      // día que su sitio lo ocuparon los logos, y medirlo reventaba la prueba
+      // entera. Los tres bloques de debajo son ahora el cuerpo de texto de la
+      // portada, y son lo que no puede bajar de 14px.
+      const px = parseFloat(getComputedStyle(document.querySelector('.pillar p')).fontSize);
       return { abajo: Math.round(c.bottom), vh: window.innerHeight,
         letra: +px.toFixed(1),
         desborde: document.documentElement.scrollWidth > document.documentElement.clientWidth };
