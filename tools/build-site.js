@@ -112,7 +112,7 @@ if (isTest) {
   fs.writeFileSync(
     path.join(STAGE, 'robots.txt'),
     '# Copia de pruebas de Match Bilbao Bizkaia.\n' +
-    '# La web real es https://www.matchbilbaobizkaia.eus/\n\n' +
+    '# La web real es https://matchbilbaobizkaia.eus/\n\n' +
     'User-agent: *\nDisallow: /\n'
   );
 

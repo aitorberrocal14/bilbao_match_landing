@@ -13,7 +13,7 @@ const path = require('path');
 const vm = require('vm');
 
 const ROOT = path.join(__dirname, '..');
-const SITE = 'https://www.matchbilbaobizkaia.eus';
+const SITE = 'https://matchbilbaobizkaia.eus';
 
 const sandbox = { window: {} };
 vm.createContext(sandbox);

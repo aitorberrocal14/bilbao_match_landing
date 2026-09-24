@@ -39,3 +39,40 @@
     Header set Cache-Control "no-cache, must-revalidate"
   </FilesMatch>
 </IfModule>
+
+# UNA SOLA DIRECCIÓN, NO DOS
+# =============================================================================
+# La web responde igual en matchbilbaobizkaia.eus y en
+# www.matchbilbaobizkaia.eus, y ninguna de las dos redirige a la otra.
+# Comprobado abriéndolas: las dos cargan y las dos se quedan fijas en la barra.
+#
+# Para una persona da igual. Para un buscador son DOS webs con el mismo
+# contenido compitiendo entre ellas: se reparten los enlaces que apuntan al
+# sitio, y Google elige por su cuenta cuál enseña, que puede no ser la que
+# decimos en el canonical. También ensucia cualquier medición y hace que un
+# enlace compartido lleve a una dirección distinta según de dónde se copió.
+#
+# Esto manda todo a la versión SIN www, que es la que el servidor deja fija en
+# la barra del navegador y la que usa la organización. El canonical, las
+# etiquetas de compartir, los datos estructurados, el sitemap y el robots.txt
+# dicen esa misma, y las pruebas no pasan si alguna se descuelga.
+#
+# El 301 es permanente a propósito: le dice al buscador que traslade a la nueva
+# dirección lo que ya tenía acumulado la vieja, en vez de tratarlas como dos.
+#
+# LO QUE NO SE REDIRIGE es /.well-known/, y no es un detalle menor: por ahí
+# valida el hosting el certificado SSL cuando toca renovarlo. Una redirección
+# en medio de esa comprobación puede hacerla fallar, y el día que caduque el
+# certificado la web entera se queda con el aviso rojo del navegador.
+#
+# El <IfModule> es la misma red de seguridad que arriba: sin mod_rewrite estas
+# líneas se ignoran en vez de tumbar la web con un error 500.
+#
+# PARA DESHACERLO: borra este bloque entero y vuelve a desplegar.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} !^/\.well-known/
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^(.*)$ https://%1%{REQUEST_URI} [R=301,L]
+</IfModule>

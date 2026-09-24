@@ -1132,8 +1132,27 @@ function check(etiqueta, ok, detalle) {
   // El .htaccess es el que impide que el navegador mezcle versiones. Si se cae
   // de la lista, deja de publicarse y el problema vuelve sin hacer ruido.
   check('el .htaccess se publica', lista.indexOf('.htaccess') > -1, lista.join(' '));
-  check('el .htaccess obliga a revalidar',
-    /no-cache/.test(fs.readFileSync(path.join(ROOT, '.htaccess'), 'utf8')));
+  const htaccess = fs.readFileSync(path.join(ROOT, '.htaccess'), 'utf8');
+  check('el .htaccess obliga a revalidar', /no-cache/.test(htaccess));
+
+  // Y manda todo a una sola dirección. La web responde igual con www y sin él,
+  // y sin esto son dos webs iguales compitiendo en Google.
+  check('  y manda las dos direcciones a una sola',
+    /RewriteCond %\{HTTP_HOST\} \^www\\\./.test(htaccess) && /R=301/.test(htaccess));
+  // Lo que NO puede redirigir es la carpeta por la que el hosting valida el
+  // certificado SSL. Si alguien quita esta excepción, la web sigue funcionando
+  // y el fallo no aparece hasta el día que toque renovar, con la web entera
+  // dando aviso de sitio no seguro. Es el tipo de cosa que solo se ve aquí.
+  check('  sin tocar la validación del certificado',
+    /!\^\/\\\.well-known\//.test(htaccess),
+    /well-known/.test(htaccess) ? 'la excepción está' : 'FALTA la excepción');
+  // El destino de la redirección y lo que declara la web tienen que ser el
+  // mismo. Mandar a www y declarar el canonical sin www deja al buscador con
+  // dos instrucciones contrarias.
+  const portada = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const can = (portada.match(/<link rel="canonical" href="([^"]+)"/) || [, ''])[1];
+  check('  y a donde manda es lo que dice el canonical',
+    /^https:\/\/matchbilbaobizkaia\.eus\//.test(can), can || 'sin canonical');
 
   // El panel de administración edita la web: quien lo abre cambia los textos,
   // el programa y los folletos. Mientras no tenga contraseña no puede estar

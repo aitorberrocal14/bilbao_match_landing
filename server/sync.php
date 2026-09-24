@@ -1701,7 +1701,7 @@ foreach (scandir(MBB_LOGOS) ?: [] as $f) {
 }
 if ($logos_fuera) { say('  ' . $logos_fuera . ' logotipos retirados.'); }
 
-write_sitemap($exhibitors, (string) ($conf['site_url'] ?? 'https://www.matchbilbaobizkaia.eus/'));
+write_sitemap($exhibitors, (string) ($conf['site_url'] ?? 'https://matchbilbaobizkaia.eus/'));
 
 say('Hecho: ' . count($exhibitors) . ' páginas de expositor y el sitemap.');
 mbb_soltar_turno($TURNO);

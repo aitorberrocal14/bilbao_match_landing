@@ -386,7 +386,7 @@ function copiar(string $desde, string $hasta, bool $dry, string $rel = '')
    Mientras se prueba, la web vive en una subcarpeta —www/pruebasbilbaoekintza26—
    y esa copia NO debe salir en Google. Si sale, el buscador acaba enseñando una
    versión a medias de la web oficial de turismo de Bilbao, con el agravante de
-   que todas sus páginas dicen ser www.matchbilbaobizkaia.eus.
+   que todas sus páginas dicen ser matchbilbaobizkaia.eus.
 
    Podría ponerse a mano, pero entonces habría que acordarse de QUITARLO el día
    del lanzamiento, y ese olvido es mucho peor que el problema que evita: la web

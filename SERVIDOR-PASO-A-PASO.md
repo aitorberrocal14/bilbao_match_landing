@@ -234,7 +234,7 @@ return [
     'api_key'  => 'AQUI-VA-LA-USER-KEY-DE-MEETMAPS',
     'api_url'  => 'https://apiv1.meetmaps.com/api/v1/',
     'event_id' => 15425,
-    'site_url' => 'https://www.matchbilbaobizkaia.eus/',
+    'site_url' => 'https://matchbilbaobizkaia.eus/',
     'web_dir'  => '/home/matchbilbaobizkaia/www/pruebasbilbaoekintza26',
 ];
 ```
@@ -459,7 +459,7 @@ contraseña de carpeta desde el panel del hosting (*Protección de directorios* 
 # PARTE 7 · El día del lanzamiento
 
 Mientras se prueba, la web vive en `www/pruebasbilbaoekintza26`. El día que pase
-a ser `https://www.matchbilbaobizkaia.eus` **solo hay que cambiar una línea.**
+a ser `https://matchbilbaobizkaia.eus` **solo hay que cambiar una línea.**
 
 ## Paso 7.1 · Cambiar dónde se publica
 
@@ -491,7 +491,7 @@ y la web quedaría invisible en Google. Revisar la ruta del paso anterior.
 
 La copia de pruebas lleva una marca de «no me indexes», para que Google no
 enseñe una versión a medias de la web oficial de turismo de Bilbao —con el
-agravante de que todas sus páginas dicen ser `www.matchbilbaobizkaia.eus`—.
+agravante de que todas sus páginas dicen ser `matchbilbaobizkaia.eus`—.
 
 Esa marca **se pone y se quita sola**, según dónde se publique. No hay que
 acordarse de nada: el día que se cambia `web_dir`, desaparece con él. Se hizo
@@ -540,10 +540,10 @@ despliegue ya no la toca, así que no se va a rellenar sola.
 
 ## Paso 7.5 · Comprobar
 
-1. `https://www.matchbilbaobizkaia.eus` → la portada
-2. `https://www.matchbilbaobizkaia.eus/privacy.html` → la política de privacidad
-3. `https://www.matchbilbaobizkaia.eus/admin/` → **tiene que dar error**
-4. `https://www.matchbilbaobizkaia.eus/pruebasbilbaoekintza26/` → **tiene que dar error**
+1. `https://matchbilbaobizkaia.eus` → la portada
+2. `https://matchbilbaobizkaia.eus/privacy.html` → la política de privacidad
+3. `https://matchbilbaobizkaia.eus/admin/` → **tiene que dar error**
+4. `https://matchbilbaobizkaia.eus/pruebasbilbaoekintza26/` → **tiene que dar error**
 
 Y **Ctrl+F5** la primera vez, por si el navegador guarda algo de antes.
 

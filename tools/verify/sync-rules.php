@@ -43,7 +43,7 @@ file_put_contents($CONFIG, "<?php\nreturn " . var_export([
         '213999' => 'accommodation', '214000' => 'dmc', '214001' => 'activities',
     ]],
     'status'   => [],
-    'site_url' => 'https://www.matchbilbaobizkaia.eus/',
+    'site_url' => 'https://matchbilbaobizkaia.eus/',
 ], true) . ";\n");
 
 register_shutdown_function(function () use ($CONFIG, $TMP) {

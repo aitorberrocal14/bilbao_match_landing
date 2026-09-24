@@ -114,7 +114,7 @@ return [
     // enlace canónico, en la tarjeta para compartir y en el sitemap, y tiene
     // que ser la buena desde el primer día para no repartir la autoridad de la
     // web entre dos direcciones.
-    'site_url' => 'https://www.matchbilbaobizkaia.eus/',
+    'site_url' => 'https://matchbilbaobizkaia.eus/',
 
     // ¿SALE ESTA COPIA EN GOOGLE?
     // -------------------------------------------------------------------------

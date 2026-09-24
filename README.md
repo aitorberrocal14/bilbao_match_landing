@@ -113,7 +113,7 @@ repository with no build command and the site root as the output directory,
 then run the address tool below.
 
 ```
-node tools/set-site-url.js https://www.matchbilbaobizkaia.eus
+node tools/set-site-url.js https://matchbilbaobizkaia.eus
 ```
 
 Sets the address in the canonical link, the Open Graph and Twitter tags, the
