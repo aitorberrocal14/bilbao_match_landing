@@ -415,7 +415,10 @@ window.MBB = window.MBB || {};
         if (!marcas) return '';
         return (
           '<div class="socios__grupo">' +
-            '<p class="socios__head">' + esc(g.label) + '</p>' +
+            // Los dos puntos se ponen aquí y no en site.js: allí la etiqueta
+            // es el nombre del grupo —"Organizer"—, y la puntuación es cosa de
+            // cómo se dibuja. Si algún día va debajo en vez de al lado, sobran.
+            '<p class="socios__head">' + esc(g.label) + ':</p>' +
             '<div class="socios__row">' + marcas + '</div>' +
           '</div>'
         );

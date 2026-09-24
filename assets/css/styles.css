@@ -575,7 +575,7 @@ p:last-child { margin-bottom: 0; }
 .socios {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   /* Centrados en su columna, no pegados al margen izquierdo como el resto del
      texto. Ocupan poco más de un tercio del ancho, y arrimados a la izquierda
      dejaban un vacío a su derecha que se leía como que faltaba algo; en medio,
@@ -584,13 +584,23 @@ p:last-child { margin-bottom: 0; }
   gap: clamp(1.25rem, 3vw, 2.5rem);
   margin: 0 0 clamp(0.9rem, min(2.2vw, 2.2vh), 1.35rem);
 }
+/* Cada grupo en una línea: la etiqueta, y al lado sus logotipos. Estuvo con la
+   etiqueta encima, y así ocupa menos alto y se lee de corrido —"Organizer: tal,
+   Strategic Partners: tal y tal"— en vez de como dos columnitas. */
+.socios__grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
 .socios__head {
-  margin: 0 0 0.55rem;
+  margin: 0;
   font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--grey-light);
-  text-align: center;
+  /* La etiqueta no se parte en dos líneas: "Strategic / Partners" partido deja
+     el logotipo descolgado a media altura de un texto de dos pisos. */
+  white-space: nowrap;
 }
 /* La banda de altura fija es lo que pone a todos los logos al mismo nivel.
    Cada marca tiene sus proporciones —una es casi cuadrada, otra apaisada, otra
