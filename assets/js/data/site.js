@@ -196,7 +196,18 @@ window.MBB.site = {
     // Institutional logos. `plain: true` shows the mark directly on the dark
     // ground; the others sit in a white box, as on the current site.
     institutions: [
-      { name: 'Bilbao Bizkaia', file: 'assets/img/brand/bilbao-bizkaia-be-basque.png', href: 'https://www.bilbaoturismo.net/', plain: true },
+      // `fileLight` es el mismo logotipo con la letra en negro, para donde el
+      // fondo es claro: la portada. El de arriba la lleva en BLANCO porque
+      // está dibujado para este pie, que es gris oscuro, y sobre la portada se
+      // vería el símbolo y debajo nada. Quien no tenga `fileLight` usa su
+      // `file` en los dos sitios, que es lo que pasa con los otros cuatro.
+      {
+        name: 'Bilbao Bizkaia',
+        file: 'assets/img/brand/bilbao-bizkaia-be-basque.png',
+        fileLight: 'assets/img/brand/bilbao-bizkaia-on-light.png',
+        href: 'https://www.bilbaoturismo.net/',
+        plain: true
+      },
       { name: 'In cooperation with Spain', file: 'assets/img/brand/spain.png', href: 'https://www.spain.info/en/' },
       // La dirección va sin idioma —wizzair.com a secas y no /es-es— porque
       // esta web la lee gente de toda Europa: así Wizz Air le enseña a cada

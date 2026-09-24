@@ -576,6 +576,11 @@ p:last-child { margin-bottom: 0; }
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
+  /* Centrados en su columna, no pegados al margen izquierdo como el resto del
+     texto. Ocupan poco más de un tercio del ancho, y arrimados a la izquierda
+     dejaban un vacío a su derecha que se leía como que faltaba algo; en medio,
+     el aire se reparte y los dos grupos se leen como un bloque. */
+  justify-content: center;
   gap: clamp(1.25rem, 3vw, 2.5rem);
   margin: 0 0 clamp(0.9rem, min(2.2vw, 2.2vh), 1.35rem);
 }
@@ -585,6 +590,7 @@ p:last-child { margin-bottom: 0; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--grey-light);
+  text-align: center;
 }
 /* La banda de altura fija es lo que pone a todos los logos al mismo nivel.
    Cada marca tiene sus proporciones —una es casi cuadrada, otra apaisada, otra
@@ -594,7 +600,8 @@ p:last-child { margin-bottom: 0; }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  min-height: 52px;
+  justify-content: center;
+  min-height: 62px;
   gap: clamp(0.9rem, 2vw, 1.5rem);
 }
 .socios__item {
@@ -614,20 +621,20 @@ p:last-child { margin-bottom: 0; }
   object-fit: contain;
 }
 
-/* La pastilla oscura del logo organizador. Su letra es blanca —viene dibujado
-   para el pie— y sobre esta página se vería el símbolo y debajo nada. El gris
-   es el mismo del pie, así que no es un parche: es el fondo para el que la
-   marca está hecha, recortado a su tamaño. */
-.socios__item--oscuro {
-  background: var(--charcoal);
-  padding: 0.45rem 0.7rem;
-}
-.socios__item--oscuro img { height: 46px; }
+/* Los logotipos en vertical —símbolo encima, letra debajo— necesitan más alto
+   que los apaisados: a 38px su letra se queda en un borrón. El pie hace lo
+   mismo, 86 contra 56. */
+.socios__item--alto img { height: 58px; }
+
+/* Aquí hubo una pastilla oscura detrás del logo organizador, porque el único
+   archivo que había llevaba la letra en blanco. Ya no hace falta: ese logotipo
+   tiene ahora su versión con la letra en negro —`fileLight` en site.js— y va
+   suelto sobre la página como los demás. */
 
 @media (max-width: 560px) {
   .socios { gap: 1.1rem 1.5rem; }
   .socios__item img { height: 31px; }
-  .socios__item--oscuro img { height: 38px; }
+  .socios__item--alto img { height: 47px; }
 }
 
 .hero__media {

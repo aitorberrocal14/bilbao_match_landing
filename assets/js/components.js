@@ -385,11 +385,11 @@ window.MBB = window.MBB || {};
        están en `footer.institutions` y de allí salen el archivo y el enlace.
        Un logo que cambie se cambia una vez.
 
-       EL CASO RARO ES EL DE BILBAO BIZKAIA. Lleva la letra en BLANCO —está
-       dibujado para el pie, que es oscuro— y sobre esta página se vería el
-       símbolo rojo y debajo nada. Se le pone detrás una pastilla del mismo
-       gris oscuro del pie, que es de donde viene. En cuanto haya una versión
-       con la letra oscura se quita el `plain` del dato y la pastilla sobra. */
+       EL CASO RARO ES EL DE BILBAO BIZKAIA. El archivo del pie lleva la letra
+       en BLANCO —está dibujado para ese fondo oscuro— y aquí se vería el
+       símbolo rojo y debajo nada. Por eso el dato puede traer un `fileLight`:
+       el mismo logotipo con la letra en negro, que es el que se usa aquí. Los
+       que no lo traen usan su archivo de siempre en los dos sitios. */
     var porNombre = {};
     ((site.footer || {}).institutions || []).forEach(function (i) { porNombre[i.name] = i; });
 
@@ -400,10 +400,14 @@ window.MBB = window.MBB || {};
           .filter(Boolean)
           .map(function (i) {
             return (
-              '<a class="socios__item' + (i.plain ? ' socios__item--oscuro' : '') + '" ' +
-                'href="' + esc(i.href) + '" target="_blank" rel="noopener" ' +
-                'aria-label="' + esc(i.name) + '">' +
-                '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
+              // `plain` marca los logotipos en vertical —símbolo arriba y
+              // letra debajo—, que a la misma altura que uno apaisado salen
+              // con la letra ilegible. Van más altos, igual que en el pie.
+              '<a class="socios__item' + (i.plain ? ' socios__item--alto' : '') +
+                '" href="' + esc(i.href) + '" ' +
+                'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
+                '<img src="' + esc(i.fileLight || i.file) + '" ' +
+                  'alt="' + esc(i.name) + '" loading="lazy">' +
               '</a>'
             );
           })
