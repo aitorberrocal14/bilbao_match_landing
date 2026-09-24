@@ -45,10 +45,21 @@
            2. `login.opensAt` en assets/js/data/site.js, que es lo que decide
               a dónde va el botón de Login y cuándo deja de venir aquí
 
-         La HORA no se escribe: se dice el día y nada más. `opensAt` sí la
-         lleva —las 00:01— porque el cambio tiene que ocurrir en un instante
-         concreto, pero anunciar "a las 00:01" no le sirve a nadie: quien lee
-         esto quiere saber qué día, no a qué minuto exacto de la madrugada.
+         LA HORA NO SE ESCRIBE AQUÍ, y es una decisión, no un olvido.
+
+         `opensAt` sí la lleva —las 12:00 del día 29— porque el cambio tiene
+         que ocurrir en un instante concreto. Pero esta página dice el día y
+         nada más: la hora la avisa la organización por correo a quien está
+         inscrito, que es quien la necesita y a quien le llega directa.
+
+         Tiene una consecuencia que conviene conocer: la mañana del 29, con la
+         plataforma aún cerrada, esta página dirá "abre el 29" mientras el
+         calendario ya marca el 29. A quien haya recibido el correo no le
+         extrañará. A quien no, sí — y por eso el correo importa.
+
+         Si algún día se decide ponerla, va en el titular de abajo y se
+         actualiza la comprobación de tools/verify/site.js que hoy exige justo
+         lo contrario: que aquí no aparezca ninguna hora.
          ==================================================================== -->
 
     <section class="section" data-gate>

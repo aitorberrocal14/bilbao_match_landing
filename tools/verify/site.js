@@ -1070,7 +1070,10 @@ function check(etiqueta, ok, detalle) {
     return r;
   }
 
-  const ABRE = '2026-09-29T09:00:00+02:00';
+  // Después de las 12:00 del día 29, que es cuando abre. Estuvo a las 09:00 de
+  // ese día, que valía mientras la apertura era a las 00:01 y a esa hora ya
+  // estaba abierta. Ahora las 09:00 caen del otro lado.
+  const ABRE = '2026-09-29T12:30:00+02:00';
   const hoy = await cabecera(null, 1280);
   const luego = await cabecera(ABRE, 1280);
 
@@ -1253,6 +1256,14 @@ function check(etiqueta, ok, detalle) {
     crudo.texto.indexOf(dia) > -1 ? dia + ' (de ' + completa.fecha + ')'
       : 'falta en platform.html: ' + dia);
 
+  // Y NO ANUNCIA LA HORA, a propósito. `opensAt` la lleva —las 12:00 del día
+  // 29— porque el cambio tiene que ocurrir en un instante concreto, pero esta
+  // página dice el día y nada más: la hora la avisa la organización por correo
+  // a quien está inscrito.
+  //
+  // Se comprueba porque es una decisión, no una casualidad: si alguien la
+  // escribe aquí pensando que ayuda, conviene que salte y se hable, en vez de
+  // que la web y el correo digan cosas distintas.
   check('el aviso no anuncia una hora', !/\d{1,2}:\d{2}/.test(crudo.texto),
     (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);
   check('sin JavaScript, el alta y la vuelta siguen a mano',
@@ -1417,9 +1428,16 @@ function check(etiqueta, ok, detalle) {
   // Y el día que abra, esta página tiene que apartarse sola. Se adelanta el
   // reloj del navegador y se comprueba a dónde acaba el visitante. Meetmaps no
   // existe desde aquí, así que se intercepta la salida para ver la dirección.
+  //
+  // El caso del medio es el que importa desde que la apertura son las 12:00 y
+  // no las 00:01: EL MISMO DÍA 29, POR LA MAÑANA, la plataforma todavía está
+  // cerrada y el cartel tiene que seguir puesto. Si alguien vuelve a mover la
+  // hora y se le olvida el cartel, aquí se ve.
   for (const [etiqueta, cuando, esperaIrse] of [
     ['la víspera el aviso sigue puesto', '2026-09-28T23:59:00+02:00', false],
-    ['el día 29 el aviso se aparta solo', '2026-09-29T00:02:00+02:00', true],
+    ['la mañana del 29 sigue puesto, que aún no ha abierto',
+      '2026-09-29T09:00:00+02:00', false],
+    ['a las 12:00 del 29 el aviso se aparta solo', '2026-09-29T12:01:00+02:00', true],
     ['semanas después sigue apartándose', '2026-10-15T12:00:00+02:00', true]
   ]) {
     const ctx = await navegador.newContext({ viewport: { width: 1280, height: 900 } });

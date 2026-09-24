@@ -62,16 +62,24 @@ window.MBB.site = {
     url: 'https://event.meetmaps.com/MATCHBILBAOBIZKAIA2026/en/virtual/join',
     label: 'Login',
 
-    // La plataforma no abre hasta el 28 de septiembre a las 00:01, hora
-    // peninsular (el +02:00 es el horario de verano, que ese día sigue
-    // vigente). Hasta entonces TODOS los botones de Login llevan a
+    // La plataforma abre el martes 29 de septiembre a las 12:00 del mediodía,
+    // hora peninsular (el +02:00 es el horario de verano, que ese día sigue
+    // vigente). Hasta ese momento TODOS los botones de Login llevan a
     // platform.html, que lo explica, en vez de a un formulario que rechazaría
     // a todo el mundo sin decir por qué.
     //
-    // Llegada la fecha el cambio ocurre solo: nadie tiene que acordarse de
-    // tocar nada a medianoche. Y vacía esta línea y los botones vuelven a ir
+    // Llegada la hora el cambio ocurre solo: nadie tiene que acordarse de
+    // tocar nada ese mediodía. Y vacía esta línea y los botones vuelven a ir
     // directos, por si hubiera que abrir antes.
-    opensAt: '2026-09-29T00:01:00+02:00',
+    //
+    // LA HORA IMPORTA, Y POR ESO SE ESCRIBE TAMBIÉN EN platform.html.
+    // Estuvo a las 00:01, y entonces anunciar la hora no le servía a nadie:
+    // quien entrase el día 29 se lo encontraba abierto. A las 12:00 no: media
+    // jornada de ese día la plataforma sigue cerrada, y alguien que lea "abre
+    // el 29" un martes a las diez de la mañana tiene todo el derecho a pensar
+    // que algo está roto. Si esta hora cambia, cambia también la de esa
+    // página; las pruebas no pasan si las dos no dicen lo mismo.
+    opensAt: '2026-09-29T12:00:00+02:00',
     waiting: 'platform.html'
   },
 
