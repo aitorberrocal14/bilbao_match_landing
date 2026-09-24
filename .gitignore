@@ -20,3 +20,16 @@ server/deploy.log
 # El candado que impide que deploy.php y sync.php se pisen. Lo crea el servidor
 # en la raíz del repositorio y está vacío; si se borra, se vuelve a crear solo.
 .turno
+
+# Capturas de lo que devuelve la API de Meetmaps. Nunca se versionan.
+#
+# Hubo una, tools/verify/api-fixture.json, con las cuarenta empresas reales de
+# la edición anterior: sus correos —varios a nombre de una persona— y sus
+# teléfonos, en un repositorio público. No la usaba ninguna prueba: las suites
+# se fabrican sus propios datos de mentira. Se quedó de una depuración.
+#
+# Si hace falta capturar una respuesta para depurar, que sea fuera del
+# repositorio, o con los datos cambiados a mano antes de guardarla.
+api-fixture.json
+*-fixture.json
+server/*.json.bak
