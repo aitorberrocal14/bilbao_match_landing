@@ -2,9 +2,22 @@
 
 Cómo pasar de *"la web funciona porque yo estoy aquí"* a *"la web funciona"*.
 
-Este documento es lo último que se hace. Cuando esté completo, la web no
-depende de ninguna cuenta personal, de ningún servicio externo y de ninguna
-persona en concreto.
+Este documento es lo último que se hace.
+
+> **Decisión tomada (24 de septiembre de 2026).** Bilbao Ekintza **no** va a
+> editar la web por su cuenta: el panel de administración no se publica, y los
+> cambios de contenido los hará un programador contratado para ello. Eso
+> cambia dos cosas de este documento respecto a como estaba escrito:
+>
+> - El panel `/admin/` **no se instala**. Nada de contraseñas ni de proteger
+>   carpetas: se queda sin publicar, como está hoy.
+> - `deploy.php` **se queda**. Era la pieza a retirar cuando el panel iba a
+>   ser la vía de edición; sin panel, es la única vía que queda para que un
+>   cambio llegue al servidor.
+>
+> A cambio, la web **sí depende de una cuenta personal**: la del repositorio.
+> Eso es aceptable si es el trato, pero tiene que estar dicho, y está más
+> abajo en «Lo que esta decisión implica».
 
 ---
 
@@ -14,69 +27,97 @@ persona en concreto.
 /home/matchbilbaobizkaia/                 ← cuenta de Bilbao Ekintza
 │
 ├── config.php                            la clave de Meetmaps
-├── repo/                                 el código, ya traído
-│   └── server/sync.php                   ← la ÚNICA tarea programada
+├── repo/                                 el código, traído de GitHub
+│   ├── server/deploy.php                 ← tarea 1: publica los cambios
+│   └── server/sync.php                   ← tarea 2: trae los expositores
 │
 └── www/                                  la web publicada
-    ├── index.html  assets/  exhibitors/
-    └── admin/                            ← donde se edita el contenido
+    └── index.html  assets/  exhibitors/
 ```
 
-**Una sola tarea programada:**
+Sin carpeta `admin/`: el despliegue la retira en cada pasada, a propósito.
+
+**Dos tareas programadas, y en este orden:**
 
 | Hora | Comando |
 |---|---|
+| 04:00 | `php /home/matchbilbaobizkaia/repo/server/deploy.php` |
 | 05:00 | `php /home/matchbilbaobizkaia/repo/server/sync.php` |
 
-Y nada más. Ni GitHub, ni FTP, ni nadie subiendo archivos.
+El orden importa: el despliegue deja la web como está en el repositorio, donde
+la lista de expositores está vacía; la sincronización la vuelve a llenar desde
+Meetmaps. Al revés, cada noche la web se quedaría sin expositores una hora.
 
 ### Lo que hace cada pieza cuando ya no estés
 
 | Quién | Qué mantiene | Cómo |
 |---|---|---|
-| **El personal de Bilbao Ekintza** | Textos, programa, folletos, contacto | `tu-web/admin/` → editar → Publicar |
+| **Un programador** | Textos, programa, folletos, diseño | Edita el repositorio; el despliegue lo baja solo |
 | **Meetmaps** | Los expositores y sus páginas | Solo. Cada noche a las 5 |
-| **Nadie** | El diseño | No cambia. Si alguna vez hay que tocarlo, hace falta un informático |
+| **Bilbao Ekintza** | Nada por su cuenta | Por decisión propia: ver el recuadro del principio |
+
+### Lo que esta decisión implica
+
+Conviene que Bilbao Ekintza lo sepa antes de firmar nada, porque es lo que
+cambia respecto a una web que se traspasa del todo:
+
+- **Para cambiar una coma hace falta un programador.** No hay pantalla de
+  edición. Un texto, una fecha del programa, un folleto nuevo: todo pasa por
+  quien tenga acceso al repositorio.
+- **El repositorio está en una cuenta personal.** Mientras exista y sea
+  accesible, el despliegue funciona. Si se cierra, se borra o se hace privado
+  sin dar acceso, los cambios dejan de llegar.
+- **La web NO se cae por eso.** Sus archivos ya están en el servidor y ahí se
+  quedan; Meetmaps sigue trayendo expositores cada noche. Lo que se pierde es
+  la capacidad de CAMBIARLA, no la web.
+- **Y se puede recuperar.** Con el zip del proyecto, otro programador crea un
+  repositorio nuevo, cambia la dirección en `repo/` con un `git remote
+  set-url`, y todo vuelve a funcionar. Eso hay que dejarlo escrito en la
+  entrega, porque nadie lo adivina.
 
 ---
 
-## La pieza que hay que retirar: el despliegue desde GitHub
+## La pieza que se queda: el despliegue desde GitHub
 
-Durante el desarrollo hay **dos** tareas programadas: `deploy.php`, que trae los
-cambios del repositorio, y `sync.php`, que trae los expositores.
+Hay **dos** tareas programadas: `deploy.php`, que trae los cambios del
+repositorio, y `sync.php`, que trae los expositores. Las dos se quedan.
 
-**`deploy.php` se retira el día del traspaso.** No es un olvido, es el diseño:
+Este apartado decía lo contrario, y el motivo de que lo dijera era el panel de
+administración: si Bilbao Ekintza iba a editar desde el navegador, `deploy.php`
+tenía que irse, porque el panel guarda en `www/assets/js/data/` y **el
+despliegue pisa exactamente esos cuatro archivos** en cada pasada. Los dos
+juntos significan que cada cambio hecho en el panel desaparece en un cuarto de
+hora, y el registro dice que todo ha ido bien.
 
-- Sirve para que quien desarrolla publique sin subir archivos. Cuando el
-  desarrollo termina, no tiene nada que traer.
-- Y si el repositorio deja de existir —porque estaba en una cuenta personal que
-  se cierra— la tarea fallaría **cada noche, para siempre**, llenando el
-  registro de errores que nadie sabrá interpretar.
+Sin panel, ese conflicto no existe, y `deploy.php` pasa de estorbo a ser la
+única vía que hay: un programador cambia el repositorio y el servidor lo recoge
+solo. Quitarlo dejaría la web congelada para siempre.
 
-Una web que depende de un repositorio que puede desaparecer no está traspasada.
-Una web que ya tiene sus archivos en su servidor, sí.
-
-> **Si el repositorio se transfiere a Bilbao Ekintza** (ver abajo), `deploy.php`
-> puede quedarse: entonces apunta a algo de la entidad y no a algo tuyo. Es la
-> opción mejor, pero es una decisión de ellos, no tuya.
+> **Si algún día se quiere el panel**, hay que hacer las dos cosas a la vez:
+> retirar `deploy.php` del cron **y** copiar la carpeta `admin/` a la web con
+> su `admin-config.php` y su protección de directorio. Una sin la otra no
+> funciona, y falla en silencio.
 
 ---
 
 ## Antes del día del traspaso
 
-### 1 · Decidir qué pasa con el código fuente
+### 1 · El código fuente
 
-El repositorio es el código y el historial: el porqué de cada decisión. La web
-funciona sin él, pero **nadie podrá volver a cambiar el diseño sin él**.
+**Decidido:** el repositorio se queda en la cuenta personal de quien lo ha
+desarrollado, y Bilbao Ekintza recibe **un zip con el proyecto completo**.
 
-| Opción | Qué implica |
-|---|---|
-| **A. Transferir a una organización de GitHub de Bilbao Ekintza** | Lo mejor. Gratis, no se pierde nada, y `deploy.php` puede seguir funcionando |
-| **B. Entregar un archivo del proyecto** | Aceptable. Se pierde el historial. Se guarda donde la entidad archive este material |
-| **C. Dejarlo en la cuenta personal** | **No es una opción.** El día que se cierre, el código desaparece |
+- [x] Decidido
+- [ ] Zip entregado y archivado donde la entidad guarde este material
+- [ ] Entregado por escrito, junto al zip, lo que dice «Lo que esta decisión
+      implica» arriba: que para cambiar algo hace falta un programador, que el
+      despliegue depende de un repositorio ajeno, que la web no se cae si ese
+      repositorio desaparece, y cómo apuntar el servidor a uno nuevo
+      (`git remote set-url` dentro de `repo/`)
 
-- [ ] Decidido: A / B
-- [ ] Ejecutado
+> Mientras el repositorio siga existiendo y siendo accesible, `deploy.php`
+> funciona sin credenciales. Si alguna vez se hace privado, hay que darle al
+> servidor una forma de entrar, o el despliegue empezará a fallar cada noche.
 
 ### 2 · Cerrar las titularidades
 
@@ -92,10 +133,11 @@ depende de terceros, así que se empieza por aquí:
 
 - [ ] **Panel del hosting:** *Panel de acceso → Acceso independiente*, uno por
       persona. No una cuenta compartida
-- [ ] **Panel de edición** (`/admin/`): la contraseña de publicación, en el
-      gestor de contraseñas de la entidad
-- [ ] **Protección de directorios** sobre la carpeta `admin`, con usuario propio
 - [ ] **Meetmaps:** al menos dos personas con acceso
+
+El panel de edición no entra aquí: no se instala. Si algún día se instalara,
+harían falta su contraseña de publicación y una protección de directorio sobre
+la carpeta — ver el recuadro de «La pieza que se queda».
 
 ---
 
@@ -122,9 +164,9 @@ Si sigue en la carpeta de pruebas:
 
 ### 6 · Retirar lo que era tuyo
 
-- [ ] **Elimina la tarea de `deploy.php`** (salvo que se haya transferido el
-      repositorio, opción A)
-- [ ] Comprueba que queda **una sola** tarea programada: la de `sync.php` a las 5
+- [ ] **`deploy.php` se queda.** Comprueba que hay **dos** tareas y en su hora:
+      despliegue a las 4, sincronización a las 5
+- [ ] Comprueba que ninguna lleva `--dry-run` ni `--allow-shrink`
 - [ ] Borra cualquier tarea de comprobación que quedara (`comprobacion.txt`,
       clonado, ensayos)
 - [ ] Si creaste un usuario de FTP para ti, bórralo
@@ -136,10 +178,16 @@ Si sigue en la carpeta de pruebas:
 
 ### 7 · La prueba que cierra el traspaso
 
-Esto es lo único que de verdad demuestra que está hecho:
+Sin panel, la prueba ya no la hace Bilbao Ekintza: la hace el circuito. Lo que
+tiene que demostrarse es que un cambio llega a la web sin que nadie entre en el
+servidor.
 
-- [ ] **Una persona de Bilbao Ekintza, contigo delante mirando y sin ayudarle**,
-      entra en `/admin/`, cambia un texto, lo publica, y lo ve en la web.
+- [ ] Cambia una palabra en el repositorio —desde la página de GitHub, sin
+      clonar nada— y espera a que pase el despliegue
+- [ ] Compruébalo en la web
+- [ ] Hazlo **con alguien de Bilbao Ekintza delante**, para que vea cuánto
+      tarda y qué hay que pedirle a quien se contrate
+- [ ] Y deja escrito a quién se llama cuando haya que cambiar algo
 
 Si eso sale, está traspasado. Si no sale, lo que falta no es un documento: es
 una sesión de media hora con esa persona.
@@ -150,20 +198,18 @@ una sesión de media hora con esa persona.
 
 ## Qué se podrá hacer después, y qué no
 
-**Sin ayuda de nadie, desde `/admin/`:**
+**Sin que nadie haga nada: los expositores.** Una empresa se registra en
+Meetmaps y a la mañana siguiente está publicada con su página, su logotipo y
+sus datos de contacto. Esa parte —la que más se mueve— se mantiene sola.
 
-Textos, titulares, el programa entero, los folletos y sus enlaces, las vías de
-contacto, el pie, el menú, la dirección del botón de Login.
+**Todo lo demás necesita un programador.** Textos, titulares, el programa, los
+folletos, las vías de contacto, el pie, el menú, una fotografía nueva, el
+diseño, una sección más. No hay pantalla de edición: se cambia el repositorio
+y el servidor lo recoge en la siguiente pasada.
 
-**Sin ayuda de nadie, desde el panel del hosting:**
-
-Subir una fotografía o un logotipo nuevo a `assets/img/` y escribir su ruta en
-el panel de edición.
-
-**Solo con ayuda técnica:**
-
-Cambiar el diseño, añadir una sección nueva, o cambiar cómo funciona algo. Para
-eso está el código fuente, y por eso importa dónde acabe.
+Conviene que esto esté claro antes del evento, porque el momento en que más se
+va a querer cambiar algo —una hora del programa, un nombre mal escrito— es la
+semana de antes. Si para entonces no hay nadie contratado, no se podrá.
 
 **Automáticamente, sin que nadie haga nada:**
 
@@ -180,9 +226,9 @@ Los registros están en `/home/matchbilbaobizkaia/logs/cron_logs/` y en
 | Síntoma | Dónde mirar |
 |---|---|
 | No aparecen expositores nuevos | `sync.log`. Si dice que la plataforma rechaza la petición, la clave de Meetmaps ha caducado |
-| El panel de edición no publica | Falta `admin-config.php`, o la carpeta de datos perdió permisos de escritura. El propio panel lo dice |
+| Un cambio del repositorio no aparece en la web | `deploy.txt`. Si dice que no encuentra el repositorio o que falla el `git pull`, es que el repositorio ya no está accesible: ver «Lo que esta decisión implica» |
 | La web no carga | Panel del hosting → *Logs*, y *Herramienta de Diagnóstico* |
-| Se publicó algo por error | Cada archivo de datos guarda su versión anterior como `.bak` en `assets/js/data/` |
+| Se publicó algo por error | El historial del repositorio tiene todas las versiones. Se revierte ahí y el despliegue lo baja solo |
 
 Y la copia de seguridad: panel → **Backups**, y las copias programadas de la
 base de datos si algún día se usa una.
