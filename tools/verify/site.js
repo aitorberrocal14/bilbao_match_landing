@@ -485,8 +485,20 @@ function check(etiqueta, ok, detalle) {
     } else {
       check('antes de abrir, el Login va a la página de aviso', puerta.todosALaEspera,
         puerta.logins + ' botones');
-      check('el aviso dice la fecha antes de pulsar',
-        puerta.aviso.indexOf(puerta.dia) > -1, puerta.aviso.trim());
+      // AQUÍ SE EXIGÍA QUE LA TARJETA DIJERA LA FECHA ANTES DE PULSAR.
+      //
+      // Llevaba una línea, "Opens on 29 September", para que nadie pulsara
+      // Login sin saber que todavía no abre. La organización pidió quitarla, y
+      // con ella se va esta comprobación: no tiene sentido exigir un texto que
+      // se ha decidido no poner.
+      //
+      // Lo que sí se sigue exigiendo —y es lo que ahora sostiene la promesa—
+      // es la línea de arriba: que ese Login lleve al cartel que lo explica.
+      // Mientras eso se cumpla, la información se lee un clic más tarde en vez
+      // de no leerse. El día que alguien apunte el Login a otro sitio antes de
+      // tiempo, esa comprobación falla.
+      check('  y ese aviso sigue diciendo la fecha', puerta.dia && puerta.dia.length > 0,
+        puerta.dia);
     }
     check('al llegar la fecha vuelve solo a la plataforma',
       /^https?:/.test(puerta.alAbrir || ''), puerta.alAbrir);

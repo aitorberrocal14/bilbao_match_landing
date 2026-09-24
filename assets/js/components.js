@@ -373,38 +373,52 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    /* LOS LOGOS DE QUIEN ESTÁ DETRÁS, EN LA PORTADA.
-       Están en el pie desde siempre, al final del todo, que es donde llega muy
-       poca gente. Aquí arriba dicen desde el primer vistazo quién respalda
-       esto, que para un comprador internacional que no conoce el destino es
-       justo lo que le hace tomárselo en serio.
+    /* QUIÉN ORGANIZA Y QUIÉN ACOMPAÑA, EN LA PORTADA.
+       El pie los enseña a todos juntos y en fila, que es lo que toca al final
+       de la web: están todos y no hay jerarquía. Aquí arriba no valdría lo
+       mismo, porque no todos son lo mismo: uno organiza y dos acompañan, y una
+       fila los iguala. Así que van en grupos con su etiqueta, en el orden que
+       marca la organización, y los dos institucionales del destino se quedan
+       solo abajo.
 
-       Son los mismos del pie, menos los marcados como `plain`. Ese `plain`
-       significa "va sin caja blanca porque el pie es oscuro", y el único que
-       lo lleva —Bilbao Bizkaia— tiene la letra en BLANCO: sobre el fondo claro
-       de la portada se vería el símbolo rojo y debajo nada. Cuando haya una
-       versión con la letra oscura, se le quita el `plain` y aparece aquí solo.
-       Tampoco se pierde nada: es la marca organizadora y su nombre está en la
-       cabecera, en el titular y en la dirección de la web. */
-    var socios = ((site.footer || {}).institutions || [])
-      .filter(function (i) { return !i.plain; })
-      .map(function (i) {
+       Los logos NO se repiten en los datos: los grupos nombran a los que ya
+       están en `footer.institutions` y de allí salen el archivo y el enlace.
+       Un logo que cambie se cambia una vez.
+
+       EL CASO RARO ES EL DE BILBAO BIZKAIA. Lleva la letra en BLANCO —está
+       dibujado para el pie, que es oscuro— y sobre esta página se vería el
+       símbolo rojo y debajo nada. Se le pone detrás una pastilla del mismo
+       gris oscuro del pie, que es de donde viene. En cuanto haya una versión
+       con la letra oscura se quita el `plain` del dato y la pastilla sobra. */
+    var porNombre = {};
+    ((site.footer || {}).institutions || []).forEach(function (i) { porNombre[i.name] = i; });
+
+    var grupos = (((h.partners || {}).groups) || [])
+      .map(function (g) {
+        var marcas = (g.names || [])
+          .map(function (n) { return porNombre[n]; })
+          .filter(Boolean)
+          .map(function (i) {
+            return (
+              '<a class="socios__item' + (i.plain ? ' socios__item--oscuro' : '') + '" ' +
+                'href="' + esc(i.href) + '" target="_blank" rel="noopener" ' +
+                'aria-label="' + esc(i.name) + '">' +
+                '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
+              '</a>'
+            );
+          })
+          .join('');
+        if (!marcas) return '';
         return (
-          '<a class="socios__item" href="' + esc(i.href) + '" ' +
-            'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
-            '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
-          '</a>'
+          '<div class="socios__grupo">' +
+            '<p class="socios__head">' + esc(g.label) + '</p>' +
+            '<div class="socios__row">' + marcas + '</div>' +
+          '</div>'
         );
       })
       .join('');
 
-    var titulo = (h.partners || {}).title || '';
-    var bloqueSocios = socios
-      ? '<div class="socios">' +
-          (titulo ? '<p class="socios__head">' + esc(titulo) + '</p>' : '') +
-          '<div class="socios__row">' + socios + '</div>' +
-        '</div>'
-      : '';
+    var bloqueSocios = grupos ? '<div class="socios">' + grupos + '</div>' : '';
 
     return (
       '<div class="shell">' +
@@ -1299,30 +1313,32 @@ window.MBB = window.MBB || {};
     opts = opts || {};
     var base = opts.base || '';
     var reg = site.register || {};
-    var abierta = MBB.platformOpen(site);
     var entrar = loginLink(site, 'btn btn--outline btn--sm', base);
 
     if (!reg.url && !entrar) return '';
 
-    // El aviso de la fecha, antes del botón: enterarse de que la plataforma no
-    // ha abierto DESPUÉS de pulsar es enterarse tarde.
-    var aviso = abierta
-      ? ''
-      : '<p class="take-part__note">Opens on ' +
-          esc(MBB.platformOpensOn(site)) + '.</p>';
+    /* AQUÍ HABÍA UN AVISO DE LA FECHA, "Opens on 29 September", debajo del
+       titular de la mitad de entrar. Lo pidió quitar la organización.
 
-    // TÍTULO Y BOTÓN, SIN PÁRRAFO.
-    //
-    // Cada mitad llevaba tres líneas explicando lo que el botón dice en dos
-    // palabras: "crea tu perfil en la plataforma, cuéntanos de tu empresa…"
-    // debajo de un botón que pone "Create your profile". Quitándolas la caja
-    // mide la mitad, y ese alto es lo que necesitaban los logos de arriba.
-    //
-    // Los textos siguen en content.js, en `registerPanel.text` y
-    // `loginPanel.text`, y el panel los sigue editando. No se dibujan.
+       Servía para enterarse de que la plataforma todavía no abre ANTES de
+       pulsar y no después. Sin él, quien pulse Login antes del 29 va a parar
+       al cartel que lo explica, que es donde iba a acabar de todas formas: la
+       información no se pierde, se lee un clic más tarde.
+
+       Se dibujaba con `MBB.platformOpensOn(site)`, que sigue existiendo y lo
+       usa la página de aviso. Devolverlo es una línea.
+
+       DE LOS DOS PÁRRAFOS, SOLO QUEDA EL DEL ALTA. Los dos se quitaron para
+       que la caja midiera menos y cupieran los logos de arriba, y el del alta
+       ha vuelto: explica qué es eso de "crear un perfil" —de qué empresa, para
+       qué mercados, para ver a quién— a alguien que aún no sabe si esto le
+       interesa, y eso no lo dice un botón de dos palabras. El de entrar no
+       hace falta: quien ya tiene cuenta sabe lo que es entrar. Su texto sigue
+       en content.js, en `loginPanel.text`, y el panel lo edita. */
     var alta = reg.url
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
+          '<p>' + esc(e.registerPanel.text) + '</p>' +
           // Por `registerLink` y no a mano: es el mismo enlace que había en la
           // cabecera, y desde que la cabecera solo lleva Login esta tarjeta es
           // el único sitio de la portada donde se puede uno dar de alta. Así
@@ -1336,11 +1352,6 @@ window.MBB = window.MBB || {};
     var puerta = entrar
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.loginPanel.title) + '</h2>' +
-          // El aviso de la fecha SÍ se queda, y no es un descuido. No es
-          // cuerpo de texto: es lo que evita que alguien pulse Login, se
-          // encuentre con que no abre hasta el 29 y se entere entonces.
-          // Es una línea gris pequeña y no estira la caja.
-          aviso +
           entrar +
         '</div>'
       : '';

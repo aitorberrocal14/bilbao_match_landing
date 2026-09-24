@@ -134,9 +134,13 @@ window.MBB.experts = {
   // La mitad izquierda de la banda roja: para quien todavía no está dentro.
   registerPanel: {
     title: 'Not registered yet?',
+    // Más corto que antes, y dice lo mismo. La frase empezaba por "Create your
+    // profile on the Match Bilbao Bizkaia platform", que es literalmente lo
+    // que pone el botón de debajo y el nombre que hay en el titular de la
+    // página: tres líneas para llegar a lo único que aporta, que es QUÉ te van
+    // a preguntar. Eso es lo que queda.
     text:
-      'Create your profile on the Match Bilbao Bizkaia platform: tell us about ' +
-      'your company, your markets and who you would like to meet.'
+      'Tell us about your company, your markets and who you would like to meet.'
   },
 
   // Y la derecha, para quien ya lo está.

@@ -641,19 +641,35 @@ p:last-child { margin-bottom: 0; }
    detrás sin quitarle la mirada al titular ni a los dos botones de abajo.
    Alineados a la izquierda, sobre el mismo eje que todo lo demás de esta
    columna, y no centrados como en el pie. */
-.socios { margin: 0 0 clamp(1rem, min(2.5vw, 2.5vh), 1.5rem); }
+/* `flex-start` y no `flex-end`: alineados por abajo, los dos grupos quedaban
+   descolgados el uno del otro —su etiqueta a distinta altura— porque los
+   logos que lleva cada uno no miden lo mismo. Alineados por arriba, las dos
+   etiquetas van en la misma línea y las dos filas de logos también. El nivel
+   de los logos dentro de su fila lo iguala la altura fija de `.socios__row`. */
+.socios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin: 0 0 clamp(0.9rem, min(2.2vw, 2.2vh), 1.35rem);
+}
 .socios__head {
-  margin: 0 0 0.7rem;
-  font-size: 0.72rem;
+  margin: 0 0 0.55rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--grey-light);
 }
+/* La banda de altura fija es lo que pone a todos los logos al mismo nivel.
+   Cada marca tiene sus proporciones —una es casi cuadrada, otra apaisada, otra
+   lleva el texto al lado— y sin una banda común cada una se apoyaba donde le
+   tocaba. Ahora todas se centran en la misma franja, midan lo que midan. */
 .socios__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(1rem, 2.2vw, 1.75rem);
+  min-height: 52px;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
 }
 .socios__item {
   display: grid;
@@ -661,11 +677,31 @@ p:last-child { margin-bottom: 0; }
   transition: opacity 0.25s var(--ease);
 }
 .socios__item:hover { opacity: 0.7; }
-.socios__item img { height: 42px; width: auto; }
+/* Por alto y con un tope de ancho: a igualdad de altura, una marca apaisada
+   como Wizz Air ocupa el triple de superficie que una cuadrada y se come a
+   las demás. El tope la sujeta sin deformarla —`object-fit: contain`— y deja
+   los tres pesos parecidos. */
+.socios__item img {
+  height: 38px;
+  width: auto;
+  max-width: 128px;
+  object-fit: contain;
+}
+
+/* La pastilla oscura del logo organizador. Su letra es blanca —viene dibujado
+   para el pie— y sobre esta página se vería el símbolo y debajo nada. El gris
+   es el mismo del pie, así que no es un parche: es el fondo para el que la
+   marca está hecha, recortado a su tamaño. */
+.socios__item--oscuro {
+  background: var(--charcoal);
+  padding: 0.45rem 0.7rem;
+}
+.socios__item--oscuro img { height: 46px; }
 
 @media (max-width: 560px) {
-  .socios__item img { height: 34px; }
-  .socios__row { gap: 1rem 1.25rem; }
+  .socios { gap: 1.1rem 1.5rem; }
+  .socios__item img { height: 31px; }
+  .socios__item--oscuro img { height: 38px; }
 }
 
 .hero__media {
@@ -2554,12 +2590,29 @@ window.MBB.site = {
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
-    // El titulillo de encima de los logos de la portada. Son los mismos del
-    // pie, menos los marcados `plain` —ver el comentario en components.js—.
-    // PROVISIONAL: a falta del texto definitivo, se pone el que se usa en la
-    // web institucional. Cambiarlo aquí lo cambia en la portada.
+    // LOS LOGOS DE LA PORTADA, POR GRUPOS.
+    //
+    // No son los mismos que los del pie ni van igual. Abajo están todos y en
+    // una sola fila, que es lo que toca al cerrar la web. Aquí arriba solo van
+    // estos tres y separados por lo que son: quien organiza no es lo mismo que
+    // quien acompaña, y una fila corrida los iguala. Euskadi y el Gobierno
+    // Vasco se quedan solo en el pie.
+    //
+    // Los logos no se escriben aquí: se nombran, y el archivo y el enlace
+    // salen de `footer.institutions`, más abajo en este mismo archivo. Los
+    // nombres tienen que coincidir palabra por palabra con los de allí; uno
+    // que no coincida no se dibuja, en vez de dibujar un hueco roto.
+    //
+    // El orden de los grupos y el de los logos dentro de cada grupo es el que
+    // se ve en la página, así que cambiarlo aquí es cambiarlo en la portada.
     partners: {
-      title: 'With the collaboration of'
+      groups: [
+        { label: 'Organizer', names: ['Bilbao Bizkaia'] },
+        {
+          label: 'Strategic Partners',
+          names: ['In cooperation with Spain', 'Wizz Air']
+        }
+      ]
     },
     // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
     //
@@ -2850,9 +2903,13 @@ window.MBB.experts = {
   // La mitad izquierda de la banda roja: para quien todavía no está dentro.
   registerPanel: {
     title: 'Not registered yet?',
+    // Más corto que antes, y dice lo mismo. La frase empezaba por "Create your
+    // profile on the Match Bilbao Bizkaia platform", que es literalmente lo
+    // que pone el botón de debajo y el nombre que hay en el titular de la
+    // página: tres líneas para llegar a lo único que aporta, que es QUÉ te van
+    // a preguntar. Eso es lo que queda.
     text:
-      'Create your profile on the Match Bilbao Bizkaia platform: tell us about ' +
-      'your company, your markets and who you would like to meet.'
+      'Tell us about your company, your markets and who you would like to meet.'
   },
 
   // Y la derecha, para quien ya lo está.
@@ -3884,38 +3941,52 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
-    /* LOS LOGOS DE QUIEN ESTÁ DETRÁS, EN LA PORTADA.
-       Están en el pie desde siempre, al final del todo, que es donde llega muy
-       poca gente. Aquí arriba dicen desde el primer vistazo quién respalda
-       esto, que para un comprador internacional que no conoce el destino es
-       justo lo que le hace tomárselo en serio.
+    /* QUIÉN ORGANIZA Y QUIÉN ACOMPAÑA, EN LA PORTADA.
+       El pie los enseña a todos juntos y en fila, que es lo que toca al final
+       de la web: están todos y no hay jerarquía. Aquí arriba no valdría lo
+       mismo, porque no todos son lo mismo: uno organiza y dos acompañan, y una
+       fila los iguala. Así que van en grupos con su etiqueta, en el orden que
+       marca la organización, y los dos institucionales del destino se quedan
+       solo abajo.
 
-       Son los mismos del pie, menos los marcados como `plain`. Ese `plain`
-       significa "va sin caja blanca porque el pie es oscuro", y el único que
-       lo lleva —Bilbao Bizkaia— tiene la letra en BLANCO: sobre el fondo claro
-       de la portada se vería el símbolo rojo y debajo nada. Cuando haya una
-       versión con la letra oscura, se le quita el `plain` y aparece aquí solo.
-       Tampoco se pierde nada: es la marca organizadora y su nombre está en la
-       cabecera, en el titular y en la dirección de la web. */
-    var socios = ((site.footer || {}).institutions || [])
-      .filter(function (i) { return !i.plain; })
-      .map(function (i) {
+       Los logos NO se repiten en los datos: los grupos nombran a los que ya
+       están en `footer.institutions` y de allí salen el archivo y el enlace.
+       Un logo que cambie se cambia una vez.
+
+       EL CASO RARO ES EL DE BILBAO BIZKAIA. Lleva la letra en BLANCO —está
+       dibujado para el pie, que es oscuro— y sobre esta página se vería el
+       símbolo rojo y debajo nada. Se le pone detrás una pastilla del mismo
+       gris oscuro del pie, que es de donde viene. En cuanto haya una versión
+       con la letra oscura se quita el `plain` del dato y la pastilla sobra. */
+    var porNombre = {};
+    ((site.footer || {}).institutions || []).forEach(function (i) { porNombre[i.name] = i; });
+
+    var grupos = (((h.partners || {}).groups) || [])
+      .map(function (g) {
+        var marcas = (g.names || [])
+          .map(function (n) { return porNombre[n]; })
+          .filter(Boolean)
+          .map(function (i) {
+            return (
+              '<a class="socios__item' + (i.plain ? ' socios__item--oscuro' : '') + '" ' +
+                'href="' + esc(i.href) + '" target="_blank" rel="noopener" ' +
+                'aria-label="' + esc(i.name) + '">' +
+                '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
+              '</a>'
+            );
+          })
+          .join('');
+        if (!marcas) return '';
         return (
-          '<a class="socios__item" href="' + esc(i.href) + '" ' +
-            'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
-            '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
-          '</a>'
+          '<div class="socios__grupo">' +
+            '<p class="socios__head">' + esc(g.label) + '</p>' +
+            '<div class="socios__row">' + marcas + '</div>' +
+          '</div>'
         );
       })
       .join('');
 
-    var titulo = (h.partners || {}).title || '';
-    var bloqueSocios = socios
-      ? '<div class="socios">' +
-          (titulo ? '<p class="socios__head">' + esc(titulo) + '</p>' : '') +
-          '<div class="socios__row">' + socios + '</div>' +
-        '</div>'
-      : '';
+    var bloqueSocios = grupos ? '<div class="socios">' + grupos + '</div>' : '';
 
     return (
       '<div class="shell">' +
@@ -4810,30 +4881,32 @@ window.MBB = window.MBB || {};
     opts = opts || {};
     var base = opts.base || '';
     var reg = site.register || {};
-    var abierta = MBB.platformOpen(site);
     var entrar = loginLink(site, 'btn btn--outline btn--sm', base);
 
     if (!reg.url && !entrar) return '';
 
-    // El aviso de la fecha, antes del botón: enterarse de que la plataforma no
-    // ha abierto DESPUÉS de pulsar es enterarse tarde.
-    var aviso = abierta
-      ? ''
-      : '<p class="take-part__note">Opens on ' +
-          esc(MBB.platformOpensOn(site)) + '.</p>';
+    /* AQUÍ HABÍA UN AVISO DE LA FECHA, "Opens on 29 September", debajo del
+       titular de la mitad de entrar. Lo pidió quitar la organización.
 
-    // TÍTULO Y BOTÓN, SIN PÁRRAFO.
-    //
-    // Cada mitad llevaba tres líneas explicando lo que el botón dice en dos
-    // palabras: "crea tu perfil en la plataforma, cuéntanos de tu empresa…"
-    // debajo de un botón que pone "Create your profile". Quitándolas la caja
-    // mide la mitad, y ese alto es lo que necesitaban los logos de arriba.
-    //
-    // Los textos siguen en content.js, en `registerPanel.text` y
-    // `loginPanel.text`, y el panel los sigue editando. No se dibujan.
+       Servía para enterarse de que la plataforma todavía no abre ANTES de
+       pulsar y no después. Sin él, quien pulse Login antes del 29 va a parar
+       al cartel que lo explica, que es donde iba a acabar de todas formas: la
+       información no se pierde, se lee un clic más tarde.
+
+       Se dibujaba con `MBB.platformOpensOn(site)`, que sigue existiendo y lo
+       usa la página de aviso. Devolverlo es una línea.
+
+       DE LOS DOS PÁRRAFOS, SOLO QUEDA EL DEL ALTA. Los dos se quitaron para
+       que la caja midiera menos y cupieran los logos de arriba, y el del alta
+       ha vuelto: explica qué es eso de "crear un perfil" —de qué empresa, para
+       qué mercados, para ver a quién— a alguien que aún no sabe si esto le
+       interesa, y eso no lo dice un botón de dos palabras. El de entrar no
+       hace falta: quien ya tiene cuenta sabe lo que es entrar. Su texto sigue
+       en content.js, en `loginPanel.text`, y el panel lo edita. */
     var alta = reg.url
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
+          '<p>' + esc(e.registerPanel.text) + '</p>' +
           // Por `registerLink` y no a mano: es el mismo enlace que había en la
           // cabecera, y desde que la cabecera solo lleva Login esta tarjeta es
           // el único sitio de la portada donde se puede uno dar de alta. Así
@@ -4847,11 +4920,6 @@ window.MBB = window.MBB || {};
     var puerta = entrar
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.loginPanel.title) + '</h2>' +
-          // El aviso de la fecha SÍ se queda, y no es un descuido. No es
-          // cuerpo de texto: es lo que evita que alguien pulse Login, se
-          // encuentre con que no abre hasta el 29 y se entere entonces.
-          // Es una línea gris pequeña y no estira la caja.
-          aviso +
           entrar +
         '</div>'
       : '';

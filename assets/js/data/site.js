@@ -103,12 +103,29 @@ window.MBB.site = {
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
-    // El titulillo de encima de los logos de la portada. Son los mismos del
-    // pie, menos los marcados `plain` —ver el comentario en components.js—.
-    // PROVISIONAL: a falta del texto definitivo, se pone el que se usa en la
-    // web institucional. Cambiarlo aquí lo cambia en la portada.
+    // LOS LOGOS DE LA PORTADA, POR GRUPOS.
+    //
+    // No son los mismos que los del pie ni van igual. Abajo están todos y en
+    // una sola fila, que es lo que toca al cerrar la web. Aquí arriba solo van
+    // estos tres y separados por lo que son: quien organiza no es lo mismo que
+    // quien acompaña, y una fila corrida los iguala. Euskadi y el Gobierno
+    // Vasco se quedan solo en el pie.
+    //
+    // Los logos no se escriben aquí: se nombran, y el archivo y el enlace
+    // salen de `footer.institutions`, más abajo en este mismo archivo. Los
+    // nombres tienen que coincidir palabra por palabra con los de allí; uno
+    // que no coincida no se dibuja, en vez de dibujar un hueco roto.
+    //
+    // El orden de los grupos y el de los logos dentro de cada grupo es el que
+    // se ve en la página, así que cambiarlo aquí es cambiarlo en la portada.
     partners: {
-      title: 'With the collaboration of'
+      groups: [
+        { label: 'Organizer', names: ['Bilbao Bizkaia'] },
+        {
+          label: 'Strategic Partners',
+          names: ['In cooperation with Spain', 'Wizz Air']
+        }
+      ]
     },
     // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
     //

@@ -567,19 +567,35 @@ p:last-child { margin-bottom: 0; }
    detrás sin quitarle la mirada al titular ni a los dos botones de abajo.
    Alineados a la izquierda, sobre el mismo eje que todo lo demás de esta
    columna, y no centrados como en el pie. */
-.socios { margin: 0 0 clamp(1rem, min(2.5vw, 2.5vh), 1.5rem); }
+/* `flex-start` y no `flex-end`: alineados por abajo, los dos grupos quedaban
+   descolgados el uno del otro —su etiqueta a distinta altura— porque los
+   logos que lleva cada uno no miden lo mismo. Alineados por arriba, las dos
+   etiquetas van en la misma línea y las dos filas de logos también. El nivel
+   de los logos dentro de su fila lo iguala la altura fija de `.socios__row`. */
+.socios {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(1.25rem, 3vw, 2.5rem);
+  margin: 0 0 clamp(0.9rem, min(2.2vw, 2.2vh), 1.35rem);
+}
 .socios__head {
-  margin: 0 0 0.7rem;
-  font-size: 0.72rem;
+  margin: 0 0 0.55rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--grey-light);
 }
+/* La banda de altura fija es lo que pone a todos los logos al mismo nivel.
+   Cada marca tiene sus proporciones —una es casi cuadrada, otra apaisada, otra
+   lleva el texto al lado— y sin una banda común cada una se apoyaba donde le
+   tocaba. Ahora todas se centran en la misma franja, midan lo que midan. */
 .socios__row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: clamp(1rem, 2.2vw, 1.75rem);
+  min-height: 52px;
+  gap: clamp(0.9rem, 2vw, 1.5rem);
 }
 .socios__item {
   display: grid;
@@ -587,11 +603,31 @@ p:last-child { margin-bottom: 0; }
   transition: opacity 0.25s var(--ease);
 }
 .socios__item:hover { opacity: 0.7; }
-.socios__item img { height: 42px; width: auto; }
+/* Por alto y con un tope de ancho: a igualdad de altura, una marca apaisada
+   como Wizz Air ocupa el triple de superficie que una cuadrada y se come a
+   las demás. El tope la sujeta sin deformarla —`object-fit: contain`— y deja
+   los tres pesos parecidos. */
+.socios__item img {
+  height: 38px;
+  width: auto;
+  max-width: 128px;
+  object-fit: contain;
+}
+
+/* La pastilla oscura del logo organizador. Su letra es blanca —viene dibujado
+   para el pie— y sobre esta página se vería el símbolo y debajo nada. El gris
+   es el mismo del pie, así que no es un parche: es el fondo para el que la
+   marca está hecha, recortado a su tamaño. */
+.socios__item--oscuro {
+  background: var(--charcoal);
+  padding: 0.45rem 0.7rem;
+}
+.socios__item--oscuro img { height: 46px; }
 
 @media (max-width: 560px) {
-  .socios__item img { height: 34px; }
-  .socios__row { gap: 1rem 1.25rem; }
+  .socios { gap: 1.1rem 1.5rem; }
+  .socios__item img { height: 31px; }
+  .socios__item--oscuro img { height: 38px; }
 }
 
 .hero__media {
