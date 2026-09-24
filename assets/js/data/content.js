@@ -146,9 +146,12 @@ window.MBB.experts = {
   // Y la derecha, para quien ya lo está.
   loginPanel: {
     title: 'Already registered?',
+    // Recortado por el mismo motivo que el del alta: acababa en "on the Match
+    // Bilbao Bizkaia platform", que es el nombre que ya está en el titular de
+    // la página, en la cabecera y en la dirección. Queda lo que aporta, que es
+    // QUÉ hay ahí dentro esperándote.
     text:
-      'Access your profile, your availability and your confirmed meeting ' +
-      'agenda on the Match Bilbao Bizkaia platform.',
+      'Access your profile, your availability and your confirmed meeting agenda.',
     help: 'Need help signing in? Write to welcome@matchbilbaobizkaia.eus'
   },
   // El directorio ya no lleva titular ni texto propios: los dice la sección,

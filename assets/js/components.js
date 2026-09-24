@@ -1335,13 +1335,13 @@ window.MBB = window.MBB || {};
        Se dibujaba con `MBB.platformOpensOn(site)`, que sigue existiendo y lo
        usa la página de aviso. Devolverlo es una línea.
 
-       DE LOS DOS PÁRRAFOS, SOLO QUEDA EL DEL ALTA. Los dos se quitaron para
-       que la caja midiera menos y cupieran los logos de arriba, y el del alta
-       ha vuelto: explica qué es eso de "crear un perfil" —de qué empresa, para
-       qué mercados, para ver a quién— a alguien que aún no sabe si esto le
-       interesa, y eso no lo dice un botón de dos palabras. El de entrar no
-       hace falta: quien ya tiene cuenta sabe lo que es entrar. Su texto sigue
-       en content.js, en `loginPanel.text`, y el panel lo edita. */
+       LOS DOS PÁRRAFOS ESTÁN, Y LOS DOS SON CORTOS. Se quitaron enteros para
+       que la caja midiera menos y cupieran los logos de arriba, y han vuelto
+       recortados: uno dice qué te van a preguntar al darte de alta y el otro
+       qué te espera dentro si ya tienes cuenta. Los dos acababan nombrando
+       "the Match Bilbao Bizkaia platform", que es lo que ya pone el titular de
+       la página, la cabecera y la dirección; sin esa coletilla caben en dos
+       líneas y las dos mitades pesan lo mismo. */
     var alta = reg.url
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
@@ -1359,6 +1359,7 @@ window.MBB = window.MBB || {};
     var puerta = entrar
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.loginPanel.title) + '</h2>' +
+          '<p>' + esc(e.loginPanel.text) + '</p>' +
           entrar +
         '</div>'
       : '';
