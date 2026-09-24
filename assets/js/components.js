@@ -373,6 +373,39 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    /* LOS LOGOS DE QUIEN ESTÁ DETRÁS, EN LA PORTADA.
+       Están en el pie desde siempre, al final del todo, que es donde llega muy
+       poca gente. Aquí arriba dicen desde el primer vistazo quién respalda
+       esto, que para un comprador internacional que no conoce el destino es
+       justo lo que le hace tomárselo en serio.
+
+       Son los mismos del pie, menos los marcados como `plain`. Ese `plain`
+       significa "va sin caja blanca porque el pie es oscuro", y el único que
+       lo lleva —Bilbao Bizkaia— tiene la letra en BLANCO: sobre el fondo claro
+       de la portada se vería el símbolo rojo y debajo nada. Cuando haya una
+       versión con la letra oscura, se le quita el `plain` y aparece aquí solo.
+       Tampoco se pierde nada: es la marca organizadora y su nombre está en la
+       cabecera, en el titular y en la dirección de la web. */
+    var socios = ((site.footer || {}).institutions || [])
+      .filter(function (i) { return !i.plain; })
+      .map(function (i) {
+        return (
+          '<a class="socios__item" href="' + esc(i.href) + '" ' +
+            'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
+            '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
+          '</a>'
+        );
+      })
+      .join('');
+
+    var titulo = (h.partners || {}).title || '';
+    var bloqueSocios = socios
+      ? '<div class="socios">' +
+          (titulo ? '<p class="socios__head">' + esc(titulo) + '</p>' : '') +
+          '<div class="socios__row">' + socios + '</div>' +
+        '</div>'
+      : '';
+
     return (
       '<div class="shell">' +
         '<div class="hero__inner">' +
@@ -381,7 +414,12 @@ window.MBB = window.MBB || {};
             '<h1 class="h-hero hero__title">' + esc(h.title) +
               ' <span class="yr">' + esc(h.titleYear) + '</span></h1>' +
             '<p class="hero__subtitle">' + esc(h.subtitle) + '</p>' +
-            '<p class="hero__lead lead">' + esc(h.lead) + '</p>' +
+            // AQUÍ IBA `h.lead`, el párrafo de "Four days of curated B2B
+            // meetings…". Decía lo mismo que la línea de encima con más
+            // palabras, y ocupaba el sitio donde ahora están los logos de
+            // quien respalda el evento. El texto sigue en site.js por si
+            // alguna vez hace falta: simplemente no se dibuja.
+            bloqueSocios +
             (ctas ? '<div class="hero__ctas">' + ctas + '</div>' : '') +
             (opts.banda || '') +
           '</div>' +
@@ -1273,10 +1311,18 @@ window.MBB = window.MBB || {};
       : '<p class="take-part__note">Opens on ' +
           esc(MBB.platformOpensOn(site)) + '.</p>';
 
+    // TÍTULO Y BOTÓN, SIN PÁRRAFO.
+    //
+    // Cada mitad llevaba tres líneas explicando lo que el botón dice en dos
+    // palabras: "crea tu perfil en la plataforma, cuéntanos de tu empresa…"
+    // debajo de un botón que pone "Create your profile". Quitándolas la caja
+    // mide la mitad, y ese alto es lo que necesitaban los logos de arriba.
+    //
+    // Los textos siguen en content.js, en `registerPanel.text` y
+    // `loginPanel.text`, y el panel los sigue editando. No se dibujan.
     var alta = reg.url
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
-          '<p>' + esc(e.registerPanel.text) + '</p>' +
           // Por `registerLink` y no a mano: es el mismo enlace que había en la
           // cabecera, y desde que la cabecera solo lleva Login esta tarjeta es
           // el único sitio de la portada donde se puede uno dar de alta. Así
@@ -1290,7 +1336,10 @@ window.MBB = window.MBB || {};
     var puerta = entrar
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.loginPanel.title) + '</h2>' +
-          '<p>' + esc(e.loginPanel.text) + '</p>' +
+          // El aviso de la fecha SÍ se queda, y no es un descuido. No es
+          // cuerpo de texto: es lo que evita que alguien pulse Login, se
+          // encuentre con que no abre hasta el 29 y se entere entonces.
+          // Es una línea gris pequeña y no estira la caja.
           aviso +
           entrar +
         '</div>'

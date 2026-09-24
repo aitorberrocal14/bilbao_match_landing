@@ -558,6 +558,42 @@ p:last-child { margin-bottom: 0; }
 .hero__lead { max-width: 56ch; margin-bottom: 1.25rem; }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 
+/* LOS LOGOS DE QUIEN RESPALDA EL EVENTO, EN LA PORTADA.
+   Los mismos del pie, pero aquí el fondo es claro y no hace falta la caja
+   blanca que allí los despega del gris oscuro: van sueltos sobre la página.
+
+   Más pequeños que en el pie —42px contra 56— porque aquí no son el cierre de
+   la web sino una nota al pie de la entrada: tienen que decir quién está
+   detrás sin quitarle la mirada al titular ni a los dos botones de abajo.
+   Alineados a la izquierda, sobre el mismo eje que todo lo demás de esta
+   columna, y no centrados como en el pie. */
+.socios { margin: 0 0 clamp(1rem, min(2.5vw, 2.5vh), 1.5rem); }
+.socios__head {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+.socios__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+}
+.socios__item {
+  display: grid;
+  place-items: center;
+  transition: opacity 0.25s var(--ease);
+}
+.socios__item:hover { opacity: 0.7; }
+.socios__item img { height: 42px; width: auto; }
+
+@media (max-width: 560px) {
+  .socios__item img { height: 34px; }
+  .socios__row { gap: 1rem 1.25rem; }
+}
+
 .hero__media {
   position: relative;
   border-radius: 4px;
@@ -1356,7 +1392,11 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(0.85rem, 2vw, 1.4rem);
-  align-items: start;
+  /* `stretch` y no `start`: las dos mitades ya no tienen la misma altura de
+     contenido —la de entrar lleva encima el aviso de la fecha y la del alta
+     no— y arrimadas arriba los dos botones quedaban a distinta altura, que en
+     dos cosas que se ofrecen a la vez se lee como un descuido. */
+  align-items: stretch;
 }
 .take-part__half { display: flex; flex-direction: column; align-items: flex-start; }
 /* La raya va entre las dos, nunca antes de la primera. */
@@ -1375,11 +1415,20 @@ p:last-child { margin-bottom: 0; }
   line-height: 1.45;
   color: var(--grey);
 }
-.take-part .btn { margin-top: 0.7rem; }
+/* `auto` y no una medida fija: empuja el botón al fondo de su mitad, y como
+   las dos mitades miden lo mismo, los dos botones se apoyan en la misma línea
+   por mucho que una lleve encima el aviso de la fecha y la otra no. Con dos
+   márgenes fijos quedaban a distinta altura, que en dos cosas ofrecidas a la
+   vez se lee como un descuido.
+
+   `auto` solo añade el hueco que sobra, y en la mitad más alta no sobra nada
+   —ahí el hueco lo pone el margen de abajo del aviso, unas líneas más abajo—.
+   Por eso ese margen existe: es el suelo del que `auto` no puede bajar. */
+.take-part .btn { margin-top: auto; }
 /* El aviso de la fecha: una línea, sin pastilla ni borde. A este tamaño, un
    recuadro más es ruido. */
 .take-part__note {
-  margin-top: 0.55rem !important;
+  margin: 0.55rem 0 0.7rem !important;
   font-size: 0.74rem !important;
   color: var(--grey-light) !important;
 }

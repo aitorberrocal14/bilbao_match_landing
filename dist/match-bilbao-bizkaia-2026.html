@@ -632,6 +632,42 @@ p:last-child { margin-bottom: 0; }
 .hero__lead { max-width: 56ch; margin-bottom: 1.25rem; }
 .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; }
 
+/* LOS LOGOS DE QUIEN RESPALDA EL EVENTO, EN LA PORTADA.
+   Los mismos del pie, pero aquí el fondo es claro y no hace falta la caja
+   blanca que allí los despega del gris oscuro: van sueltos sobre la página.
+
+   Más pequeños que en el pie —42px contra 56— porque aquí no son el cierre de
+   la web sino una nota al pie de la entrada: tienen que decir quién está
+   detrás sin quitarle la mirada al titular ni a los dos botones de abajo.
+   Alineados a la izquierda, sobre el mismo eje que todo lo demás de esta
+   columna, y no centrados como en el pie. */
+.socios { margin: 0 0 clamp(1rem, min(2.5vw, 2.5vh), 1.5rem); }
+.socios__head {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--grey-light);
+}
+.socios__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(1rem, 2.2vw, 1.75rem);
+}
+.socios__item {
+  display: grid;
+  place-items: center;
+  transition: opacity 0.25s var(--ease);
+}
+.socios__item:hover { opacity: 0.7; }
+.socios__item img { height: 42px; width: auto; }
+
+@media (max-width: 560px) {
+  .socios__item img { height: 34px; }
+  .socios__row { gap: 1rem 1.25rem; }
+}
+
 .hero__media {
   position: relative;
   border-radius: 4px;
@@ -1430,7 +1466,11 @@ p:last-child { margin-bottom: 0; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(0.85rem, 2vw, 1.4rem);
-  align-items: start;
+  /* `stretch` y no `start`: las dos mitades ya no tienen la misma altura de
+     contenido —la de entrar lleva encima el aviso de la fecha y la del alta
+     no— y arrimadas arriba los dos botones quedaban a distinta altura, que en
+     dos cosas que se ofrecen a la vez se lee como un descuido. */
+  align-items: stretch;
 }
 .take-part__half { display: flex; flex-direction: column; align-items: flex-start; }
 /* La raya va entre las dos, nunca antes de la primera. */
@@ -1449,11 +1489,20 @@ p:last-child { margin-bottom: 0; }
   line-height: 1.45;
   color: var(--grey);
 }
-.take-part .btn { margin-top: 0.7rem; }
+/* `auto` y no una medida fija: empuja el botón al fondo de su mitad, y como
+   las dos mitades miden lo mismo, los dos botones se apoyan en la misma línea
+   por mucho que una lleve encima el aviso de la fecha y la otra no. Con dos
+   márgenes fijos quedaban a distinta altura, que en dos cosas ofrecidas a la
+   vez se lee como un descuido.
+
+   `auto` solo añade el hueco que sobra, y en la mitad más alta no sobra nada
+   —ahí el hueco lo pone el margen de abajo del aviso, unas líneas más abajo—.
+   Por eso ese margen existe: es el suelo del que `auto` no puede bajar. */
+.take-part .btn { margin-top: auto; }
 /* El aviso de la fecha: una línea, sin pastilla ni borde. A este tamaño, un
    recuadro más es ruido. */
 .take-part__note {
-  margin-top: 0.55rem !important;
+  margin: 0.55rem 0 0.7rem !important;
   font-size: 0.74rem !important;
   color: var(--grey-light) !important;
 }
@@ -2497,10 +2546,21 @@ window.MBB.site = {
     titleYear: '2026',
     subtitle:
       'The official professional meeting point of the Bilbao Bizkaia destination.',
+    // ESTE PÁRRAFO YA NO SE DIBUJA. Decía lo mismo que la línea de arriba con
+    // más palabras, y su sitio lo ocupan ahora los logos de quien respalda el
+    // evento. Se queda escrito porque recuperarlo es volver a ponerlo en
+    // components.js, y porque el panel lo sigue editando.
     lead:
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
+    // El titulillo de encima de los logos de la portada. Son los mismos del
+    // pie, menos los marcados `plain` —ver el comentario en components.js—.
+    // PROVISIONAL: a falta del texto definitivo, se pone el que se usa en la
+    // web institucional. Cambiarlo aquí lo cambia en la portada.
+    partners: {
+      title: 'With the collaboration of'
+    },
     // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
     //
     // Eran "Explore the event" y "Meet BB's Experts", y llevaban a secciones
@@ -3824,6 +3884,39 @@ window.MBB = window.MBB || {};
       })
       .join('');
 
+    /* LOS LOGOS DE QUIEN ESTÁ DETRÁS, EN LA PORTADA.
+       Están en el pie desde siempre, al final del todo, que es donde llega muy
+       poca gente. Aquí arriba dicen desde el primer vistazo quién respalda
+       esto, que para un comprador internacional que no conoce el destino es
+       justo lo que le hace tomárselo en serio.
+
+       Son los mismos del pie, menos los marcados como `plain`. Ese `plain`
+       significa "va sin caja blanca porque el pie es oscuro", y el único que
+       lo lleva —Bilbao Bizkaia— tiene la letra en BLANCO: sobre el fondo claro
+       de la portada se vería el símbolo rojo y debajo nada. Cuando haya una
+       versión con la letra oscura, se le quita el `plain` y aparece aquí solo.
+       Tampoco se pierde nada: es la marca organizadora y su nombre está en la
+       cabecera, en el titular y en la dirección de la web. */
+    var socios = ((site.footer || {}).institutions || [])
+      .filter(function (i) { return !i.plain; })
+      .map(function (i) {
+        return (
+          '<a class="socios__item" href="' + esc(i.href) + '" ' +
+            'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
+            '<img src="' + esc(i.file) + '" alt="' + esc(i.name) + '" loading="lazy">' +
+          '</a>'
+        );
+      })
+      .join('');
+
+    var titulo = (h.partners || {}).title || '';
+    var bloqueSocios = socios
+      ? '<div class="socios">' +
+          (titulo ? '<p class="socios__head">' + esc(titulo) + '</p>' : '') +
+          '<div class="socios__row">' + socios + '</div>' +
+        '</div>'
+      : '';
+
     return (
       '<div class="shell">' +
         '<div class="hero__inner">' +
@@ -3832,7 +3925,12 @@ window.MBB = window.MBB || {};
             '<h1 class="h-hero hero__title">' + esc(h.title) +
               ' <span class="yr">' + esc(h.titleYear) + '</span></h1>' +
             '<p class="hero__subtitle">' + esc(h.subtitle) + '</p>' +
-            '<p class="hero__lead lead">' + esc(h.lead) + '</p>' +
+            // AQUÍ IBA `h.lead`, el párrafo de "Four days of curated B2B
+            // meetings…". Decía lo mismo que la línea de encima con más
+            // palabras, y ocupaba el sitio donde ahora están los logos de
+            // quien respalda el evento. El texto sigue en site.js por si
+            // alguna vez hace falta: simplemente no se dibuja.
+            bloqueSocios +
             (ctas ? '<div class="hero__ctas">' + ctas + '</div>' : '') +
             (opts.banda || '') +
           '</div>' +
@@ -4724,10 +4822,18 @@ window.MBB = window.MBB || {};
       : '<p class="take-part__note">Opens on ' +
           esc(MBB.platformOpensOn(site)) + '.</p>';
 
+    // TÍTULO Y BOTÓN, SIN PÁRRAFO.
+    //
+    // Cada mitad llevaba tres líneas explicando lo que el botón dice en dos
+    // palabras: "crea tu perfil en la plataforma, cuéntanos de tu empresa…"
+    // debajo de un botón que pone "Create your profile". Quitándolas la caja
+    // mide la mitad, y ese alto es lo que necesitaban los logos de arriba.
+    //
+    // Los textos siguen en content.js, en `registerPanel.text` y
+    // `loginPanel.text`, y el panel los sigue editando. No se dibujan.
     var alta = reg.url
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.registerPanel.title) + '</h2>' +
-          '<p>' + esc(e.registerPanel.text) + '</p>' +
           // Por `registerLink` y no a mano: es el mismo enlace que había en la
           // cabecera, y desde que la cabecera solo lleva Login esta tarjeta es
           // el único sitio de la portada donde se puede uno dar de alta. Así
@@ -4741,7 +4847,10 @@ window.MBB = window.MBB || {};
     var puerta = entrar
       ? '<div class="take-part__half">' +
           '<h2>' + esc(e.loginPanel.title) + '</h2>' +
-          '<p>' + esc(e.loginPanel.text) + '</p>' +
+          // El aviso de la fecha SÍ se queda, y no es un descuido. No es
+          // cuerpo de texto: es lo que evita que alguien pulse Login, se
+          // encuentre con que no abre hasta el 29 y se entere entonces.
+          // Es una línea gris pequeña y no estira la caja.
           aviso +
           entrar +
         '</div>'

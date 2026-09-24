@@ -95,10 +95,21 @@ window.MBB.site = {
     titleYear: '2026',
     subtitle:
       'The official professional meeting point of the Bilbao Bizkaia destination.',
+    // ESTE PÁRRAFO YA NO SE DIBUJA. Decía lo mismo que la línea de arriba con
+    // más palabras, y su sitio lo ocupan ahora los logos de quien respalda el
+    // evento. Se queda escrito porque recuperarlo es volver a ponerlo en
+    // components.js, y porque el panel lo sigue editando.
     lead:
       'Four days of curated B2B meetings, destination knowledge and shared ' +
       'discovery, bringing international buyers together with the tourism ' +
       'professionals who know Bilbao Bizkaia best.',
+    // El titulillo de encima de los logos de la portada. Son los mismos del
+    // pie, menos los marcados `plain` —ver el comentario en components.js—.
+    // PROVISIONAL: a falta del texto definitivo, se pone el que se usa en la
+    // web institucional. Cambiarlo aquí lo cambia en la portada.
+    partners: {
+      title: 'With the collaboration of'
+    },
     // LOS DOS BOTONES DE LA PORTADA. VACÍOS A PROPÓSITO.
     //
     // Eran "Explore the event" y "Meet BB's Experts", y llevaban a secciones
