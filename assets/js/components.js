@@ -385,11 +385,11 @@ window.MBB = window.MBB || {};
        están en `footer.institutions` y de allí salen el archivo y el enlace.
        Un logo que cambie se cambia una vez.
 
-       EL CASO RARO ES EL DE BILBAO BIZKAIA. El archivo del pie lleva la letra
-       en BLANCO —está dibujado para ese fondo oscuro— y aquí se vería el
-       símbolo rojo y debajo nada. Por eso el dato puede traer un `fileLight`:
-       el mismo logotipo con la letra en negro, que es el que se usa aquí. Los
-       que no lo traen usan su archivo de siempre en los dos sitios. */
+       Cada marca trae un solo archivo y sirve en los dos sitios: aquí sobre
+       la página y abajo dentro de su caja blanca. Hubo un rato en que la de
+       Bilbao Bizkaia necesitaba dos —la del pie llevaba la letra en blanco y
+       aquí no se habría leído—, y se acabó cuando llegó la versión horizontal
+       con la letra negra. */
     var porNombre = {};
     ((site.footer || {}).institutions || []).forEach(function (i) { porNombre[i.name] = i; });
 
@@ -400,13 +400,9 @@ window.MBB = window.MBB || {};
           .filter(Boolean)
           .map(function (i) {
             return (
-              // `plain` marca los logotipos en vertical —símbolo arriba y
-              // letra debajo—, que a la misma altura que uno apaisado salen
-              // con la letra ilegible. Van más altos, igual que en el pie.
-              '<a class="socios__item' + (i.plain ? ' socios__item--alto' : '') +
-                '" href="' + esc(i.href) + '" ' +
+              '<a class="socios__item" href="' + esc(i.href) + '" ' +
                 'target="_blank" rel="noopener" aria-label="' + esc(i.name) + '">' +
-                '<img src="' + esc(i.fileLight || i.file) + '" ' +
+                '<img src="' + esc(i.file) + '" ' +
                   'alt="' + esc(i.name) + '" loading="lazy">' +
               '</a>'
             );

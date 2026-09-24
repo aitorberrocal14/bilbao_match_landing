@@ -631,20 +631,14 @@ p:last-child { margin-bottom: 0; }
   object-fit: contain;
 }
 
-/* Los logotipos en vertical —símbolo encima, letra debajo— necesitan más alto
-   que los apaisados: a 38px su letra se queda en un borrón. El pie hace lo
-   mismo, 86 contra 56. */
-.socios__item--alto img { height: 58px; }
-
-/* Aquí hubo una pastilla oscura detrás del logo organizador, porque el único
-   archivo que había llevaba la letra en blanco. Ya no hace falta: ese logotipo
-   tiene ahora su versión con la letra en negro —`fileLight` en site.js— y va
-   suelto sobre la página como los demás. */
+/* Aquí hubo una pastilla oscura detrás del logo organizador, y una regla que
+   le daba más alto por ir en vertical. Las dos sobran desde que ese logotipo
+   es la versión horizontal con la letra en negro: va suelto sobre la página
+   como los demás, y a la misma altura. */
 
 @media (max-width: 560px) {
   .socios { gap: 1.1rem 1.5rem; }
   .socios__item img { height: 31px; }
-  .socios__item--alto img { height: 47px; }
 }
 
 .hero__media {

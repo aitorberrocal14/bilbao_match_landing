@@ -193,20 +193,28 @@ window.MBB.site = {
     statement:
       'Match Bilbao Bizkaia is organised by the tourism authorities of Bilbao ' +
       'and Bizkaia to connect the destination with the international travel trade.',
-    // Institutional logos. `plain: true` shows the mark directly on the dark
-    // ground; the others sit in a white box, as on the current site.
+    // Institutional logos. Todos van en caja blanca sobre el gris del pie, que
+    // es lo que hace legible cualquier marca con la letra oscura. Un logotipo
+    // dibujado para fondo oscuro puede llevar `plain: true` y se pone directo
+    // sobre el gris, sin caja; ahora mismo no lo usa ninguno.
+    //
+    // Estos mismos logotipos alimentan la fila de la portada: `hero.partners`
+    // los nombra en grupos y de aquí saca el archivo y el enlace.
     institutions: [
-      // `fileLight` es el mismo logotipo con la letra en negro, para donde el
-      // fondo es claro: la portada. El de arriba la lleva en BLANCO porque
-      // está dibujado para este pie, que es gris oscuro, y sobre la portada se
-      // vería el símbolo y debajo nada. Quien no tenga `fileLight` usa su
-      // `file` en los dos sitios, que es lo que pasa con los otros cuatro.
+      // EL MISMO ARCHIVO ARRIBA Y ABAJO, y con caja blanca como los demás.
+      //
+      // Aquí hubo dos versiones y un lío: la del pie llevaba la letra en
+      // blanco —dibujada para este fondo oscuro— y la portada necesitaba otra
+      // con la letra negra. Llegó la horizontal, que es la buena, y lleva la
+      // letra negra: sobre el gris del pie no se leería suelta, así que va en
+      // caja blanca igual que Turespaña, Euskadi y el Gobierno Vasco.
+      //
+      // Con eso sobra el `plain` que llevaba —"va sin caja porque el fondo es
+      // oscuro"— y sobra tener dos archivos. Uno, y el mismo en los dos sitios.
       {
         name: 'Bilbao Bizkaia',
-        file: 'assets/img/brand/bilbao-bizkaia-be-basque.png',
-        fileLight: 'assets/img/brand/bilbao-bizkaia-on-light.png',
-        href: 'https://www.bilbaoturismo.net/',
-        plain: true
+        file: 'assets/img/brand/bilbao-bizkaia-horizontal.png',
+        href: 'https://www.bilbaoturismo.net/'
       },
       { name: 'In cooperation with Spain', file: 'assets/img/brand/spain.png', href: 'https://www.spain.info/en/' },
       // La dirección va sin idioma —wizzair.com a secas y no /es-es— porque
