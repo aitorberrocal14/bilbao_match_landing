@@ -2084,6 +2084,20 @@ p:last-child { margin-bottom: 0; }
 .legal__table th { color: var(--grey-dark); font-weight: 500; }
 .legal__back { margin-top: 3rem; }
 
+/* La tabla de «información básica» de la política de privacidad: dos columnas,
+   etiqueta y contenido, sin cabecera. La otra tabla legal —la de cookies— son
+   tres columnas CON cabecera, y por eso esta necesita su propia variante en vez
+   de reutilizar aquélla tal cual.
+
+   La etiqueta va en <th scope="row">, no en <td>: para quien navega con lector
+   de pantalla, eso es lo que convierte una rejilla de casillas sueltas en pares
+   de «esto es lo que se pregunta / esto es lo que se contesta». Es la misma
+   información que da la negrita a quien ve la página. */
+.legal__table--clause th[scope="row"] {
+  width: 30%;
+  padding-right: 1.25rem;
+}
+
 /* En el móvil una tabla de tres columnas se estruja hasta partir las palabras
    letra a letra. Cada fila pasa a ser un bloque con su etiqueta delante. */
 @media (max-width: 620px) {
@@ -2095,6 +2109,17 @@ p:last-child { margin-bottom: 0; }
   }
   .legal__table td { display: block; border: 0; padding: 0.15rem 0; }
   .legal__table td:first-child { font-weight: 500; color: var(--grey-dark); }
+
+  /* La de dos columnas se apila igual, pero su etiqueta es un <th>, así que
+     la regla de arriba —escrita para <td>— no la alcanza. Y el ancho del 30%
+     hay que soltarlo: a 320 px de pantalla, una columna de 96 px parte
+     «Recipients and international transfers» letra a letra. */
+  .legal__table--clause th[scope="row"] {
+    display: block;
+    width: auto;
+    border: 0;
+    padding: 0.15rem 0;
+  }
 }
 
 /* 18. UTILITIES & MOTION =================================================== */
