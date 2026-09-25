@@ -1455,14 +1455,9 @@ window.MBB = window.MBB || {};
       .map(function (w) { return w[0].toUpperCase(); })
       .join('');
 
-    // `data-dark` lo decide el sync midiendo el archivo, no el navegador: hay
-    // logotipos dibujados para fondo oscuro —letras blancas, fondo
-    // transparente— que sobre una tarjeta blanca desaparecen. Ver
-    // logo_pide_fondo_oscuro() en server/sync.php, donde está el razonamiento.
     var logo = x.logo
       ? '<img src="' + esc(base + x.logo) + '" alt="' + esc(x.name) + '" loading="lazy" ' +
-        'data-fallback="mark" data-initials="' + esc(initials) + '"' +
-        (x.logoDark ? ' data-dark="true"' : '') + '>'
+        'data-fallback="mark" data-initials="' + esc(initials) + '">'
       : '<span class="logo-tile__mark">' + esc(initials) + '</span>';
 
     return (
@@ -1519,7 +1514,7 @@ window.MBB = window.MBB || {};
           '<div>' +
             (x.logo
               ? '<img class="ex-head__logo" src="' + esc(base + x.logo) + '" alt="' +
-                esc(x.name) + ' logo"' + (x.logoDark ? ' data-dark="true"' : '') + '>'
+                esc(x.name) + ' logo">'
               : '<div class="ph" style="aspect-ratio:1/1">[Insert logo]</div>') +
             '<p class="ex-head__cat">' + esc(cat ? cat.label : x.category) + '</p>' +
           '</div>' +

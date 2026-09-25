@@ -1673,25 +1673,6 @@ p:last-child { margin-bottom: 0; }
 }
 /* Logos that carry their own background colour should fill the tile */
 .logo-tile img[data-bleed="true"] { object-fit: cover; }
-
-/* UN LOGOTIPO DE LETRAS BLANCAS NECESITA UNA TARJETA OSCURA.
-   Quién lleva este atributo no lo decide nadie a mano: lo mide el sync sobre
-   el propio archivo. El razonamiento largo está en logo_pide_fondo_oscuro(),
-   en server/sync.php.
-
-   El color es el gris oscuro de la casa y no el rojo de la marca a propósito:
-   el rojo compite con los colores del logotipo que hay encima —el caso que
-   destapó esto es una letra blanca con un semicírculo rojo, que sobre rojo se
-   habría perdido igual—, y un gris neutro no compite con ninguno.
-
-   El relleno es lo que impide que las letras se peguen al borde de la tarjeta:
-   `object-fit: contain` centra la imagen pero la deja llegar hasta el filo, y
-   sobre un fondo de color eso se ve como un recorte mal hecho. */
-.logo-tile img[data-dark="true"] {
-  background: var(--charcoal);
-  padding: 14%;
-}
-
 .logo-tile:hover img { transform: scale(1.04); }
 
 .logo-tile__name {
@@ -1751,9 +1732,6 @@ p:last-child { margin-bottom: 0; }
   margin-bottom: clamp(2rem, 4vw, 3rem);
 }
 .ex-head__logo { width: 100%; aspect-ratio: 1 / 1; object-fit: contain; background: #fff; }
-/* La ficha del expositor, con el mismo criterio que la tarjeta de la rejilla.
-   Va después para que gane al `background: #fff` de la línea de arriba. */
-.ex-head__logo[data-dark="true"] { background: var(--charcoal); padding: 10%; }
 .ex-head__cat {
   text-align: center;
   font-family: var(--font-head);

@@ -392,34 +392,6 @@ file_put_contents($servido . '/marca.pdf', "%PDF-1.4\n1 0 obj\n<< >>\nendobj\n")
 file_put_contents($servido . '/marca.png',
     "\x89PNG\r\n\x1a\n" . str_repeat("\0", 64));
 
-/* DOS LOGOTIPOS DE VERDAD, DIBUJADOS AQUÍ MISMO.
-   La `marca.png` de arriba son ocho bytes de cabecera y sesenta y cuatro
-   ceros: sirve para comprobar que un PNG entra, pero no tiene píxeles que
-   mirar. Para el caso del logotipo blanco hacen falta imágenes que GD sepa
-   abrir de verdad.
-
-   Las dos son idénticas salvo en el color de la tinta, y esa es la gracia:
-   mismo tamaño, misma forma, misma proporción de transparencia. Si la
-   detección se fijara en cualquier otra cosa que no sea el color —el peso del
-   archivo, las dimensiones, el nombre—, las dos darían el mismo resultado y la
-   prueba lo cantaría. */
-$hazLogo = function (string $ruta, int $r, int $g, int $b) {
-    $im = imagecreatetruecolor(200, 200);
-    imagealphablending($im, false);
-    imagesavealpha($im, true);
-    imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
-    // Una barra que ocupa el 18% de la imagen: deja el 82% transparente, que
-    // es lo que tiene un logotipo recortado de verdad.
-    imagefilledrectangle($im, 70, 40, 129, 159, imagecolorallocatealpha($im, $r, $g, $b, 0));
-    imagepng($im, $ruta);
-    imagedestroy($im);
-};
-$hayGd = function_exists('imagecreatetruecolor') && function_exists('imagepng');
-if ($hayGd) {
-    $hazLogo($servido . '/blanca.png', 255, 255, 255);   // para fondo oscuro
-    $hazLogo($servido . '/oscura.png', 25, 25, 25);      // normal
-}
-
 /* EL PUERTO SE PIDE LIBRE, NO SE ELIGE A DEDO.
    Estuvo fijo en el 8731 y se coló un fallo bonito: si una ejecución anterior
    dejaba el servidor vivo, el nuevo no arrancaba, las descargas fallaban... y
@@ -510,50 +482,6 @@ if (!$escucha) {
         strpos($datos, "logo: 'assets/img/exhibitors/turismo-uno.png'") !== false;
     echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y un PNG de verdad sigue entrando\n";
     if (!$bien) { $fallos++; }
-
-    /* UN LOGOTIPO BLANCO SOBRE UNA TARJETA BLANCA NO SE VE.
-       --------------------------------------------------------------------
-       Una empresa subió su logotipo en la versión para fondo oscuro —letras
-       blancas, fondo transparente— y en la web solo se veía el único trozo
-       que no era blanco. El archivo estaba bien; el sitio donde lo poníamos,
-       no.
-
-       Aquí se comprueba que el sync lo detecta solo, porque a mano no se
-       puede: los expositores entran desde la plataforma y después del
-       traspaso no va a haber nadie repasando tarjetas.
-
-       Y se comprueba LAS DOS DIRECCIONES. La primera mitad sola pasaría
-       marcando todos los logotipos, y entonces habríamos cambiado un fallo
-       que afecta a una empresa por otro que afecta a las cuarenta. */
-    if (!$hayGd) {
-        echo "  --     el logotipo para fondo oscuro: sin GD no se puede probar\n";
-    } else {
-        // C. El blanco: se marca.
-        array_map('unlink', glob($logos . '/*') ?: []);
-        $conImgBase('blanca.png');
-        $datos = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
-        $ficha = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
-
-        $bien = strpos($datos, 'logoDark: true') !== false;
-        echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  un logotipo de letras blancas se detecta\n";
-        if (!$bien) { $fallos++; }
-
-        $bien = strpos($ficha, 'data-dark="true"') !== false;
-        echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y su ficha pide el fondo oscuro\n";
-        if (!$bien) { $fallos++; }
-
-        // D. El oscuro: NO se marca. Esta es la mitad que evita el remedio peor
-        //    que la enfermedad.
-        array_map('unlink', glob($logos . '/*') ?: []);
-        $conImgBase('oscura.png');
-        $datos = (string) @file_get_contents($destino . '/assets/js/data/exhibitors.js');
-        $ficha = (string) @file_get_contents($destino . '/exhibitors/turismo-uno.html');
-
-        $bien = strpos($datos, 'logoDark') === false
-            && strpos($ficha, 'data-dark') === false;
-        echo '  ' . ($bien ? 'OK   ' : 'FALLA') . "  y uno normal se queda sobre blanco\n";
-        if (!$bien) { $fallos++; }
-    }
 
     proc_terminate($servidor, 9);
     proc_close($servidor);
