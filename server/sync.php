@@ -815,6 +815,26 @@ function logo_pide_fondo_oscuro($ruta)
     if (!function_exists('imagecreatefromstring')) { return false; }
     if (!is_file($ruta)) { return false; }
 
+    /* PRIMERO EL TAMAÑO, Y SIN ABRIR LA IMAGEN.
+       ----------------------------------------------------------------------
+       Abrir una imagen cuesta cuatro bytes por píxel, y el peso del archivo no
+       avisa: un PNG de 6000x6000 ocupa 103 kB en disco y 122 MB en memoria al
+       descomprimirlo. Uno de 20000x20000 pesaría parecido y se comería más de
+       un giga.
+
+       Eso no sería un logotipo mal puesto: sería el sync entero muriéndose, y
+       con él la actualización de TODOS los expositores. Cambiar una tarjeta
+       fea por un directorio congelado es un mal negocio.
+
+       `getimagesize` lee solo la cabecera —cero memoria— y dice las medidas.
+       Por encima del tope no se mide: se devuelve "no" y el logotipo se
+       publica como se ha publicado siempre. Un logotipo de más de 4000 px de
+       lado no existe en la práctica, y si existiera, quedarse como hoy es un
+       final perfectamente digno. */
+    $medidas = @getimagesize($ruta);
+    if (!$medidas || empty($medidas[0]) || empty($medidas[1])) { return false; }
+    if ($medidas[0] * $medidas[1] > 16000000) { return false; }
+
     $datos = @file_get_contents($ruta);
     if ($datos === false) { return false; }
 
