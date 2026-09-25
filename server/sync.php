@@ -767,6 +767,103 @@ function fetch_logo($url, $slug, $dry)
     return $file;
 }
 
+/* UN LOGOTIPO BLANCO SOBRE UNA TARJETA BLANCA NO SE VE.
+   ---------------------------------------------------------------------------
+   Muchas marcas entregan su logotipo en la versión "para fondo oscuro": las
+   letras en blanco y el fondo transparente. Es un archivo perfectamente
+   correcto, y puesto sobre nuestras tarjetas —que son blancas— desaparece.
+   Queda a la vista lo poco que no sea blanco, que suele ser un detalle de
+   color, y el resultado parece un logotipo roto.
+
+   Pasó con una empresa cuyo logotipo es una "H" blanca con un semicírculo
+   rojo: en la web solo se veía el semicírculo.
+
+   Esto NO se puede arreglar a mano. Los expositores entran solos desde la
+   plataforma, van a ser unos cuarenta, y después del traspaso no va a haber
+   nadie repasando tarjetas una por una. Así que se mide el archivo y se
+   decide solo.
+
+   LA REGLA, y por qué lleva dos condiciones y no una:
+
+     1. Que una parte apreciable de la imagen sea TRANSPARENTE (>= 25%).
+     2. Que de lo que SÍ se ve, la mayoría sea casi blanco (>= 70%).
+
+   La primera condición es la que evita el falso positivo grave. Un logotipo
+   sobre un rectángulo blanco opaco —un JPG normal y corriente— también es
+   casi todo blanco, pero ese blanco es su fondo y sobre nuestra tarjeta se
+   ve perfectamente. Sin la condición de transparencia lo mandaríamos a fondo
+   oscuro y estropearíamos un logotipo que estaba bien.
+
+   Medido contra los logotipos que ya tenemos, la separación es amplia: los
+   que llevan transparencia van del 0% al 19% de blanco visible, y el caso
+   problemático está en el 95%. No hay nada cerca de la frontera.
+
+   LO QUE ESTA REGLA NO PILLA, dicho para que nadie se sorprenda:
+
+     · Los SVG. GD no los sabe leer, así que devuelve "no" y se quedan como
+       están. Si algún día llega un SVG blanco, hay que mirarlo a mano.
+     · Un logotipo solo EN PARTE blanco —una marca de color con el nombre en
+       letras blancas al lado— no llega al 70% y no se marca. Se verá la
+       marca y no el nombre. Es un caso más raro y más difícil de distinguir
+       de un logotipo legítimo.
+     · Si el servidor no tiene la extensión GD, no se mide nada y todo sigue
+       como antes. Se pierde la mejora, no se rompe el sync. */
+function logo_pide_fondo_oscuro($ruta)
+{
+    // Sin GD no hay nada que medir. No es un error: es el comportamiento de
+    // siempre, que era publicar el logotipo tal cual.
+    if (!function_exists('imagecreatefromstring')) { return false; }
+    if (!is_file($ruta)) { return false; }
+
+    $datos = @file_get_contents($ruta);
+    if ($datos === false) { return false; }
+
+    $im = @imagecreatefromstring($datos);
+    if (!$im) { return false; }   // SVG, y cualquier cosa que GD no entienda
+
+    // En una imagen con paleta, imagecolorat() devuelve el ÍNDICE de la paleta,
+    // no el color. Leerlo como si fuera un color da cifras sin sentido —y los
+    // GIF siempre son de paleta—. Se convierte antes de mirar un solo píxel.
+    if (!imageistruecolor($im)) { @imagepalettetotruecolor($im); }
+
+    $w = imagesx($im);
+    $h = imagesy($im);
+    if ($w < 8 || $h < 8) { imagedestroy($im); return false; }
+
+    // Se muestrea, no se recorre entero: un logotipo de 3000 px de lado no
+    // necesita nueve millones de lecturas para decir de qué color es. Con el
+    // lado corto dividido en 120 pasos sobran datos, y un sync de cuarenta
+    // expositores no se va a notar.
+    $paso = max(1, (int) floor(min($w, $h) / 120));
+
+    $opacos = 0;
+    $transparentes = 0;
+    $casi_blancos = 0;
+
+    for ($y = 0; $y < $h; $y += $paso) {
+        for ($x = 0; $x < $w; $x += $paso) {
+            $c = imagecolorat($im, $x, $y);
+            $alfa = ($c >> 24) & 0x7F;         // 0 = opaco, 127 = transparente
+            if ($alfa > 100) { $transparentes++; continue; }
+            $opacos++;
+            // Luminancia percibida: el verde pesa mucho más que el azul porque
+            // el ojo lo ve mucho más. Un gris medio calculado con la media de
+            // los tres canales sale mal en los azules y en los amarillos.
+            $lum = 0.2126 * (($c >> 16) & 0xFF)
+                 + 0.7152 * (($c >> 8) & 0xFF)
+                 + 0.0722 * ($c & 0xFF);
+            if ($lum > 235) { $casi_blancos++; }
+        }
+    }
+    imagedestroy($im);
+
+    $total = $opacos + $transparentes;
+    if ($total === 0 || $opacos === 0) { return false; }
+
+    return ($transparentes / $total) >= 0.25
+        && ($casi_blancos / $opacos) >= 0.70;
+}
+
 /** El logotipo que ya hay para este identificador, con la extensión que sea. */
 function existing_logo($slug)
 {
@@ -792,6 +889,9 @@ function render_data(array $exhibitors, array $categories): string
             '    category: ' . js_quote($x['category']) . ',',
             '    logo: ' . js_quote($x['logo']) . ',',
         ];
+        // Solo se escribe cuando es cierto. Un `logoDark: false` en cada una de
+        // las cuarenta fichas es ruido: la ausencia ya significa "no".
+        if (!empty($x['logoDark'])) { $out[] = '    logoDark: true,'; }
         foreach (['contactName', 'contactRole', 'email', 'phone', 'website', 'websiteLabel', 'address'] as $k) {
             $out[] = '    ' . $k . ': ' . js_quote($x[$k]) . ',';
         }
@@ -909,7 +1009,8 @@ function tile(array $x, string $base): string
 
     $logo = $x['logo']
         ? '<img src="' . esc($base . $x['logo']) . '" alt="' . esc($x['name']) . '" loading="lazy" '
-          . 'data-fallback="mark" data-initials="' . esc($initials) . '">'
+          . 'data-fallback="mark" data-initials="' . esc($initials) . '"'
+          . (!empty($x['logoDark']) ? ' data-dark="true"' : '') . '>'
         : '<span class="logo-tile__mark">' . esc($initials) . '</span>';
 
     $key = search_key($x['name'] . ' ' . ($x['websiteLabel'] ?: $x['website']));
@@ -962,7 +1063,8 @@ function exhibitor_body(array $x, array $categories, array $related, string $bas
         . '<div class="ex-head">'
         . '<div>'
         . ($x['logo']
-            ? '<img class="ex-head__logo" src="' . esc($base . $x['logo']) . '" alt="' . esc($x['name']) . ' logo">'
+            ? '<img class="ex-head__logo" src="' . esc($base . $x['logo']) . '" alt="' . esc($x['name']) . ' logo"'
+              . (!empty($x['logoDark']) ? ' data-dark="true"' : '') . '>'
             : '<div class="ph" style="aspect-ratio:1/1">[Insert logo]</div>')
         . '<p class="ex-head__cat">' . esc($cat ? $cat['label'] : $x['category']) . '</p>'
         . '</div>'
@@ -1621,6 +1723,11 @@ foreach ($visible as $entry) {
         'name'         => $name,
         'category'     => $category,
         'logo'         => $logo ? 'assets/img/exhibitors/' . $logo : '',
+        // Si el archivo está dibujado para fondo oscuro, la tarjeta se oscurece
+        // por debajo. Se decide aquí, una vez por sync, y no en el navegador:
+        // medir píxeles en el navegador obligaría a descargar y examinar cada
+        // logotipo en cada visita, y hasta que terminara se vería el fallo.
+        'logoDark'     => $logo ? logo_pide_fondo_oscuro(MBB_LOGOS . '/' . $logo) : false,
         // Lo escrito a mano manda sobre lo que venga de la plataforma: alguien
         // pudo corregirlo ahí, y una corrección no debe deshacerse sola.
         'contactName'  => $rec['contactName'] ?? ($entry['contact_name'] ?? ''),

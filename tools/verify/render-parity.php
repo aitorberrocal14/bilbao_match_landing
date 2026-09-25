@@ -82,7 +82,13 @@ if (!is_array($chrome) || empty($chrome['icons'])) {
 
    Los casos están elegidos por donde dos motores se separan de verdad: acentos,
    un ampersand, comillas de los dos tipos, un apóstrofo tipográfico, HTML en el
-   texto, campos vacíos, y una empresa sin logotipo ni categoría. */
+   texto, campos vacíos, y una empresa sin logotipo ni categoría.
+
+   Y uno con `logoDark`, que es el único campo que no se escribe como texto sino
+   como un atributo que está o no está. Un booleano es justo donde dos lenguajes
+   se separan sin avisar —lo que PHP y JavaScript consideran "vacío" no es lo
+   mismo—, y aquí se nota el doble: si un motor lo pone y el otro no, la tarjeta
+   se ve bien recién cargada y mal después de sincronizar, o al revés. */
 
 $muestra = [
     [
@@ -98,6 +104,17 @@ $muestra = [
         'websiteLabel' => 'example.org',
         'address' => 'C/ Uribitarte 6, 2ª planta — 48001 Bilbao',
         'paragraphs' => ['Primero, con "comillas" y & ampersand.', 'Segundo, con apóstrofo tipográfico: l’Hôtel.'],
+    ],
+    [
+        'id' => 'prueba-logo-blanco',
+        'name' => 'Logotipo Para Fondo Oscuro SA',
+        'category' => 'accommodation',
+        'logo' => 'assets/img/exhibitors/prueba.png',
+        'logoDark' => true,
+        'contactName' => 'Ane Zabala', 'contactRole' => 'Marketing',
+        'email' => 'ane@example.org', 'phone' => '',
+        'website' => '', 'websiteLabel' => '', 'address' => '',
+        'paragraphs' => ['Una línea cualquiera.'],
     ],
     [
         'id' => 'prueba-minima',
