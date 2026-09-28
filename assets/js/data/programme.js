@@ -84,37 +84,39 @@ window.MBB.programme = {
           tag: 'social'
         },
         {
-          time: '18:15',
+          time: '18:45',
           title: 'Meeting point in the lobby',
           text:
-            'If the forecast is poor, 18:30 for the tram transfer or 18:40 ' +
+            'If the forecast is poor, 19:00 for the tram transfer or 19:10 ' +
             'for the bus.',
           venue: 'Hotel Radisson Bilbao',
           tag: 'destination'
         },
         {
-          time: '19:00',
-          end: '19:30',
+          time: '19:30',
+          end: '20:00',
           title: 'Guided tour of the stadium',
           venue: 'San Mamés',
           tag: 'destination'
         },
         {
-          time: '19:30',
+          time: '20:00',
           title: 'Welcome cocktail',
           venue: 'San Mamés Jatetxea',
           tag: 'social'
         },
         {
-          time: '20:00',
+          time: '20:30',
           title: 'Welcome dinner',
           venue: 'San Mamés Jatetxea',
           tag: 'social',
           feature: true
         },
         {
-          time: '21:40',
-          end: '22:10',
+          // Antes iba con hora de fin (21:40–22:10). El programa nuevo da una
+          // sola hora, así que se deja una sola: inventar el final del traslado
+          // sería decirle a la gente algo que nadie ha confirmado.
+          time: '22:15',
           title: 'Transfer back to the hotel by bus',
           tag: 'destination'
         }
