@@ -101,23 +101,27 @@ window.MBB.programme = {
         },
         {
           time: '20:00',
-          title: 'Welcome cocktail',
+          title: 'Welcome drinks',
           venue: 'San Mamés Jatetxea',
           tag: 'social'
         },
         {
-          time: '20:30',
-          title: 'Welcome dinner',
+          time: '20:35',
+          title: 'Institutional welcome and dinner',
           venue: 'San Mamés Jatetxea',
           tag: 'social',
           feature: true
         },
         {
-          // Antes iba con hora de fin (21:40–22:10). El programa nuevo da una
-          // sola hora, así que se deja una sola: inventar el final del traslado
-          // sería decirle a la gente algo que nadie ha confirmado.
-          time: '22:15',
-          title: 'Transfer back to the hotel by bus',
+          // EL PROGRAMA OFICIAL DA DOS LÍNEAS A LAS 21:45, NO UNA:
+          //   «21:45. End of dinner and walk back»
+          //   «21:45. Return transfer to the hotel by bus»
+          // No son dos cosas seguidas, son dos maneras de volver. Puestas como
+          // dos entradas en la misma hora, cualquiera entiende que una va
+          // después de la otra y se queda esperando el autobús media hora.
+          time: '21:45',
+          title: 'End of dinner',
+          text: 'Walk back to the hotel, or return transfer by bus.',
           tag: 'destination'
         }
       ]
@@ -143,8 +147,8 @@ window.MBB.programme = {
       // pantalla de portátil; sin ellas, cabe. Si se quieren de vuelta, se
       // escriben aquí y lo único que pasa es que hay que bajar un poco.
       summary:
-        'A full day through the coast of Bizkaia, ending in lunch together ' +
-        'at Bodega Berroja (located in the Urdaibai Biosphere Reserve) and ' +
+        'A full day through the coast of Bizkaia, with lunch together at ' +
+        'Bodega Berroja (located in the Urdaibai Biosphere Reserve) and ' +
         'dinner on a rooftop.',
       split: true,
       // Adónde va cada grupo, en una línea. El detalle hora a hora está abajo,
@@ -156,90 +160,90 @@ window.MBB.programme = {
       // es lo que también rotula el selector de la vista detallada. Escrito
       // dos veces, un día dirían cosas distintas.
       routes: [
-        { group: 'g1', text: 'Oma Forest, Gernika & Gaztelugatxe.' },
-        { group: 'g2', text: 'Gaztelugatxe, Bermeo & Urkiola Natural Park.' }
+        { group: 'g1', text: 'Mundaka by boat, Gaztelugatxe from the sea, Bermeo & Gernika.' },
+        { group: 'g2', text: 'Gaztelugatxe viewpoint, Bermeo & Urkiola Natural Park.' }
       ],
+      // LOS DOS ITINERARIOS SE JUNTAN EN BERROJA, y por eso de 13:00 a 14:45
+      // las dos columnas dicen lo mismo a la misma hora. No está duplicado por
+      // descuido: es que a esa hora los dos grupos están en la misma sala.
       slots: [
-        /* Group 1 — Oma Forest, Gernika */
+        /* Group 1 — Mundaka, the sea, Bermeo, Berroja, Gernika */
         { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
-        { group: 'g1', time: '09:15', title: 'Departure from the hotel', tag: 'destination' },
+        { group: 'g1', time: '09:15', title: 'Departure from the hotel by bus', tag: 'destination' },
+        { group: 'g1', time: '10:00', title: 'Arrival in Mundaka', tag: 'destination' },
+        { group: 'g1', time: '10:30', title: 'Boarding at Mundaka', tag: 'destination' },
         {
           group: 'g1',
-          time: '10:15',
-          end: '11:30',
-          title: 'Guided visit to the Oma Forest by 4x4',
-          text: 'The painted forest of Agustín Ibarrola, inside the Urdaibai Biosphere Reserve.',
+          time: '11:15',
+          title: 'San Juan de Gaztelugatxe from the sea',
+          text: 'The hermitage and its causeway seen from the water.',
           tag: 'destination',
           feature: true,
-          // Fuera de la tarjeta del día, no del programa. La tarjeta ya dice
-          // "Group 1: Oma Forest, Gernika & Gaztelugatxe" dos líneas más
-          // arriba, y repetirlo justo debajo hacía que el día pareciera tener
-          // una sola cosa. Sigue entero en "Day by day" y en el calendario.
+          // Fuera de la tarjeta del día, no del programa. La tarjeta ya nombra
+          // la ruta de cada grupo dos líneas más arriba, y repetirlo justo
+          // debajo hacía que el día pareciera tener una sola cosa. Sigue entero
+          // en "Day by day" y en el calendario.
           card: false
         },
-        { group: 'g1', time: '11:45', title: 'Coffee break', venue: 'Lezika', tag: 'social' },
-        { group: 'g1', time: '12:15', title: 'Transfer to Gernika', tag: 'destination' },
-        { group: 'g1', time: '12:30', title: 'Arrival in Gernika and visit to the town', tag: 'destination' },
-        { group: 'g1', time: '13:15', title: 'Peace Museum', venue: 'Gernika', tag: 'destination' },
-        { group: 'g1', time: '13:45', title: 'Departure for Bodega Berroja', tag: 'destination' },
+        { group: 'g1', time: '12:00', title: 'Arrival in Bermeo: the fronton and a coffee break', tag: 'social' },
+        { group: 'g1', time: '12:30', title: 'Departure for Berroja', tag: 'destination' },
+        { group: 'g1', time: '13:00', title: 'Joint official welcome', venue: 'Bodega Berroja', tag: 'destination' },
+        { group: 'g1', time: '13:05', end: '13:20', title: 'Traditional Basque sports show', venue: 'Bodega Berroja', tag: 'social' },
+        { group: 'g1', time: '13:30', title: 'Into the dining room, touring the winery on the way', tag: 'destination' },
         {
           group: 'g1',
-          time: '14:00',
-          end: '15:45',
-          title: 'Lunch, wine tasting and herri kirolak exhibition',
-          text: 'Basque rural sports, shown by the athletes who compete in them.',
+          time: '13:45',
+          end: '14:45',
+          title: '‘Urdaibaiko Esentziak’ experience',
+          text: 'Lunch and tasting at the winery, in the Urdaibai Biosphere Reserve.',
           venue: 'Bodega Berroja',
           tag: 'social',
           feature: true
         },
-        { group: 'g1', time: '16:45', title: 'Stop at the San Juan de Gaztelugatxe viewpoint', tag: 'destination' },
-        { group: 'g1', time: '17:30', title: 'Return to Bilbao', tag: 'destination' },
-        { group: 'g1', time: '18:15', title: 'Arrival at the hotel and free time', tag: 'social' },
+        { group: 'g1', time: '15:00', title: 'Departure for Gernika', tag: 'destination' },
+        { group: 'g1', time: '15:15', title: 'The Peace Museum, the Park and the Town Hall', venue: 'Gernika', tag: 'destination' },
+        { group: 'g1', time: '16:30', title: 'Departure for Bilbao', tag: 'destination' },
+        { group: 'g1', time: '17:15', title: 'Arrival at the hotel and free time', tag: 'social' },
         { group: 'g1', time: '19:30', title: 'Meet the guide for the transfer to the rooftop', tag: 'destination' },
         { group: 'g1', time: '20:00', title: 'Dinner', venue: 'Ercilla rooftop', tag: 'social', feature: true },
+        { group: 'g1', time: '21:30', title: 'Return to the hotel', tag: 'destination' },
 
-        /* Group 2 — Gaztelugatxe, Bermeo, Urkiola */
+        /* Group 2 — Gaztelugatxe, Bermeo, Berroja, Urkiola */
         { group: 'g2', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
-        { group: 'g2', time: '09:15', title: 'Departure from the hotel', tag: 'destination' },
+        { group: 'g2', time: '09:15', title: 'Departure from the hotel by minibus', tag: 'destination' },
         {
           group: 'g2',
           time: '10:15',
-          end: '11:30',
-          title: 'San Juan de Gaztelugatxe: the climb to the hermitage',
-          text: 'The 241 steps out along the causeway and up to the chapel.',
+          title: 'San Juan de Gaztelugatxe from the viewpoint',
+          text: 'A stop to see the hermitage and its causeway from above.',
           tag: 'destination',
-          feature: true
+          feature: true,
+          card: false
         },
-        { group: 'g2', time: '11:45', title: 'Departure for Bermeo', tag: 'destination' },
+        { group: 'g2', time: '10:30', title: 'Coffee and a jai alai exhibition at the Bermeo fronton', tag: 'social' },
+        { group: 'g2', time: '11:15', title: 'A stroll through Bermeo and the fishermen’s museum', tag: 'destination' },
+        { group: 'g2', time: '12:00', title: 'Departure for Berroja', tag: 'destination' },
+        { group: 'g2', time: '12:30', title: 'Arrival at Bodega Berroja: reception and views', tag: 'destination' },
+        { group: 'g2', time: '13:00', title: 'Joint official welcome', venue: 'Bodega Berroja', tag: 'destination' },
+        { group: 'g2', time: '13:05', end: '13:20', title: 'Traditional Basque sports show', venue: 'Bodega Berroja', tag: 'social' },
+        { group: 'g2', time: '13:30', title: 'Into the dining room, touring the winery on the way', tag: 'destination' },
         {
           group: 'g2',
-          time: '12:00',
-          end: '13:00',
-          title: 'Bermeo and Conservas Arroyabe',
-          text: 'A walk through the fishing town and a visit to the cannery.',
-          tag: 'destination'
-        },
-        { group: 'g2', time: '13:30', title: 'Arrival at Bodega Berroja', tag: 'destination' },
-        {
-          group: 'g2',
-          time: '14:00',
-          end: '15:45',
-          title: 'Lunch, wine tasting and herri kirolak exhibition',
-          text: 'Basque rural sports, shown by the athletes who compete in them.',
+          time: '13:45',
+          end: '14:45',
+          title: '‘Urdaibaiko Esentziak’ experience',
+          text: 'Lunch and tasting at the winery, in the Urdaibai Biosphere Reserve.',
           venue: 'Bodega Berroja',
           tag: 'social',
           feature: true
         },
-        {
-          group: 'g2',
-          time: '16:45',
-          title: 'Urkiola: the sanctuary and the Tres Cruces viewpoint',
-          tag: 'destination'
-        },
-        { group: 'g2', time: '17:15', title: 'Return to Bilbao', tag: 'destination' },
-        { group: 'g2', time: '18:15', title: 'Arrival at the hotel and free time', tag: 'social' },
+        { group: 'g2', time: '15:00', title: 'Departure for Urkiola', tag: 'destination' },
+        { group: 'g2', time: '15:50', title: 'The sanctuary and the Tres Cruces viewpoint', venue: 'Urkiola', tag: 'destination' },
+        { group: 'g2', time: '16:30', title: 'Departure for Bilbao', tag: 'destination' },
+        { group: 'g2', time: '17:15', title: 'Arrival at the hotel and free time', tag: 'social' },
         { group: 'g2', time: '19:30', title: 'Meet the guide for the transfer to the rooftop', tag: 'destination' },
-        { group: 'g2', time: '20:00', title: 'Dinner', venue: 'The Artist rooftop', tag: 'social', feature: true }
+        { group: 'g2', time: '20:00', title: 'Dinner', venue: 'The Artist rooftop', tag: 'social', feature: true },
+        { group: 'g2', time: '21:30', title: 'Return to the hotel', tag: 'destination' }
       ]
     },
 
@@ -274,7 +278,12 @@ window.MBB.programme = {
         },
         { time: '13:00', title: 'Welcome at Muka: gilda and txakoli', venue: 'Muka', tag: 'social' },
         { time: '13:20', title: 'Lunch', venue: 'Muka', tag: 'social' },
-        { time: '15:00', title: 'Walk to Avenida Navarra for departure', tag: 'destination' },
+        {
+          time: '15:00',
+          title: 'Walk to Avenida Navarra',
+          text: 'The Gros seafront, GOe and the Basque Culinary Centre on the way.',
+          tag: 'destination'
+        },
         { time: '15:15', title: 'Departure for Bilbao', tag: 'destination' },
         { time: '16:30', title: 'Arrival at the hotel', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
         { time: '17:45', title: 'Meeting point in the lobby', tag: 'destination' },
@@ -294,7 +303,7 @@ window.MBB.programme = {
           tag: 'social',
           feature: true
         },
-        { time: '22:00', end: '22:30', title: 'Return to the hotel', tag: 'destination' }
+        { time: '22:00', title: 'Return to the hotel', tag: 'destination' }
       ]
     },
 
@@ -314,15 +323,32 @@ window.MBB.programme = {
         { time: '08:30', title: 'Arrival, accreditations and table allocation', venue: 'Iberdrola Tower', tag: 'meetings' },
         { time: '08:45', title: 'Institutional intervention', venue: 'Iberdrola Tower', tag: 'meetings' },
         {
+          // EL WORKSHOP VA PARTIDO EN DOS, con pausa de café en medio. Estuvo
+          // como un bloque único de 09:10 a 13:00, y eso deja fuera lo único
+          // que alguien necesita saber mirando el reloj a media mañana: que a
+          // las 11:00 hay veinte minutos de descanso.
+          //
+          // El título de este primer tramo no dice "primera parte" porque es
+          // el que sale en la tarjeta del resumen, donde "B2B workshop" a
+          // secas es lo correcto. El detalle lo lleva el texto.
           time: '09:10',
-          end: '13:00',
+          end: '11:00',
           title: 'B2B workshop',
           text:
             'The working session of the event: pre-scheduled appointments ' +
-            'between international buyers and the exhibitors of the destination.',
+            'between international buyers and the exhibitors of the ' +
+            'destination. It runs in two parts, with a coffee break at 11:00.',
           venue: 'Iberdrola Tower',
           tag: 'meetings',
           feature: true
+        },
+        { time: '11:00', end: '11:20', title: 'Coffee break', venue: 'Iberdrola Tower', tag: 'social' },
+        {
+          time: '11:20',
+          end: '13:00',
+          title: 'B2B workshop, second part',
+          venue: 'Iberdrola Tower',
+          tag: 'meetings'
         },
         { time: '13:00', title: 'Transfer to the Old Town by tram, through Abandoibarra', tag: 'destination' },
         {
@@ -350,7 +376,7 @@ window.MBB.programme = {
           tag: 'social',
           feature: true
         },
-        { time: '22:45', end: '23:15', title: 'Return to the hotel', tag: 'destination' }
+        { time: '22:45', title: 'Return to the hotel', tag: 'destination' }
       ]
     },
 

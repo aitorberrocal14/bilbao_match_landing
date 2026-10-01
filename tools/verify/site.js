@@ -1074,7 +1074,19 @@ function check(etiqueta, ok, detalle) {
   // ese día, que valía mientras la apertura era a las 00:01 y a esa hora ya
   // estaba abierta. Ahora las 09:00 caen del otro lado.
   const ABRE = '2026-09-29T12:30:00+02:00';
-  const hoy = await cabecera(null, 1280);
+
+  // LAS DOS FECHAS SE PONEN A MANO, también la de "cerrada".
+  //
+  // Antes se leía `cabecera(null, …)`, o sea el reloj de verdad, y eso valía
+  // mientras la fecha real cayera antes del 29. Desde que pasó, "cerrada"
+  // devolvía la cabecera ABIERTA: las dos mitades de la comparación daban lo
+  // mismo y la prueba fallaba sin que nada estuviera roto.
+  //
+  // Una prueba cuyo resultado depende del día en que se ejecuta no es una
+  // prueba, es un calendario. Con las dos fechas escritas, esto sigue
+  // comprobando lo mismo en 2027.
+  const ANTES = '2026-09-28T10:00:00+02:00';
+  const hoy = await cabecera(ANTES, 1280);
   const luego = await cabecera(ABRE, 1280);
 
   check('cerrada, el Login es el botón rojo',
@@ -1205,129 +1217,164 @@ function check(etiqueta, ok, detalle) {
   // LLEVAN A ALGÚN SITIO desde la página en la que están.
   console.log('\n--- la página de aviso (platform.html) ---');
 
-  const aviso = await navegador.newPage({ viewport: { width: 1280, height: 1000 } });
-  const erroresAviso = [];
-  aviso.on('pageerror', (e) => erroresAviso.push(String(e)));
-  await aviso.goto('file://' + path.join(ROOT, 'platform.html'));
-  await aviso.waitForTimeout(600);
+  /* ESTA PÁGINA TIENE DOS VIDAS, Y DESPUÉS DE LA APERTURA SOLO EXISTE LA
+     SEGUNDA.
+     ------------------------------------------------------------------------
+     Antes del día que abre la plataforma, platform.html es un cartel que dice
+     "todavía no". Desde que abre, se aparta sola hacia Meetmaps, así que para
+     cuando esta prueba le pregunta algo ya no hay ni página ni `window.MBB`.
 
-  // Lo primero y lo más importante de esta página: que se lea SIN JavaScript.
-  // Es la página a la que mandamos a todo el que pulsa "Login", así que no
-  // puede depender de que tres archivos lleguen y se ejecuten para enseñar un
-  // párrafo. Se abre con el script desactivado y tiene que decir lo mismo.
-  const mudo = await navegador.newContext({ javaScriptEnabled: false });
-  const sinJs = await mudo.newPage();
-  await sinJs.goto('file://' + path.join(ROOT, 'platform.html'));
-  const crudo = await sinJs.evaluate(() => {
-    const g = document.querySelector('[data-gate]');
-    const enlaces = g ? [...g.querySelectorAll('a')].map((a) => a.getAttribute('href')) : [];
-    return { texto: (g ? g.textContent : '').replace(/\s+/g, ' ').trim(), enlaces };
-  });
-  await mudo.close();
+     Sin esta condición, la suite ENTERA se caía —no fallaba una comprobación:
+     se caía con un TypeError— a partir del 29 de septiembre. Una prueba que
+     deja de ejecutarse justo cuando el proyecto entra en producción es peor
+     que no tenerla: se deja de ejecutar el día que empieza a hacer falta.
 
-  // La fecha que lee la gente y la que manda a los botones tienen que ser la
-  // misma. Si alguien cambia `opensAt` y se olvida del texto —o al revés— la
-  // web diría un día y se abriría otro, y nadie se enteraría hasta ese día.
-  const dia = await aviso.evaluate(() => window.MBB.platformOpensOn(window.MBB.site));
-  const completa = await aviso.evaluate(() => window.MBB.platformOpensFull(window.MBB.site));
+     No se pierde cobertura. Los dos estados de esta página se comprueban más
+     abajo con el reloj falseado —la víspera, la mañana del 29, las 12:00 en
+     punto y semanas después—, que además es la única forma de comprobar los
+     dos el mismo día. */
+  const abierta = (() => {
+    const vm = require('vm');
+    const caja = { window: {}, Date };
+    caja.globalThis = caja;
+    vm.createContext(caja);
+    vm.runInContext(
+      require('fs').readFileSync(path.join(ROOT, 'assets/js/data/site.js'), 'utf8'),
+      caja
+    );
+    const cuando = ((caja.window.MBB.site || {}).login || {}).opensAt;
+    return cuando ? Date.now() >= new Date(cuando).getTime() : false;
+  })();
 
-  // El aviso llegó a ser dos párrafos largos y se midió por su longitud: más
-  // de 200 caracteres significaba que el texto estaba escrito en el HTML y no
-  // lo dibujaba el script. Ahora son un titular y dos botones —lo demás
-  // repetía lo que ya decían ellos—, así que contar letras ya no dice nada.
-  // Se comprueba lo que de verdad importa: que sin JavaScript se lea QUÉ pasa
-  // y CUÁNDO, que es a lo que viene quien pulsa Login y aterriza aquí.
-  check('el aviso se lee sin JavaScript',
-    /platform opens/i.test(crudo.texto) && crudo.texto.indexOf(dia) > -1,
-    crudo.texto.slice(0, 70) + '…');
-  // Y esa fecha tiene que salir de la misma que usan los botones. Si alguien
-  // cambia `opensAt` y se olvida del texto —o al revés— la web diría un día y
-  // se abriría otro, y nadie se enteraría hasta ese día. Esto falla aquí, en
-  // el banco de pruebas, y no el 29 por la mañana delante de la gente.
-  //
-  // Se mira solo "29 September", la forma corta del titular. La larga
-  // —"Tuesday 29 September 2026"— estaba en un párrafo que ya no existe;
-  // `platformOpensFull` sigue ahí para quien la necesite.
-  //
-  // La hora no se comprueba porque no se escribe: la página dice el día y
-  // nada más, aunque `opensAt` lleve las 00:01 para saber cuándo cambiar.
-  check('el texto escrito dice la misma fecha que site.js',
-    crudo.texto.indexOf(dia) > -1,
-    crudo.texto.indexOf(dia) > -1 ? dia + ' (de ' + completa.fecha + ')'
-      : 'falta en platform.html: ' + dia);
+  if (abierta) {
+    console.log('  --     la plataforma ya ha abierto: esta página se aparta sola');
+    console.log('         hacia Meetmaps, así que aquí no hay nada que leer. Sus dos');
+    console.log('         estados se comprueban con el reloj falseado, más abajo.');
+  } else {
+    const aviso = await navegador.newPage({ viewport: { width: 1280, height: 1000 } });
+    const erroresAviso = [];
+    aviso.on('pageerror', (e) => erroresAviso.push(String(e)));
+    await aviso.goto('file://' + path.join(ROOT, 'platform.html'));
+    await aviso.waitForTimeout(600);
 
-  // Y NO ANUNCIA LA HORA, a propósito. `opensAt` la lleva —las 12:00 del día
-  // 29— porque el cambio tiene que ocurrir en un instante concreto, pero esta
-  // página dice el día y nada más: la hora la avisa la organización por correo
-  // a quien está inscrito.
-  //
-  // Se comprueba porque es una decisión, no una casualidad: si alguien la
-  // escribe aquí pensando que ayuda, conviene que salte y se hable, en vez de
-  // que la web y el correo digan cosas distintas.
-  check('el aviso no anuncia una hora', !/\d{1,2}:\d{2}/.test(crudo.texto),
-    (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);
-  check('sin JavaScript, el alta y la vuelta siguen a mano',
-    crudo.enlaces.some((h) => /registration/.test(h)) &&
-    crudo.enlaces.some((h) => /^\.\/$/.test(h)), crudo.enlaces.join(' '));
+    // Lo primero y lo más importante de esta página: que se lea SIN JavaScript.
+    // Es la página a la que mandamos a todo el que pulsa "Login", así que no
+    // puede depender de que tres archivos lleguen y se ejecuten para enseñar un
+    // párrafo. Se abre con el script desactivado y tiene que decir lo mismo.
+    const mudo = await navegador.newContext({ javaScriptEnabled: false });
+    const sinJs = await mudo.newPage();
+    await sinJs.goto('file://' + path.join(ROOT, 'platform.html'));
+    const crudo = await sinJs.evaluate(() => {
+      const g = document.querySelector('[data-gate]');
+      const enlaces = g ? [...g.querySelectorAll('a')].map((a) => a.getAttribute('href')) : [];
+      return { texto: (g ? g.textContent : '').replace(/\s+/g, ' ').trim(), enlaces };
+    });
+    await mudo.close();
 
-  const p = await aviso.evaluate(() => {
-    const internos = [...document.querySelectorAll('.header a, .footer a')]
-      .map((a) => ({ t: (a.textContent || '').trim(), h: a.getAttribute('href') || '' }))
-      .filter((a) => a.h && !/^(mailto|tel|https?):/.test(a.h));
-    return {
-      montada: !!document.querySelector('.gate'),
-      cabecera: !!document.querySelector('.header__brand'),
-      pie: !!document.querySelector('.footer'),
-      // Un ancla que no encuentra su sección en ESTA página no lleva a ninguna
-      // parte. Los legales todavía son marcadores y se cuentan aparte.
-      sinDestino: internos.filter(
-        (a) => a.h.charAt(0) === '#' &&
-          !/^#legal-/.test(a.h) &&
-          !document.getElementById(a.h.slice(1))
-      ),
-      aPortada: internos.filter((a) => /^\.\/#/.test(a.h)).length,
-      // Y el Login, estando ya en la página de aviso, no puede llevar aquí
-      // mismo: sería pulsar y que no pase nada.
-      loginACasa: [...document.querySelectorAll('a[data-login]')]
-        .filter((a) => /platform\.html$/.test(a.getAttribute('href') || '')).length,
-      // El alta ya no está en la cabecera de ninguna página. Aquí lo que tiene
-      // que estar es el botón grande del cuerpo, "Create your profile", que
-      // es el motivo de que esta página exista: quien pulsa Login antes del 29
-      // llega aquí, no puede entrar todavía, y lo que puede hacer es darse de
-      // alta. Va escrito en el HTML, así que se lee sin JavaScript.
-      alta: [...document.querySelectorAll('[data-gate] a')]
-        .map((a) => a.getAttribute('href'))
-        .filter((h) => /registration/.test(h || '')),
-      // Los cuatro pasos de "cómo funciona", que ahora viven aquí. Van
-      // DESPUÉS del aviso: lo primero es que la plataforma todavía no abre,
-      // y esto es la respuesta a la pregunta que deja esa frase.
-      pasos: document.querySelectorAll('#how .step').length,
-      pasosTitular: (document.querySelector('#how h2') || {}).textContent || '',
-      pasosDebajo: (() => {
-        const g = document.querySelector('[data-gate]');
-        const h = document.querySelector('#how');
-        return !!(g && h && g.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
-      })()
-    };
-  });
+    // La fecha que lee la gente y la que manda a los botones tienen que ser la
+    // misma. Si alguien cambia `opensAt` y se olvida del texto —o al revés— la
+    // web diría un día y se abriría otro, y nadie se enteraría hasta ese día.
+    const dia = await aviso.evaluate(() => window.MBB.platformOpensOn(window.MBB.site));
+    const completa = await aviso.evaluate(() => window.MBB.platformOpensFull(window.MBB.site));
 
-  check('la página de aviso se monta', p.montada && p.cabecera && p.pie);
-  check('ningún enlace del menú se queda sin destino',
-    p.sinDestino.length === 0, JSON.stringify(p.sinDestino));
-  check('el menú lleva de vuelta a la portada', p.aPortada > 0, p.aPortada + ' enlaces');
-  check('el Login no se apunta a sí mismo', p.loginACasa === 0, p.loginACasa);
-  check('el alta sigue a mano en el cuerpo de la página',
-    p.alta.length > 0 && /registration/.test(p.alta[0] || ''), p.alta.join(' '));
-  // "CÓMO FUNCIONA" SE MUDÓ AQUÍ, y esta página solo cargaba site.js. Si
-  // alguien quita el <script> de content.js, el bloque no revienta la página
-  // —cada sección se dibuja en su try/catch— sino que desaparece en silencio,
-  // que es peor. Por eso se cuentan los pasos y se lee el titular.
-  check('los cuatro pasos de "cómo funciona" están aquí', p.pasos === 4,
-    p.pasos + ' paso(s) · «' + p.pasosTitular + '»');
-  check('  y van después del aviso, no delante', p.pasosDebajo);
-  check('sin errores de JavaScript', erroresAviso.length === 0, erroresAviso.join(' | '));
+    // El aviso llegó a ser dos párrafos largos y se midió por su longitud: más
+    // de 200 caracteres significaba que el texto estaba escrito en el HTML y no
+    // lo dibujaba el script. Ahora son un titular y dos botones —lo demás
+    // repetía lo que ya decían ellos—, así que contar letras ya no dice nada.
+    // Se comprueba lo que de verdad importa: que sin JavaScript se lea QUÉ pasa
+    // y CUÁNDO, que es a lo que viene quien pulsa Login y aterriza aquí.
+    check('el aviso se lee sin JavaScript',
+      /platform opens/i.test(crudo.texto) && crudo.texto.indexOf(dia) > -1,
+      crudo.texto.slice(0, 70) + '…');
+    // Y esa fecha tiene que salir de la misma que usan los botones. Si alguien
+    // cambia `opensAt` y se olvida del texto —o al revés— la web diría un día y
+    // se abriría otro, y nadie se enteraría hasta ese día. Esto falla aquí, en
+    // el banco de pruebas, y no el 29 por la mañana delante de la gente.
+    //
+    // Se mira solo "29 September", la forma corta del titular. La larga
+    // —"Tuesday 29 September 2026"— estaba en un párrafo que ya no existe;
+    // `platformOpensFull` sigue ahí para quien la necesite.
+    //
+    // La hora no se comprueba porque no se escribe: la página dice el día y
+    // nada más, aunque `opensAt` lleve las 00:01 para saber cuándo cambiar.
+    check('el texto escrito dice la misma fecha que site.js',
+      crudo.texto.indexOf(dia) > -1,
+      crudo.texto.indexOf(dia) > -1 ? dia + ' (de ' + completa.fecha + ')'
+        : 'falta en platform.html: ' + dia);
 
-  await aviso.close();
+    // Y NO ANUNCIA LA HORA, a propósito. `opensAt` la lleva —las 12:00 del día
+    // 29— porque el cambio tiene que ocurrir en un instante concreto, pero esta
+    // página dice el día y nada más: la hora la avisa la organización por correo
+    // a quien está inscrito.
+    //
+    // Se comprueba porque es una decisión, no una casualidad: si alguien la
+    // escribe aquí pensando que ayuda, conviene que salte y se hable, en vez de
+    // que la web y el correo digan cosas distintas.
+    check('el aviso no anuncia una hora', !/\d{1,2}:\d{2}/.test(crudo.texto),
+      (crudo.texto.match(/\d{1,2}:\d{2}/) || ['sin hora'])[0]);
+    check('sin JavaScript, el alta y la vuelta siguen a mano',
+      crudo.enlaces.some((h) => /registration/.test(h)) &&
+      crudo.enlaces.some((h) => /^\.\/$/.test(h)), crudo.enlaces.join(' '));
+
+    const p = await aviso.evaluate(() => {
+      const internos = [...document.querySelectorAll('.header a, .footer a')]
+        .map((a) => ({ t: (a.textContent || '').trim(), h: a.getAttribute('href') || '' }))
+        .filter((a) => a.h && !/^(mailto|tel|https?):/.test(a.h));
+      return {
+        montada: !!document.querySelector('.gate'),
+        cabecera: !!document.querySelector('.header__brand'),
+        pie: !!document.querySelector('.footer'),
+        // Un ancla que no encuentra su sección en ESTA página no lleva a ninguna
+        // parte. Los legales todavía son marcadores y se cuentan aparte.
+        sinDestino: internos.filter(
+          (a) => a.h.charAt(0) === '#' &&
+            !/^#legal-/.test(a.h) &&
+            !document.getElementById(a.h.slice(1))
+        ),
+        aPortada: internos.filter((a) => /^\.\/#/.test(a.h)).length,
+        // Y el Login, estando ya en la página de aviso, no puede llevar aquí
+        // mismo: sería pulsar y que no pase nada.
+        loginACasa: [...document.querySelectorAll('a[data-login]')]
+          .filter((a) => /platform\.html$/.test(a.getAttribute('href') || '')).length,
+        // El alta ya no está en la cabecera de ninguna página. Aquí lo que tiene
+        // que estar es el botón grande del cuerpo, "Create your profile", que
+        // es el motivo de que esta página exista: quien pulsa Login antes del 29
+        // llega aquí, no puede entrar todavía, y lo que puede hacer es darse de
+        // alta. Va escrito en el HTML, así que se lee sin JavaScript.
+        alta: [...document.querySelectorAll('[data-gate] a')]
+          .map((a) => a.getAttribute('href'))
+          .filter((h) => /registration/.test(h || '')),
+        // Los cuatro pasos de "cómo funciona", que ahora viven aquí. Van
+        // DESPUÉS del aviso: lo primero es que la plataforma todavía no abre,
+        // y esto es la respuesta a la pregunta que deja esa frase.
+        pasos: document.querySelectorAll('#how .step').length,
+        pasosTitular: (document.querySelector('#how h2') || {}).textContent || '',
+        pasosDebajo: (() => {
+          const g = document.querySelector('[data-gate]');
+          const h = document.querySelector('#how');
+          return !!(g && h && g.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+        })()
+      };
+    });
+
+    check('la página de aviso se monta', p.montada && p.cabecera && p.pie);
+    check('ningún enlace del menú se queda sin destino',
+      p.sinDestino.length === 0, JSON.stringify(p.sinDestino));
+    check('el menú lleva de vuelta a la portada', p.aPortada > 0, p.aPortada + ' enlaces');
+    check('el Login no se apunta a sí mismo', p.loginACasa === 0, p.loginACasa);
+    check('el alta sigue a mano en el cuerpo de la página',
+      p.alta.length > 0 && /registration/.test(p.alta[0] || ''), p.alta.join(' '));
+    // "CÓMO FUNCIONA" SE MUDÓ AQUÍ, y esta página solo cargaba site.js. Si
+    // alguien quita el <script> de content.js, el bloque no revienta la página
+    // —cada sección se dibuja en su try/catch— sino que desaparece en silencio,
+    // que es peor. Por eso se cuentan los pasos y se lee el titular.
+    check('los cuatro pasos de "cómo funciona" están aquí', p.pasos === 4,
+      p.pasos + ' paso(s) · «' + p.pasosTitular + '»');
+    check('  y van después del aviso, no delante', p.pasosDebajo);
+    check('sin errores de JavaScript', erroresAviso.length === 0, erroresAviso.join(' | '));
+
+    await aviso.close();
+  }
 
   /* --- Las cuatro páginas legales ------------------------------------------ */
   // Son las que alguien busca cuando hay una reclamación, así que son las
