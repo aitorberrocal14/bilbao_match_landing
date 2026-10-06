@@ -51,9 +51,20 @@ window.MBB.programme = {
   note: '',
 
   // The two itineraries of Wednesday 7. Both groups stay in the same hotel.
+  //
+  // LOS NOMBRES SON LOS DEL EVENTO, y dicen algo: «ura» es agua y «lurra» es
+  // tierra en euskera. Le van a cada ruta — Ura sale a navegar desde Mundaka y
+  // ve Gaztelugatxe desde el mar; Lurra se queda en tierra, con el mirador y
+  // Urkiola.
+  //
+  // El rótulo se escribe AQUÍ Y SOLO AQUÍ. De esta lista salen el selector de
+  // la vista día a día y el prefijo de cada ruta en la tarjeta del día, así
+  // que cambiarlo en esta línea lo cambia en todas partes. Si algún día se
+  // escribiera también en el texto de `routes`, los dos sitios acabarían
+  // diciendo cosas distintas.
   groups: [
-    { id: 'g1', label: 'Group 1' },
-    { id: 'g2', label: 'Group 2' }
+    { id: 'g1', label: 'Ura' },
+    { id: 'g2', label: 'Lurra' }
   ],
 
   days: [
@@ -167,7 +178,7 @@ window.MBB.programme = {
       // las dos columnas dicen lo mismo a la misma hora. No está duplicado por
       // descuido: es que a esa hora los dos grupos están en la misma sala.
       slots: [
-        /* Group 1 — Mundaka, the sea, Bermeo, Berroja, Gernika */
+        /* Ura — Mundaka, the sea, Bermeo, Berroja, Gernika */
         { group: 'g1', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
         { group: 'g1', time: '09:15', title: 'Departure from the hotel by bus', tag: 'destination' },
         { group: 'g1', time: '10:00', title: 'Arrival in Mundaka', tag: 'destination' },
@@ -208,7 +219,7 @@ window.MBB.programme = {
         { group: 'g1', time: '20:00', title: 'Dinner', venue: 'Ercilla rooftop', tag: 'social', feature: true },
         { group: 'g1', time: '21:30', title: 'Return to the hotel', tag: 'destination' },
 
-        /* Group 2 — Gaztelugatxe, Bermeo, Berroja, Urkiola */
+        /* Lurra — Gaztelugatxe, Bermeo, Berroja, Urkiola */
         { group: 'g2', time: '09:00', title: 'Guide and minibus presentation', venue: 'Hotel Radisson Bilbao', tag: 'destination' },
         { group: 'g2', time: '09:15', title: 'Departure from the hotel by minibus', tag: 'destination' },
         {

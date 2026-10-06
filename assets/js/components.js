@@ -937,7 +937,7 @@ window.MBB = window.MBB || {};
     /**
      * Adónde va cada grupo, en un día que se parte en dos.
      *
-     * El rótulo ("Group 1") no está escrito en el texto de la ruta: se busca
+     * El rótulo ("Ura", "Lurra") no se escribe en el texto de la ruta: se busca
      * en `programme.groups`, que es lo mismo que rotula el selector de la
      * vista detallada. Así, el día que alguien renombre los grupos —"Route A"
      * y "Route B", pongamos— cambian los dos sitios a la vez y no queda una
